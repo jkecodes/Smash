@@ -495,8 +495,9 @@ function resolveHits() {
   }
 }
 
-// ---------------------------------------------------------------- 大招球（Smash Ball）
-let ballTimer = 4
+// ---------------------------------------------------------------- 大招球（Smash Ball，參照《大亂鬥 特別版》機制）
+let ballTimer = 0
+let ballCooldown = 0
 function hitBallIfOverlap(att: FighterState, src: HitSource, center: Vec3, r: number): boolean {
   const b = runtime.ball
   if (!b || src.hitSet.has('ball')) return false
@@ -518,7 +519,8 @@ function hitBallIfOverlap(att: FighterState, src: HitSource, center: Vec3, r: nu
     sfx('ballBreak'); setTimeout(() => sfx('ultReady'), 450)
     rumble(att.id, 1, 350)
     runtime.ball = null
-    ballTimer = 15
+    ballCooldown = 80
+    ballTimer = 6 + Math.random() * 4
   }
   return true
 }
@@ -526,13 +528,31 @@ function updateBall(dt: number) {
   const b = runtime.ball
   const stage = getStage()
   if (!b) {
+    // 1. 開局前 15 秒（900 幀）絕對不會出現大招球
+    if (runtime.stageTime < 15) return
+    // 2. 場上出現過大招球後進入 80 秒冷卻鎖定期；若已有玩家持有大招資格也不重複生成
+    if (ballCooldown > 0) { ballCooldown = Math.max(0, ballCooldown - dt); return }
+    const ids = getActiveFighterIds()
+    const fs = store().fighters
+    if (ids.some((id) => fs[id]?.ultReady)) return
     ballTimer -= dt
     if (ballTimer <= 0) {
+      // 3. 抽籤間隔（5.0～8.3 秒）
+      ballTimer = 5 + Math.random() * 3.3
+      // 4. 開局漸進機率：15s 後從 0% 於 111 秒內線性升至基礎上限 10%
+      const ramp = Math.min(1, Math.max(0, (runtime.stageTime - 15) / 111))
+      // 5. 戰況差距補償：命數落後 3 條以上時倍率最高達 2.55 倍
+      const aliveStocks = ids.map((id) => fs[id]?.stocks ?? 0).filter((s) => s > 0)
+      const stockGap = aliveStocks.length >= 2 ? Math.max(...aliveStocks) - Math.min(...aliveStocks) : 0
+      const underdogMult = 1 + Math.min(3, stockGap) * (1.55 / 3)
+      const chance = Math.min(0.45, 0.1 * ramp * underdogMult)
+      if (Math.random() >= chance) return
       const side = Math.random() < 0.5 ? -1 : 1
       const spawnX = side * (Math.min(stage.half.x, 14) + 8)
       addFx({ kind: 'ring', pos: [spawnX, 6.5, 0], color: '#ffe066', ttl: 700, radius: 3 })
       sfx('ballSpawn')
       runtime.ball = { pos: [spawnX, 6.5, 0], vel: [-side * 5.2, 0, 0], hp: 40, maxHp: 40, radius: 0.6, ttlMs: 20000, turnMs: 1400, flashMs: 0 }
+      ballCooldown = 80
     }
     return
   }
@@ -559,7 +579,8 @@ function updateBall(dt: number) {
     const blast = stage.blast ?? BLAST
     if (Math.abs(b.pos[0]) > blast.x + 2 || b.pos[1] > blast.maxY + 2) {
       runtime.ball = null
-      ballTimer = 12
+      ballCooldown = 80
+      ballTimer = 6 + Math.random() * 4
     }
   }
 }
@@ -1228,7 +1249,7 @@ export function stepSimulation(rawDt: number) {
   for (const d of runtime.debugSpheres) d.ttl -= dt * 1000
   runtime.debugSpheres = runtime.debugSpheres.filter((d) => d.ttl > 0)
   runtime.shake *= Math.pow(0.001, dt) // 指數衰減
-  if (s.phase !== 'playing') { ballTimer = 4; pending = []; ledgeOwner['-1'] = null; ledgeOwner['1'] = null; publishUi(dt); return }
+  if (s.phase !== 'playing') { ballTimer = 0; ballCooldown = 0; pending = []; ledgeOwner['-1'] = null; ledgeOwner['1'] = null; publishUi(dt); return }
   if (s.countdown === '3' || s.countdown === '2' || s.countdown === '1') {
     for (const id of getActiveFighterIds()) {
       const f = s.fighters[id]
