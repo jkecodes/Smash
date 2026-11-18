@@ -665,22 +665,27 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
     sk.def.hooks?.onTick?.(ctx)
     if (sk.def.hitbox && !sk.def.hitbox.manual) runHitbox(f, sk, sk.def.hitbox)
     if (sk.ended || sk.phaseMs >= sk.def.activeMs) {
+      if (sk.slot === 'attack') {
+        if (sk.hitSet.size > 0) delete f.cooldowns[sk.def.id]
+        else f.cooldowns[sk.def.id] = Math.max(f.cooldowns[sk.def.id] ?? 0, 420)
+      }
       sk.phase = 'recovery'; sk.phaseMs = 0
       setFsm(f, 'ATTACK_RECOVERY')
     }
   } else {
     sk.phaseMs += dtMs
     sk.def.hooks?.onTick?.(makeCtx(f, sk, dt))
+    const hitLanded = sk.hitSet.size > 0
     const next = getSkill(sk.def.chain)
-    if (next && (inp.pressed.attack || f.comboBufferMs > 0 || atkHoldReady)) {
+    if (next && hitLanded && (inp.pressed.attack || f.comboBufferMs > 0 || atkHoldReady)) {
       endSkill(f)
       startSkill(f, next, 'attack', inp)
       return
     }
-    // 普攻接招延伸：收招達 55ms 後可快速銜接方向攻擊（上A/橫A/下A）、連打續接或跳躍取消
-    if (sk.slot === 'attack' && sk.phaseMs >= 55) {
+    // 普攻接招延伸：只有打到敵人時才能無冷卻立即再打普攻／銜接方向攻擊；沒打到則需走完收招並進入冷卻
+    if (sk.slot === 'attack' && hitLanded) {
       const hasDir = Math.abs(inp.moveX) > 0.6 || Math.abs(inp.moveY) > 0.6
-      if ((hasDir && inp.pressed.attack) || inp.pressed.attack || (atkHoldReady && sk.phaseMs >= sk.def.recoveryMs * 0.72)) {
+      if ((hasDir && inp.pressed.attack) || inp.pressed.attack || (atkHoldReady && sk.phaseMs >= sk.def.recoveryMs * 0.45)) {
         endSkill(f)
         tryStartSkill(f, 'attack', inp)
         return
