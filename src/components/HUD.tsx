@@ -699,20 +699,63 @@ function HelpModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-const MOVE_ROWS: [string, string][] = [
-  ['attack', '普攻 / 連段'],
-  ['attack:side', '橫強攻 (左右+普攻)'],
-  ['attack:up', '上強攻 (上+普攻)'],
-  ['attack:down', '下強攻 (下+普攻)'],
-  ['skill1', '特招 (K)'],
-  ['skill1:side', '橫特招 (左右+特招)'],
-  ['skill1:up', '上回場特招 (上+特招)'],
-  ['skill1:down', '下特招 (下+特招)'],
-  ['skill2', '技能2 (L / 右搖桿)'],
-  ['smash', '地面橫重擊 (地面 普攻+特招)'],
-  ['smash:up', '地面上重擊 (地面 上+普攻+特招)'],
-  ['smash:down', '地面下重擊 (地面 下+普攻+特招)'],
-  ['ult', '最終大招 (打破5下大招球後按特招)'],
+type MoveEntry =
+  | { kind: 'skill'; key: string; code: string; input: string }
+  | { kind: 'static'; code: string; name: string; input: string; damage: string; kb: string; note: string }
+
+const MOVE_SECTIONS: { title: string; badge: string; color: string; items: MoveEntry[] }[] = [
+  {
+    title: '通常攻擊・強攻擊（Ground & Tilts）',
+    badge: 'A',
+    color: '#38bdf8',
+    items: [
+      { kind: 'skill', key: 'attack', code: '弱攻擊', input: '普攻' },
+      { kind: 'skill', key: 'attack:side', code: '橫強攻', input: '←/→ + 普攻' },
+      { kind: 'skill', key: 'attack:up', code: '上強攻', input: '↑ + 普攻' },
+      { kind: 'skill', key: 'attack:down', code: '下強攻', input: '↓ + 普攻' },
+    ],
+  },
+  {
+    title: '猛擊（Smash Attacks — 地面高擊飛終結技）',
+    badge: 'SMASH',
+    color: '#f97316',
+    items: [
+      { kind: 'skill', key: 'smash', code: '橫猛擊', input: '地面 ←/→ + 普攻+特招' },
+      { kind: 'skill', key: 'smash:up', code: '上猛擊', input: '地面 ↑ + 普攻+特招' },
+      { kind: 'skill', key: 'smash:down', code: '下猛擊', input: '地面 ↓ + 普攻+特招' },
+    ],
+  },
+  {
+    title: '空中攻擊（Aerials — 空中限定）',
+    badge: 'AIR',
+    color: '#22d3ee',
+    items: [
+      { kind: 'static', code: 'N-Air', name: '空中旋轉迴踢', input: '空中無方向 + 普攻', damage: '8%+', kb: '7+8× (360°)', note: '🌀 全方位空中踢擊，快速打斷貼身追擊' },
+      { kind: 'static', code: 'D-Air', name: '空中下擊・隕石扣殺', input: '空中 ↓ + 普攻', damage: '10%+', kb: '10+12× (↓)', note: '☄️ 隕石扣殺！命中空中敵人垂直砸落場外' },
+    ],
+  },
+  {
+    title: '必殺技（Specials）',
+    badge: 'B',
+    color: '#a855f7',
+    items: [
+      { kind: 'skill', key: 'skill1', code: 'NB 通常必殺', input: '特招 (K)' },
+      { kind: 'skill', key: 'skill1:side', code: '橫B 橫必殺', input: '←/→ + 特招' },
+      { kind: 'skill', key: 'skill1:up', code: '上B 回場必殺', input: '↑ + 特招' },
+      { kind: 'skill', key: 'skill1:down', code: '下B 下必殺', input: '↓ + 特招' },
+      { kind: 'skill', key: 'skill2', code: '特招2', input: '技能2 (L / 右搖桿)' },
+    ],
+  },
+  {
+    title: '最終絕招與基礎行動（Final Smash & Core）',
+    badge: 'FS',
+    color: '#eab308',
+    items: [
+      { kind: 'skill', key: 'ult', code: '最終絕招', input: '打破 5 下大招球後按特招' },
+      { kind: 'static', code: 'GRAB', name: '抓取 / 投擲', input: '靠近按抓取鍵', damage: '投技', kb: '依方向', note: '🤏 破除防禦！抓到後可依方向鍵往左/右/上/下投擲' },
+      { kind: 'static', code: 'SHIELD', name: '護盾 / 完美防禦', input: '按住防禦鍵', damage: '減傷', kb: '無敵', note: '🛡️ 舉盾防禦攻擊；受擊瞬間舉盾觸發完美防禦' },
+    ],
+  },
 ]
 
 function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; onClose: () => void }) {
@@ -812,18 +855,39 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
             </div>
           </div>
 
-          {/* 完整招式表 */}
-          <div className="space-y-1.5">
-            <div className="text-xs font-black text-white/75 tracking-wider">📋 完整招式列表</div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-              {MOVE_ROWS.map(([key, inputLabel]) => {
-                const sk = getSkill(c.loadout[key])
+          {/* 完整招式表（大亂鬥分類排版） */}
+          <div className="space-y-3">
+            <div className="text-xs font-black text-white/75 tracking-wider">📋 大亂鬥分類招式表</div>
+            {MOVE_SECTIONS.map((sec) => {
+              const rendered = sec.items.map((item, idx) => {
+                if (item.kind === 'static') {
+                  return (
+                    <div key={`${sec.badge}-${idx}`} className="rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-[11px]">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="rounded px-1.5 py-0.5 text-[9px] font-black shrink-0" style={{ backgroundColor: `${sec.color}25`, color: sec.color }}>{item.code}</span>
+                          <span className="font-black text-white truncate">{item.name}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-cyan-300 shrink-0">{item.input}</span>
+                      </div>
+                      <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px] text-white/60">
+                        <span>傷害 {item.damage}</span>
+                        <span>· 擊飛 {item.kb}</span>
+                      </div>
+                      <div className="mt-0.5 text-[10px] text-white/55">{item.note}</div>
+                    </div>
+                  )
+                }
+                const sk = getSkill(c.loadout[item.key])
                 if (!sk) return null
                 return (
-                  <div key={key} className="rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-[11px]">
+                  <div key={item.key} className="rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-[11px]">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-black text-white">{sk.name}</span>
-                      <span className="text-[10px] font-mono text-cyan-300">{inputLabel}</span>
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="rounded px-1.5 py-0.5 text-[9px] font-black shrink-0" style={{ backgroundColor: `${sec.color}25`, color: sec.color }}>{item.code}</span>
+                        <span className="font-black text-white truncate">{sk.name}</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-cyan-300 shrink-0">{item.input}</span>
                     </div>
                     <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px] text-white/60">
                       <span>傷害 {Math.round(sk.damage * 10) / 10}%</span>
@@ -846,8 +910,20 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
                     </div>
                   </div>
                 )
-              })}
-            </div>
+              })
+              if (rendered.every((x) => x === null)) return null
+              return (
+                <div key={sec.title} className="space-y-1.5">
+                  <div className="flex items-center gap-2 border-b border-white/10 pb-1">
+                    <span className="rounded px-1.5 py-0.5 text-[10px] font-black" style={{ backgroundColor: `${sec.color}30`, color: sec.color }}>{sec.badge}</span>
+                    <span className="text-[11px] font-black text-white/90">{sec.title}</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    {rendered}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
