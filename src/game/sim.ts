@@ -164,6 +164,7 @@ export function resetSimStage() {
   ledgeOwner['-1'] = null
   ledgeOwner['1'] = null
   for (const k of Object.keys(staleQueue)) delete staleQueue[k as FighterId]
+  for (const k of Object.keys(grabHold)) delete grabHold[k as FighterId]
   resetTetroBoards()
   resetSteveBlocks()
   resetMechanics()
@@ -699,6 +700,35 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
 }
 
 // ---------------------------------------------------------------- combat
+/** 抓取狀態表：抓取者 ID → { 被抓目標 ID, 剩餘抓持時間 ms } */
+const grabHold: Partial<Record<FighterId, { target: FighterId; ms: number }>> = {}
+
+function executeThrow(att: FighterState, tgt: FighterState, dirX: number, dirY: number) {
+  const trb = runtime.bodies[tgt.id]
+  if (!trb) return
+  const throwDmg = 7.5
+  tgt.damage = Math.min(MAX_DAMAGE, tgt.damage + throwDmg)
+  tgt.lastHitBy = att.id
+  att.stats.damageDealt += throwDmg
+  tgt.stats.damageTaken += throwDmg
+  let tx = att.facing[0], ty = 0.5, base = 15, scaling = 14
+  if (dirY > 0.45) { tx = 0; ty = 1; base = 14; scaling = 13.5 } // 上投
+  else if (dirY < -0.45) { tx = att.facing[0] * 0.35; ty = 0.92; base = 12.5; scaling = 12 } // 下投（地面彈起）
+  else if (dirX * att.facing[0] < -0.45) { tx = -att.facing[0]; ty = 0.55; base = 16.5; scaling = 15.5; att.facing = [-att.facing[0] as 1 | -1, 0] } // 後投（轉身甩出）
+  const len = Math.hypot(tx, ty) || 1
+  const p = tgt.damage
+  const weightFactor = 1 / (CHARACTERS[tgt.character]?.weightMult ?? 1)
+  const spd = (base + ((p / 10 + (p * throwDmg) / 20) * 0.095) * (scaling / 10)) * weightFactor
+  if (tgt.skill) endSkill(tgt)
+  trb.setGravityScale(1, true)
+  trb.setLinvel({ x: (tx / len) * spd, y: (ty / len) * spd, z: 0 }, true)
+  tgt.hitstunMs = clamp(180 + spd * 22, 240, 1800)
+  setFsm(tgt, 'HITSTUN')
+  tgt.flashMs = 150
+  sfx('hit', spd / 35)
+  addFx({ kind: 'burst', pos: [tgt.pos[0], tgt.pos[1], 0], color: PLAYER_COLORS[att.id], ttl: 340, count: 16, speed: 6.5, size: 0.16 })
+}
+
 /** 招式衰減佇列（記錄每位玩家最近命中的 9 次招式 ID） */
 const staleQueue: Partial<Record<FighterId, string[]>> = {}
 
@@ -1047,6 +1077,54 @@ function updateFighter(f: FighterState, dt: number) {
     else if (f.shield <= 0) { f.shield = 0; f.hitstunMs = 1500; setFsm(f, 'HITSTUN'); sfx('shieldBreak') }
     return
   }
+  // 若正在被別人抓住，維持被抓定身狀態
+  for (const [holderId, h] of Object.entries(grabHold)) {
+    if (h && h.target === f.id) {
+      const holder = store().fighters[holderId as FighterId]
+      if (holder?.alive) {
+        rb.setGravityScale(0, true)
+        rb.setLinvel({ x: 0, y: 0, z: 0 }, true)
+        return
+      }
+      delete grabHold[holderId as FighterId]
+    }
+  }
+  const hold = grabHold[f.id]
+  if (hold) {
+    const tgt = store().fighters[hold.target]
+    const trb = tgt ? runtime.bodies[tgt.id] : null
+    if (!tgt || !tgt.alive || !trb) {
+      if (trb) trb.setGravityScale(1, true)
+      delete grabHold[f.id]
+    } else {
+      hold.ms -= dt * 1000
+      rb.setLinvel({ x: 0, y: Math.min(0, rb.linvel().y), z: 0 }, true)
+      const pinX = t.x + f.facing[0] * 0.95
+      const pinY = t.y + 0.12
+      trb.setGravityScale(0, true)
+      trb.setTranslation({ x: pinX, y: pinY, z: 0 }, true)
+      trb.setLinvel({ x: 0, y: 0, z: 0 }, true)
+      tgt.pos = [pinX, pinY, 0]
+      if (inp.pressed.attack) {
+        tgt.damage = Math.min(MAX_DAMAGE, tgt.damage + 2.5)
+        f.stats.damageDealt += 2.5
+        tgt.stats.damageTaken += 2.5
+        tgt.flashMs = 100
+        sfx('hit', 0.45)
+        addFx({ kind: 'burst', pos: [pinX, pinY + 0.2, 0], color: '#fde047', ttl: 180, count: 6, speed: 4, size: 0.12 })
+      }
+      if (Math.abs(inp.moveX) > 0.45 || Math.abs(inp.moveY) > 0.45) {
+        delete grabHold[f.id]
+        executeThrow(f, tgt, inp.moveX, inp.moveY)
+      } else if (hold.ms <= 0) {
+        delete grabHold[f.id]
+        trb.setGravityScale(1, true)
+        trb.setLinvel({ x: f.facing[0] * 6, y: 4, z: 0 }, true)
+        addFx({ kind: 'ring', pos: [pinX, pinY, 0], color: '#ffffff', ttl: 200, radius: 1.1 })
+      }
+      return
+    }
+  }
   if (f.fsm === 'LEDGE') { updateLedge(f, dt, inp); return }
   if (isAttackState(f.fsm)) { updateSkill(f, dt, inp); return }
 
@@ -1067,33 +1145,19 @@ function updateFighter(f: FighterState, dt: number) {
     startDodge(f, 'air', m > 0.4 ? inp.moveX / Math.max(1, m) : 0, m > 0.4 ? (Math.abs(inp.moveY) > 0.5 ? Math.sign(inp.moveY) : 0) : 0)
     return
   }
-  // 抓取與投擲（Grab 鍵，或防禦中按普攻；可破防！）
+  // 抓取與投擲（Grab 鍵，或防禦中按普攻：先抓住對手定身，再推方向鍵投擲或按普攻膝擊！）
   if (inp.pressed.grab || (inp.held.shield && inp.pressed.attack)) {
     const grabCenter: Vec3 = [t.x + f.facing[0] * 1.1, t.y + 0.1, 0]
     addFx({ kind: 'ring', pos: grabCenter, color: PLAYER_COLORS[f.id], ttl: 180, radius: 0.85, plane: 'vertical' })
-    const hitIds = queryBall(grabCenter, 1.05).filter((id) => id !== f.id && store().fighters[id]?.alive)
+    const hitIds = queryBall(grabCenter, 1.15).filter((id) => id !== f.id && store().fighters[id]?.alive)
     if (hitIds.length > 0) {
       const tgt = store().fighters[hitIds[0]]
-      const trb = runtime.bodies[tgt.id]!
-      const throwDmg = 7
-      tgt.damage = Math.min(MAX_DAMAGE, tgt.damage + throwDmg)
-      tgt.lastHitBy = f.id
-      f.stats.damageDealt += throwDmg
-      tgt.stats.damageTaken += throwDmg
-      let tx = f.facing[0], ty = 0.5, base = 15, scaling = 14
-      if (inp.moveY > 0.5) { tx = 0; ty = 1; base = 14; scaling = 13 }
-      else if (inp.moveY < -0.5) { tx = f.facing[0] * 0.35; ty = 0.9; base = 12; scaling = 11.5 }
-      else if (inp.moveX * f.facing[0] < -0.5) { tx = -f.facing[0]; ty = 0.55; base = 16.5; scaling = 15; f.facing = [-f.facing[0] as 1 | -1, 0] }
-      const len = Math.hypot(tx, ty) || 1
-      const spd = (base + scaling * (tgt.damage / 100)) / (CHARACTERS[tgt.character]?.weightMult ?? 1)
       if (tgt.skill) endSkill(tgt)
-      trb.setGravityScale(1, true)
-      trb.setLinvel({ x: (tx / len) * spd, y: (ty / len) * spd, z: 0 }, true)
-      tgt.hitstunMs = clamp(160 + spd * 22, 220, 1800)
       setFsm(tgt, 'HITSTUN')
-      tgt.flashMs = 150
-      sfx('hit', spd / 35)
-      addFx({ kind: 'burst', pos: [tgt.pos[0], tgt.pos[1], 0], color: PLAYER_COLORS[f.id], ttl: 320, count: 14, speed: 6, size: 0.16 })
+      tgt.hitstunMs = 1100
+      grabHold[f.id] = { target: tgt.id, ms: 1100 }
+      sfx('block')
+      addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1] + 0.2, 0], color: '#fde047', ttl: 260, radius: 1.3 })
       return
     }
   }
