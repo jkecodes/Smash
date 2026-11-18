@@ -772,8 +772,8 @@ function ko(f: FighterState) {
   if (aliveIds.length <= 1 && !store().gameFinish) {
     const winId = aliveIds[0] ?? killerId ?? f.id
     publishUi(0, true)
-    store().triggerGameFinish(winId)
-    broadcastNetEvent({ kind: 'gameFinish', winner: winId })
+    store().triggerGameFinish(winId, ex, ey)
+    broadcastNetEvent({ kind: 'gameFinish', winner: winId, x: ex, y: ey })
     sfx('perfect')
     runtime.shake = 1.4
   }

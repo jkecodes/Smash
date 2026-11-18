@@ -501,12 +501,15 @@ export function CameraRig() {
     const k = 1 - Math.pow(0.02, dt)
     const sh = runtime.shake
     const fatal = useGameStore.getState().fatalFlash
-    const zoomActive = fatal && performance.now() < fatal.until
-    const target = zoomActive
-      ? new THREE.Vector3(fatal.x + (Math.random() - 0.5) * sh, fatal.y + 1.2 + (Math.random() - 0.5) * sh, 10.5)
+    const finish = useGameStore.getState().gameFinish
+    const finishZoom = finish && performance.now() < finish.until
+    const fatalZoom = fatal && performance.now() < fatal.until
+    const zoomTarget = finishZoom ? finish : fatalZoom ? fatal : null
+    const target = zoomTarget
+      ? new THREE.Vector3(zoomTarget.x + (Math.random() - 0.5) * sh, zoomTarget.y + 0.8 + (Math.random() - 0.5) * sh, finishZoom ? 9.5 : 10.5)
       : new THREE.Vector3(cx * 0.8 + (Math.random() - 0.5) * sh, cy + 4 + (Math.random() - 0.5) * sh, 12 + spread * 1.05)
-    camera.position.lerp(target, zoomActive ? Math.min(1, k * 2.2) : k)
-    look.current.lerp(zoomActive ? new THREE.Vector3(fatal.x, fatal.y + 0.5, 0) : new THREE.Vector3(cx * 0.8, cy + 1, 0), zoomActive ? Math.min(1, k * 2.2) : k)
+    camera.position.lerp(target, zoomTarget ? Math.min(1, k * 2.5) : k)
+    look.current.lerp(zoomTarget ? new THREE.Vector3(zoomTarget.x, zoomTarget.y + 0.3, 0) : new THREE.Vector3(cx * 0.8, cy + 1, 0), zoomTarget ? Math.min(1, k * 2.5) : k)
     camera.lookAt(look.current)
   })
   return null

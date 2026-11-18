@@ -88,10 +88,10 @@ interface GameStore {
   ultCutin: { charId: CharacterId; name: string; skillName: string; color: string; until: number } | null
   fatalFlash: { until: number; x: number; y: number } | null
   countdown: '3' | '2' | '1' | 'SMASH!!!' | null
-  gameFinish: { winner: FighterId; until: number } | null
+  gameFinish: { winner: FighterId; until: number; x: number; y: number } | null
   triggerUltCutin(data: { charId: CharacterId; name: string; skillName: string; color: string }): void
   triggerFatalFlash(x: number, y: number): void
-  triggerGameFinish(winner: FighterId): void
+  triggerGameFinish(winner: FighterId, x?: number, y?: number): void
   select(id: FighterId, c: CharacterId, isRandom?: boolean): void
   startMatch(): void
   endMatch(w: FighterId): void
@@ -146,7 +146,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if ((get().fatalFlash?.until ?? 0) <= performance.now()) set({ fatalFlash: null })
     }, 440)
   },
-  triggerGameFinish: (winner) => set({ gameFinish: { winner, until: performance.now() + 1450 }, countdown: null }),
+  triggerGameFinish: (winner, x = 0, y = 2) => set({ gameFinish: { winner, until: performance.now() + 1450, x, y }, countdown: null }),
   select: (id, c, isRandom = false) => set((s) => ({
     selection: { ...s.selection, [id]: c },
     randomSlots: { ...s.randomSlots, [id]: isRandom },
