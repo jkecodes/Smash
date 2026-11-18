@@ -3,7 +3,7 @@ import type { FxSpec, Runtime, Projectile, Zone, ZoneDef, FighterId, Vec3, HitSo
 
 /** 60FPS 會變動、但 React 不需要訂閱的資料（剛體參考、投射物、特效清單）。 */
 export const runtime: Runtime = {
-  bodies: { p1: null, p2: null },
+  bodies: { p1: null, p2: null, p3: null, p4: null, p5: null, p6: null, p7: null, p8: null },
   platformBodies: [],
   handles: new Map(),
   physics: null,

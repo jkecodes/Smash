@@ -6,98 +6,46 @@
 ## 1. 技術與啟動
 - React 18 + TypeScript + Vite + Tailwind + React Three Fiber 8 + @react-three/rapier 1.5 + Zustand
 - 啟動：雙擊 `開始遊戲.bat`（會檢查 node、必要時 npm install、再 `npm run dev -- --open`），或 `npm run dev`
-- 型別檢查：`npx tsc --noEmit`（目前無錯誤）
-- 注意：Bash 工具使用 heredoc 寫大檔案曾失敗，建議用編輯器／檔案寫入工具。
+- 型別檢查與建置：`npm run build`（`tsc --noEmit && vite build`）
 
 ## 2. 架構總覽（2.5D）
 3D 渲染，但物理只用 X/Y，Z 軸鎖死（`enabledTranslations([true,true,false])`），側面自動取景攝影機。
 
 | 檔案 | 職責 |
 |---|---|
-| `src/game/constants.ts` | 重力、場地尺寸、爆區、速度、跳躍次數、冷卻倍率（0.5）、抓邊參數、3 個單向平台 |
-| `src/game/types.ts` | FSM 狀態、FighterState、SkillDef、Projectile、CharacterDef 等型別 |
-| `src/game/store.ts` | Zustand：phase、選角、`cpu`（p1/p2 等級 0–3）、paused、`fighters`（每幀可變狀態）、約 12Hz 的 `ui` 快照 |
-| `src/game/runtime.ts` | 剛體、投射物、力場、特效、大招球、debug 球；有版本計數 |
-| `src/game/input.ts` | 鍵盤＋手把（Xbox/PS/Joy-Con）、死區、震動、自訂按鍵、`readMenuPad`、`pollPause` |
-| `src/game/sim.ts` | **主模擬**：`stepSimulation`、FSM、技能生命週期、命中結算、平台、抓邊、閃避、大招球、投射物、力場 |
-| `src/game/ai.ts` | 電腦玩家（產生與人類相同的 `InputFrame`） |
-| `src/game/audio.ts` | Web Audio 即時合成音效（無音檔）；`sfx(name, intensity)`；M 鍵靜音 |
-| `src/game/characters.ts` | 8 名角色（含新增 `tetro` 方塊使）、專屬特色標語（`trait`）與 loadout |
-| `src/game/stages.ts` | 4 個對戰場地定義（尺寸、爆區、層板佈局、視覺主題配色、環境光與霧氣） |
-| `src/game/skills/` | `registry.ts`、`baseSkills.ts`、`novaSkills.ts`、`kenneySkills.ts`、`directionalSkills.ts`、`tetroSkills.ts`（俄羅斯方塊矩陣與消行技能） |
-| `src/components/World.tsx` | 場景、平台、SimLoop、FighterView（方塊後備＋GLB、護盾、光環、頭上標記）、CameraRig |
-| `src/components/StageArt.tsx` | 場地程序化表面紋理（`CanvasTexture`）、動態環境粒子、4 場地立體底座與遠景建築／星雲／浮島裝飾 |
+| `src/game/constants.ts` | 重力、場地尺寸、爆區、速度、跳躍次數、冷卻倍率（0.5）、抓邊參數、平台碰撞厚度 |
+| `src/game/types.ts` | 8 人 `FighterId` (`p1`–`p8`)、`PLAYER_COLORS`、11 名角色 `CharacterId`、FSM 狀態、`CharacterDef`（含 `guide`）與 `FighterState`（含 `lastHitBy`/`jumpBufferMs`/`coyoteMs`） |
+| `src/game/store.ts` | Zustand：phase、`playerCount`（預設 2、支援 2–8 人 `setPlayerCount`）、選角、`stageId`（預設 `reimu`）、`cpu`（`p1`–`p8` 等級 0–3）、`fighters` 與 `ui` |
+| `src/game/runtime.ts` | 8 人剛體、投射物、力場、特效、大招球、debug 球；有版本計數 |
+| `src/game/input.ts` | 鍵盤（`justPressedKeys` 瞬時消耗修復跑步跳漏幀）＋手把（Xbox/PS/Joy-Con；LT/RT 與 LB/RB 皆觸發防禦；類比扳機支援）、`readMenuPad`、`pollPause` |
+| `src/game/sim.ts` | **主模擬**：`stepSimulation`、3 射線地面判定、土狼時間（110ms）、跳躍緩衝（150ms）、僅限地面施放且蓄滿按住待放重擊、5 下打破大招球、2–8 人均勻出生與擊墜判斷 |
+| `src/game/ai.ts` | 支援 2–8 人最近活躍對手鎖定與地形回場 AI |
+| `src/game/audio.ts` | Web Audio 即時合成音效＋大廳 Synthwave／對戰熱血 BGM（危機自動升階）；`M` 總靜音、`B` 切換 BGM |
+| `src/game/characters.ts` | 11 名角色（保留 `tetro`、8 位經典街機角色與東方 Project 博麗靈夢／霧雨魔理沙；已移除 `cube`–`zombie`），含 `trait`、`guide` 教學步驟與完整 loadout |
+| `src/game/stages.ts` | 11 個角色專屬主題場地（每位角色皆有對應主場與特色地形層板） |
+| `src/game/skills/` | `registry.ts`、`tetroSkills.ts`（8 人份俄羅斯方塊矩陣與消行轟炸）、`retroSkills.ts`（10 名新角色完整技能套件）、`directionalSkills.ts` |
+| `src/components/World.tsx` | 場景、平台、SimLoop、2–8 人 `Fighters`／`CameraRig`／`PlayerMarker`、`RetroAvatar` 與 `TetroAvatar` |
+| `src/components/RetroAvatar.tsx` | 10 名街機與東方角色專屬 3D 程序化動畫模型 |
+| `src/components/StageArt.tsx` | 11 場地專屬 Canvas 頂面紋理、環境粒子與 3D 遠景建築演出 |
 | `src/components/ModelAvatar.tsx` | GLB 載入、自動縮放、動畫 clip 對應、程序化姿勢後備 |
 | `src/components/Effects.tsx` | 斬擊、環、爆發、光束、投射物、力場、大招球、判定框除錯 |
-| `src/components/HUD.tsx` | 傷害％、頭像、殘機、能量、護盾、大亂鬥風格選角網格、CPU 選擇、手把設定、暫停、結算 |
-| `src/components/CharacterPortrait.tsx` | 8 名角色＋隨機（`?`）專屬 SVG 頭像繪製與縮寫名表（`SHORT_NAMES`） |
-| `public/models/` | Kenney Mini Characters 的 GLB（knight/robot/alien/soldier/zombie）＋ `Textures/colormap.png` |
-
-### 關鍵設計
-- **資料驅動技能**：`SkillDef` 含 startup/active/recovery、hitbox、knockback、投射物、hooks（onStart/onActive/onTick/onHit/onEnd）。hook 透過 `SkillContext`（setVelocity、teleport、spawnZone、spawnProjectile、fx、shake、endActive…）操作，不直接碰模擬內部。
-- **loadout 鍵**：`attack`、`skill1`、`skill2`、`ult`、`smash`，加方向後綴 `:side` / `:up` / `:down`（左右共用 side）。沒有該方向就退回原地版本。
-- **受擊與擊退**：傷害 0–999％，擊退速度 = `(base + scaling × damage/100) × kbMult`。
-- **同幀命中佇列**：`queueHit` → `resolveHits`，雙方互打時傷害差 ≥ 9％ 強者壓過（clash）。
-- **碰撞群組**：場地 group 0、角色 group 1、平台 groups 2/3/4（`interactionGroups`）；地面偵測用 `castRay` 搭配每個角色當前的碰撞遮罩。平台穿透用 hysteresis 避免高速穿過。
-- **FSM**：IDLE/RUN/JUMP/SHIELD/DODGE/LEDGE/ATTACK_STARTUP/ATTACK_ACTIVE/ATTACK_RECOVERY/HITSTUN 等，由 `setFsm` 切換。
-- **暫停**：`stepSimulation` 在 paused 時提早 return，且 `<Physics paused>`。
+| `src/components/HUD.tsx` | 2–8 人底部 HUD 與賽後戰報、6×2 大亂鬥選角盤、人數 `－`/`＋` 切換、11 場地選擇器、`🎓 角色遊玩教學` 彈窗、暫停與手把精靈 |
+| `src/components/CharacterPortrait.tsx` | 11 名角色＋隨機（`?`）專屬 SVG 頭像與 `SHORT_NAMES` |
 
 ## 3. 目前已完成的功能
-- 8 名角色（皆具備專屬特色機制）：
-  - `tetro`（**TETRO 方塊使**）：本體為動態變形的 7-Bag 俄羅斯方塊，背後懸浮 3D `4×6` 全息矩陣。**普攻與位移技自動在左 3 欄堆疊方塊（無須停下移動對位），按「特招(K)」或「下+特招」在右側第 4 欄井道落塊並觸發 1~4 行消行轟炸（SINGLE 飛彈 / DOUBLE 雙重爆破 / TRIPLE 三連轟雷 / ⚡TETRIS 4行全屏毀滅雷射）**；技能2(L) 可將矩陣內已堆方塊全數化為彈跳炸彈傾瀉而出。
-  - `cube`（格鬥家）：三連拳法（直拳→勾拳→爆裂旋風踢）命中快速回能。
-  - `nova`（星刃）：閃現留減速力場＋可蓄力貫穿雷射。
-  - `knight`（騎士）：原地特招「聖盾防反」自帶霸體無敵格擋與重擊。
-  - `robot`（機器人）：遠程飛彈空投＋EMP 電磁緩速力場。
-  - `alien`（外星人）：瞬移敵後背刺＋黑洞引力井持續吸敵。
-  - `soldier`（士兵）：三連點射、霰彈後座力跳、拋物線榴彈與蓄力貫穿狙擊。
-  - `zombie`（殭屍）：噬血撕咬與飛撲命中可回復自身損傷%＋劇毒腐蝕沼澤。
-- 蓄力重擊：普攻＋特招同按（僅近戰）。持有大招資格時按「特招」直接放大招。
-- 大招球（Smash Ball）：打破後取得大招資格。
-- 抓邊（ledge grab）、一次空中跳躍、空中上＋特招每次滯空只能用一次。
-- 3 個單向平台，可跳穿，搖桿往下推可穿下。
-- 防禦／完美防禦（剛按下 140ms 內）／翻滾／原地閃避／空中閃避。
-- CPU 對手 Lv1–3，選單可為 P1/P2 分別設定。
-- 技能冷卻減半（`COOLDOWN_SCALE`）。
-- 手把支援：A(下)=特招、B(右)=普攻、X/Y 跳、右搖桿=技能2、RT/R3 大招、LB/RB/LT 防禦、Start 暫停。
-- 玩家頭上標記（P1 紅／P2 藍，CPU 會加註 "CPU"）。
-- 4 個獨特對戰場地（選單即時預覽切換，無倒數計時限制；含 `StageArt.tsx` 程序化地表紋理、立體底座與遠景、漂浮環境粒子）：
-  - **浮空戰場（Battlefield）**：經典左右對稱 3 層板，含反應爐要塞底座、晶石浮島與軌道行星遠景。
-  - **終點星雲（Final Destination）**：零層板純平面死鬥場，含黑曜石星核尖塔、三重旋轉宇宙陀螺環與星雲蟲洞傳送門。
-  - **賽博天台（Cyber Rooftop）**：動態巡弋＋升降浮板，含霓虹摩天大樓天際線、全息廣告看板與探照燈光束。
-  - **天空聖域（Floating Shrine）**：非對稱雙階梯神殿，含古希臘石柱火盆、發光瀑布浮島與金陽神殿光環。
-- 物理與 AI 自動適應各場地：層板穿透碰撞組動態裝卸、場地邊緣抓邊（Ledge Grab）座標自適應、大招球巡弋邊界自適應、AI 回場邊界自適應。
-- **戰鬥打擊感與特效強化**：
-  - 重擊命中頓幀震顫（Hitstop Jitter）與高擊退震波環。
-  - 高速擊飛煙塵尾跡（Knockback Trail）。
-  - 出界擊墜爆發光柱（KO Blast Pillar & Shockwave）。
-  - 即時連段提示（`🔥 N HIT COMBO!`）與結算畫面「對戰統計戰報」（擊墜數、輸出傷害、最高連段、完美防禦）。
-- **音效、程序化 BGM 與音量**：全部 Web Audio 合成（音效＋大廳 Synthwave BGM＋對戰熱血 BGM，大招/殘機危急時自動升階）；畫面右上角常駐 BGM 開關（`B` 鍵）、總靜音開關（`M` 鍵）與音量滑桿。
-- **大亂鬥風格選角大廳**：中央為緊湊雙排頭像方陣（8 名原創繪製 SVG 頭像＋`?` 隨機選角格，含粗黑外框白字與 P1 紅／P2 藍標記，左鍵指派給目前選角玩家、右鍵可直選 P2），下方為 P1/P2 角色展示卡與設定；移除堆疊說明文字，改以「📖 操作指南 & 按鍵說明」彈窗呈現；戰鬥中 HUD 狀態卡亦顯示角色頭像。
-- GLB 模型匯入：選單可拖放自己的 .glb（使用者之後打算用 Tripo AI 生成角色）。
-- 最近調整（尚未實機確認手感）：
-  - 大招球更難打：hp 7、半徑 0.6、移動更快、被打後 450ms 無敵、存在 20 秒（`sim.ts` 的 `updateBall`／`hitBallIfOverlap`）。
-  - 角色**視覺**放大 1.4 倍（`World.tsx` 的 `CHAR_SCALE`），**碰撞體仍是 1×1×1**，招式射程、平台高度都沿用舊數值。
+- **11 名可玩角色（已移除 Tetris 之前所有初始角色 `cube`/`nova`/`knight`/`robot`/`alien`/`soldier`/`zombie`，保留 `tetro`）**：
+  - `tetro`（**TETRO 方塊使**）：出招自動在背後 4×6 矩陣左側 3 欄疊塊，按特招(K)硬降觸發 1~4 行消行雷射轟炸，技能2(L)全數化為彈跳炸彈。
+  - 8 位經典傳統遊戲角色：`pacman`（吃豆人）、`mario`（水管工）、`invader`（太空侵略者）、`bomber`（炸彈超人）、`snake`（貪食蛇）、`frogger`（青蛙過河）、`kong`（大金剛）、`pong`（打磚塊）。
+  - 東方 Project 雙主角：`reimu`（博麗靈夢：亞空穴瞬移、夢符封印、夢想天生）與 `marisa`（霧雨魔理沙：掃帚星衝、星塵射彈、究極火花魔砲 Master Spark）。
+- **11 個角色專屬地圖**：每位角色皆有專屬主題舞台（`博麗神社`、`魔法森林`、`俄羅斯矩陣`、`霓虹迷宮`、`蘑菇王國 1-1`、`太空防線`、`爆風競技場`、`貪食蛇螢幕`、`湍流大河`、`25m 鋼樑工地`、`雅達利球場`）。切換 P1 角色時會自動預覽該角色主場，亦可自由點選任何場地。
+- **2–8 人大亂鬥對戰（預設 2 人）**：選單頂部可用 `－` / `＋` 按鈕即時增減參戰人數（2~8 人）；模擬、AI、攝影機、場地出生點與 HUD 戰報全面支援 8 人混戰。
+- **每位角色遊玩教學彈窗（`🎓 角色遊玩教學`）**：可由選單角色卡、選單底部或暫停畫面開啟，含概述、實戰 3 步驟、推薦連段與完整招式列表。
+- **大招球 5 下擊破**：場上浮動大招球改為累計命中 **5 下**（`hp: 5`）擊破取得大招資格。
+- **手把與戰鬥操作優化**：
+  - 手把 **Left Trigger (LT) 或 Right Trigger (RT)**（含類比軸值 > 0.25）皆可觸發防禦（LB/RB 亦可，L3/R3 或持有大招按特招可放大招）。
+  - **蓄力重擊（普攻+特招同按）**：限定站在地面時才可施放；蓄滿後若持續按住不放，會維持滿蓄力待機直到玩家放開按鍵才正式揮出！
+  - **修復跑步跳無反應**：`justPressedKeys` 瞬時緩衝、3 射線地面判定、110ms 土狼時間與 150ms 跳躍輸入緩衝。
 
-## 4. 操作
-- P1：WASD 移動、Space/W 跳、J 普攻、K 特招(skill1)、L 技能2、I 大招、**O 或 Shift** 防禦／閃避
-- P2：方向鍵、Enter/↑ 跳、`.` 普攻、`/` 特招、`'` 技能2、`;` 大招、**`,` 或 右Shift** 防禦／閃避
-- 通用：Esc/P 暫停、H 判定框除錯、U 給予大招資格、M 總靜音、B 切換背景音樂
-
-## 5. 驗證方式（無瀏覽器時）
-曾用無頭測試：寫暫時的 `_t.mjs`，以 `npx tsx` 執行；使用 `rapier3d-compat`、`globalThis.window = new EventTarget()`、假的 localStorage，以帶有 `.code` 的 `Event` 模擬按鍵，測完刪除。曾以此驗證各方向技能、CPU 對 CPU 整場、平台、閃避、暫停、跳躍與上特招限制。
-**視覺與手感沒有自動化驗證，一律需使用者在瀏覽器確認。**
-
-## 6. 已知議題／注意事項
-- 角色視覺放大但碰撞體未放大：可能有輕微穿牆感。若使用者要求，需一併放大碰撞體並重調招式射程、平台間距、抓邊位置。
-- 方塊後備（cube fallback）曾出現「角色偶爾變方塊」的問題，已用 `readyUrl` ref 比對修正，但使用者尚未回報是否解決。
-- 數值（傷害、擊退、冷卻、AI 強度、音量）皆憑手感調整，使用者可能繼續要求微調。
-- Kenney GLB 內部引用外部 `Textures/colormap.png`，移動模型檔時必須一併帶走該貼圖。
-- （已解決）land/zone/charge/warp 音效已接上；HUD 音量滑桿與靜音已加上；Git 已初始化；4 場地已實作完成。
-
-## 7. 可能的下一步
-1. 等使用者回報各場地遊玩手感、大招球難度、角色大小是否合適。
-2. 視需求把碰撞體與角色視覺比例統一。
-3. 使用者的 Tripo AI 自製角色：以 GLB 放入 `public/models/` 或拖放匯入，並在 `characters.ts` 新增角色與 `clips` 對應；技能可沿用 `registry.ts` 註冊流程。
-4. 加入 Web Audio 背景音樂（BGM）。
-5. 更多角色或機制擴充。
+## 4. 驗證方式（無瀏覽器時）
+- `npm run build` 確認 TypeScript 與 Vite 打包完全通過。
+- 使用暫時 `_t.mjs` 搭配 `@dimforge/rapier3d-compat` 與 `npx tsx` 驗證模擬、物理跳躍、重擊地面限制與蓄滿待放、LT/RT 防禦、大招球 5 下與 8 人戰鬥結算，測畢刪除。

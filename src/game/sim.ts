@@ -11,18 +11,32 @@ import { debugKeys, readInput, rumble, type InputFrame } from './input'
 import { addFx, addProjectile, addZone, removeFx, removeProjectile, removeZone, runtime } from './runtime'
 import { getSkill } from './skills'
 import { resetTetroBoards } from './skills/tetroSkills'
-import { useGameStore } from './store'
+import { getActiveFighterIds, useGameStore } from './store'
 import type {
   ActiveSkill, FighterId, FighterState, FsmState, HitSource, HitboxDef, SkillContext, SkillDef, SkillSlot, UiFighter, Vec3,
 } from './types'
-import { FIGHTER_IDS } from './types'
+import { ALL_FIGHTER_IDS } from './types'
 
 const SLOTS: ('ult' | 'skill2' | 'skill1' | 'attack')[] = ['ult', 'skill2', 'skill1', 'attack'] // 同幀多鍵時的優先順序
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 const store = () => useGameStore.getState()
-const other = (id: FighterId): FighterId => (id === 'p1' ? 'p2' : 'p1')
-const getStage = () => STAGES[store().stageId] ?? STAGES.battlefield
+const getStage = () => STAGES[store().stageId] ?? STAGES.reimu
+
+function nearestEnemyOf(id: FighterId): FighterState | null {
+  const fs = store().fighters
+  const me = fs[id]
+  let best: FighterState | null = null
+  let bestD = Infinity
+  for (const oid of getActiveFighterIds()) {
+    if (oid === id) continue
+    const e = fs[oid]
+    if (!e?.alive) continue
+    const d = Math.hypot(e.pos[0] - me.pos[0], e.pos[1] - me.pos[1])
+    if (d < bestD) { bestD = d; best = e }
+  }
+  return best
+}
 
 // ---------------------------------------------------------------- FSM
 function setFsm(f: FighterState, s: FsmState) {
@@ -94,12 +108,16 @@ function updatePlatformCollision(f: FighterState, rb: any, dt: number) {
 function checkGround(f: FighterState): boolean {
   const ph = runtime.physics, rb = runtime.bodies[f.id]
   if (!ph || !rb) return false
+  if (f.vel[1] > 1.2) return false
   const t = rb.translation()
-  const ray = new ph.rapier.Ray({ x: t.x, y: t.y, z: t.z }, { x: 0, y: -1, z: 0 })
-  // 只與場地（group 0）相交，忽略對手
-  // 射線只會打到「目前有碰撞」的場地 / 層板（穿過中的層板不算地面）
-  const hit = ph.world.castRay(ray, HALF + 0.06, true, undefined, lastMask.get(f.id) ?? interactionGroups(1, [0]), undefined, rb)
-  return !!hit && f.vel[1] <= 0.5
+  const mask = lastMask.get(f.id) ?? interactionGroups(1, [0])
+  // 三道向下射線（中、左腳緣、右腳緣）避免高速奔跑或經過層板邊緣時單點漏判
+  for (const ox of [0, -0.36, 0.36]) {
+    const ray = new ph.rapier.Ray({ x: t.x + ox, y: t.y, z: t.z }, { x: 0, y: -1, z: 0 })
+    const hit = ph.world.castRay(ray, HALF + 0.1, true, undefined, mask, undefined, rb)
+    if (hit) return true
+  }
+  return false
 }
 
 function facingWorld(f: FighterState, local: Vec3): Vec3 {
@@ -263,10 +281,7 @@ function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
       source: { def: sk.def, hitSet: new Set(), kbMult: sk.kbMult, dmgMult: sk.dmgMult },
     }),
     fx: (spec) => addFx(spec),
-    nearestEnemy: () => {
-      const e = store().fighters[other(f.id)]
-      return e.alive ? e : null
-    },
+    nearestEnemy: () => nearestEnemyOf(f.id),
     isGrounded: () => f.grounded,
     strike: (override) => {
       if (sk.def.hitbox) runHitbox(f, sk, { ...sk.def.hitbox, ...override })
@@ -277,6 +292,7 @@ function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
 }
 
 function tryStartSkill(f: FighterState, slot: SkillSlot, inp: InputFrame): boolean {
+  if (slot === 'smash' && !f.grounded) return false // 重擊只能在站在地上時使用
   const lo = CHARACTERS[f.character].loadout
   // 方向 + 招式鍵：上 / 下變化招（沒有定義就用原本的招）
   // 上 / 下優先，其次左右（左右共用同一招，稱為 side）
@@ -302,8 +318,8 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
   // 面向：有移動輸入就朝輸入方向，否則自動朝向最近的對手（輔助瞄準）
   if (Math.abs(inp.moveX) > 0.3) f.facing = [Math.sign(inp.moveX), 0]
   else {
-    const e = store().fighters[other(f.id)]
-    if (e.alive && Math.abs(e.pos[0] - f.pos[0]) < 6) f.facing = [e.pos[0] >= f.pos[0] ? 1 : -1, 0]
+    const e = nearestEnemyOf(f.id)
+    if (e && Math.abs(e.pos[0] - f.pos[0]) < 6) f.facing = [e.pos[0] >= f.pos[0] ? 1 : -1, 0]
   }
   f.skill = {
     def, slot, phase: 'startup', phaseMs: 0, hitSet: new Set(), kbMult: 1, dmgMult: 1,
@@ -421,7 +437,7 @@ function updateBall(dt: number) {
     if (ballTimer <= 0) {
       addFx({ kind: 'ring', pos: [0, 7, 0], color: '#ffe066', ttl: 700, radius: 3 })
       sfx('ballSpawn')
-      runtime.ball = { pos: [(Math.random() - 0.5) * (stage.half.x * 1.3), 7, 0], vel: [0, 0, 0], hp: 7, maxHp: 7, radius: 0.6, ttlMs: 20000, turnMs: 0, flashMs: 0 }
+      runtime.ball = { pos: [(Math.random() - 0.5) * (stage.half.x * 1.3), 7, 0], vel: [0, 0, 0], hp: 5, maxHp: 5, radius: 0.6, ttlMs: 20000, turnMs: 0, flashMs: 0 }
     }
     return
   }
@@ -439,20 +455,26 @@ function updateBall(dt: number) {
   if (b.ttlMs <= 0) { addFx({ kind: 'burst', pos: [...b.pos], color: '#999999', ttl: 500, count: 20, speed: 4, size: 0.15 }); runtime.ball = null; ballTimer = 12 }
 }
 
-/** 角色互相重疊時輕微推開（角色之間沒有剛體碰撞） */
+/** 角色互相重疊時輕微推開（角色之間沒有剛體碰撞，支援最多 8 人兩兩分離） */
 function separateFighters(dt: number) {
-  const { p1: a, p2: b } = store().fighters
-  const ra = runtime.bodies.p1, rb = runtime.bodies.p2
-  if (!a.alive || !b.alive || !ra || !rb) return
-  const free = (f: FighterState) => f.fsm !== 'HITSTUN' && f.fsm !== 'ATTACK_ACTIVE'
-  if (!free(a) || !free(b)) return
-  const ta = ra.translation(), tb = rb.translation()
-  const dx = tb.x - ta.x
-  if (Math.abs(tb.y - ta.y) >= 0.95 || Math.abs(dx) >= 0.95) return
-  const push = ((0.95 - Math.abs(dx)) / 2) * Math.min(1, dt * 12)
-  const dir = dx === 0 ? 1 : Math.sign(dx)
-  ra.setTranslation({ x: ta.x - dir * push, y: ta.y, z: 0 }, true)
-  rb.setTranslation({ x: tb.x + dir * push, y: tb.y, z: 0 }, true)
+  const fs = store().fighters
+  const ids = getActiveFighterIds()
+  const free = (f: FighterState) => f.alive && f.fsm !== 'HITSTUN' && f.fsm !== 'ATTACK_ACTIVE'
+  for (let i = 0; i < ids.length; i++) {
+    const a = fs[ids[i]], ra = runtime.bodies[ids[i]]
+    if (!a || !ra || !free(a)) continue
+    for (let j = i + 1; j < ids.length; j++) {
+      const b = fs[ids[j]], rb = runtime.bodies[ids[j]]
+      if (!b || !rb || !free(b)) continue
+      const ta = ra.translation(), tb = rb.translation()
+      const dx = tb.x - ta.x
+      if (Math.abs(tb.y - ta.y) >= 0.95 || Math.abs(dx) >= 0.95) continue
+      const push = ((0.95 - Math.abs(dx)) / 2) * Math.min(1, dt * 12)
+      const dir = dx === 0 ? 1 : Math.sign(dx)
+      ra.setTranslation({ x: ta.x - dir * push, y: ta.y, z: 0 }, true)
+      rb.setTranslation({ x: tb.x + dir * push, y: tb.y, z: 0 }, true)
+    }
+  }
 }
 
 function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
@@ -467,8 +489,8 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
   // 連段輸入緩衝
   if (sk.def.chain && inp.pressed.attack && sk.phase !== 'recovery') f.comboBufferMs = 250
 
-  // 同按升級：先按普攻/特招，約 0.1 秒內補按另一個 → 改成蓄力重擊（退還原招式的消耗）
-  if (sk.phase === 'startup' && sk.phaseMs < 110 && (sk.slot === 'attack' || sk.slot === 'skill1')) {
+  // 同按升級：先按普攻/特招，約 0.1 秒內補按另一個 → 改成蓄力重擊（僅限地面，退還原招式的消耗）
+  if (f.grounded && sk.phase === 'startup' && sk.phaseMs < 110 && (sk.slot === 'attack' || sk.slot === 'skill1')) {
     const other = sk.slot === 'attack' ? inp.pressed.skill1 : inp.pressed.attack
     if (other && getSkill(CHARACTERS[f.character].loadout.smash)) {
       if (sk.def.cooldownMs) f.cooldowns[sk.def.id] = 0
@@ -481,15 +503,19 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
 
   if (sk.phase === 'startup') {
     if (sk.def.charge && !sk.released) {
-      // 重擊（普攻+特招同按）只要任一鍵還按著就持續蓄力
+      // 重擊（普攻+特招同按）只要任一鍵還按著就持續保持蓄力狀態，直到放開才打下去
       const held = sk.slot === 'smash' ? inp.held.attack || inp.held.skill1 : inp.held[sk.slot]
-      if (held && sk.chargeMs < sk.def.charge.maxMs) {
-        sk.chargeMs += dtMs
-        sfx('charge', sk.chargeRatio)
+      if (held) {
+        if (sk.chargeMs < sk.def.charge.maxMs) {
+          sk.chargeMs = Math.min(sk.def.charge.maxMs, sk.chargeMs + dtMs)
+          sfx('charge', sk.chargeRatio)
+        }
+        sk.chargeRatio = clamp(sk.chargeMs / sk.def.charge.maxMs, 0, 1)
+        sk.phaseMs = 0 // 蓄力中（含蓄滿未放開）：前搖計時暫停
+      } else {
+        sk.chargeRatio = clamp(sk.chargeMs / sk.def.charge.maxMs, 0, 1)
+        sk.released = true
       }
-      sk.chargeRatio = clamp(sk.chargeMs / sk.def.charge.maxMs, 0, 1)
-      if (!held || sk.chargeMs >= sk.def.charge.maxMs) sk.released = true
-      else sk.phaseMs = 0 // 蓄力中：前搖計時暫停
     }
     sk.phaseMs += dtMs
     sk.def.hooks?.onTick?.(makeCtx(f, sk, dt))
@@ -547,10 +573,12 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
     }
     trb.setLinvel({ x: dir[0] * 4, y: 0, z: 0 }, true)
     addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1], 0], color: '#8fd0ff', ttl: 220, radius: 1.1, plane: 'vertical' })
-    if (tgt.shield <= 0) { tgt.shield = 0; tgt.hitstunMs = 1500; endSkill(tgt); setFsm(tgt, 'HITSTUN'); sfx('shieldBreak') }
+    if (tgt.shield <= 0) { tgt.shield = 0; tgt.lastHitBy = att.id; tgt.coyoteMs = 0; tgt.hitstunMs = 1500; endSkill(tgt); setFsm(tgt, 'HITSTUN'); sfx('shieldBreak') }
     return
   }
   const wasInHitstun = tgt.fsm === 'HITSTUN'
+  tgt.lastHitBy = att.id
+  tgt.coyoteMs = 0
   tgt.damage = Math.min(MAX_DAMAGE, tgt.damage + dmg)
   att.stats.damageDealt += dmg
   tgt.stats.damageTaken += dmg
@@ -597,7 +625,10 @@ function ko(f: FighterState) {
   rumble(f.id, 1, 400)
   if (f.skill) endSkill(f)
   releaseLedge(f)
-  store().fighters[other(f.id)].stats.kos += 1
+  const fs = store().fighters
+  const killerId = f.lastHitBy && f.lastHitBy !== f.id ? f.lastHitBy : nearestEnemyOf(f.id)?.id
+  if (killerId && fs[killerId]) fs[killerId].stats.kos += 1
+  f.lastHitBy = null
   f.comboCount = 0
   f.comboTimerMs = 0
   f.stocks -= 1
@@ -606,9 +637,10 @@ function ko(f: FighterState) {
   f.alive = false
   f.respawnMs = 1300
   rb.setEnabled(false)
-  if (f.stocks <= 0) {
+  const aliveIds = getActiveFighterIds().filter((id) => fs[id].stocks > 0)
+  if (aliveIds.length <= 1) {
     publishUi(0, true)
-    store().endMatch(other(f.id))
+    store().endMatch(aliveIds[0] ?? killerId ?? f.id)
   }
 }
 
@@ -616,16 +648,26 @@ function respawn(f: FighterState) {
   const rb = runtime.bodies[f.id]!
   const first = f.firstSpawn
   const stage = getStage()
-  const sx = stage.spawnX[f.id] ?? SPAWN_X[f.id]
+  const active = getActiveFighterIds()
+  const idx = Math.max(0, active.indexOf(f.id))
+  const span = stage.half.x * 0.78
+  const sx = active.length <= 2
+    ? ((stage.spawnX as Partial<Record<FighterId, number>>)[f.id] ?? (SPAWN_X as Partial<Record<FighterId, number>>)[f.id] ?? (idx === 0 ? -span * 0.5 : span * 0.5))
+    : -span + (2 * span * idx) / Math.max(1, active.length - 1)
+  const rx = first ? sx : (Math.random() - 0.5) * 3
+  const ry = first ? 1 : 9
   f.firstSpawn = false
   rb.setEnabled(true)
   if (first) resetCpu(f.id)
-  rb.setTranslation({ x: first ? sx : 0, y: first ? 1 : 9, z: 0 }, true)
+  rb.setTranslation({ x: rx, y: ry, z: 0 }, true)
   rb.setLinvel({ x: 0, y: 0, z: 0 }, true)
   rb.setGravityScale(1, true)
   f.alive = true
   f.invulnMs = first ? 300 : 2500
   f.hitstunMs = 0
+  f.lastHitBy = null
+  f.jumpBufferMs = 0
+  f.coyoteMs = 0
   f.slowFactor = 1
   f.shield = SHIELD_MAX
   f.skill = null
@@ -633,7 +675,7 @@ function respawn(f: FighterState) {
   f.ledgeCd = 0
   f.upSpecialUsed = false
   f.airDodgeUsed = false
-  f.pos = [first ? sx : 0, first ? 1 : 9, 0]
+  f.pos = [rx, ry, 0]
   setFsm(f, 'JUMP')
   if (!first) sfx('respawn')
 }
@@ -669,8 +711,11 @@ function updateFighter(f: FighterState, dt: number) {
   if (f.grounded) {
     if (!wasGrounded && f.vel[1] < -1.5) sfx('land', Math.min(1, Math.abs(f.vel[1]) / 20))
     f.jumpsLeft = MAX_JUMPS; f.airDodgeUsed = false; f.upSpecialUsed = false
+    f.coyoteMs = 110 // 土狼時間：剛離開平台邊緣的一瞬間仍視為接地起跳
+  } else {
+    f.coyoteMs = Math.max(0, (f.coyoteMs ?? 0) - dtMs)
+    if (f.coyoteMs <= 0 && f.jumpsLeft > 1) f.jumpsLeft = 1 // 滯空時最多只能再跳一次（走下平台、被擊飛也一樣）
   }
-  else if (f.jumpsLeft > 1) f.jumpsLeft = 1 // 滯空時最多只能再跳一次（走下平台、被擊飛也一樣）
 
   // 減速力場（只影響敵方）
   f.slowFactor = 1
@@ -680,6 +725,10 @@ function updateFighter(f: FighterState, dt: number) {
 
   const inp = store().cpu[f.id] ? cpuInput(f.id, dt) : readInput(f.id)
   if (store().phase !== 'playing') return
+
+  // 跳躍輸入緩衝（150ms）：避免跑步換手、剛結束硬直或起跳前一刻按跳沒反應
+  f.jumpBufferMs = Math.max(0, (f.jumpBufferMs ?? 0) - dtMs)
+  if (inp.pressed.jump) f.jumpBufferMs = 150
 
   if (f.fsm === 'HITSTUN') {
     f.hitstunMs -= dtMs
@@ -697,8 +746,10 @@ function updateFighter(f: FighterState, dt: number) {
   }
   if (f.fsm === 'DODGE') { updateDodge(f, dt); return }
   if (f.fsm === 'SHIELD') {
-    if (inp.pressed.jump && f.jumpsLeft > 0) { // 防禦中按跳躍：直接跳出
+    if ((inp.pressed.jump || (f.jumpBufferMs ?? 0) > 0) && f.jumpsLeft > 0) { // 防禦中按跳躍：直接跳出
       f.jumpsLeft--
+      f.jumpBufferMs = 0
+      f.coyoteMs = 0
       sfx('jump', 0)
       rb.setLinvel({ x: lv.x, y: JUMP_VEL, z: 0 }, true)
       setFsm(f, 'JUMP')
@@ -742,12 +793,18 @@ function updateFighter(f: FighterState, dt: number) {
 
   // 站在層板上向下推（約 0.1 秒）→ 穿下去
   f.downMs = inp.moveY < -0.7 ? f.downMs + dtMs : 0
-  if (f.grounded && f.pos[1] > 0.8 && f.downMs > 90) { f.dropMs = DROP_THROUGH_MS; f.grounded = false; f.downMs = 0 }
+  if (f.grounded && f.pos[1] > 0.8 && f.downMs > 90) { f.dropMs = DROP_THROUGH_MS; f.grounded = false; f.downMs = 0; f.coyoteMs = 0 }
 
   let vy = lv.y
-  if (inp.pressed.jump && f.jumpsLeft > 0) {
-    vy = JUMP_VEL; f.jumpsLeft--
-    sfx('jump', f.grounded ? 0 : 1)
+  const wantJump = inp.pressed.jump || (f.jumpBufferMs ?? 0) > 0
+  const coyote = !f.grounded && (f.coyoteMs ?? 0) > 0
+  if (wantJump && (f.jumpsLeft > 0 || coyote)) {
+    const groundJump = f.grounded || coyote
+    vy = JUMP_VEL
+    f.jumpsLeft = groundJump ? MAX_JUMPS - 1 : Math.max(0, f.jumpsLeft - 1)
+    f.jumpBufferMs = 0
+    f.coyoteMs = 0
+    sfx('jump', groundJump ? 0 : 1)
     addFx({ kind: 'ring', pos: [t.x, t.y - 0.45, 0], color: '#ffffff', ttl: 250, radius: 0.9 })
   }
   if (!f.grounded && inp.moveY < -0.5 && vy < 2) vy = Math.max(vy, -22) - 40 * dt // 快速下墜
@@ -816,7 +873,7 @@ function updateZones(dt: number) {
     z.ttlMs -= dt * 1000
     if (z.ttlMs <= 0) { removeZone(z.id); continue }
     if (!z.damagePerSec && !z.pull) continue
-    for (const id of FIGHTER_IDS) {
+    for (const id of getActiveFighterIds()) {
       const f = fs[id]
       if (id === z.owner || !f.alive || f.fsm === 'LEDGE') continue
       if (Math.abs(f.pos[0] - z.pos[0]) >= z.radius || Math.abs(f.pos[1] - z.pos[1]) >= 3) continue
@@ -840,7 +897,7 @@ function publishUi(dt: number, force = false) {
   uiTimer = 0.08
   const { fighters, ui } = store()
   const next = {} as Record<FighterId, UiFighter>
-  for (const id of FIGHTER_IDS) {
+  for (const id of ALL_FIGHTER_IDS) {
     const f = fighters[id]
     const c = CHARACTERS[f.character]
     next[id] = {
@@ -867,12 +924,12 @@ export function stepSimulation(rawDt: number) {
   stepPlatforms(dt)
   if (debugKeys.toggle) { debugKeys.toggle = false; store().toggleDebug() }
   const s = store()
-  if (debugKeys.giveUlt) { debugKeys.giveUlt = false; for (const id of FIGHTER_IDS) s.fighters[id].ultReady = true }
+  if (debugKeys.giveUlt) { debugKeys.giveUlt = false; for (const id of getActiveFighterIds()) s.fighters[id].ultReady = true }
   for (const d of runtime.debugSpheres) d.ttl -= dt * 1000
   runtime.debugSpheres = runtime.debugSpheres.filter((d) => d.ttl > 0)
   runtime.shake *= Math.pow(0.001, dt) // 指數衰減
   if (s.phase !== 'playing') { ballTimer = 4; pending = []; ledgeOwner['-1'] = null; ledgeOwner['1'] = null; publishUi(dt); return }
-  for (const id of FIGHTER_IDS) updateFighter(s.fighters[id], dt)
+  for (const id of getActiveFighterIds()) updateFighter(s.fighters[id], dt)
   updateProjectiles(dt)
   resolveHits()
   separateFighters(dt)

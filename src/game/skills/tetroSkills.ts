@@ -1,7 +1,7 @@
 import { registerSkill } from './registry'
 import { registerSmashes, registerTilts } from './directionalSkills'
 import { sfx } from '../audio'
-import type { FighterId, SkillContext, Vec3 } from '../types'
+import { ALL_FIGHTER_IDS, type FighterId, type SkillContext, type Vec3 } from '../types'
 
 export type TetroKind = 'I' | 'O' | 'T' | 'S' | 'Z' | 'J' | 'L'
 
@@ -55,18 +55,14 @@ function createBoard(): TetroBoard {
   }
 }
 
-const boards: Record<FighterId, TetroBoard> = {
-  p1: createBoard(),
-  p2: createBoard(),
-}
+const boards = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, createBoard()])) as Record<FighterId, TetroBoard>
 
 export function getTetroBoard(id: FighterId): TetroBoard {
   return boards[id]
 }
 
 export function resetTetroBoards() {
-  boards.p1 = createBoard()
-  boards.p2 = createBoard()
+  for (const id of ALL_FIGHTER_IDS) boards[id] = createBoard()
 }
 
 function advancePiece(b: TetroBoard): TetroDef {

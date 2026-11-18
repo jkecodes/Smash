@@ -1,8 +1,23 @@
 import type { RapierRigidBody } from '@react-three/rapier'
 
-export type FighterId = 'p1' | 'p2'
-export const FIGHTER_IDS: FighterId[] = ['p1', 'p2']
-export type CharacterId = 'cube' | 'nova' | 'knight' | 'robot' | 'alien' | 'soldier' | 'zombie' | 'tetro'
+export type FighterId = 'p1' | 'p2' | 'p3' | 'p4' | 'p5' | 'p6' | 'p7' | 'p8'
+export const ALL_FIGHTER_IDS: FighterId[] = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8']
+export const FIGHTER_IDS: FighterId[] = ALL_FIGHTER_IDS
+export const PLAYER_COLORS: Record<FighterId, string> = {
+  p1: '#ff4d4d',
+  p2: '#3d9bff',
+  p3: '#ffd24d',
+  p4: '#4ade80',
+  p5: '#fb923c',
+  p6: '#22d3ee',
+  p7: '#c084fc',
+  p8: '#f472b6',
+}
+export type CharacterId =
+  | 'tetro'
+  | 'pacman' | 'mario' | 'invader' | 'bomber'
+  | 'snake' | 'frogger' | 'kong' | 'pong'
+  | 'reimu' | 'marisa'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'
   | 'ATTACK_STARTUP' | 'ATTACK_ACTIVE' | 'ATTACK_RECOVERY'
@@ -92,6 +107,8 @@ export interface CharacterDef {
   color: string
   /** 角色專屬戰鬥特色說明 */
   trait?: string
+  /** 角色詳細遊玩教學 */
+  guide?: { summary: string; steps: string[]; combo: string }
   /** 鍵為 'skill1'，或帶方向的 'skill1:up' / 'skill1:down'（按住搖桿方向 + 該鍵時優先使用） */
   loadout: Partial<Record<string, string>>
   /** 模型動畫片段名稱覆寫（狀態 → clip 名稱） */
@@ -162,6 +179,9 @@ export interface FighterState {
   ledgeCd: number
   comboCount: number
   comboTimerMs: number
+  lastHitBy?: FighterId | null
+  jumpBufferMs?: number
+  coyoteMs?: number
   stats: FighterStats
 }
 

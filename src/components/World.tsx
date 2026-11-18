@@ -2,6 +2,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { CuboidCollider, RigidBody, interactionGroups, useRapier, type RapierRigidBody } from '@react-three/rapier'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { ModelAvatar, ModelBoundary, useModelUrl } from './ModelAvatar'
+import { RetroAvatar, isRetroAvatar } from './RetroAvatar'
 import * as THREE from 'three'
 import { CHARACTERS } from '../game/characters'
 import { PLATFORM_THICKNESS } from '../game/constants'
@@ -10,8 +11,8 @@ import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroS
 import { StageDecor, StageParticles, useStageSurfaceTexture } from './StageArt'
 import { runtime } from '../game/runtime'
 import { stepSimulation } from '../game/sim'
-import { useGameStore } from '../game/store'
-import { FIGHTER_IDS, type FighterId } from '../game/types'
+import { getActiveFighterIds, useGameStore } from '../game/store'
+import { ALL_FIGHTER_IDS, PLAYER_COLORS, type FighterId } from '../game/types'
 
 function PlatformView({ p, i, h, theme }: { p: PlatformDef; i: number; h: { x: number; y: number; z: number }; theme: StageTheme }) {
   const visRef = useRef<THREE.Group>(null)
@@ -68,7 +69,7 @@ function PlatformView({ p, i, h, theme }: { p: PlatformDef; i: number; h: { x: n
 /** 場地：動態載入懸空主平台與穿透式層板 */
 export function Arena() {
   const stageId = useGameStore((s) => s.stageId)
-  const stage = STAGES[stageId] ?? STAGES.battlefield
+  const stage = STAGES[stageId] ?? STAGES.reimu
   const h = stage.half
   const theme = stage.theme
   const surfaceTex = useStageSurfaceTexture(stage.id)
@@ -128,7 +129,6 @@ export function SimLoop() {
 }
 
 const CHAR_SCALE = 1.4 // 角色視覺放大倍率（碰撞體不變）
-const MARK_COLOR: Record<FighterId, string> = { p1: '#ff4d4d', p2: '#3d9bff' }
 function makeMarkTexture(label: string, color: string) {
   const c = document.createElement('canvas'); c.width = 256; c.height = 128
   const g = c.getContext('2d')!
@@ -136,16 +136,17 @@ function makeMarkTexture(label: string, color: string) {
   g.beginPath(); g.moveTo(128, 124); g.lineTo(100, 96); g.lineTo(156, 96); g.closePath(); g.fill() // 向下小箭頭
   g.beginPath(); g.roundRect(28, 8, 200, 86, 22); g.fill()
   g.lineWidth = 6; g.strokeStyle = '#ffffff'; g.stroke()
-  g.fillStyle = '#ffffff'; g.font = 'bold 52px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'
+  g.fillStyle = '#ffffff'; g.font = 'bold 46px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'
   g.fillText(label, 128, 52)
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace
   return t
 }
 function PlayerMarker({ id }: { id: FighterId }) {
   const cpu = useGameStore((s) => s.cpu[id])
-  const label = cpu ? `${id === 'p1' ? 'P1' : 'P2'} CPU` : id === 'p1' ? 'P1' : 'P2'
+  const tag = id.toUpperCase()
+  const label = cpu ? `${tag} CPU` : tag
   const tex = useState(() => ({ t: null as THREE.CanvasTexture | null }))[0]
-  useEffect(() => { tex.t = makeMarkTexture(label, MARK_COLOR[id]); setV((v) => v + 1); return () => tex.t?.dispose() }, [label, id, tex])
+  useEffect(() => { tex.t = makeMarkTexture(label, PLAYER_COLORS[id]); setV((v) => v + 1); return () => tex.t?.dispose() }, [label, id, tex])
   const [, setV] = useState(0)
   const ref = useRef<THREE.Sprite>(null)
   useFrame(() => { if (ref.current) ref.current.position.y = 2.0 + Math.sin(performance.now() / 300) * 0.06 })
@@ -274,11 +275,12 @@ function FighterView({ id }: { id: FighterId }) {
     group.current.visible = f.alive
     const modelShown = !!modelUrl && readyUrl.current === modelUrl
     const isTetro = f.character === 'tetro' && !modelShown
+    const isRetro = isRetroAvatar(f.character) && !modelShown
     if (body.current) {
-      body.current.visible = !modelShown && !isTetro
+      body.current.visible = !modelShown && !isTetro && !isRetro
       body.current.rotation.x = f.fsm === 'DODGE' ? (f.stateMs / 340) * Math.PI * 2 : 0
     }
-    if (nose.current) nose.current.visible = !modelShown && !isTetro
+    if (nose.current) nose.current.visible = !modelShown && !isTetro && !isRetro
     group.current.rotation.y = f.facing[0] >= 0 ? Math.PI / 2 : -Math.PI / 2
     const flash = f.flashMs > 0
     const base = new THREE.Color(tint)
@@ -319,6 +321,7 @@ function FighterView({ id }: { id: FighterId }) {
         </ModelBoundary>
       )}
       {charId === 'tetro' && !modelUrl && <TetroAvatar id={id} />}
+      {isRetroAvatar(charId) && !modelUrl && <RetroAvatar id={id} charId={charId} />}
       <mesh ref={body} castShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial ref={mat} color={tint} />
@@ -357,13 +360,15 @@ function PlayerMarkerGate({ id }: { id: FighterId }) {
 }
 
 function Fighter({ id }: { id: FighterId }) {
+  const idx = ALL_FIGHTER_IDS.indexOf(id)
+  const initX = idx === 0 ? -4 : idx === 1 ? 4 : -6 + idx * 1.7
   return (
     <RigidBody
       ref={(rb: RapierRigidBody | null) => {
         runtime.bodies[id] = rb
         if (rb) runtime.handles.set(rb.handle, id)
       }}
-      position={[id === 'p1' ? -4 : 4, 1, 0]}
+      position={[initX, 1, 0]}
       enabledRotations={[false, false, false]}
       enabledTranslations={[true, true, false]} // 2.5D：鎖定 Z 軸
       colliders={false}
@@ -379,7 +384,8 @@ function Fighter({ id }: { id: FighterId }) {
 }
 
 export function Fighters() {
-  return <>{FIGHTER_IDS.map((id) => <Fighter key={id} id={id} />)}</>
+  const playerCount = useGameStore((s) => s.playerCount)
+  return <>{ALL_FIGHTER_IDS.slice(0, playerCount).map((id) => <Fighter key={id} id={id} />)}</>
 }
 
 /** 自動取景的側視攝影機（2.5D） */
@@ -387,11 +393,11 @@ export function CameraRig() {
   const { camera } = useThree()
   const look = useRef(new THREE.Vector3(0, 2, 0))
   const stageId = useGameStore((s) => s.stageId)
-  const stage = STAGES[stageId] ?? STAGES.battlefield
+  const stage = STAGES[stageId] ?? STAGES.reimu
 
   useFrame((_, dt) => {
     const fs = useGameStore.getState().fighters
-    const pts = FIGHTER_IDS.map((i) => fs[i]).filter((f) => f.alive).map((f) => f.pos)
+    const pts = getActiveFighterIds().map((i) => fs[i]).filter((f) => f?.alive).map((f) => f.pos)
     let cx = 0, cy = 2, spread = 8
     if (pts.length) {
       const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1])

@@ -1,7 +1,11 @@
 import { useGameStore } from './store'
-import type { Btn, FighterId } from './types'
+import { ALL_FIGHTER_IDS, type Btn, type FighterId } from './types'
 
 type Map_ = Record<'left' | 'right' | 'up' | 'down' | Btn, string[]>
+const emptyKeyMap = (): Map_ => ({
+  left: [], right: [], up: [], down: [],
+  jump: [], attack: [], skill1: [], skill2: [], ult: [], shield: [],
+})
 const KEYMAP: Record<FighterId, Map_> = {
   p1: {
     left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], down: ['KeyS'],
@@ -11,6 +15,12 @@ const KEYMAP: Record<FighterId, Map_> = {
     left: ['ArrowLeft'], right: ['ArrowRight'], up: ['ArrowUp'], down: ['ArrowDown'],
     jump: ['Enter', 'ArrowUp'], attack: ['Period'], skill1: ['Slash'], skill2: ['Quote'], ult: ['Semicolon'], shield: ['ShiftRight', 'Comma'],
   },
+  p3: emptyKeyMap(),
+  p4: emptyKeyMap(),
+  p5: emptyKeyMap(),
+  p6: emptyKeyMap(),
+  p7: emptyKeyMap(),
+  p8: emptyKeyMap(),
 }
 const KEY_FALLBACK: Record<string, string> = {
   a: 'KeyA', d: 'KeyD', w: 'KeyW', s: 'KeyS',
@@ -22,11 +32,12 @@ const KEY_FALLBACK: Record<string, string> = {
 const BTNS: Btn[] = ['jump', 'attack', 'skill1', 'skill2', 'ult', 'shield']
 // 手把（大亂鬥配置，W3C 標準映射：0=下 1=右 2=左 3=上）
 //  A(右,1)=攻擊  B(下,0)=技能1  X/Y(3,2)=跳躍  左搖桿上推=跳躍
-//  右搖桿(任一方向)=技能2（按住蓄力）  RT(7)/R3(11)=大招  LB/RB/LT(4,5,6)=防禦
-const PAD_BTN: Record<Btn, number[]> = { jump: [2, 3], attack: [1], skill1: [0], skill2: [], ult: [7, 11], shield: [4, 5, 6] }
+//  右搖桿(任一方向)=技能2（按住蓄力）  L3/R3(10,11)=大招  LB/RB/LT/RT(4,5,6,7)=防禦
+const PAD_BTN: Record<Btn, number[]> = { jump: [2, 3], attack: [1], skill1: [0], skill2: [], ult: [10, 11], shield: [4, 5, 6, 7] }
 const DEADZONE = 0.22
 
 const keys = new Set<string>()
+const justPressedKeys = new Set<string>()
 export const debugKeys = { toggle: false, giveUlt: false, pause: false }
 if (typeof window !== 'undefined') {
   const prevent = new Set(Object.values(KEYMAP).flatMap((m) => Object.values(m).flat()))
@@ -41,8 +52,15 @@ if (typeof window !== 'undefined') {
     if ((code === 'Escape' || code === 'KeyP') && !e.repeat) debugKeys.pause = true
     if (code === 'KeyH' && !e.repeat) debugKeys.toggle = true
     if (code === 'KeyU' && !e.repeat) debugKeys.giveUlt = true // 測試用：雙方立即獲得大招
-    if (code) keys.add(code)
-    if (e.key === 'Shift') keys.add(e.location === 2 ? 'ShiftRight' : 'ShiftLeft')
+    if (code) {
+      keys.add(code)
+      if (!e.repeat) justPressedKeys.add(code)
+    }
+    if (e.key === 'Shift') {
+      const sCode = e.location === 2 ? 'ShiftRight' : 'ShiftLeft'
+      keys.add(sCode)
+      if (!e.repeat) justPressedKeys.add(sCode)
+    }
   })
   window.addEventListener('keyup', (e) => {
     const code = resolveCode(e)
@@ -52,7 +70,7 @@ if (typeof window !== 'undefined') {
       keys.delete('ShiftRight')
     }
   })
-  window.addEventListener('blur', () => keys.clear())
+  window.addEventListener('blur', () => { keys.clear(); justPressedKeys.clear() })
 }
 
 export interface InputFrame {
@@ -61,10 +79,8 @@ export interface InputFrame {
   held: Record<Btn, boolean>
   pressed: Record<Btn, boolean>
 }
-const prev: Record<FighterId, Record<Btn, boolean>> = {
-  p1: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false },
-  p2: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false },
-}
+const emptyBtns = (): Record<Btn, boolean> => ({ jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false })
+const prev = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, emptyBtns()])) as Record<FighterId, Record<Btn, boolean>>
 /** 圓形死區，並重新縮放讓類比輸出平滑 */
 function radial(x: number, y: number): [number, number] {
   const m = Math.hypot(x, y)
@@ -72,11 +88,11 @@ function radial(x: number, y: number): [number, number] {
   const k = Math.min(1, (m - DEADZONE) / (1 - DEADZONE)) / m
   return [x * k, y * k]
 }
-/** P1 = 第一支手把，P2 = 第二支 */
+/** P1..P8 對應第 1..8 支手把 */
 function padFor(id: FighterId): Gamepad | null {
   if (typeof navigator === 'undefined' || !navigator.getGamepads) return null
   const pads = [...navigator.getGamepads()].filter((p): p is Gamepad => !!p && p.connected)
-  return pads[id === 'p1' ? 0 : 1] ?? null
+  return pads[ALL_FIGHTER_IDS.indexOf(id)] ?? null
 }
 export function connectedPadCount(): number {
   if (typeof navigator === 'undefined' || !navigator.getGamepads) return 0
@@ -91,7 +107,7 @@ export function rumble(id: FighterId, strength: number, ms = 120) {
   act.playEffect('dual-rumble', { duration: ms, strongMagnitude: m, weakMagnitude: m * 0.7 }).catch?.(() => {})
 }
 /** 選單用：回傳該玩家手把的「邊緣觸發」操作 */
-const menuPrev: Record<FighterId, { dx: number; ok: boolean }> = { p1: { dx: 0, ok: false }, p2: { dx: 0, ok: false } }
+const menuPrev = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, { dx: 0, ok: false }])) as Record<FighterId, { dx: number; ok: boolean }>
 export function readMenuPad(id: FighterId): { dx: number; confirm: boolean } {
   const pad = padFor(id)
   if (!pad) return { dx: 0, confirm: false }
@@ -143,13 +159,22 @@ export function readInput(id: FighterId): InputFrame {
     for (const b of BTNS) {
       const custom = map.btn?.[b]
       const idxs = custom !== undefined ? [custom] : PAD_BTN[b]
-      if (idxs.some((i) => pad.buttons[i]?.pressed)) held[b] = true
+      if (idxs.some((i) => pad.buttons[i]?.pressed || (pad.buttons[i]?.value ?? 0) > 0.25)) held[b] = true
+    }
+    // 無論是否自訂按鍵，手把 Left Trigger (6) 與 Right Trigger (7) 皆可觸發防禦
+    if (pad.buttons[6]?.pressed || (pad.buttons[6]?.value ?? 0) > 0.25 || pad.buttons[7]?.pressed || (pad.buttons[7]?.value ?? 0) > 0.25) {
+      held.shield = true
     }
     if (map.btn?.skill2 === undefined && std && Math.hypot(pad.axes[2] ?? 0, pad.axes[3] ?? 0) > 0.6) held.skill2 = true
     if (moveY > 0.7) held.jump = true
   }
   const pressed = {} as Record<Btn, boolean>
-  for (const b of BTNS) { pressed[b] = held[b] && !prev[id][b]; prev[id][b] = held[b] }
+  for (const b of BTNS) {
+    const tapped = m[b].some((c) => justPressedKeys.has(c))
+    pressed[b] = (held[b] && !prev[id][b]) || tapped
+    prev[id][b] = held[b]
+    for (const c of m[b]) justPressedKeys.delete(c)
+  }
   return { moveX: Math.max(-1, Math.min(1, moveX)), moveY, held, pressed }
 }
 

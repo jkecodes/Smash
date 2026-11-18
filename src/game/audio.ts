@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { useGameStore } from './store'
+import { getActiveFighterIds, useGameStore } from './store'
 
 /**
  * 音效：全部用 Web Audio 即時合成（不需要任何音檔）。
@@ -151,7 +151,7 @@ export function sfx(name: Sfx, p = 0.5) {
     case 'ballHit': tone(1318 * r, 0.12, { type: 'triangle', gain: 0.22 }); tone(1760 * r, 0.14, { type: 'triangle', gain: 0.16, delay: 0.04 }); break
     case 'ballBreak':
       noise(0.5, { type: 'lowpass', from: 3500, to: 200, gain: 0.4 })
-      ;[392, 523, 659, 784, 1047].forEach((f, i) => tone(f, 0.3, { type: 'square', gain: 0.14, delay: i * 0.06 }))
+        ;[392, 523, 659, 784, 1047].forEach((f, i) => tone(f, 0.3, { type: 'square', gain: 0.14, delay: i * 0.06 }))
       break
     case 'ballSpawn': tone(880, 0.25, { type: 'sine', gain: 0.18, to: 1760 }); break
     case 'ui': tone(660, 0.06, { type: 'square', gain: 0.1 }); break
@@ -205,7 +205,7 @@ if (typeof window !== 'undefined') {
       const mel = BATTLE_MELODY[step % BATTLE_MELODY.length]
       if (mel > 0) {
         tone(mel, 0.14, { type: 'triangle', gain: 0.05, attack: 0.006 })
-        const climax = gs.fighters.p1.ultReady || gs.fighters.p2.ultReady || gs.fighters.p1.stocks === 1 || gs.fighters.p2.stocks === 1
+        const climax = getActiveFighterIds().some((id) => gs.fighters[id]?.ultReady || gs.fighters[id]?.stocks === 1)
         if (climax) tone(mel * 2, 0.12, { type: 'sine', gain: 0.03, attack: 0.006 })
       }
       if (step % 4 === 2) {

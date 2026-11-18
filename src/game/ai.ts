@@ -3,8 +3,8 @@ import { STAGES } from './stages'
 import type { InputFrame } from './input'
 import { runtime } from './runtime'
 import { getSkill } from './skills'
-import { useGameStore } from './store'
-import type { Btn, FighterId, FighterState, SkillDef, SkillSlot } from './types'
+import { getActiveFighterIds, useGameStore } from './store'
+import { ALL_FIGHTER_IDS, type Btn, type FighterId, type FighterState, type SkillDef, type SkillSlot } from './types'
 
 /**
  * 電腦玩家：每幀產生一份和真人手把/鍵盤完全相同格式的 InputFrame，
@@ -38,7 +38,7 @@ interface Mem {
   dropT: number
 }
 const fresh = (): Mem => ({ prev: noBtns(), think: 400, act: null, shield: 0, jumpCd: 0, ledgeT: 0, ledgeWait: 500, ledgeChoice: 0, enemyAtkSeen: false, idle: 0, strafe: 0, ballT: 0, ballIgnore: 0, shieldTotal: 0, dodge: 'none', rollDir: 0, dropT: 0 })
-const mem: Record<FighterId, Mem> = { p1: fresh(), p2: fresh() }
+const mem = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, fresh()])) as Record<FighterId, Mem>
 export function resetCpu(id: FighterId) { mem[id] = fresh() }
 
 const LEVEL = {
@@ -104,7 +104,15 @@ function pickAttack(f: FighterState, e: FighterState): Act | null {
 export function cpuInput(id: FighterId, dt: number): InputFrame {
   const S = useGameStore.getState()
   const f = S.fighters[id]
-  const e = S.fighters[id === 'p1' ? 'p2' : 'p1']
+  const others = getActiveFighterIds().filter((oid) => oid !== id).map((oid) => S.fighters[oid])
+  const living = others.filter((o) => o.alive)
+  const pool = living.length ? living : others
+  let e = pool[0] ?? S.fighters.p1
+  let bestD = Infinity
+  for (const o of pool) {
+    const d = Math.hypot(o.pos[0] - f.pos[0], o.pos[1] - f.pos[1])
+    if (d < bestD) { bestD = d; e = o }
+  }
   const m = mem[id]
   const lv = LEVEL[(S.cpu[id] || 2) as 1 | 2 | 3]
   const dtMs = dt * 1000
@@ -162,7 +170,7 @@ export function cpuInput(id: FighterId, dt: number): InputFrame {
   const start = (a: Act | null) => { if (a) m.act = a; return !!a }
 
   // ---- 3. 場外回場
-  const stage = STAGES[useGameStore.getState().stageId] ?? STAGES.battlefield
+  const stage = STAGES[useGameStore.getState().stageId] ?? STAGES.reimu
   const offstage = Math.abs(x) > (stage.half.x - 0.4) || y < -0.4
   if (offstage && !busy) {
     mx = homeDir

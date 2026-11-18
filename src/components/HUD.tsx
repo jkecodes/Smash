@@ -3,10 +3,11 @@ import { pollPause, captureAxis, captureBase, captureButton, clearMap, connected
 import { CHARACTERS, CHARACTER_IDS } from '../game/characters'
 import { clearEntities } from '../game/runtime'
 import { resetSimStage } from '../game/sim'
+import { getSkill } from '../game/skills'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { STAGES, STAGE_IDS } from '../game/stages'
 import { useGameStore } from '../game/store'
-import { FIGHTER_IDS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
+import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
 import { sfx, useAudioStore } from '../game/audio'
 import { CharacterPortrait, SHORT_NAMES } from './CharacterPortrait'
 
@@ -14,95 +15,101 @@ const damageColor = (d: number) => {
   const t = Math.min(1, d / 200)
   return `rgb(255, ${Math.round(255 - t * 200)}, ${Math.round(255 - t * 230)})`
 }
-const SLOT_KEYS: Record<FighterId, Record<string, string>> = {
+const SLOT_KEYS: Partial<Record<FighterId, Record<string, string>>> = {
   p1: { attack: 'J', skill1: 'K', skill2: 'L', ult: 'I' },
   p2: { attack: '.', skill1: '/', skill2: "'", ult: ';' },
 }
 
-function Card({ id, u }: { id: FighterId; u: UiFighter }) {
+function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact?: boolean }) {
   const charId = useGameStore((s) => s.selection[id])
+  if (!u) return null
   const isTetro = charId === 'tetro'
   const tb = isTetro ? getTetroBoard(id) : null
   const readyLines = isTetro ? getReadyLines(id) : 0
   const clearBanner = tb?.lastClear && performance.now() < tb.lastClear.until ? tb.lastClear : null
+  const pColor = PLAYER_COLORS[id]
 
   return (
-    <div className="relative w-72 rounded-xl bg-black/55 p-3 text-white backdrop-blur">
+    <div className={`relative rounded-xl bg-black/60 text-white backdrop-blur border border-white/10 ${compact ? 'w-44 p-2' : 'w-72 p-3'}`}>
       {u.combo >= 2 && (
         <div
-          className=" -top-8 left-3 absolute animate-bounce rounded-full px-3 py-0.5 text-xs font-black text-black shadow-lg"
+          className="-top-7 left-2 absolute animate-bounce rounded-full px-2.5 py-0.5 text-[11px] font-black text-black shadow-lg"
           style={{ backgroundColor: u.color }}
         >
-          🔥 {u.combo} HIT COMBO!
+          🔥 {u.combo} HIT!
         </div>
       )}
       {clearBanner && (
         <div
-          className="-top-8 right-3 absolute animate-pulse rounded-full px-3 py-0.5 text-xs font-black text-black shadow-lg"
+          className="-top-7 right-2 absolute animate-pulse rounded-full px-2.5 py-0.5 text-[11px] font-black text-black shadow-lg"
           style={{ backgroundColor: clearBanner.color }}
         >
           {clearBanner.text}
         </div>
       )}
-      <div className="flex items-baseline justify-between">
-        <span className="text-sm font-bold tracking-widest" style={{ color: u.color }}>{id.toUpperCase()} · {u.name}</span>
-        <span className="font-mono text-[10px] text-white/60">{u.fsm}</span>
+      <div className="flex items-baseline justify-between gap-1">
+        <span className={`font-bold tracking-wide truncate ${compact ? 'text-[11px]' : 'text-sm'}`} style={{ color: pColor }}>
+          {id.toUpperCase()} · {u.name}
+        </span>
+        {!compact && <span className="font-mono text-[10px] text-white/60 shrink-0">{u.fsm}</span>}
       </div>
       <div className="mt-1 flex items-end justify-between gap-2">
-        <div className="flex items-end gap-2.5">
-          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black/50 shadow-inner">
+        <div className="flex items-end gap-2">
+          <div className={`${compact ? 'h-9 w-9' : 'h-12 w-12'} shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black/50 shadow-inner`}>
             <CharacterPortrait id={charId} className="h-full w-full" />
           </div>
-          <span className="text-5xl font-black leading-none tabular-nums" style={{ color: damageColor(u.damage), textShadow: '0 2px 0 #000' }}>
-            {u.damage}<span className="text-2xl">%</span>
+          <span className={`${compact ? 'text-3xl' : 'text-5xl'} font-black leading-none tabular-nums`} style={{ color: damageColor(u.damage), textShadow: '0 2px 0 #000' }}>
+            {u.damage}<span className={compact ? 'text-lg' : 'text-2xl'}>%</span>
           </span>
         </div>
-        <span className="flex gap-1 pb-2">
+        <span className="flex gap-1 pb-1.5">
           {Array.from({ length: Math.max(0, u.stocks) }, (_, i) => (
-            <span key={i} className="inline-block h-3.5 w-3.5 rounded-sm" style={{ background: u.color }} />
+            <span key={i} className={`inline-block rounded-sm ${compact ? 'h-2.5 w-2.5' : 'h-3.5 w-3.5'}`} style={{ background: pColor }} />
           ))}
         </span>
       </div>
-      <div className="mt-1 h-2 overflow-hidden rounded bg-white/10" title="能量">
+      <div className="mt-1 h-1.5 overflow-hidden rounded bg-white/10" title="能量">
         <div className="h-full" style={{ width: `${u.energy}%`, background: u.energy >= 100 ? '#ffd24d' : '#4dd2ff' }} />
       </div>
-      <div className="mt-1 h-1 overflow-hidden rounded bg-white/10" title="護盾">
+      <div className="mt-0.5 h-1 overflow-hidden rounded bg-white/10" title="護盾">
         <div className="h-full bg-sky-300/80" style={{ width: `${u.shield}%` }} />
       </div>
       {tb && (
-        <div className="mt-1.5 flex items-center justify-between rounded bg-white/10 px-2 py-1 text-[10px]">
-          <div className="flex items-center gap-1.5">
-            <span className="font-bold text-cyan-300">🧩 待消行:</span>
+        <div className="mt-1 flex items-center justify-between rounded bg-white/10 px-1.5 py-0.5 text-[10px]">
+          <div className="flex items-center gap-1">
+            <span className="font-bold text-cyan-300">🧩</span>
             <span className="flex gap-0.5">
               {[0, 1, 2, 3].map((i) => (
                 <span
                   key={i}
-                  className={`inline-block h-2.5 w-2.5 rounded-[2px] ${i < readyLines ? (readyLines >= 4 ? 'bg-yellow-300 animate-pulse' : 'bg-cyan-400') : 'bg-white/15'}`}
+                  className={`inline-block h-2 w-2 rounded-[2px] ${i < readyLines ? (readyLines >= 4 ? 'bg-yellow-300 animate-pulse' : 'bg-cyan-400') : 'bg-white/15'}`}
                 />
               ))}
             </span>
-            {readyLines >= 4 && <span className="font-black text-yellow-300">⚡TETRIS就緒!</span>}
+            {readyLines >= 4 && !compact && <span className="font-black text-yellow-300">⚡TETRIS!</span>}
           </div>
           <div className="flex items-center gap-1 font-mono text-white/70">
-            <span>HOLD:</span>
             <span className="font-black" style={{ color: TETROMINOES[tb.current].color }}>{tb.current}</span>
             <span className="text-white/40">→</span>
             <span className="font-bold" style={{ color: TETROMINOES[tb.next].color }}>{tb.next}</span>
           </div>
         </div>
       )}
-      <div className="mt-2 flex gap-1.5">
-        {u.slots.map((s) => {
-          const noEnergy = u.energy < s.cost
-          return (
-            <div key={s.slot} className={`relative flex-1 overflow-hidden rounded px-1 py-1 text-center ${s.slot === 'ult' && !s.locked ? 'bg-yellow-400/40 ring-1 ring-yellow-300' : 'bg-white/10'} ${noEnergy || s.locked ? 'opacity-40' : ''}`}>
-              <div className="text-[10px] leading-tight">{s.name}</div>
-              <div className="font-mono text-[10px] text-white/60">[{SLOT_KEYS[id][s.slot]}]{s.cost ? ` ${s.cost}` : ''}{s.locked ? ' 需大招球' : ''}</div>
-              <div className="absolute inset-x-0 bottom-0 bg-black/60" style={{ height: `${s.cd * 100}%` }} />
-            </div>
-          )
-        })}
-      </div>
+      {!compact && (
+        <div className="mt-2 flex gap-1.5">
+          {u.slots.map((s) => {
+            const noEnergy = u.energy < s.cost
+            const k = SLOT_KEYS[id]?.[s.slot]
+            return (
+              <div key={s.slot} className={`relative flex-1 overflow-hidden rounded px-1 py-1 text-center ${s.slot === 'ult' && !s.locked ? 'bg-yellow-400/40 ring-1 ring-yellow-300' : 'bg-white/10'} ${noEnergy || s.locked ? 'opacity-40' : ''}`}>
+                <div className="text-[10px] leading-tight">{s.name}</div>
+                <div className="font-mono text-[10px] text-white/60">{k ? `[${k}]` : ''}{s.cost ? ` ${s.cost}` : ''}{s.locked ? ' 需大招球' : ''}</div>
+                <div className="absolute inset-x-0 bottom-0 bg-black/60" style={{ height: `${s.cd * 100}%` }} />
+              </div>
+            )
+          })}
+        </div>
+      )}
       {u.charge > 0 && (
         <div className="mt-1 h-1.5 overflow-hidden rounded bg-white/10">
           <div className="h-full bg-white" style={{ width: `${u.charge * 100}%` }} />
@@ -119,7 +126,8 @@ function usePadMenu(active: boolean, onConfirm: () => void) {
     if (!active) return
     let raf = 0
     const loop = () => {
-      for (const id of FIGHTER_IDS) {
+      const count = useGameStore.getState().playerCount
+      for (const id of ALL_FIGHTER_IDS.slice(0, count)) {
         const { dx, confirm } = readMenuPad(id)
         if (dx) {
           const cur = useGameStore.getState().selection[id]
@@ -132,7 +140,7 @@ function usePadMenu(active: boolean, onConfirm: () => void) {
     }
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
-  }, [active])
+  }, [active, select, onConfirm])
 }
 function PadStatus() {
   const [n, setN] = useState(connectedPadCount())
@@ -146,10 +154,10 @@ function PadStatus() {
 
 const KIND_LABEL = { xbox: 'Xbox', ps: 'PlayStation', nintendo: 'Nintendo / Joy-Con', generic: '通用手把' } as const
 const KIND_KEYS = {
-  xbox: 'B 普攻・A 特招・X/Y 跳',
-  ps: '○ 普攻・✕ 特招・□/△ 跳',
-  nintendo: 'A 普攻・B 特招・X/Y 跳',
-  generic: '右鍵 攻擊・下鍵 技能1・左/上鍵 跳',
+  xbox: 'B 普攻・A 特招・X/Y 跳・LT/RT 防禦',
+  ps: '○ 普攻・✕ 特招・□/△ 跳・L2/R2 防禦',
+  nintendo: 'A 普攻・B 特招・X/Y 跳・ZL/ZR 防禦',
+  generic: '右鍵 攻擊・下鍵 技能1・左/上鍵 跳・LT/RT 防禦',
 } as const
 
 type Step = { label: string; kind: 'axisX' | 'axisY' | 'button'; btn?: Btn }
@@ -191,10 +199,10 @@ function PadWizard({ id, onClose }: { id: FighterId; onClose: () => void }) {
     }
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
-  }, [id])
+  }, [id, onClose])
   const pad = getPad(id)
   return (
-    <div className="pointer-events-auto absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-black/85 text-white">
+    <div className="pointer-events-auto absolute inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-black/85 text-white">
       <div className="text-lg font-bold">{id.toUpperCase()} 手把設定 {pad ? '' : '（找不到手把，請先接上並按任一鍵）'}</div>
       <div className="text-3xl font-black text-yellow-300">{STEPS[step].label}</div>
       <div className="text-sm text-white/60">{step + 1} / {STEPS.length}</div>
@@ -207,7 +215,7 @@ function PadWizard({ id, onClose }: { id: FighterId; onClose: () => void }) {
 }
 
 /** 拖曳 .glb / .gltf 到這裡即可替換該玩家的角色模型 */
-function ModelDrop({ id }: { id: FighterId }) {
+function ModelDrop({ id, compact = false }: { id: FighterId; compact?: boolean }) {
   const m = useGameStore((s) => s.playerModel[id])
   const set = useGameStore((s) => s.setPlayerModel)
   const [over, setOver] = useState(false)
@@ -217,27 +225,28 @@ function ModelDrop({ id }: { id: FighterId }) {
       onDragOver={(e) => { e.preventDefault(); setOver(true) }}
       onDragLeave={() => setOver(false)}
       onDrop={(e) => { e.preventDefault(); setOver(false); accept(e.dataTransfer.files[0]) }}
-      className={`mt-2 block cursor-pointer rounded border border-dashed px-2 py-2 text-center text-[11px] ${over ? 'border-yellow-300 bg-yellow-300/20' : 'border-white/30'}`}
+      onClick={(e) => e.stopPropagation()}
+      className={`mt-1.5 block cursor-pointer rounded border border-dashed px-2 ${compact ? 'py-1 text-[10px]' : 'py-1.5 text-[11px]'} text-center ${over ? 'border-yellow-300 bg-yellow-300/20' : 'border-white/25'}`}
     >
       <input type="file" accept=".glb,.gltf" className="hidden" onChange={(e) => accept(e.target.files?.[0])} />
-      {m ? <>🧊 {m.name} <button type="button" className="ml-1 underline" onClick={(e) => { e.preventDefault(); set(id, null) }}>移除</button></> : '拖曳 .glb 模型到這裡（或點擊選檔）'}
+      {m ? <>🧊 {m.name} <button type="button" className="ml-1 underline" onClick={(e) => { e.preventDefault(); set(id, null) }}>移除</button></> : (compact ? '拖入 .glb 自訂外觀' : '拖曳 .glb 模型到這裡（或點擊選檔）')}
     </label>
   )
 }
 
-function PadInfo({ id, onSetup }: { id: FighterId; onSetup: () => void }) {
+function PadInfo({ id, onSetup, compact = false }: { id: FighterId; onSetup: () => void; compact?: boolean }) {
   const [, tick] = useState(0)
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 700); return () => clearInterval(t) }, [])
   const d = describePad(id)
   return (
-    <div className="mt-2 text-[11px] leading-snug text-white/70">
+    <div className={`mt-1.5 leading-snug text-white/70 ${compact ? 'text-[10px]' : 'text-[11px]'}`} onClick={(e) => e.stopPropagation()}>
       {d ? (
         <>
-          <div className="text-emerald-300">🎮 {d.name}（{KIND_LABEL[d.kind]}）</div>
-          <div>{d.custom ? '已使用自訂綁定' : d.standard ? KIND_KEYS[d.kind] : '⚠ 非標準映射，建議先「設定手把」'}</div>
+          <div className="text-emerald-300 truncate">🎮 {d.name}（{KIND_LABEL[d.kind]}）</div>
+          {!compact && <div>{d.custom ? '已使用自訂綁定' : d.standard ? KIND_KEYS[d.kind] : '⚠ 非標準映射，建議先「設定手把」'}</div>}
           <button onClick={onSetup} className="mt-1 rounded bg-white/15 px-2 py-0.5 hover:bg-white/25">設定手把</button>
         </>
-      ) : <div>未連接手把（鍵盤可用）</div>}
+      ) : <div>{id === 'p1' || id === 'p2' ? '未連接手把（鍵盤可用）' : '未連接手把'}</div>}
     </div>
   )
 }
@@ -247,10 +256,10 @@ function CpuPicker({ id }: { id: FighterId }) {
   const lv = useGameStore((s) => s.cpu[id])
   const setCpu = useGameStore((s) => s.setCpu)
   return (
-    <div className="mt-2 flex gap-1">
+    <div className="mt-1.5 flex gap-1" onClick={(e) => e.stopPropagation()}>
       {CPU_LABEL.map((l, i) => (
         <button key={l} onClick={() => setCpu(id, i as 0 | 1 | 2 | 3)}
-          className={`flex-1 rounded px-1 py-1 text-[11px] font-bold ${lv === i ? 'bg-yellow-300 text-black' : 'bg-white/15 text-white/70'}`}>{l}</button>
+          className={`flex-1 rounded px-1 py-1 text-[10px] font-bold ${lv === i ? 'bg-yellow-300 text-black' : 'bg-white/15 text-white/70 hover:bg-white/25'}`}>{l}</button>
       ))}
     </div>
   )
@@ -259,10 +268,11 @@ function CpuPicker({ id }: { id: FighterId }) {
 function StagePicker() {
   const stageId = useGameStore((s) => s.stageId)
   const selectStage = useGameStore((s) => s.selectStage)
+  const activeStage = STAGES[stageId] ?? STAGES.reimu
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <div className="grid grid-cols-4 gap-2.5">
+    <div className="flex flex-col items-center gap-1.5 max-w-5xl w-full px-3">
+      <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 w-full">
         {STAGE_IDS.map((id) => {
           const st = STAGES[id]
           const active = stageId === id
@@ -271,29 +281,24 @@ function StagePicker() {
               key={id}
               type="button"
               onClick={() => { selectStage(id); sfx('ui') }}
-              className={`flex flex-col items-start rounded-xl px-2.5 py-1.5 transition-all w-44 text-left border ${active
-                  ? 'border-yellow-300 bg-white/20 shadow-lg shadow-yellow-500/10 scale-105 ring-1 ring-yellow-300'
-                  : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30 opacity-75 hover:opacity-100'
-                }`}
+              className={`flex flex-col items-start rounded-lg px-2 py-1 transition-all text-left border ${active
+                ? 'border-yellow-300 bg-white/20 shadow-md shadow-yellow-500/15 scale-[1.03] ring-1 ring-yellow-300'
+                : 'border-white/10 bg-white/5 hover:bg-white/12 hover:border-white/30 opacity-80 hover:opacity-100'
+              }`}
             >
-              <div className="flex w-full items-center justify-between">
-                <span className="text-xs font-black text-white">{st.theme.name}</span>
-                <span
-                  className="rounded px-1.5 py-0.5 text-[9px] font-bold"
-                  style={{ backgroundColor: st.theme.accentColor + '33', color: st.theme.accentColor }}
-                >
-                  {st.theme.tag}
-                </span>
+              <div className="flex w-full items-center justify-between gap-1">
+                <span className="text-[11px] font-black text-white truncate">{st.theme.name}</span>
+                <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: CHARACTERS[id].color }} />
               </div>
-              <div className="mt-0.5 text-[10px] text-white/50 leading-tight">
-                {st.theme.subtitle}
+              <div className="text-[9px] truncate w-full" style={{ color: st.theme.accentColor }}>
+                {st.theme.tag}
               </div>
             </button>
           )
         })}
       </div>
-      <div className="text-[11px] text-yellow-200/80 text-center max-w-xl">
-        🏟️ {STAGES[stageId].theme.desc}
+      <div className="text-[11px] text-yellow-200/85 text-center">
+        🏟️ <strong className="text-white">{activeStage.theme.name}</strong>：{activeStage.theme.desc}
       </div>
     </div>
   )
@@ -301,16 +306,14 @@ function StagePicker() {
 
 function HelpModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.code === 'Escape') onClose()
-    }
+    const handleKey = (e: KeyboardEvent) => { if (e.code === 'Escape') onClose() }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
 
   return (
     <div
-      className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      className="pointer-events-auto absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <div
@@ -321,16 +324,12 @@ function HelpModal({ onClose }: { onClose: () => void }) {
           <div className="text-base font-black tracking-wider flex items-center gap-2">
             <span>📖 操作指南與戰鬥技巧</span>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg bg-white/10 px-3 py-1 text-xs hover:bg-white/20 transition-colors"
-          >
+          <button onClick={onClose} className="rounded-lg bg-white/10 px-3 py-1 text-xs hover:bg-white/20 transition-colors">
             ✕ 關閉 (Esc)
           </button>
         </div>
 
         <div className="grid grid-cols-2 gap-3.5 text-xs">
-          {/* 鍵盤配置 */}
           <div className="rounded-xl bg-white/5 p-3.5 space-y-2 border border-white/5">
             <div className="font-bold text-yellow-300 flex items-center gap-1.5">
               <span>⌨️</span> 鍵盤按鍵配置
@@ -351,7 +350,6 @@ function HelpModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
-          {/* 手把配置 */}
           <div className="rounded-xl bg-white/5 p-3.5 space-y-2 border border-white/5">
             <div className="font-bold text-emerald-300 flex items-center gap-1.5">
               <span>🎮</span> 手把配置（大亂鬥佈局）
@@ -362,37 +360,176 @@ function HelpModal({ onClose }: { onClose: () => void }) {
               <div><strong className="text-white/60">下側鍵 (Xbox A / PS ✕)：</strong>特招（持有大招時為大招）</div>
               <div><strong className="text-white/60">右搖桿：</strong>技能2（支援推住蓄力）</div>
               <div><strong className="text-white/60">X / Y：</strong>跳躍</div>
-              <div><strong className="text-white/60">LB / RB / LT：</strong>防禦</div>
-              <div><strong className="text-white/60">Start：</strong>暫停</div>
-              <div className="text-[10px] text-white/50 pt-0.5">※ 如非標準手把，可在選單點擊「設定手把」精靈綁定。</div>
+              <div><strong className="text-emerald-300">LT / RT / LB / RB：</strong>防禦（左或右扳機皆可）</div>
+              <div><strong className="text-white/60">L3 / R3：</strong>大招 · <strong className="text-white/60">Start：</strong>暫停</div>
             </div>
           </div>
         </div>
 
-        {/* 戰鬥技巧 */}
         <div className="rounded-xl bg-white/5 p-3 space-y-1.5 text-[11px] border border-white/5 text-white/85">
           <div className="font-bold text-amber-300 flex items-center gap-1.5">
             <span>⚡</span> 進階戰鬥機制
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-white/75 text-[11px]">
             <div>• <strong className="text-white">方向招式：</strong>方向（左右/上/下）＋普攻或特招</div>
-            <div>• <strong className="text-white">蓄力重擊：</strong>普攻＋特招同按並按住蓄力</div>
-            <div>• <strong className="text-white">地面閃避：</strong>防禦中按左右＝翻滾，拿下＝原地閃避</div>
+            <div>• <strong className="text-white">蓄力重擊：</strong><span className="text-yellow-300">僅限地面</span>普攻＋特招同按，蓄滿後按住不放可等待放開再出招！</div>
+            <div>• <strong className="text-white">地面閃避：</strong>防禦中按左右＝翻滾，按下＝原地閃避</div>
             <div>• <strong className="text-white">空中閃避：</strong>空中按防禦（落地前限一次）</div>
             <div>• <strong className="text-white">邊緣抓邊：</strong>落出場外靠近邊緣自動抓邊（按住下不抓）</div>
-            <div>• <strong className="text-white">大招球：</strong>打破場上浮動大招球即獲全屏大招資格</div>
+            <div>• <strong className="text-white">大招球：</strong>打破 <span className="text-yellow-300">5 下</span>大招球即獲全屏大招資格</div>
           </div>
         </div>
 
-        {/* 快捷鍵 */}
         <div className="flex justify-between items-center text-[11px] text-white/50 pt-1">
-          <span>快捷鍵：<strong className="text-white/80">Esc/P</strong> 暫停 · <strong className="text-white/80">M</strong> 靜音 · <strong className="text-white/80">H</strong> 判定框除錯 · <strong className="text-white/80">U</strong> 測試給予大招</span>
-          <button
-            onClick={onClose}
-            className="rounded-lg bg-yellow-300 px-5 py-1.5 font-bold text-black hover:bg-yellow-200 transition-colors"
-          >
+          <span>快捷鍵：<strong className="text-white/80">Esc/P</strong> 暫停 · <strong className="text-white/80">M</strong> 靜音 · <strong className="text-white/80">B</strong> 切換 BGM · <strong className="text-white/80">H</strong> 判定框 · <strong className="text-white/80">U</strong> 測試大招</span>
+          <button onClick={onClose} className="rounded-lg bg-yellow-300 px-5 py-1.5 font-bold text-black hover:bg-yellow-200 transition-colors">
             我知道了
           </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const MOVE_ROWS: [string, string][] = [
+  ['attack', '普攻 / 連段'],
+  ['attack:side', '橫強攻 (左右+普攻)'],
+  ['attack:up', '上強攻 (上+普攻)'],
+  ['attack:down', '下強攻 (下+普攻)'],
+  ['skill1', '特招 (K)'],
+  ['skill1:side', '橫特招 (左右+特招)'],
+  ['skill1:up', '上回場特招 (上+特招)'],
+  ['skill1:down', '下特招 (下+特招)'],
+  ['skill2', '技能2 (L / 右搖桿)'],
+  ['smash', '地面橫重擊 (地面 普攻+特招)'],
+  ['smash:up', '地面上重擊 (地面 上+普攻+特招)'],
+  ['smash:down', '地面下重擊 (地面 下+普攻+特招)'],
+  ['ult', '最終大招 (打破5下大招球後按特招)'],
+]
+
+function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; onClose: () => void }) {
+  const [cid, setCid] = useState<CharacterId>(initialChar)
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.code === 'Escape') onClose() }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [onClose])
+
+  const c = CHARACTERS[cid]
+  const g = c.guide
+
+  return (
+    <div
+      className="pointer-events-auto absolute inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-w-4xl w-full max-h-[90vh] flex flex-col rounded-2xl bg-[#111726] border border-white/20 p-5 text-white shadow-2xl gap-3.5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+          <div className="text-base font-black tracking-wider flex items-center gap-2">
+            <span>🎓 角色專屬遊玩教學</span>
+            <span className="text-xs font-normal text-white/55">點擊下方頭像切換所有角色</span>
+          </div>
+          <button onClick={onClose} className="rounded-lg bg-white/10 px-3 py-1 text-xs hover:bg-white/20">
+            ✕ 關閉 (Esc)
+          </button>
+        </div>
+
+        {/* 11 角色切換列 */}
+        <div className="flex flex-wrap gap-1.5">
+          {CHARACTER_IDS.map((id) => {
+            const active = id === cid
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => { setCid(id); sfx('ui') }}
+                className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-bold border transition ${
+                  active ? 'border-yellow-300 bg-white/20 text-white' : 'border-white/10 bg-white/5 text-white/65 hover:bg-white/15'
+                }`}
+              >
+                <div className="h-6 w-6 overflow-hidden rounded border border-white/20 bg-black">
+                  <CharacterPortrait id={id} className="h-full w-full" />
+                </div>
+                <span>{SHORT_NAMES[id]}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="overflow-y-auto pr-1 space-y-3.5 flex-1">
+          {/* 角色概述與必學技巧 */}
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col sm:flex-row gap-3.5 items-start">
+            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border-2 border-white/25 bg-black shadow-lg">
+              <CharacterPortrait id={cid} className="h-full w-full" />
+            </div>
+            <div className="flex-1 space-y-1.5">
+              <div className="flex flex-wrap items-baseline gap-2.5">
+                <span className="text-xl font-black" style={{ color: c.color }}>{c.name}</span>
+                <span className="rounded bg-white/10 px-2 py-0.5 text-[11px] text-amber-200">
+                  主場地圖：{STAGES[cid].theme.name}
+                </span>
+              </div>
+              {c.trait && <div className="text-xs font-bold text-yellow-300">{c.trait}</div>}
+              {g && (
+                <>
+                  <p className="text-xs text-white/85 leading-relaxed">{g.summary}</p>
+                  <div className="pt-1 space-y-1">
+                    {g.steps.map((s, i) => (
+                      <div key={i} className="text-[11px] text-white/80 flex gap-1.5">
+                        <span className="font-black text-cyan-300 shrink-0">{i + 1}.</span>
+                        <span>{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-1.5 rounded-lg bg-amber-400/15 border border-amber-300/30 px-2.5 py-1.5 text-[11px] text-amber-200 font-bold">
+                    ⚡ 推薦連段：{g.combo}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* 完整招式表 */}
+          <div className="space-y-1.5">
+            <div className="text-xs font-black text-white/75 tracking-wider">📋 完整招式列表</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+              {MOVE_ROWS.map(([key, inputLabel]) => {
+                const sk = getSkill(c.loadout[key])
+                if (!sk) return null
+                return (
+                  <div key={key} className="rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-[11px]">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-black text-white">{sk.name}</span>
+                      <span className="text-[10px] font-mono text-cyan-300">{inputLabel}</span>
+                    </div>
+                    <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px] text-white/60">
+                      <span>傷害 {sk.damage}%</span>
+                      <span>· 擊飛 {sk.knockback.base}+{sk.knockback.scaling}×</span>
+                      {sk.energyCost > 0 && <span>· 耗能 {sk.energyCost}</span>}
+                      {sk.cooldownMs ? <span>· CD {(sk.cooldownMs * 0.5 / 1000).toFixed(1)}s</span> : null}
+                      {sk.charge && <span className="text-yellow-300">· 按住蓄力</span>}
+                      {sk.requiresUlt && <span className="text-amber-300">· 需大招球(5下)</span>}
+                    </div>
+                    <div className="mt-0.5 text-[10px] text-white/50">
+                      {sk.projectile
+                        ? sk.projectile.explodeRadius
+                          ? '💥 爆裂彈道'
+                          : sk.projectile.pierce
+                            ? '⚡ 貫穿光束'
+                            : '🎯 遠程彈幕'
+                        : sk.hitbox
+                          ? '⚔️ 近身打擊'
+                          : '✨ 特殊技 / 位移'}
+                      {sk.chain ? ' · 連按可續接連段' : ''}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -403,14 +540,22 @@ const NAME_STROKE = {
   textShadow: '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 2px 4px #000',
 }
 
-function Menu() {
+function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guideOpen: boolean }) {
   const [wizard, setWizard] = useState<FighterId | null>(null)
   const [showHelp, setShowHelp] = useState(false)
   const [activePicker, setActivePicker] = useState<FighterId>('p1')
-  usePadMenu(wizard === null && !showHelp, () => { clearEntities(); resetSimStage(); useGameStore.getState().startMatch() })
+  const playerCount = useGameStore((s) => s.playerCount)
+  const setPlayerCount = useGameStore((s) => s.setPlayerCount)
   const selection = useGameStore((s) => s.selection)
   const select = useGameStore((s) => s.select)
   const start = useGameStore((s) => s.startMatch)
+
+  const activeIds = ALL_FIGHTER_IDS.slice(0, playerCount)
+  const safePicker = activeIds.includes(activePicker) ? activePicker : 'p1'
+
+  usePadMenu(wizard === null && !showHelp && !guideOpen, () => {
+    clearEntities(); resetSimStage(); useGameStore.getState().startMatch()
+  })
 
   const pickChar = (target: FighterId, item: CharacterId | 'random') => {
     let chosen: CharacterId
@@ -424,51 +569,49 @@ function Menu() {
     sfx('ui')
   }
 
-  const row1: (CharacterId | 'random')[] = CHARACTER_IDS.slice(0, 5)
-  const row2: (CharacterId | 'random')[] = [...CHARACTER_IDS.slice(5), 'random']
+  // 11 角色 + 隨機 = 12 格 -> 6x2 整齊格陣
+  const row1: (CharacterId | 'random')[] = CHARACTER_IDS.slice(0, 6)
+  const row2: (CharacterId | 'random')[] = [...CHARACTER_IDS.slice(6), 'random']
 
   const renderCell = (item: CharacterId | 'random') => {
     const isRand = item === 'random'
-    const p1Sel = !isRand && selection.p1 === item
-    const p2Sel = !isRand && selection.p2 === item
-    const ring = p1Sel && p2Sel
-      ? 'ring-2 ring-inset ring-yellow-300'
-      : p1Sel
-        ? 'ring-2 ring-inset ring-red-500'
-        : p2Sel
-          ? 'ring-2 ring-inset ring-sky-400'
-          : ''
-    const zhSub = isRand ? '隨機' : CHARACTERS[item].name.replace(/^[A-Z]+\s*/, '')
+    const owners = isRand ? [] : activeIds.filter((pid) => selection[pid] === item)
+    const firstOwner = owners[0]
+    const zhSub = isRand ? '隨機' : CHARACTERS[item].name.replace(/^[A-Z0-9-]+\s*/, '')
 
     return (
       <button
         key={item}
         type="button"
-        onClick={() => pickChar(activePicker, item)}
+        onClick={() => pickChar(safePicker, item)}
         onContextMenu={(e) => { e.preventDefault(); pickChar('p2', item) }}
-        title={isRand ? '點擊隨機選擇角色' : `${CHARACTERS[item].name}（左鍵指派給 ${activePicker.toUpperCase()}／右鍵直接指派給 P2）`}
-        className={`relative w-24 h-20 sm:w-28 sm:h-24 overflow-hidden bg-black border-[1.5px] border-black group cursor-pointer focus:outline-none ${ring}`}
+        title={isRand ? '點擊隨機選擇角色' : `${CHARACTERS[item].name}（左鍵指派給 ${safePicker.toUpperCase()}／右鍵直選 P2）`}
+        style={firstOwner ? { boxShadow: `inset 0 0 0 2.5px ${PLAYER_COLORS[firstOwner]}` } : undefined}
+        className="relative w-20 h-16 sm:w-24 sm:h-20 overflow-hidden bg-black border border-black group cursor-pointer focus:outline-none"
       >
         <CharacterPortrait id={item} className="w-full h-full object-cover transition-transform duration-150 group-hover:scale-110" />
-        {p1Sel && (
-          <span className="absolute top-0 left-0 z-10 rounded-br bg-red-600 px-1.5 py-0.5 text-[10px] font-black text-white shadow">
-            P1
-          </span>
-        )}
-        {p2Sel && (
-          <span className="absolute top-0 right-0 z-10 rounded-bl bg-sky-500 px-1.5 py-0.5 text-[10px] font-black text-white shadow">
-            P2
-          </span>
+        {owners.length > 0 && (
+          <div className="absolute top-0.5 left-0.5 z-10 flex flex-wrap gap-0.5 max-w-full pr-0.5">
+            {owners.map((pid) => (
+              <span
+                key={pid}
+                className="rounded px-1 py-0 text-[9px] font-black text-black shadow"
+                style={{ backgroundColor: PLAYER_COLORS[pid] }}
+              >
+                {pid.toUpperCase()}
+              </span>
+            ))}
+          </div>
         )}
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-1 pb-1 pt-2 text-center"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-1 pb-0.5 pt-2 text-center"
           style={NAME_STROKE}
         >
-          <div className="text-xs sm:text-[13px] font-black tracking-tight text-white leading-none">
+          <div className="text-[11px] sm:text-xs font-black tracking-tight text-white leading-none">
             {isRand ? 'RANDOM' : SHORT_NAMES[item]}
           </div>
           {zhSub && (
-            <div className="mt-0.5 text-[9px] font-bold text-white/90 leading-none">
+            <div className="mt-0.5 text-[8px] sm:text-[9px] font-bold text-white/90 leading-none truncate">
               {zhSub}
             </div>
           )}
@@ -478,55 +621,91 @@ function Menu() {
   }
 
   return (
-    <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/75 text-white select-none overflow-y-auto py-3">
-      <div className="flex items-baseline gap-3">
-        <h1 className="text-4xl sm:text-5xl font-black italic tracking-tight">smash<span className="text-yellow-300">!!!</span></h1>
-        <span className="hidden sm:inline text-[11px] text-white/55">
-          左鍵指派給 <strong className={activePicker === 'p1' ? 'text-red-400' : 'text-sky-400'}>{activePicker.toUpperCase()}</strong>・右鍵可直選 P2
+    <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-2.5 bg-black/75 text-white select-none overflow-y-auto py-3 px-2">
+      {/* 標題與參戰人數 ＋/－ 控制（預設 2 人，支援 2~8 人） */}
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <h1 className="text-3xl sm:text-5xl font-black italic tracking-tight">smash<span className="text-yellow-300">!!!</span></h1>
+        <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 shadow">
+          <button
+            type="button"
+            disabled={playerCount <= 2}
+            onClick={() => { sfx('ui'); setPlayerCount(playerCount - 1) }}
+            title="減少玩家人數（最少 2 人）"
+            className="h-7 w-7 rounded-full bg-white/15 text-base font-black hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition"
+          >
+            －
+          </button>
+          <span className="min-w-[5.5rem] text-center text-xs font-black text-yellow-300">
+            👥 {playerCount} 人戰鬥
+          </span>
+          <button
+            type="button"
+            disabled={playerCount >= 8}
+            onClick={() => { sfx('ui'); setPlayerCount(playerCount + 1) }}
+            title="增加玩家人數（最多 8 人）"
+            className="h-7 w-7 rounded-full bg-white/15 text-base font-black hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition"
+          >
+            ＋
+          </button>
+        </div>
+        <span className="hidden md:inline text-[11px] text-white/60">
+          左鍵指派給 <strong style={{ color: PLAYER_COLORS[safePicker] }}>{safePicker.toUpperCase()}</strong>・右鍵直選 P2
         </span>
       </div>
 
-      {/* 大亂鬥風格角色頭像方陣 */}
-      <div className="rounded-lg border-2 border-white/20 bg-black p-1.5 shadow-2xl">
+      {/* 6×2 大亂鬥角色選擇盤 */}
+      <div className="rounded-lg border-2 border-white/20 bg-black p-1 shadow-2xl">
         <div className="flex justify-center">{row1.map(renderCell)}</div>
         <div className="flex justify-center">{row2.map(renderCell)}</div>
       </div>
 
-      {/* P1 & P2 角色展示與設定面板 */}
-      <div className="flex flex-wrap justify-center gap-4">
-        {FIGHTER_IDS.map((id) => {
+      {/* 2~8 人角色展示與控制面板 */}
+      <div className={playerCount <= 2
+        ? 'flex flex-wrap justify-center gap-3.5'
+        : 'grid grid-cols-2 md:grid-cols-4 gap-2 max-w-5xl w-full px-2'
+      }>
+        {activeIds.map((id) => {
           const c = CHARACTERS[selection[id]]
-          const isActive = activePicker === id
-          const borderCls = isActive
-            ? id === 'p1'
-              ? 'border-red-500 ring-2 ring-red-500/40 bg-red-950/30'
-              : 'border-sky-400 ring-2 ring-sky-400/40 bg-sky-950/30'
-            : 'border-white/15 bg-white/10 hover:border-white/30 opacity-90'
+          const isActive = safePicker === id
+          const pCol = PLAYER_COLORS[id]
+          const compact = playerCount > 2
           return (
             <div
               key={id}
               onClick={() => setActivePicker(id)}
-              className={`w-[22rem] rounded-xl border p-2.5 backdrop-blur-sm transition-all cursor-pointer ${borderCls}`}
+              style={isActive ? { borderColor: pCol, boxShadow: `0 0 0 1px ${pCol}66` } : undefined}
+              className={`${compact ? 'w-full p-2' : 'w-[21rem] p-2.5'} rounded-xl border backdrop-blur-sm transition-all cursor-pointer ${
+                isActive ? 'bg-white/15' : 'border-white/15 bg-white/10 hover:border-white/30 opacity-90'
+              }`}
             >
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className={`text-xs font-black tracking-wider ${id === 'p1' ? 'text-red-400' : 'text-sky-400'}`}>
+              <div className="mb-1 flex items-center justify-between gap-1">
+                <span className="text-xs font-black tracking-wider" style={{ color: pCol }}>
                   {id.toUpperCase()}
                 </span>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isActive ? 'bg-yellow-300 text-black' : 'bg-white/10 text-white/60'}`}>
-                  {isActive ? '🎯 正在選角' : `點擊切換為 ${id.toUpperCase()} 選角`}
-                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); sfx('ui'); onGuide(selection[id]) }}
+                    className="rounded-full bg-cyan-400/20 border border-cyan-300/35 px-2 py-0.5 text-[10px] font-bold text-cyan-200 hover:bg-cyan-400/35"
+                  >
+                    🎓 教學
+                  </button>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isActive ? 'bg-yellow-300 text-black' : 'bg-white/10 text-white/60'}`}>
+                    {isActive ? '🎯 選角中' : '選我'}
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2.5">
-                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black shadow-md">
+              <div className="flex items-center gap-2">
+                <div className={`${compact ? 'h-11 w-11' : 'h-14 w-14'} shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black shadow-md`}>
                   <CharacterPortrait id={selection[id]} className="h-full w-full" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-black tracking-wide truncate" style={{ color: c.color }}>
+                  <div className={`${compact ? 'text-xs' : 'text-sm'} font-black tracking-wide truncate`} style={{ color: c.color }}>
                     {c.name}
                   </div>
                   {c.trait && (
-                    <div className="mt-0.5 text-[11px] text-yellow-200/90 leading-snug line-clamp-2">
+                    <div className={`mt-0.5 text-yellow-200/90 leading-snug ${compact ? 'text-[10px] line-clamp-1' : 'text-[11px] line-clamp-2'}`}>
                       {c.trait}
                     </div>
                   )}
@@ -534,8 +713,8 @@ function Menu() {
               </div>
 
               <CpuPicker id={id} />
-              <ModelDrop id={id} />
-              <PadInfo id={id} onSetup={() => setWizard(id)} />
+              <ModelDrop id={id} compact={compact} />
+              <PadInfo id={id} onSetup={() => setWizard(id)} compact={compact} />
             </div>
           )
         })}
@@ -549,12 +728,20 @@ function Menu() {
       <div className="flex flex-col items-center gap-1.5">
         <button
           onClick={() => { clearEntities(); resetSimStage(); start() }}
-          className="rounded-xl bg-yellow-300 px-12 py-2.5 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
+          className="rounded-xl bg-yellow-300 px-12 py-2 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
         >
           START
         </button>
 
-        <div className="flex items-center gap-3 text-xs text-white/60">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 text-xs text-white/60">
+          <button
+            type="button"
+            onClick={() => { sfx('ui'); onGuide(selection[safePicker]) }}
+            className="flex items-center gap-1.5 rounded-full bg-cyan-500/20 px-3.5 py-1 text-cyan-200 hover:bg-cyan-500/35 hover:text-white transition-all border border-cyan-400/35"
+          >
+            <span>🎓</span>
+            <span>角色遊玩教學</span>
+          </button>
           <button
             type="button"
             onClick={() => setShowHelp(true)}
@@ -589,12 +776,12 @@ function usePauseControl() {
   }, [])
 }
 
-function PauseOverlay() {
+function PauseOverlay({ onGuide }: { onGuide: () => void }) {
   const setPaused = useGameStore((s) => s.setPaused)
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
   const stageId = useGameStore((s) => s.stageId)
-  const currentStage = STAGES[stageId] ?? STAGES.battlefield
+  const currentStage = STAGES[stageId] ?? STAGES.reimu
   return (
     <div className="pointer-events-auto absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/70 text-white">
       <div className="text-5xl font-black tracking-widest">暫停</div>
@@ -602,8 +789,9 @@ function PauseOverlay() {
         <span>🏟️ {currentStage.theme.name}</span>
         <span className="text-yellow-300">· {currentStage.theme.tag}</span>
       </div>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         <button onClick={() => setPaused(false)} className="rounded bg-yellow-300 px-6 py-2 font-bold text-black">繼續</button>
+        <button onClick={onGuide} className="rounded bg-cyan-400/25 border border-cyan-300/40 px-5 py-2 font-bold text-cyan-200 hover:bg-cyan-400/35">🎓 角色教學</button>
         <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded bg-white/20 px-6 py-2 font-bold">重新開始</button>
         <button onClick={toMenu} className="rounded bg-white/20 px-6 py-2 font-bold">回選單</button>
       </div>
@@ -661,63 +849,77 @@ function AudioControl() {
 
 export function HUD() {
   usePauseControl()
+  const [guideChar, setGuideChar] = useState<CharacterId | null>(null)
   const paused = useGameStore((s) => s.paused)
   const ui = useGameStore((s) => s.ui)
   const phase = useGameStore((s) => s.phase)
   const winner = useGameStore((s) => s.winner)
+  const playerCount = useGameStore((s) => s.playerCount)
+  const selection = useGameStore((s) => s.selection)
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
-  usePadMenu(phase === 'ended', () => { clearEntities(); resetSimStage(); start() })
+  const activeIds = ALL_FIGHTER_IDS.slice(0, playerCount)
+  const rankedIds = [...activeIds].sort((a, b) => {
+    if (a === winner) return -1
+    if (b === winner) return 1
+    return (ui[b]?.stats.kos ?? 0) - (ui[a]?.stats.kos ?? 0)
+  })
+
+  usePadMenu(phase === 'ended' && !guideChar, () => { clearEntities(); resetSimStage(); start() })
+
   return (
     <div className="pointer-events-none absolute inset-0">
       <div className="pointer-events-auto absolute top-4 right-4 z-30">
         <AudioControl />
       </div>
       {phase !== 'menu' && (
-        <div className="absolute inset-x-0 bottom-4 flex justify-between px-6">
-          <Card id="p1" u={ui.p1} />
-          <Card id="p2" u={ui.p2} />
+        <div className={`absolute inset-x-0 bottom-3 flex flex-wrap gap-2 px-4 ${playerCount <= 2 ? 'justify-between px-6' : 'justify-center'}`}>
+          {activeIds.map((id) => (
+            <Card key={id} id={id} u={ui[id]} compact={playerCount > 2} />
+          ))}
         </div>
       )}
-      {phase === 'menu' && <Menu />}
-      {phase === 'playing' && paused && <PauseOverlay />}
+      {phase === 'menu' && <Menu onGuide={setGuideChar} guideOpen={guideChar !== null} />}
+      {phase === 'playing' && paused && <PauseOverlay onGuide={() => setGuideChar(selection.p1)} />}
+      {guideChar && <CharGuideModal initialChar={guideChar} onClose={() => setGuideChar(null)} />}
       {phase === 'ended' && winner && (
-        <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-5 bg-black/75 backdrop-blur-sm text-white">
+        <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/75 backdrop-blur-sm text-white p-4">
           <div className="text-center">
             <div className="text-xs font-bold tracking-[0.3em] text-yellow-300/80 uppercase">GAME SET</div>
-            <div className="text-6xl font-black italic" style={{ color: ui[winner].color }}>
+            <div className="text-5xl sm:text-6xl font-black italic" style={{ color: PLAYER_COLORS[winner] }}>
               {winner.toUpperCase()} · {ui[winner].name} WINS!
             </div>
           </div>
 
-          {/* 賽後戰報數據 */}
-          <div className="w-full max-w-md rounded-2xl bg-white/10 border border-white/15 p-4 text-xs shadow-xl">
-            <div className="mb-2.5 flex justify-between border-b border-white/10 pb-2 font-black text-sm">
-              <span style={{ color: ui.p1.color }}>P1 · {ui.p1.name}</span>
-              <span className="text-white/50 text-xs">對戰統計</span>
-              <span style={{ color: ui.p2.color }}>P2 · {ui.p2.name}</span>
+          {/* 2~8 人賽後戰報統計表 */}
+          <div className="w-full max-w-2xl rounded-2xl bg-white/10 border border-white/15 p-4 text-xs shadow-xl">
+            <div className="grid grid-cols-6 border-b border-white/10 pb-2 font-black text-white/60 text-center">
+              <span className="col-span-2 text-left">選手 / 角色</span>
+              <span>剩餘命</span>
+              <span>擊墜數</span>
+              <span>輸出%</span>
+              <span>最高連段</span>
             </div>
-            <div className="space-y-2 text-center font-mono">
-              <div className="grid grid-cols-3 items-center">
-                <span className="text-left text-sm font-bold">{ui.p1.stats.kos}</span>
-                <span className="text-white/60 font-sans text-[11px]">擊墜數 (KOs)</span>
-                <span className="text-right text-sm font-bold">{ui.p2.stats.kos}</span>
-              </div>
-              <div className="grid grid-cols-3 items-center">
-                <span className="text-left text-sm font-bold">{ui.p1.stats.damageDealt}%</span>
-                <span className="text-white/60 font-sans text-[11px]">輸出傷害</span>
-                <span className="text-right text-sm font-bold">{ui.p2.stats.damageDealt}%</span>
-              </div>
-              <div className="grid grid-cols-3 items-center">
-                <span className="text-left text-sm font-bold">{ui.p1.stats.maxCombo}</span>
-                <span className="text-white/60 font-sans text-[11px]">最高連段</span>
-                <span className="text-right text-sm font-bold">{ui.p2.stats.maxCombo}</span>
-              </div>
-              <div className="grid grid-cols-3 items-center">
-                <span className="text-left text-sm font-bold">{ui.p1.stats.perfectShields}</span>
-                <span className="text-white/60 font-sans text-[11px]">完美防禦</span>
-                <span className="text-right text-sm font-bold">{ui.p2.stats.perfectShields}</span>
-              </div>
+            <div className="divide-y divide-white/10">
+              {rankedIds.map((id) => {
+                const u = ui[id]
+                const isWin = id === winner
+                return (
+                  <div key={id} className={`grid grid-cols-6 items-center py-1.5 text-center font-mono ${isWin ? 'bg-yellow-400/10 font-bold' : ''}`}>
+                    <div className="col-span-2 flex items-center gap-2 text-left font-sans">
+                      <span className="rounded px-1.5 py-0.5 text-[10px] font-black text-black" style={{ backgroundColor: PLAYER_COLORS[id] }}>
+                        {id.toUpperCase()}
+                      </span>
+                      <span className="truncate font-bold">{u.name}</span>
+                      {isWin && <span className="text-yellow-300">👑</span>}
+                    </div>
+                    <span>{u.stocks}</span>
+                    <span className="text-yellow-300 font-bold">{u.stats.kos}</span>
+                    <span>{u.stats.damageDealt}%</span>
+                    <span>{u.stats.maxCombo}</span>
+                  </div>
+                )
+              })}
             </div>
           </div>
 

@@ -11,7 +11,7 @@ import './game/skills' // 註冊所有招式
 export default function App() {
   const paused = useGameStore((s) => s.paused)
   const stageId = useGameStore((s) => s.stageId)
-  const stage = STAGES[stageId] ?? STAGES.battlefield
+  const stage = STAGES[stageId] ?? STAGES.reimu
   const theme = stage.theme
 
   return (
