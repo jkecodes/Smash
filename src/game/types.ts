@@ -223,6 +223,9 @@ export interface SkillContext {
   chargeRatio: number
   scratch: Record<string, any>
   forward: Vec3
+  /** 目前玩家搖桿瞄準方向（用於蓄力瞄準移動技） */
+  aimX?: number
+  aimY?: number
   toWorld(local: Vec3): Vec3
   /** y 傳 null 代表保留目前垂直速度 */
   setVelocity(x: number, y: number | null, z: number): void

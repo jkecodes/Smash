@@ -308,9 +308,11 @@ function updateDodge(f: FighterState, dt: number) {
 // ---------------------------------------------------------------- skills
 function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
   const rb = runtime.bodies[f.id]!
+  const inp = store().cpu[f.id] ? null : readInput(f.id)
   return {
     caster: f, def: sk.def, phase: sk.phase, phaseMs: sk.phaseMs, dt, chargeRatio: sk.chargeRatio,
     scratch: sk.scratch, forward: [f.facing[0], 0, 0],
+    aimX: inp?.moveX ?? f.facing[0], aimY: inp?.moveY ?? 0,
     toWorld: (l) => facingWorld(f, l),
     setVelocity: (x, y, z) => { rb.setLinvel({ x, y: y ?? rb.linvel().y, z: 0 }, true); void z },
     setLocalVelocity: (x, y, z) => {
