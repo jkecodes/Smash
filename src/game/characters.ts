@@ -222,7 +222,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   ryu: {
     id: 'ryu', name: 'RYU 隆', color: '#38bdf8',
-    scale: 1.08, speedMult: 0.94, damageMult: 1.12, weightMult: 1.1,
+    scale: 1.08, speedMult: 0.94, damageMult: 1.12, weightMult: 1.03,
     trait: '🥋 波動拳牽制・無敵昇龍拳・龍卷旋風腳＆真空波動拳',
     guide: {
       summary: '《Street Fighter 快打旋風》經典波動格鬥家！地面波動拳壓制、龍卷旋風腳突進，加上起手自帶無敵的強對空「昇龍拳」。',

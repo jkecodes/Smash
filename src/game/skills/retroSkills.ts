@@ -994,13 +994,13 @@ reg({
   },
 })
 reg({
-  id: 'ryu.shoryuken', name: '昇龍拳', energyCost: 0, cooldownMs: 1400, startupMs: 75, activeMs: 280, recoveryMs: 340,
+  id: 'ryu.shoryuken', name: '昇龍拳', energyCost: 0, cooldownMs: 1650, startupMs: 75, activeMs: 280, recoveryMs: 340,
   hitbox: { offset: [0, 0.45, 0.75], radius: 1.2 }, damage: 13,
   knockback: { dir: [0, 0.92, 0.4], base: 14.5, scaling: 16 },
   hooks: {
-    onStart(c) { c.setInvulnerable(220) },
+    onStart(c) { c.setInvulnerable(100) },
     onActive(c) {
-      c.setVelocity(c.forward[0] * 4.5, 17.5, 0)
+      c.setVelocity(c.forward[0] * 4.2, 15.5, 0)
       c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: '#f97316', ttl: 340, radius: 1.2 })
       c.fx({ kind: 'burst', pos: at(c, 0.4, 0.6), color: '#fde047', ttl: 320, count: 16, speed: 7, size: 0.16 })
       c.shake(0.3)
@@ -1013,7 +1013,7 @@ reg({
   hitbox: { offset: [0, 0.1, 0.95], radius: 1.4 }, damage: 11.5,
   knockback: { dir: [0, 0.25, 1], base: 11, scaling: 12, hitstunMs: 900 },
   hooks: {
-    onStart(c) { c.setInvulnerable(200) },
+    onStart(c) { c.setInvulnerable(70) },
     onActive(c) {
       const p = at(c, 0, 0.9)
       c.fx({ kind: 'ring', pos: p, color: '#111827', ttl: 360, radius: 2.0, plane: 'vertical' })
