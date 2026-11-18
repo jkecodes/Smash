@@ -52,6 +52,11 @@ export function registerTilts(p: string, o: TiltOpts) {
         onActive(c) {
           c.setLocalVelocity(0, null, (isMartial ? 9 : 7) + c.chargeRatio * 5)
           c.shake((isHeavy ? 0.22 : 0.12) + c.chargeRatio * 0.22)
+          if (p === 'ichi') {
+            c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, 0.15, 1.25), color: '#38bdf8', ttl: 420, size: 0.72, dir: c.forward[0] })
+          } else if (p === 'descara') {
+            c.fx({ kind: 'beam', pos: at(c, 0.15, 0.9), yaw: yawOf(c), length: 3.6, radius: 0.18, color: '#fde047', ttl: 190 })
+          }
           if (isCaster) {
             c.fx({ kind: 'ring', pos: at(c, 0.15, 1.1), color: o.color, ttl: 240, radius: 1.45, plane: 'vertical' })
             c.fx({ kind: 'burst', pos: at(c, 0.15, 1.1), color: o.color, ttl: 210, count: 8, speed: 4.5, size: 0.13 })
@@ -77,6 +82,11 @@ export function registerTilts(p: string, o: TiltOpts) {
         onStart(c) { if (!c.caster.grounded && c.caster.skill) c.caster.skill.released = true },
         onActive(c) {
           c.shake(0.1 + c.chargeRatio * 0.22)
+          if (p === 'ichi') {
+            c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, 0.15, 1.25), color: '#38bdf8', ttl: 420, size: 0.72, dir: c.forward[0] })
+          } else if (p === 'descara') {
+            c.fx({ kind: 'beam', pos: at(c, 0.15, 0.9), yaw: yawOf(c), length: 3.6, radius: 0.18, color: '#fde047', ttl: 190 })
+          }
           if (isCaster) {
             c.fx({ kind: 'pillar', pos: at(c, 0.3, 0.25), color: o.color, ttl: 280, radius: 1.1 })
             c.fx({ kind: 'ring', pos: at(c, 1.1, 0.25), color: o.color, ttl: 240, radius: 1.5 })
@@ -98,6 +108,11 @@ export function registerTilts(p: string, o: TiltOpts) {
       knockback: { dir: [0, 0.7, 0.6], base: 6, scaling: 8, hitstunMs: 320 },
       hooks: {
         onActive(c) {
+          if (p === 'ichi') {
+            c.fx({ kind: 'summon', model: 'baku', pos: at(c, -0.1, 0.9), color: '#a855f7', ttl: 420, size: 0.7, dir: c.forward[0] })
+          } else if (p === 'descara') {
+            c.fx({ kind: 'ring', pos: at(c, -0.35, 0.9), color: '#fde047', ttl: 260, radius: 1.7 })
+          }
           if (!isCaster && !isMartial) slash(c, o.color, { y: -0.4, d: 1.0, r: 1.5, tilt: -0.1, flip: true })
           c.fx({ kind: 'ring', pos: at(c, -0.42, 0.9), color: o.color, ttl: 220, radius: isCaster ? 1.45 : 1.15 })
         },

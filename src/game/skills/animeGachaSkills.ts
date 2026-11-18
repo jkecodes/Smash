@@ -215,6 +215,15 @@ function registerKit(k: KitSpec) {
         else if (isMartial || isFast) c.setLocalVelocity(0, null, 2.4)
         if (isGun) c.spawnProjectile({ pos: at(c, 0.15, 0.85), vel: [c.forward[0] * 22, 0, 0], radius: 0.25, ttlMs: 320, color })
         else if (isCaster && !canCharge) c.spawnProjectile({ pos: at(c, 0.15, 0.85), vel: [c.forward[0] * 14, 0, 0], radius: 0.3, ttlMs: 360, color })
+        if (p === 'ichi') {
+          // 伊奇普攻 a1：召喚「雷狐」電光斬擊
+          c.fx({ kind: 'summon', model: 'thunderFox', pos: at(c, 0.25, 1.05), color: '#facc15', ttl: 420, size: 0.72, dir: c.forward[0] })
+          c.fx({ kind: 'burst', pos: at(c, 0.2, 1.0), color: '#facc15', ttl: 200, count: 10, speed: 5.5, size: 0.14 })
+        } else if (p === 'descara') {
+          // 笛絲卡菈絲普攻 a1：釋放「金色束縛魔石」
+          c.fx({ kind: 'ring', pos: at(c, 0.2, 1.0), color: '#fde047', ttl: 260, radius: 1.45, plane: 'vertical' })
+          c.fx({ kind: 'burst', pos: at(c, 0.2, 1.0), color: '#eab308', ttl: 200, count: 8, speed: 4.5, size: 0.14 })
+        }
         hitVfx(c, c.chargeRatio > 0.35 ? color : '#ffffff', p, (1.3 + c.chargeRatio * 0.5) * reach)
         if (c.chargeRatio > 0.35) {
           c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color, ttl: 260, radius: 1.6, plane: 'vertical' })
@@ -226,7 +235,7 @@ function registerKit(k: KitSpec) {
       },
     },
   })
-  const hasJab3 = CHARGE_ATTACK_CHARS.has(p) || p === 'spe' || p === 'saki' || p === 'kotone' || p === 'yodaka' || EXPLODE_CHARS.has(p)
+  const hasJab3 = CHARGE_ATTACK_CHARS.has(p) || p === 'spe' || p === 'saki' || p === 'kotone' || p === 'yodaka' || p === 'ichi' || p === 'descara' || EXPLODE_CHARS.has(p)
   reg({
     id: `${p}.a2`, name: k.a2, energyCost: 0, ...(hasJab3 ? { chain: `${p}.a3` } : {}),
     startupMs: Math.round((isFast || isMartial ? 55 : 65) * spd), activeMs: 90, recoveryMs: Math.round((isFast ? 155 : 175) * spd),
@@ -238,6 +247,15 @@ function registerKit(k: KitSpec) {
         if (isGun) {
           c.spawnProjectile({ pos: at(c, 0.18, 0.9), vel: [c.forward[0] * 21, 1.8, 0], radius: 0.24, ttlMs: 340, color })
           c.spawnProjectile({ pos: at(c, 0.12, 0.9), vel: [c.forward[0] * 21, -1.2, 0], radius: 0.24, ttlMs: 340, color })
+        }
+        if (p === 'ichi') {
+          // 伊奇普攻 a2：召喚「冰鯊」撕咬斬擊
+          c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, 0.2, 1.15), color: '#38bdf8', ttl: 460, size: 0.78, dir: c.forward[0] })
+          c.fx({ kind: 'burst', pos: at(c, 0.2, 1.1), color: '#bae6fd', ttl: 220, count: 12, speed: 6, size: 0.15 })
+        } else if (p === 'descara') {
+          // 笛絲卡菈絲普攻 a2：釋放「深淵雷電魔石」
+          c.fx({ kind: 'pillar', pos: at(c, 0.1, 1.15), color: '#a855f7', ttl: 240, radius: 0.85 })
+          c.fx({ kind: 'burst', pos: at(c, 0.2, 1.15), color: '#c084fc', ttl: 220, count: 12, speed: 6, size: 0.15 })
         }
         hitVfx(c, color, p, 1.45, true)
       },
@@ -254,6 +272,14 @@ function registerKit(k: KitSpec) {
         onActive(c) {
           c.setLocalVelocity(0, null, isFast ? 5.2 : 4)
           hitVfx(c, color, p, 1.75, false)
+          if (p === 'ichi') {
+            // 伊奇終結 a3：召喚「夢貘 × 烏洛洛」王之魔法重擊
+            c.fx({ kind: 'summon', model: 'baku', pos: at(c, 0.3, 1.25), color: '#a855f7', ttl: 540, size: 0.9, dir: c.forward[0] })
+          } else if (p === 'descara') {
+            // 笛絲卡菈絲終結 a3：萬魔石共鳴「封魔石化」貫穿細劍！
+            c.fx({ kind: 'beam', pos: at(c, 0.2, 1.0), yaw: yawOf(c), length: 4.5, radius: 0.22, color: '#fde047', ttl: 220 })
+            c.fx({ kind: 'ring', pos: at(c, 0.2, 1.2), color: '#a855f7', ttl: 280, radius: 1.8 })
+          }
           if (p === 'youmu' || p === 'chihiro' || p === 'sukuna') {
             hitVfx(c, '#ffffff', p, 1.9, true)
           }
@@ -321,8 +347,12 @@ function registerKit(k: KitSpec) {
           c.spawnProjectile({ pos: at(c, 0.15, 0.9), vel: [c.forward[0] * 29, 0, 0], radius: 0.46, ttlMs: 1150, color: k.s1.projColor, pierce: true })
           c.fx({ kind: 'beam', pos: at(c, 0.15, 0.9), yaw: yawOf(c), length: 3.5, radius: 0.14, color: k.s1.projColor, ttl: 140 })
         } else if (p === 'blinky' || p === 'lumine' || p === 'descara') {
-          // 可控追蹤魔彈
+          // 可控追蹤魔彈（笛絲卡菈絲額外附帶多色魔石連射）
           c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 17, 0, 0], radius: 0.52, ttlMs: 1500, color: k.s1.projColor, steerable: 5.0, explodeRadius: k.s1.explode })
+          if (p === 'descara') {
+            c.spawnProjectile({ pos: at(c, 0.45, 0.8), vel: [c.forward[0] * 19, 2.2, 0], radius: 0.36, ttlMs: 1100, color: '#fde047', explodeRadius: 1.8 })
+            c.spawnProjectile({ pos: at(c, -0.05, 0.8), vel: [c.forward[0] * 19, -2.0, 0], radius: 0.36, ttlMs: 1100, color: '#38bdf8', explodeRadius: 1.8 })
+          }
         } else if (p === 'hakuri') {
           // 漣伯理：威葬大口徑衝擊波
           c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 21, 0, 0], radius: 0.72, ttlMs: 1100, color: '#38bdf8', pierce: true })
