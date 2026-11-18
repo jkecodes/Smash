@@ -47,7 +47,7 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   suzuka: { body: '#22c55e', hair: '#f97316', accent: '#ffffff', prop: 'ears', style: 'martial' },
   firefly: { body: '#0f766e', hair: '#cbd5e1', accent: '#f97316', prop: 'katana', style: 'sword' },
   jinhsi: { body: '#334155', hair: '#f8fafc', accent: '#fde047', prop: 'horns', style: 'mage', hornColor: '#fde047' },
-  anis: { body: '#27272a', hair: '#facc15', accent: '#fb923c', prop: 'rifle', style: 'gun' },
+  anis: { body: '#18181b', hair: '#eab308', accent: '#f97316', prop: 'rifle', style: 'gun' },
   erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
   ...(Object.fromEntries(
     PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'bakugo', 'sukuna'].includes(p.id))

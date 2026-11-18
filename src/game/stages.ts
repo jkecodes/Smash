@@ -240,7 +240,7 @@ export const STAGES: Partial<Record<StageId, StageDef>> = {
     theme: {
       name: '蘑菇王國 1-1',
       subtitle: 'World 1-1',
-      tag: '水管工主場・問號浮磚',
+      tag: '馬力歐主場・問號浮磚',
       desc: '紅磚、問號方塊與綠色傳送水管的經典關卡！中央金黃問號磚塊會微微上下彈跳。',
       bg: '#102447',
       fog: '#102447',

@@ -56,7 +56,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     },
   },
   mario: {
-    id: 'mario', name: 'MARIO 水管工', color: '#ef4444',
+    id: 'mario', name: 'MARIO 馬力歐', color: '#ef4444',
     trait: '🍄 彈跳火球＋黃金披風＋綠水管敵底突襲＋金幣昇龍拳',
     guide: {
       summary: '最平衡的全能主力！既可用彈跳火球遠距牽制，又能靠技能2「綠水管奇襲」瞬間從敵人腳下鑽出給予致命打擊。',
