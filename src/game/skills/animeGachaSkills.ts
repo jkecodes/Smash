@@ -78,7 +78,11 @@ interface KitSpec {
   down: string
   s2: { name: string; kind: 'zone' | 'proj' | 'ring'; color: string }
   smashes: [string, string, string]
-  ult: { name: string; kind: 'beam' | 'rain' | 'burst'; color: string }
+  ult: {
+    name: string
+    kind: 'omnislash' | 'rush' | 'train' | 'hollow' | 'barrage' | 'dragonBreath' | 'timestop' | 'ghostSpin' | 'rain' | 'burst'
+    color: string
+  }
 }
 
 const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
@@ -314,33 +318,89 @@ function registerKit(k: KitSpec) {
   }
   registerSmashes(p, { color, names: k.smashes })
 
+  const isRadialUlt = k.ult.kind === 'burst' || k.ult.kind === 'ghostSpin' || k.ult.kind === 'timestop'
   reg({
     id: `${p}.ult`, name: k.ult.name, energyCost: 0, requiresUlt: true,
-    startupMs: 560, activeMs: 1050, recoveryMs: 420,
-    hitbox: { offset: [0, 0.2, k.ult.kind === 'burst' ? 0 : 0.8], radius: k.ult.kind === 'burst' ? 4.6 : 2.3, length: k.ult.kind === 'beam' ? 27 : undefined },
-    damage: 22,
-    knockback: { dir: [0, 0.6, 1], base: 26, scaling: 18, radial: k.ult.kind === 'burst', hitstunMs: 1350 },
+    startupMs: 520, activeMs: k.ult.kind === 'omnislash' || k.ult.kind === 'rush' || k.ult.kind === 'barrage' ? 1150 : 1000, recoveryMs: 400,
+    hitbox: { offset: [0, 0.2, isRadialUlt ? 0 : 0.9], radius: isRadialUlt ? 4.8 : 2.3 },
+    damage: k.ult.kind === 'omnislash' || k.ult.kind === 'barrage' ? 7 : 22,
+    knockback: { dir: [0, 0.65, 1], base: 25, scaling: 18, radial: isRadialUlt, hitstunMs: 1350 },
     hooks: {
       onStart(c) {
-        c.setGravityScale(0.15)
-        c.setVelocity(0, 3.5, 0)
-        if (p === 'gojo') {
-          // 領域展開「無量空處」：全場大範圍緩速結界＋紅蒼雙球共鳴
-          c.spawnZone([...c.caster.pos], { radius: 11, durationMs: 1450, slowFactor: 0.08, color: '#312e81', damagePerSec: 4 })
-          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#818cf8', ttl: 560, radius: 9.5, plane: 'vertical' })
-          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#38bdf8', ttl: 520, radius: 5.5 })
-          c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: '#1e1b4b', ttl: 560, radius: 8.5 })
+        c.setGravityScale(0.12)
+        c.setVelocity(0, 3.2, 0)
+        if (k.ult.kind === 'hollow' || k.ult.kind === 'timestop') {
+          // 領域展開／時停結界：大範圍緩速結界
+          c.spawnZone([...c.caster.pos], {
+            radius: 11,
+            durationMs: 1500,
+            slowFactor: 0.08,
+            color: k.ult.kind === 'hollow' ? '#312e81' : '#eab308',
+            damagePerSec: 4,
+          })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: k.ult.color, ttl: 560, radius: 9.5, plane: 'vertical' })
+          c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: k.ult.color, ttl: 560, radius: 7.5 })
         }
       },
       onTick(c) {
         if (c.phase === 'recovery') return
         c.setInvulnerable(140)
-        if (c.phase === 'active' && k.ult.kind === 'rain') {
+        if (c.phase !== 'active') return
+
+        if (k.ult.kind === 'rain') {
           c.scratch.rn = (c.scratch.rn ?? 0) - c.dt * 1000
           if (c.scratch.rn <= 0) {
             c.scratch.rn = 175
             const x = clampStageX((Math.random() - 0.5) * 14)
             c.spawnProjectile({ pos: [x, 13.5, 0], vel: [0, -20, 0], radius: 0.62, ttlMs: 1500, color: k.ult.color, gravity: -14, explodeRadius: 2.4 })
+          }
+        } else if (k.ult.kind === 'omnislash') {
+          // 大亂鬥超究武神霸斬式：瞬移圍繞最近敵人多段斬擊＋最終擊飛
+          c.scratch.sl = (c.scratch.sl ?? 0) - c.dt * 1000
+          if (c.scratch.sl <= 0) {
+            c.scratch.sl = 210
+            c.scratch.step = (c.scratch.step ?? 0) + 1
+            const tgt = c.nearestEnemy()
+            if (tgt) {
+              const side = c.scratch.step % 2 === 0 ? 1.5 : -1.5
+              c.teleport([clampStageX(tgt.pos[0] + side), tgt.pos[1] + (c.scratch.step % 3) * 0.45, 0])
+              c.caster.facing[0] = side > 0 ? -1 : 1
+            } else {
+              c.setLocalVelocity(0, 0.5, 16)
+            }
+            slash(c, k.ult.color, { r: 2.8, tilt: (Math.random() - 0.5) * 1.4, flip: c.scratch.step % 2 === 0, ttl: 260 })
+            c.strike({ offset: [0, 0.2, 0.6], radius: 2.4 })
+            c.shake(0.35)
+          }
+        } else if (k.ult.kind === 'rush') {
+          // 高速衝線／神速暗殺：在場地左右來回高速突進＋殘影
+          trail(c, 32, k.ult.color, 260)
+          c.scratch.ru = (c.scratch.ru ?? 0) - c.dt * 1000
+          if (c.scratch.ru <= 0) {
+            c.scratch.ru = 240
+            c.scratch.dir = -(c.scratch.dir ?? -c.forward[0])
+            c.caster.facing[0] = c.scratch.dir
+            c.setVelocity(c.scratch.dir * 26, 1.5, 0)
+            c.fx({ kind: 'ring', pos: [...c.caster.pos], color: k.ult.color, ttl: 260, radius: 2.2, plane: 'vertical' })
+            c.strike({ offset: [0, 0.2, 0.5], radius: 2.3 })
+          }
+        } else if (k.ult.kind === 'barrage') {
+          // 全彈發射：連射扇形高爆導彈
+          c.scratch.ba = (c.scratch.ba ?? 0) - c.dt * 1000
+          if (c.scratch.ba <= 0) {
+            c.scratch.ba = 145
+            const vy = (Math.random() - 0.35) * 9
+            c.spawnProjectile({ pos: at(c, 0.3, 1.0), vel: [c.forward[0] * 21, vy, 0], radius: 0.48, ttlMs: 1350, color: k.ult.color, explodeRadius: 2.5 })
+          }
+        } else if (k.ult.kind === 'dragonBreath') {
+          // 九霄雷炎吐息：斜向火球掃射＋落雷
+          c.scratch.dr = (c.scratch.dr ?? 0) - c.dt * 1000
+          if (c.scratch.dr <= 0) {
+            c.scratch.dr = 175
+            const vx = c.forward[0] * (12 + Math.random() * 8)
+            c.spawnProjectile({ pos: at(c, 0.5, 0.9), vel: [vx, -6 - Math.random() * 6, 0], radius: 0.58, ttlMs: 1300, color: '#f97316', gravity: -8, explodeRadius: 2.6 })
+            const lx = clampStageX(c.caster.pos[0] + c.forward[0] * (2 + Math.random() * 8))
+            c.fx({ kind: 'pillar', pos: [lx, 0, 0], color: '#34d399', ttl: 260, radius: 1.0 })
           }
         }
       },
@@ -349,22 +409,33 @@ function registerKit(k: KitSpec) {
           c.fx({ kind: 'summon', model: 'thunderFox', pos: at(c, 0.8, 1.2), color: '#facc15', ttl: 1200, size: 1.25, dir: c.forward[0] })
           c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, -0.4, 2.2), color: '#38bdf8', ttl: 1200, size: 1.25, dir: c.forward[0] })
           c.fx({ kind: 'summon', model: 'baku', pos: at(c, 0.2, 0.6), color: '#a855f7', ttl: 1200, size: 1.25, dir: -c.forward[0] })
-        } else if (p === 'gojo') {
-          // 虛式「茈」：發射巨大貫穿紫球＋召喚3D虛式＋毀滅光束
+        } else if (k.ult.kind === 'hollow') {
+          // 虛式「茈」：發射巨大貫穿紫球＋召喚3D虛式
           c.spawnProjectile({ pos: at(c, 0.3, 1.2), vel: [c.forward[0] * 20, 0, 0], radius: 1.85, ttlMs: 1600, color: '#a855f7', pierce: true, maxRange: 28 })
           c.fx({ kind: 'summon', model: 'hollow', pos: at(c, 0.3, 1.2), color: '#a855f7', ttl: 1350, size: 1.85, dir: c.forward[0] })
+        } else if (k.ult.kind === 'train') {
+          // 星穹列車全速撞擊：巨型貫穿列車投射物
+          c.spawnProjectile({ pos: at(c, 0.5, 1.4), vel: [c.forward[0] * 24, 0, 0], radius: 1.9, ttlMs: 1600, color: '#facc15', pierce: true, maxRange: 32 })
+          c.fx({ kind: 'summon', model: 'train', pos: at(c, 0.6, 1.4), color: '#facc15', ttl: 1300, size: 1.65, dir: c.forward[0] })
+        } else if (k.ult.kind === 'ghostSpin') {
+          // 安神秘法：大範圍橫掃＋向四面八方飛出會爆炸的 Boo Tao 鬼火
+          for (const vx of [-11, -5, 5, 11]) {
+            c.spawnProjectile({ pos: [c.caster.pos[0], c.caster.pos[1] + 0.5, 0], vel: [vx, 6, 0], radius: 0.65, ttlMs: 1400, color: '#f97316', gravity: -16, explodeRadius: 2.5 })
+          }
+          c.fx({ kind: 'summon', model: 'ghost', pos: at(c, 1.0, 0.8), color: '#ef4444', ttl: 1200, size: 1.75, dir: c.forward[0] })
+        } else if (k.ult.kind === 'timestop') {
+          // 時停光刃：環繞自身放射 4 把貫穿光刃
+          for (const [vx, vy] of [[18, 0], [-18, 0], [14, 10], [-14, 10]]) {
+            c.spawnProjectile({ pos: [...c.caster.pos], vel: [vx, vy, 0], radius: 0.65, ttlMs: 1200, color: '#fde047', pierce: true })
+          }
         } else {
           const model = KIT_SUMMONS[p]
           if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.8, 1.4), color: k.ult.color, ttl: 1200, size: 1.45, dir: c.forward[0] })
         }
-        if (k.ult.kind === 'beam') {
-          c.fx({ kind: 'beam', pos: at(c, 0.2, 0.8), yaw: yawOf(c), length: 27, radius: 2.2, color: k.ult.color, ttl: 550 })
-        } else {
-          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: k.ult.color, ttl: 480, radius: 4.6, plane: 'vertical' })
-          c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: k.ult.color, ttl: 560, radius: 2.6 })
-        }
+        c.fx({ kind: 'ring', pos: [...c.caster.pos], color: k.ult.color, ttl: 480, radius: 4.6, plane: 'vertical' })
+        c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: k.ult.color, ttl: 520, radius: 2.4 })
         c.fx({ kind: 'burst', pos: [...c.caster.pos], color: k.ult.color, ttl: 680, count: 60, speed: 12, size: 0.24 })
-        c.shake(1.3)
+        c.shake(1.2)
       },
       onEnd(c) { c.setGravityScale(1) },
     },
@@ -379,7 +450,7 @@ const KITS: KitSpec[] = [
     side: '妖刀「錦」極速突進', up: '涅・昇龍斬空', down: '淵天・水墨震斬',
     s2: { name: '赤金魚吸收反擊環', kind: 'ring', color: '#ef4444' },
     smashes: ['深淵黑閃重劈', '千紘破曉上斬', '金魚旋渦斬'],
-    ult: { name: '妖刀「淵天」黑・錦・涅 三連奧義！', kind: 'beam', color: '#ef4444' },
+    ult: { name: '妖刀「淵天」黑・錦・涅 三連奧義！', kind: 'omnislash', color: '#ef4444' },
   },
   {
     p: 'ichi', color: '#38bdf8', a1: '魔男獵刀斬', a2: '野性雙連劈',
@@ -397,7 +468,7 @@ const KITS: KitSpec[] = [
     side: '龍鱗暴衝', up: '龍翼雷電升空', down: '青龍落雷震地',
     s2: { name: '龍角放電＋毒霧領域', kind: 'zone', color: '#a3e635' },
     smashes: ['真龍烈焰噴射', '雷角穿雲頂', '龍吼震波'],
-    ult: { name: '覺醒龍神・九霄雷炎吐息！', kind: 'beam', color: '#f97316' },
+    ult: { name: '覺醒龍神・九霄雷炎吐息！', kind: 'dragonBreath', color: '#f97316' },
   },
   {
     p: 'nona', color: '#e879f9', a1: '魔針刺擊', a2: '銀線雙連切',
@@ -415,7 +486,7 @@ const KITS: KitSpec[] = [
     side: '無下限瞬間移動突襲', up: '術式順轉「蒼」浮升', down: '無下限重力壓頂',
     s2: { name: '虛式「茈」貫穿彈', kind: 'proj', color: '#a855f7' },
     smashes: ['極限黑閃重拳', '赫・蒼雙重爆', '領域壓迫衝擊'],
-    ult: { name: '領域展開「無量空處」→ 虛式「茈」！', kind: 'beam', color: '#a855f7' },
+    ult: { name: '領域展開「無量空處」→ 虛式「茈」！', kind: 'hollow', color: '#a855f7' },
   },
   {
     p: 'deku', color: '#22c55e', a1: 'Shoot Style 踢', a2: '全覆蓋二連擊',
@@ -433,7 +504,7 @@ const KITS: KitSpec[] = [
     side: '夜鷹疾影暗殺步', up: '忍法・屋簷躍空', down: '空中苦無急襲',
     s2: { name: '煙霧忍者突襲環', kind: 'ring', color: '#94a3b8' },
     smashes: ['一擊必殺拳', '夜鷹穿雲踢', '忍道重壓'],
-    ult: { name: '九號通訊輔助「神速・無音全滅」！', kind: 'beam', color: '#38bdf8' },
+    ult: { name: '九號通訊輔助「神速・無音全滅」！', kind: 'rush', color: '#38bdf8' },
   },
   {
     p: 'saki', color: '#f43f5e', a1: '偶像應援揮棒', a2: '咲季全力高踢',
@@ -451,7 +522,7 @@ const KITS: KitSpec[] = [
     side: '終盤「末腳」超加速！', up: '天馬跨欄大跳躍', down: '重蹄踩踏衝擊',
     s2: { name: '日本總大將氣勢震波', kind: 'ring', color: '#c084fc' },
     smashes: ['有馬紀念衝刺撞', 'ダービー沖天踢', '草皮大震踏'],
-    ult: { name: '固有技能「シューティングスター」衝線！', kind: 'beam', color: '#f472b6' },
+    ult: { name: '固有技能「シューティングスター」衝線！', kind: 'rush', color: '#f472b6' },
   },
   {
     p: 'kaoruko', color: '#f9a8d4', a1: '甜點叉輕擊', a2: '桔梗優雅旋轉',
@@ -469,7 +540,7 @@ const KITS: KitSpec[] = [
     side: '開拓者極速衝棒', up: '同諧禮帽躍升', down: '流星全壘打重砸',
     s2: { name: '炎之存護護盾爆發', kind: 'ring', color: '#f97316' },
     smashes: ['星核全壘打！', '炎槍熾熱上挑', '裂界重力砸'],
-    ult: { name: '星穹列車「Star Rail 全速撞擊」！', kind: 'beam', color: '#facc15' },
+    ult: { name: '星穹列車「Star Rail 全速撞擊」！', kind: 'train', color: '#facc15' },
   },
   {
     p: 'lumine', color: '#fde047', a1: '異邦劍連斬', a2: '星辰重擊',
@@ -487,7 +558,7 @@ const KITS: KitSpec[] = [
     side: '六課課長・極速納刀閃', up: '霜月飛燕升空', down: '冰裂斬地',
     s2: { name: '霜落星見結界爆', kind: 'ring', color: '#22d3ee' },
     smashes: ['霜月三段蓄力斬', '狐火沖天拔刀', '絕對零度震'],
-    ult: { name: '終結技「殘雪・星見流萬斬」！', kind: 'beam', color: '#38bdf8' },
+    ult: { name: '終結技「殘雪・星見流萬斬」！', kind: 'omnislash', color: '#38bdf8' },
   },
   {
     p: 'rover', color: '#facc15', a1: '衍射迅刀斬', a2: '共鳴解放連擊',
@@ -496,7 +567,7 @@ const KITS: KitSpec[] = [
     side: '鉤索極速突襲', up: '聲骸振翅升空', down: '時滯領域重砸',
     s2: { name: '鳴潮聲骸共鳴環', kind: 'ring', color: '#facc15' },
     smashes: ['闇滅重劍破', '光翼升天斬', '歲主共振震'],
-    ult: { name: '共鳴解放「萬象歸一・時停光刃」！', kind: 'beam', color: '#fde047' },
+    ult: { name: '共鳴解放「萬象歸一・時停光刃」！', kind: 'timestop', color: '#fde047' },
   },
   {
     p: 'rapi', color: '#ef4444', a1: '戰術步槍點射', a2: '強化榴彈槍托擊',
@@ -505,7 +576,7 @@ const KITS: KitSpec[] = [
     side: '反擊部隊戰術突進', up: '噴射背包戰術升空', down: '空投高爆集束雷',
     s2: { name: '高爆爆裂導彈', kind: 'proj', color: '#f97316' },
     smashes: ['Red Hood 核心穿射', '對空爆裂榴彈', '地雷陣引爆'],
-    ult: { name: '爆裂階段 III「Red Hood 全彈發射」！', kind: 'beam', color: '#ef4444' },
+    ult: { name: '爆裂階段 III「Red Hood 全彈發射」！', kind: 'barrage', color: '#ef4444' },
   },
   {
     p: 'akira', color: '#f472b6', a1: '作戰筆記輕拍', a2: '慌張書包揮擊',
@@ -532,7 +603,7 @@ const KITS: KitSpec[] = [
     side: '血梅香・火蝶高速突刺', up: '蝶舞幽冥升空', down: '護摩之杖重砸',
     s2: { name: '彼岸蝶舞・燃燒結界', kind: 'ring', color: '#ef4444' },
     smashes: ['護摩之杖破軍槍', '炎蝶沖天挑', '往生堂鎮魂震'],
-    ult: { name: '元素爆發「安神秘法・巨型鬼火」！', kind: 'beam', color: '#ef4444' },
+    ult: { name: '元素爆發「安神秘法・巨型鬼火」！', kind: 'ghostSpin', color: '#ef4444' },
   },
 ]
 

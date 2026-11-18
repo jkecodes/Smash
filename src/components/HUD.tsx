@@ -215,6 +215,9 @@ function usePadMenu(
     }
     raf = requestAnimationFrame(loop)
     const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      const tag = target?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) return
       if (!onMove || e.repeat) return
       for (const id of ['p1', 'p2'] as FighterId[]) {
         const d = MENU_KEYS[id]?.[e.code]
