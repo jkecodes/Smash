@@ -38,6 +38,13 @@ function dashMove(id: string, name: string, color: string, o: { speed: number; d
         c.setLocalVelocity(0, null, o.speed)
         trail(c, 35, color, 220)
       },
+      onHit(c) {
+        if (id.startsWith('creeper.') || id.startsWith('bakugo.')) {
+          c.fx({ kind: 'burst', pos: at(c, 0.2, 0.8), color: '#f97316', ttl: 280, count: 18, speed: 8, size: 0.2 })
+          c.fx({ kind: 'ring', pos: at(c, 0.2, 0.8), color: '#fde047', ttl: 260, radius: 2.2 })
+          c.shake(0.4)
+        }
+      },
     },
   }
 }
@@ -50,7 +57,7 @@ function upRise(id: string, name: string, color: string, o: { dmg: number; base:
       onActive(c) {
         c.setVelocity(c.forward[0] * 4, o.rise ?? 18, 0)
         c.fx({ kind: 'pillar', pos: [...c.caster.pos], color, ttl: 320, radius: 1.25 })
-        if (id.startsWith('bakugo.') || id.startsWith('firefly.')) {
+        if (id.startsWith('bakugo.') || id.startsWith('firefly.') || id.startsWith('creeper.')) {
           c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#f97316', ttl: 320, count: 16, speed: 7, size: 0.2 })
           c.shake(0.28)
         }
@@ -102,7 +109,7 @@ const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
   hutao: 'ghost',
 }
 
-const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover', 'youmu', 'firefly', 'ellen', 'erika', ...partnerHas('charge')])
+const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover', 'youmu', 'firefly', 'ellen', 'erika', 'creeper', ...partnerHas('charge')])
 const TELEPORT_SIDE_CHARS = new Set(['gojo', 'yodaka', 'miyabi', 'rover', 'seija', 'youmu', 'blinky', 'ellen', 'erika', ...partnerHas('tpSide')])
 const RANGED_SIDE_CHARS = new Set(['rapi', 'hutao', 'nona', 'kotone', 'saki', 'anis', 'vaus', ...partnerHas('ranged')])
 const TELEPORT_UP_CHARS = new Set(['gojo', 'yodaka', 'nona', 'miyabi', 'youmu', 'blinky', 'jinhsi', ...partnerHas('tpUp')])
@@ -320,7 +327,25 @@ function registerKit(k: KitSpec) {
     reg(upRise(`${p}.up`, k.up, color, { dmg: isHeavy ? 10 : 8.5, base: 11.5, scaling: 13, rise: customRise }))
   }
 
-  if (p === 'miramira') {
+  if (p === 'creeper') {
+    reg({
+      id: `${p}.down`, name: '嘶嘶蓄力大自爆！', energyCost: 0, cooldownMs: 2100, startupMs: 240, activeMs: 140, recoveryMs: 260,
+      hitbox: { offset: [0, 0.2, 0], radius: 3.3 }, damage: 16,
+      knockback: { dir: [0, 0.72, 1], base: 16, scaling: 16, radial: true },
+      hooks: {
+        onStart(c) {
+          c.caster.flashMs = 240
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffffff', ttl: 240, radius: 1.5 })
+        },
+        onActive(c) {
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#f97316', ttl: 420, radius: 3.4 })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#4ade80', ttl: 380, radius: 2.8, plane: 'vertical' })
+          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#f97316', ttl: 420, count: 32, speed: 10, size: 0.24 })
+          c.shake(0.65)
+        },
+      },
+    })
+  } else if (p === 'miramira') {
     reg({
       id: `${p}.down`, name: k.down, energyCost: 0, cooldownMs: 1750, startupMs: 100, activeMs: 170, recoveryMs: 220,
       hitbox: { offset: [0, -0.1, 0.6], radius: 2.1 }, damage: 10.5,
@@ -411,17 +436,19 @@ function registerKit(k: KitSpec) {
       },
     })
   } else if (k.s2.kind === 'ring') {
+    const isCreeper = p === 'creeper'
     reg({
       id: `${p}.s2`, name: k.s2.name, energyCost: 18, cooldownMs: 2100, startupMs: 140, activeMs: 130, recoveryMs: 240,
-      hitbox: { offset: [0, 0.1, 0], radius: 3.0 }, damage: 10,
-      knockback: { dir: [0, 0.65, 1], base: 14, scaling: 14, radial: true },
+      hitbox: { offset: [0, 0.1, 0], radius: isCreeper ? 3.6 : 3.0 }, damage: isCreeper ? 14 : 10,
+      knockback: { dir: [0, 0.65, 1], base: isCreeper ? 16 : 14, scaling: isCreeper ? 15.5 : 14, radial: true },
       hooks: {
         onActive(c) {
           const model = KIT_SUMMONS[p]
           if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.4, 1.0), color: k.s2.color, ttl: 950, size: 1.0, dir: c.forward[0] })
-          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: k.s2.color, ttl: 380, radius: 3.0, plane: 'vertical' })
-          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffffff', ttl: 340, radius: 2.6 })
-          c.shake(0.38)
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: isCreeper ? '#38bdf8' : k.s2.color, ttl: 380, radius: isCreeper ? 3.6 : 3.0, plane: 'vertical' })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffffff', ttl: 340, radius: isCreeper ? 3.2 : 2.6 })
+          if (isCreeper) c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#f97316', ttl: 420, count: 30, speed: 9.5, size: 0.24 })
+          c.shake(isCreeper ? 0.6 : 0.38)
         },
       },
     })
