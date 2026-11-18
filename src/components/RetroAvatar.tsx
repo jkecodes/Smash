@@ -45,7 +45,6 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   seija: { body: '#be123c', hair: '#1e1b4b', accent: '#f8fafc', prop: 'horns', style: 'mage', shortHair: true, hornColor: '#e11d48' },
   youmu: { body: '#0f766e', hair: '#e2e8f0', accent: '#34d399', prop: 'katana', style: 'sword', shortHair: true, dualSword: true },
   suzuka: { body: '#22c55e', hair: '#f97316', accent: '#ffffff', prop: 'ears', style: 'martial' },
-  firefly: { body: '#0f766e', hair: '#cbd5e1', accent: '#f97316', prop: 'katana', style: 'sword' },
   jinhsi: { body: '#334155', hair: '#f8fafc', accent: '#fde047', prop: 'horns', style: 'mage', hornColor: '#fde047' },
   anis: { body: '#18181b', hair: '#eab308', accent: '#f97316', prop: 'rifle', style: 'gun' },
   erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
@@ -69,7 +68,7 @@ interface MatSnapshot {
  * 經典街機 ＋ 東方 Project 角色專屬 3D 程式化造型與動作演出。
  * 局部座標以 +Z 為角色正前方、+Y 為上方（對應 World.tsx 的 ±PI/2 轉向）。
  */
-export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId }) {
+export function RetroAvatar({ id, charId, hideProps = false }: { id: FighterId; charId: CharacterId; hideProps?: boolean }) {
   const root = useRef<THREE.Group>(null)
   const animA = useRef<THREE.Group>(null)
   const animB = useRef<THREE.Group>(null)
@@ -1070,7 +1069,36 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
           <mesh position={[0, -0.18, -0.3]} rotation={[0.5, 0, 0]}><coneGeometry args={[0.14, 0.48, 6]} /><meshStandardMaterial color="#1e293b" /></mesh>
           <mesh position={[0, -0.26, -0.52]} rotation={[1.2, 0, 0]}><boxGeometry args={[0.28, 0.06, 0.22]} /><meshStandardMaterial color="#ef4444" /></mesh>
           <group ref={animA} position={[0.26, 0.06, 0.28]} rotation={[0.8, 0, 0]}>
-            <mesh><boxGeometry args={[0.08, 0.72, 0.14]} /><meshStandardMaterial color="#cbd5e1" emissive="#ef4444" emissiveIntensity={0.45} /></mesh>
+            {!hideProps && <mesh><boxGeometry args={[0.08, 0.72, 0.14]} /><meshStandardMaterial color="#cbd5e1" emissive="#ef4444" emissiveIntensity={0.45} /></mesh>}
+          </group>
+        </group>
+      )}
+
+      {charId === 'firefly' && (
+        <group>
+          {/* 流螢・裝甲「薩姆」3D 機甲：銀白裝甲＋青綠護目鏡＋烈焰反應爐＋雙翼推進器 */}
+          <mesh position={[0, -0.14, 0]} castShadow><boxGeometry args={[0.38, 0.52, 0.28]} /><meshStandardMaterial color="#cbd5e1" metalness={0.65} roughness={0.25} /></mesh>
+          <mesh position={[0, 0.04, 0.12]}><boxGeometry args={[0.26, 0.24, 0.1]} /><meshStandardMaterial color="#334155" metalness={0.6} roughness={0.3} /></mesh>
+          <mesh position={[0, 0.06, 0.18]}><octahedronGeometry args={[0.08, 0]} /><meshStandardMaterial color="#4ade80" emissive="#22c55e" emissiveIntensity={0.9} /></mesh>
+          {/* 機甲雙肩甲 */}
+          <mesh position={[-0.28, 0.14, 0]} rotation={[0, 0, 0.25]}><boxGeometry args={[0.22, 0.18, 0.3]} /><meshStandardMaterial color="#e2e8f0" metalness={0.65} roughness={0.25} /></mesh>
+          <mesh position={[0.28, 0.14, 0]} rotation={[0, 0, -0.25]}><boxGeometry args={[0.22, 0.18, 0.3]} /><meshStandardMaterial color="#e2e8f0" metalness={0.65} roughness={0.25} /></mesh>
+          {/* 機甲頭盔＋青綠發光面罩＋天線 V 角 */}
+          <mesh position={[0, 0.38, 0]} castShadow><boxGeometry args={[0.32, 0.3, 0.34]} /><meshStandardMaterial color="#e2e8f0" metalness={0.65} roughness={0.25} /></mesh>
+          <mesh position={[0, 0.39, 0.18]}><boxGeometry args={[0.26, 0.09, 0.04]} /><meshStandardMaterial color="#34d399" emissive="#10b981" emissiveIntensity={1} /></mesh>
+          <mesh position={[-0.1, 0.58, 0.08]} rotation={[0, 0, 0.4]}><coneGeometry args={[0.04, 0.18, 4]} /><meshStandardMaterial color="#f97316" emissive="#ea580c" emissiveIntensity={0.6} /></mesh>
+          <mesh position={[0.1, 0.58, 0.08]} rotation={[0, 0, -0.4]}><coneGeometry args={[0.04, 0.18, 4]} /><meshStandardMaterial color="#f97316" emissive="#ea580c" emissiveIntensity={0.6} /></mesh>
+          {/* 背後烈焰推進翼 */}
+          <mesh position={[-0.22, 0.12, -0.24]} rotation={[-0.35, -0.2, 0.35]}><boxGeometry args={[0.14, 0.48, 0.12]} /><meshStandardMaterial color="#334155" emissive="#f97316" emissiveIntensity={0.55} /></mesh>
+          <mesh position={[0.22, 0.12, -0.24]} rotation={[-0.35, 0.2, -0.35]}><boxGeometry args={[0.14, 0.48, 0.12]} /><meshStandardMaterial color="#334155" emissive="#f97316" emissiveIntensity={0.55} /></mesh>
+          {/* 雙手與完全燃燒雙刃（拍手時隱藏武器） */}
+          <group ref={animA} position={[0.29, 0.02, 0.06]}>
+            <mesh position={[0, -0.1, 0]}><boxGeometry args={[0.12, 0.28, 0.14]} /><meshStandardMaterial color="#334155" /></mesh>
+            {!hideProps && <mesh position={[0, -0.02, 0.38]} rotation={[1.0, 0, 0]}><boxGeometry args={[0.04, 0.68, 0.09]} /><meshStandardMaterial color="#f97316" emissive="#4ade80" emissiveIntensity={0.8} /></mesh>}
+          </group>
+          <group ref={animB} position={[-0.29, 0.02, 0.06]}>
+            <mesh position={[0, -0.1, 0]}><boxGeometry args={[0.12, 0.28, 0.14]} /><meshStandardMaterial color="#334155" /></mesh>
+            {!hideProps && <mesh position={[0, -0.02, 0.38]} rotation={[1.0, 0, 0]}><boxGeometry args={[0.04, 0.68, 0.09]} /><meshStandardMaterial color="#f97316" emissive="#4ade80" emissiveIntensity={0.8} /></mesh>}
           </group>
         </group>
       )}
@@ -1344,46 +1372,46 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
             )}
             <group ref={animA} position={[0.25, 0.06, 0]}>
               <mesh position={[0, -0.12, 0.06]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color={pr.body} /></mesh>
-              {pr.prop === 'katana' && (
+              {!hideProps && pr.prop === 'katana' && (
                 <group position={[0, -0.04, 0.36]} rotation={[0.95, 0, 0]}>
                   <mesh position={[0, 0.26, 0]}><boxGeometry args={[0.04, 0.68, 0.07]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.6} /></mesh>
                   <mesh position={[0, -0.08, 0]}><boxGeometry args={[0.14, 0.04, 0.14]} /><meshStandardMaterial color="#facc15" /></mesh>
                 </group>
               )}
-              {pr.prop === 'spear' && (
+              {!hideProps && pr.prop === 'spear' && (
                 <group position={[0, -0.02, 0.42]} rotation={[1.05, 0, 0]}>
                   <mesh><cylinderGeometry args={[0.025, 0.025, 1.05, 8]} /><meshStandardMaterial color="#18181b" /></mesh>
                   <mesh position={[0, 0.62, 0]}><coneGeometry args={[0.08, 0.28, 5]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.75} /></mesh>
                 </group>
               )}
-              {pr.prop === 'bat' && (
+              {!hideProps && pr.prop === 'bat' && (
                 <mesh position={[0, -0.02, 0.38]} rotation={[0.9, 0, 0]}><cylinderGeometry args={[0.055, 0.025, 0.66, 10]} /><meshStandardMaterial color="#e2e8f0" emissive={pr.accent} emissiveIntensity={0.45} /></mesh>
               )}
-              {pr.prop === 'rifle' && (
+              {!hideProps && pr.prop === 'rifle' && (
                 <group position={[0, -0.06, 0.36]}>
                   <mesh><boxGeometry args={[0.08, 0.14, 0.68]} /><meshStandardMaterial color="#18181b" /></mesh>
                   <mesh position={[0, 0.1, -0.05]}><boxGeometry args={[0.05, 0.06, 0.22]} /><meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.6} /></mesh>
                 </group>
               )}
-              {pr.prop === 'mic' && (
+              {!hideProps && pr.prop === 'mic' && (
                 <group position={[0, -0.04, 0.26]} rotation={[0.7, 0, 0]}>
                   <mesh><cylinderGeometry args={[0.03, 0.025, 0.26, 8]} /><meshStandardMaterial color="#18181b" /></mesh>
                   <mesh position={[0, 0.16, 0]}><sphereGeometry args={[0.075, 10, 10]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.85} /></mesh>
                 </group>
               )}
-              {pr.prop === 'needle' && (
+              {!hideProps && pr.prop === 'needle' && (
                 <mesh position={[0, -0.04, 0.38]} rotation={[Math.PI / 2, 0, 0]}><coneGeometry args={[0.04, 0.62, 8]} /><meshStandardMaterial color="#e2e8f0" emissive="#e879f9" emissiveIntensity={0.7} /></mesh>
               )}
-              {pr.prop === 'book' && (
+              {!hideProps && pr.prop === 'book' && (
                 <mesh position={[0, -0.04, 0.26]} rotation={[0.4, 0, 0]}><boxGeometry args={[0.18, 0.22, 0.05]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.35} /></mesh>
               )}
-              {pr.prop === 'orb' && (
+              {!hideProps && pr.prop === 'orb' && (
                 <mesh position={[0, -0.04, 0.32]}><sphereGeometry args={[0.12, 10, 10]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.85} /></mesh>
               )}
             </group>
             <group ref={animB} position={[-0.25, 0.06, 0]}>
               <mesh position={[0, -0.12, 0.04]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color={pr.body} /></mesh>
-              {pr.dualSword && (
+              {!hideProps && pr.dualSword && (
                 <group position={[0, -0.04, 0.3]} rotation={[0.95, 0, 0]}>
                   <mesh position={[0, 0.2, 0]}><boxGeometry args={[0.036, 0.52, 0.06]} /><meshStandardMaterial color="#f8fafc" emissive={pr.accent} emissiveIntensity={0.45} /></mesh>
                   <mesh position={[0, -0.06, 0]}><boxGeometry args={[0.12, 0.035, 0.12]} /><meshStandardMaterial color="#facc15" /></mesh>

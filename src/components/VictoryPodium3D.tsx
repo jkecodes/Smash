@@ -97,7 +97,7 @@ function ClappingActor({ id, charId }: { id: FighterId; charId: CharacterId }) {
   return (
     <group ref={rig} scale={[1.15, 1.15, 1.15]}>
       {isRetroAvatar(charId) ? (
-        <RetroAvatar id={id} charId={charId} />
+        <RetroAvatar id={id} charId={charId} hideProps />
       ) : (
         <group>
           <mesh position={[0, 0.15, 0]}><boxGeometry args={[0.8, 0.26, 0.32]} /><meshStandardMaterial color="#00f0f0" emissive="#06b6d4" emissiveIntensity={0.45} /></mesh>
