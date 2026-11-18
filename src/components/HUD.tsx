@@ -303,26 +303,6 @@ function PadWizard({ id, onClose }: { id: FighterId; onClose: () => void }) {
   )
 }
 
-/** 拖曳 .glb / .gltf 到這裡即可替換該玩家的角色模型 */
-function ModelDrop({ id, compact = false }: { id: FighterId; compact?: boolean }) {
-  const m = useGameStore((s) => s.playerModel[id])
-  const set = useGameStore((s) => s.setPlayerModel)
-  const [over, setOver] = useState(false)
-  const accept = (f?: File) => { if (f && /\.(glb|gltf)$/i.test(f.name)) set(id, f) }
-  return (
-    <label
-      onDragOver={(e) => { e.preventDefault(); setOver(true) }}
-      onDragLeave={() => setOver(false)}
-      onDrop={(e) => { e.preventDefault(); setOver(false); accept(e.dataTransfer.files[0]) }}
-      onClick={(e) => e.stopPropagation()}
-      className={`mt-1.5 block cursor-pointer rounded border border-dashed px-2 ${compact ? 'py-1 text-[10px]' : 'py-1.5 text-[11px]'} text-center ${over ? 'border-yellow-300 bg-yellow-300/20' : 'border-white/25'}`}
-    >
-      <input type="file" accept=".glb,.gltf" className="hidden" onChange={(e) => accept(e.target.files?.[0])} />
-      {m ? <>🧊 {m.name} <button type="button" className="ml-1 underline" onClick={(e) => { e.preventDefault(); set(id, null) }}>移除</button></> : (compact ? '拖入 .glb 自訂外觀' : '拖曳 .glb 模型到這裡（或點擊選檔）')}
-    </label>
-  )
-}
-
 function PadInfo({ id, onSetup, compact = false }: { id: FighterId; onSetup: () => void; compact?: boolean }) {
   const [, tick] = useState(0)
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 700); return () => clearInterval(t) }, [])
@@ -1298,7 +1278,6 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
                   </div>
 
                   <CpuPicker id={id} />
-                  <ModelDrop id={id} compact={compact} />
                   <PadInfo id={id} onSetup={() => setWizard(id)} compact={compact} />
                 </div>
               )
