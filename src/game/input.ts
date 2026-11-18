@@ -128,6 +128,12 @@ export function readMenuPad(id: FighterId): { dx: number; dy: number; confirm: b
 }
 const anyKey = (list: string[]) => list.some((c) => keys.has(c))
 
+export const touchInput: { moveX: number; moveY: number; held: Record<Btn, boolean> } = {
+  moveX: 0,
+  moveY: 0,
+  held: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false },
+}
+
 export function readInput(id: FighterId): InputFrame {
   const m = KEYMAP[id]
   let moveX = (anyKey(m.right) ? 1 : 0) - (anyKey(m.left) ? 1 : 0)
@@ -173,6 +179,12 @@ export function readInput(id: FighterId): InputFrame {
     }
     if (map.btn?.skill2 === undefined && std && Math.hypot(pad.axes[2] ?? 0, pad.axes[3] ?? 0) > 0.6) held.skill2 = true
     if (moveY > 0.7) held.jump = true
+  }
+  if (id === 'p1') {
+    if (Math.abs(touchInput.moveX) > 0.05) moveX = touchInput.moveX
+    if (Math.abs(touchInput.moveY) > 0.05) moveY = touchInput.moveY
+    for (const b of BTNS) if (touchInput.held[b]) held[b] = true
+    if (touchInput.moveY > 0.72) held.jump = true
   }
   const pressed = {} as Record<Btn, boolean>
   for (const b of BTNS) {

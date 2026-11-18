@@ -11,6 +11,7 @@ import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type Fighte
 import { sfx, useAudioStore } from '../game/audio'
 import { CharacterPortrait, SHORT_NAMES } from './CharacterPortrait'
 import { StagePreview } from './StagePreview'
+import { TouchControls } from './TouchControls'
 
 const damageColor = (d: number) => {
   const t = Math.min(1, d / 200)
@@ -1224,6 +1225,9 @@ function AudioControl() {
 export function HUD() {
   usePauseControl()
   const [guideChar, setGuideChar] = useState<CharacterId | null>(null)
+  const [showTouch, setShowTouch] = useState(() =>
+    typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768)
+  )
   const paused = useGameStore((s) => s.paused)
   const ui = useGameStore((s) => s.ui)
   const phase = useGameStore((s) => s.phase)
@@ -1263,16 +1267,33 @@ export function HUD() {
 
   return (
     <div className="pointer-events-none absolute inset-0">
-      <div className="pointer-events-auto absolute top-4 right-4 z-30">
+      <div className="pointer-events-auto absolute top-3 right-3 z-30 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setShowTouch((v) => !v)}
+          title="開啟或關閉手機觸控搖桿"
+          className={`rounded-full px-2.5 py-1.5 text-[11px] font-bold backdrop-blur shadow-md ring-1 transition ${
+            showTouch
+              ? 'bg-yellow-300 text-black ring-yellow-200'
+              : 'bg-black/60 text-white/75 ring-white/10 hover:text-white'
+          }`}
+        >
+          📱 觸控
+        </button>
         <AudioControl />
       </div>
       {phase !== 'menu' && (
-        <div className={`absolute inset-x-0 bottom-3 flex flex-wrap gap-2 px-4 ${playerCount <= 2 ? 'justify-between px-6' : 'justify-center'}`}>
+        <div className={`absolute inset-x-0 flex flex-wrap gap-2 px-3 ${
+          showTouch
+            ? 'top-12 justify-center'
+            : `bottom-3 ${playerCount <= 2 ? 'justify-between px-6' : 'justify-center'}`
+        }`}>
           {activeIds.map((id) => (
-            <Card key={id} id={id} u={ui[id]} compact={playerCount > 2} />
+            <Card key={id} id={id} u={ui[id]} compact={playerCount > 2 || showTouch} />
           ))}
         </div>
       )}
+      {phase === 'playing' && !paused && showTouch && <TouchControls />}
       {phase === 'menu' && <Menu onGuide={setGuideChar} guideOpen={guideChar !== null} />}
       {phase === 'playing' && fatalFlash && (
         <div
