@@ -348,6 +348,129 @@ export function StagePreview({ id, form = 'normal', className = '' }: { id: Stag
           <rect x="125" y="35" width="6" height="27" fill="#18181b" />
         </g>
       )}
+      {id === 'seija' && (
+        <g opacity="0.88">
+          <circle cx="80" cy="24" r="14" fill="#be123c" opacity="0.55" />
+          <polygon points="36,12 124,12 106,36 54,36" fill="#4c0519" stroke="#f43f5e" strokeWidth="1.2" />
+          <polygon points="48,36 112,36 96,54 64,54" fill="#881337" stroke="#f43f5e" strokeWidth="1" />
+        </g>
+      )}
+      {id === 'youmu' && (
+        <g opacity="0.88">
+          <circle cx="122" cy="20" r="11" fill="#d1fae5" opacity="0.7" />
+          <path d="M28,63 L34,34 L18,22 M34,34 L50,24" stroke="#78350f" strokeWidth="3.5" fill="none" />
+          <circle cx="32" cy="22" r="16" fill="#f9a8d4" opacity="0.6" />
+          <circle cx="48" cy="26" r="12" fill="#fbcfe8" opacity="0.5" />
+          <rect x="120" y="42" width="8" height="20" fill="#334155" />
+        </g>
+      )}
+      {id === 'luigi' && (
+        <g opacity="0.9">
+          <path d="M122,12 A10,10 0 1,0 132,26 A8,8 0 1,1 122,12 Z" fill="#fef08a" opacity="0.8" />
+          <rect x="20" y="20" width="12" height="43" fill="#3b0764" stroke="#a855f7" strokeWidth="1" />
+          <rect x="128" y="20" width="12" height="43" fill="#3b0764" stroke="#a855f7" strokeWidth="1" />
+          <circle cx="52" cy="28" r="6" fill="#e9d5ff" opacity="0.6" />
+          <circle cx="104" cy="34" r="5" fill="#4ade80" opacity="0.6" />
+        </g>
+      )}
+      {id === 'blinky' && (
+        <g opacity="0.9">
+          <rect x="24" y="16" width="112" height="38" rx="4" fill="none" stroke="#2563eb" strokeWidth="2.5" />
+          <line x1="62" y1="16" x2="98" y2="16" stroke="#f472b6" strokeWidth="3" />
+          <circle cx="44" cy="34" r="4" fill="#ef4444" />
+          <circle cx="80" cy="34" r="3" fill="#fde047" />
+          <circle cx="116" cy="34" r="4" fill="#38bdf8" />
+        </g>
+      )}
+      {id === 'diddy' && (
+        <g opacity="0.88">
+          <path d="M10,50 Q80,34 150,50" fill="none" stroke="#92400e" strokeWidth="3" />
+          <line x1="36" y1="44" x2="36" y2="63" stroke="#78350f" strokeWidth="3" />
+          <line x1="80" y1="42" x2="80" y2="63" stroke="#78350f" strokeWidth="3" />
+          <line x1="124" y1="44" x2="124" y2="63" stroke="#78350f" strokeWidth="3" />
+          <circle cx="24" cy="22" r="12" fill="#15803d" opacity="0.7" />
+          <circle cx="136" cy="22" r="12" fill="#166534" opacity="0.7" />
+        </g>
+      )}
+      {id === 'creeper' && (
+        <g opacity="0.9">
+          <rect x="24" y="18" width="12" height="45" fill="#78350f" />
+          <rect x="124" y="18" width="12" height="45" fill="#78350f" />
+          <rect x="20" y="14" width="120" height="8" fill="#92400e" />
+          <rect x="52" y="26" width="14" height="14" fill="#334155" stroke="#22c55e" strokeWidth="1.5" />
+          <rect x="94" y="28" width="14" height="14" fill="#334155" stroke="#38bdf8" strokeWidth="1.5" />
+          <circle cx="36" cy="28" r="4" fill="#facc15" />
+          <circle cx="124" cy="28" r="4" fill="#facc15" />
+        </g>
+      )}
+      {id === 'chuck' && (
+        <g opacity="0.9">
+          <rect x="26" y="28" width="22" height="35" fill="#92400e" stroke="#facc15" strokeWidth="1.2" />
+          <rect x="112" y="24" width="22" height="39" fill="#92400e" stroke="#facc15" strokeWidth="1.2" />
+          <polygon points="24,28 37,16 50,28" fill="#b45309" />
+          <polygon points="110,24 123,12 136,24" fill="#b45309" />
+          <circle cx="80" cy="24" r="6" fill="#4ade80" opacity="0.8" />
+        </g>
+      )}
+      {id === 'suzuka' && (
+        <g opacity="0.9">
+          <line x1="10" y1="54" x2="150" y2="54" stroke="#ffffff" strokeWidth="2.5" />
+          <line x1="10" y1="48" x2="150" y2="48" stroke="#22c55e" strokeWidth="1.5" />
+          <rect x="30" y="14" width="8" height="40" fill="#334155" />
+          <circle cx="34" cy="14" r="5" fill="#fde047" />
+          <rect x="122" y="14" width="8" height="40" fill="#334155" />
+          <circle cx="126" cy="14" r="5" fill="#fde047" />
+        </g>
+      )}
+      {id === 'firefly' && (
+        <g opacity="0.9">
+          <circle cx="80" cy="30" r="16" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5 3" />
+          <circle cx="80" cy="30" r="9" fill="none" stroke="#38bdf8" strokeWidth="1.5" />
+          <rect x="20" y="24" width="12" height="39" fill="#1e293b" stroke="#f97316" strokeWidth="1" />
+          <rect x="128" y="24" width="12" height="39" fill="#1e293b" stroke="#38bdf8" strokeWidth="1" />
+        </g>
+      )}
+      {id === 'ellen' && (
+        <g opacity="0.9">
+          <rect x="18" y="20" width="24" height="43" fill="#0f172a" stroke="#ef4444" strokeWidth="1.2" />
+          <rect x="118" y="20" width="24" height="43" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.2" />
+          <path d="M52,63 A28,28 0 0,1 108,63" fill="none" stroke="#e2e8f0" strokeWidth="2" />
+          <rect x="64" y="16" width="32" height="10" rx="2" fill="#ef4444" opacity="0.75" />
+        </g>
+      )}
+      {id === 'jinhsi' && (
+        <g opacity="0.9">
+          <polygon points="12,63 42,20 72,63" fill="#1e293b" opacity="0.85" />
+          <polygon points="88,63 118,22 148,63" fill="#1e293b" opacity="0.85" />
+          <circle cx="80" cy="28" r="13" fill="none" stroke="#fde047" strokeWidth="1.8" />
+          <circle cx="80" cy="28" r="6" fill="#fef08a" opacity="0.45" />
+        </g>
+      )}
+      {id === 'anis' && (
+        <g opacity="0.9">
+          <polygon points="16,63 32,20 48,20 56,63" fill="#27272a" stroke="#f59e0b" strokeWidth="1.2" />
+          <polygon points="104,63 112,20 128,20 144,63" fill="#27272a" stroke="#f59e0b" strokeWidth="1.2" />
+          <path d="M56,36 A26,26 0 0,1 104,36" fill="none" stroke="#fb923c" strokeWidth="1.8" strokeDasharray="4 3" />
+        </g>
+      )}
+      {id === 'erika' && (
+        <g opacity="0.9">
+          <path d="M56,63 L56,24 A24,24 0 0,1 104,24 L104,63" fill="#1e1b4b" stroke="#facc15" strokeWidth="1.8" />
+          <rect x="24" y="18" width="12" height="36" fill="#4338ca" stroke="#facc15" strokeWidth="1" />
+          <rect x="124" y="18" width="12" height="36" fill="#4338ca" stroke="#facc15" strokeWidth="1" />
+        </g>
+      )}
+      {id === 'vaus' && (
+        <g opacity="0.92">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <rect key={i} x={24 + i * 23} y={14} width="20" height="7" rx="1" fill={['#ef4444', '#facc15', '#22c55e', '#38bdf8', '#a855f7'][i]} />
+          ))}
+          {[0, 1, 2, 3, 4].map((i) => (
+            <rect key={i} x={24 + i * 23} y={24} width="20" height="7" rx="1" fill={['#38bdf8', '#a855f7', '#ef4444', '#facc15', '#22c55e'][i]} />
+          ))}
+          <circle cx="92" cy="44" r="3" fill="#ffffff" />
+        </g>
+      )}
 
       {/* 層板配置（依實際 stages.ts 幾何描繪） */}
       {st.platforms.map((p, i) => {

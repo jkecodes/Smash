@@ -1083,6 +1083,151 @@ function AnimeGameDecor({ stage }: { stage: StageDef }) {
           </mesh>
         </>
       )
+    case 'seija': // 輝針城・逆轉天守：倒懸城樓屋簷與緋紅圓月
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#4c0519" /></mesh>
+          <mesh position={[0, 7.5, -18]}><circleGeometry args={[4.5, 24]} /><meshBasicMaterial color="#e11d48" transparent opacity={0.45} /></mesh>
+          <mesh position={[0, 8.2, -13]} rotation={[Math.PI, 0, 0]}><coneGeometry args={[7.5, 3.6, 4]} /><meshStandardMaterial color="#881337" emissive="#f43f5e" emissiveIntensity={0.2} /></mesh>
+        </>
+      )
+    case 'youmu': // 白玉樓・西行妖櫻：巨大幽冥櫻花樹＋石燈籠
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#064e3b" /></mesh>
+          <mesh position={[0, 6.5, -18]}><circleGeometry args={[3.6, 24]} /><meshBasicMaterial color="#d1fae5" transparent opacity={0.45} /></mesh>
+          {[-8.5, 8.5].map((x, i) => (
+            <group key={i} position={[x, 3.2, -12]}>
+              <mesh position={[0, -1, 0]}><cylinderGeometry args={[0.5, 0.7, 4.5, 8]} /><meshStandardMaterial color="#451a03" /></mesh>
+              <mesh position={[0, 2.4, 0]}><sphereGeometry args={[3.1, 12, 10]} /><meshStandardMaterial color="#f9a8d4" emissive="#fbcfe8" emissiveIntensity={0.25} /></mesh>
+            </group>
+          ))}
+        </>
+      )
+    case 'luigi': // 路易吉鬼屋大廳：暗紫石柱＋幽靈彎月＋綠光吊燈
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#2e1065" /></mesh>
+          {[-8, 8].map((x, i) => (
+            <mesh key={i} position={[x, 3.5, -12]}><boxGeometry args={[1.8, 8.5, 1.8]} /><meshStandardMaterial color="#3b0764" emissive="#a855f7" emissiveIntensity={0.2} /></mesh>
+          ))}
+          <mesh position={[6, 8, -18]}><circleGeometry args={[3.2, 24]} /><meshBasicMaterial color="#fef08a" transparent opacity={0.5} /></mesh>
+        </>
+      )
+    case 'blinky': // 幽靈重生中樞：霓虹藍迷宮圍牆與能量豆
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#0f172a" /></mesh>
+          {[-7, 0, 7].map((x, i) => (
+            <mesh key={i} position={[x, 3.5, -13]}><boxGeometry args={[4.2, 0.6, 0.6]} /><meshStandardMaterial color="#2563eb" emissive="#3b82f6" emissiveIntensity={0.75} /></mesh>
+          ))}
+        </>
+      )
+    case 'diddy': // 叢林礦車軌道：木橋支架＋熱帶棕櫚
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#451a03" /></mesh>
+          {[-7, 7].map((x, i) => (
+            <group key={i} position={[x, 2.5, -12]}>
+              <mesh><cylinderGeometry args={[0.45, 0.6, 6.5, 8]} /><meshStandardMaterial color="#78350f" /></mesh>
+              <mesh position={[0, 3.2, 0]}><sphereGeometry args={[2.4, 10, 8]} /><meshStandardMaterial color="#15803d" /></mesh>
+            </group>
+          ))}
+        </>
+      )
+    case 'creeper': // Minecraft 地底礦坑：方塊礦脈與橡木礦道支架
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#14532d" /></mesh>
+          {[-8, 8].map((x, i) => (
+            <mesh key={i} position={[x, 3.5, -12]}><boxGeometry args={[1.4, 8, 1.4]} /><meshStandardMaterial color="#78350f" /></mesh>
+          ))}
+          <mesh position={[0, 7.2, -12]}><boxGeometry args={[17.5, 1.2, 1.2]} /><meshStandardMaterial color="#92400e" /></mesh>
+        </>
+      )
+    case 'chuck': // 豬豬木頭堡壘：雙側木石高塔
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#713f12" /></mesh>
+          {[-7.5, 7.5].map((x, i) => (
+            <group key={i} position={[x, 3.2, -12]}>
+              <mesh><boxGeometry args={[2.2, 6.5, 2.2]} /><meshStandardMaterial color="#92400e" /></mesh>
+              <mesh position={[0, 4.2, 0]}><coneGeometry args={[1.8, 2.0, 4]} /><meshStandardMaterial color="#b45309" /></mesh>
+            </group>
+          ))}
+        </>
+      )
+    case 'suzuka': // 阪神競馬場彎道：綠草柵欄與夜賽探照燈塔
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#14532d" /></mesh>
+          {[-8.5, 8.5].map((x, i) => (
+            <group key={i} position={[x, 4, -13]}>
+              <mesh><cylinderGeometry args={[0.25, 0.35, 8.5, 8]} /><meshStandardMaterial color="#334155" /></mesh>
+              <mesh position={[0, 4.4, 0.4]}><boxGeometry args={[1.8, 0.9, 0.6]} /><meshStandardMaterial color="#fef08a" emissive="#fde047" emissiveIntensity={0.85} /></mesh>
+            </group>
+          ))}
+        </>
+      )
+    case 'firefly': // 匹諾康尼流夢礁：金色巨型齒輪與霓虹建築
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#0f172a" /></mesh>
+          <mesh ref={spin2} position={[0, 6.2, -15]}>
+            <torusGeometry args={[3.8, 0.25, 8, 16]} />
+            <meshStandardMaterial color="#f59e0b" emissive="#fb923c" emissiveIntensity={0.45} />
+          </mesh>
+        </>
+      )
+    case 'ellen': // 光映廣場・維多利亞家政：都會霓虹招牌與拱門
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#1e293b" /></mesh>
+          {[-8, 8].map((x, i) => (
+            <mesh key={i} position={[x, 4, -12]}><boxGeometry args={[2.2, 8, 2]} /><meshStandardMaterial color="#0f172a" emissive={i === 0 ? '#ef4444' : '#38bdf8'} emissiveIntensity={0.35} /></mesh>
+          ))}
+        </>
+      )
+    case 'jinhsi': // 乘霄山・盤龍崖：蒼茫山巒與金龍光環
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#1e293b" /></mesh>
+          {[-8, 8].map((x, i) => (
+            <mesh key={i} position={[x, 2.8, -14]}><coneGeometry args={[4.2, 8.5, 5]} /><meshStandardMaterial color="#334155" /></mesh>
+          ))}
+          <mesh ref={spin2} position={[0, 6.6, -15]}>
+            <torusGeometry args={[3.4, 0.16, 10, 28]} />
+            <meshBasicMaterial color="#fde047" transparent opacity={0.7} />
+          </mesh>
+        </>
+      )
+    case 'anis': // 方舟指揮官前哨站：鋼鐵堡壘壁壘與戰術燈塔
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#27272a" /></mesh>
+          {[-8, 8].map((x, i) => (
+            <mesh key={i} position={[x, 3.6, -12]}><boxGeometry args={[2.8, 7.6, 2.4]} /><meshStandardMaterial color="#3f3f46" emissive="#f59e0b" emissiveIntensity={0.2} /></mesh>
+          ))}
+        </>
+      )
+    case 'erika': // 亞雷斯達王城大殿：皇家金框柱與藍紫旗幟
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#1e1b4b" /></mesh>
+          {[-7.5, 7.5].map((x, i) => (
+            <mesh key={i} position={[x, 3.8, -12]}><boxGeometry args={[1.6, 8, 1.6]} /><meshStandardMaterial color="#312e81" emissive="#818cf8" emissiveIntensity={0.25} /></mesh>
+          ))}
+        </>
+      )
+    case 'vaus': // 打磚塊霓虹矩陣：浮空七彩能量磚塊陣列
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#020617" /></mesh>
+          {[-6, -3, 0, 3, 6].map((x, i) => (
+            <mesh key={i} position={[x, 6.8, -12]}><boxGeometry args={[2.3, 0.9, 0.9]} /><meshStandardMaterial color={['#ef4444', '#facc15', '#22c55e', '#38bdf8', '#a855f7'][i]} emissive={['#ef4444', '#facc15', '#22c55e', '#38bdf8', '#a855f7'][i]} emissiveIntensity={0.5} /></mesh>
+          ))}
+        </>
+      )
     case 'akira': // 鄉間通學小路：校門磚柱與兩側盛開櫻花樹
     default:
       return (
