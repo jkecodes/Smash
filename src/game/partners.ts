@@ -48,6 +48,7 @@ export interface PartnerSpec {
   /** 同作品的主角色（沿用其場地） */
   partnerOf: string
   scale: number; speedMult: number; damageMult: number; weightMult: number
+  extraJumps?: number
   trait: string
   portrait: PartnerPortrait
   preset: PartnerPreset
@@ -74,7 +75,7 @@ export const PARTNERS: PartnerSpec[] = [
   },
   {
     id: 'ufo', name: 'MYSTERY UFO 神秘飛碟', short: 'UFO', color: '#ef4444', partnerOf: 'invader',
-    scale: 1.1, speedMult: 0.96, damageMult: 1.1, weightMult: 1.05,
+    scale: 1.1, speedMult: 0.96, damageMult: 1.1, weightMult: 1.05, extraJumps: 2,
     trait: '🛸 Space Invaders・神秘母艦！牽引光束與綠色光彈齊射。',
     portrait: { bg: '#450a0a', hair: '#ef4444', outfit: '#991b1b', accent: '#fca5a5', eye: '#fde047', shortHair: true },
     preset: { body: '#dc2626', hair: '#7f1d1d', accent: '#fca5a5', prop: 'orb', style: 'gun', shortHair: true },
@@ -122,7 +123,7 @@ export const PARTNERS: PartnerSpec[] = [
   },
   {
     id: 'ladyfrog', name: 'LADY FROG 青蛙小姐', short: 'LADY FROG', color: '#f472b6', partnerOf: 'frogger',
-    scale: 0.84, speedMult: 1.14, damageMult: 0.92, weightMult: 0.84,
+    scale: 0.84, speedMult: 1.14, damageMult: 0.92, weightMult: 0.84, extraJumps: 2,
     trait: '🐸 Frogger・粉紅青蛙小姐！荷葉彈跳與水泡連射。',
     portrait: { bg: '#500724', hair: '#f472b6', outfit: '#ec4899', accent: '#fde047', eye: '#111827', shortHair: true },
     preset: { body: '#ec4899', hair: '#f9a8d4', accent: '#fde047', prop: 'orb', style: 'mage', shortHair: true },
@@ -170,7 +171,7 @@ export const PARTNERS: PartnerSpec[] = [
   },
   {
     id: 'ducky', name: 'DUCKY 馬路鴨', short: 'DUCKY', color: '#fde047', partnerOf: 'crossy',
-    scale: 0.82, speedMult: 1.16, damageMult: 0.9, weightMult: 0.82,
+    scale: 0.82, speedMult: 1.16, damageMult: 0.9, weightMult: 0.82, extraJumps: 2,
     trait: '🦆 Crossy Road・過馬路的小鴨！羽毛飛鏢與全車道衝刺。',
     portrait: { bg: '#713f12', hair: '#fde047', outfit: '#facc15', accent: '#f97316', eye: '#111827', shortHair: true },
     preset: { body: '#facc15', hair: '#fef08a', accent: '#f97316', prop: 'orb', style: 'martial', shortHair: true },

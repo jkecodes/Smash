@@ -26,7 +26,7 @@ const slash = (c: SkillContext, color: string, o: { d?: number; y?: number; r?: 
   c.fx({ kind: 'slash', pos: at(c, o.y ?? 0.1, o.d ?? 0.9), yaw: yawOf(c), plane: 'horizontal', tilt: o.tilt ?? 0.25, flip: o.flip, color, ttl: o.ttl ?? 220, radius: o.r ?? 1.55 })
 
 const upRise = (id: string, name: string, color: string, o: { dmg: number; base: number; scaling: number; rise: number; vx?: number; cd?: number }): SkillDef => ({
-  id, name, energyCost: 0, cooldownMs: o.cd ?? 1500, startupMs: 95, activeMs: 300, recoveryMs: 340,
+  id, name, energyCost: 0, cooldownMs: o.cd ?? 1500, startupMs: 95, activeMs: 300, recoveryMs: 260,
   hitbox: { offset: [0, 0.95, 0.3], radius: 1.2 }, damage: o.dmg,
   knockback: { dir: [0, 1, 0.2], base: o.base, scaling: o.scaling },
   hooks: {

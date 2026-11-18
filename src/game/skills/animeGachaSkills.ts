@@ -121,15 +121,21 @@ function hitVfx(c: any, color: string, p: string, r: number, flip = false) {
   }
 }
 
+const HEAVY_CHARS = new Set(['deku', 'bakugo', 'sukuna', 'firefly', 'ellen', 'doh', 'stelle'])
+const FAST_SWORD_CHARS = new Set(['chihiro', 'youmu', 'yodaka', 'miyabi', 'erika', 'hakuri', 'hibari', 'rover'])
+
 function registerKit(k: KitSpec) {
   const { p, color } = k
   const canCharge = CHARGE_ATTACK_CHARS.has(p)
+  const isHeavy = HEAVY_CHARS.has(p)
+  const isFast = FAST_SWORD_CHARS.has(p)
   reg({
     id: `${p}.a1`, name: canCharge ? `${k.a1}（可蓄力）` : k.a1, energyCost: 0, chain: `${p}.a2`,
-    startupMs: 55, activeMs: 85, recoveryMs: 135,
+    startupMs: isFast ? 45 : isHeavy ? 65 : 55, activeMs: 85, recoveryMs: isFast ? 120 : 135,
     ...(canCharge ? { charge: { maxMs: 650, damageMult: [1, 2.3] as [number, number], knockbackMult: [1, 1.95] as [number, number] } } : {}),
-    hitbox: { offset: [0, 0.12, 0.95], radius: 0.9 }, damage: 3.5,
-    knockback: { dir: [0, 0.22, 1], base: 5.5, scaling: 5.5 },
+    hitbox: { offset: [0, 0.12, isFast ? 1.05 : 0.95], radius: isFast ? 1.02 : 0.9 },
+    damage: isHeavy ? 4.6 : 3.5,
+    knockback: { dir: [0, 0.22, 1], base: isHeavy ? 6.5 : 5.5, scaling: isHeavy ? 6.5 : 5.5 },
     hooks: {
       onActive(c) {
         hitVfx(c, c.chargeRatio > 0.35 ? color : '#ffffff', p, 1.3 + c.chargeRatio * 0.5)
@@ -143,21 +149,26 @@ function registerKit(k: KitSpec) {
   const hasJab3 = CHARGE_ATTACK_CHARS.has(p) || p === 'spe' || p === 'saki' || p === 'kotone' || p === 'yodaka'
   reg({
     id: `${p}.a2`, name: k.a2, energyCost: 0, ...(hasJab3 ? { chain: `${p}.a3` } : {}),
-    startupMs: 65, activeMs: 90, recoveryMs: 175,
-    hitbox: { offset: [0, 0.12, 1.05], radius: 1.0 }, damage: 4.5,
+    startupMs: isFast ? 55 : 65, activeMs: 90, recoveryMs: isFast ? 155 : 175,
+    hitbox: { offset: [0, 0.12, isFast ? 1.15 : 1.05], radius: isFast ? 1.1 : 1.0 },
+    damage: isHeavy ? 5.6 : 4.5,
     knockback: { dir: [0, 0.35, 1], base: hasJab3 ? 6.5 : 10, scaling: hasJab3 ? 6 : 10.5 },
     hooks: { onActive(c) { hitVfx(c, color, p, 1.45, true) } },
   })
   if (hasJab3) {
     reg({
       id: `${p}.a3`, name: `${k.a2}・終結連打`, energyCost: 0,
-      startupMs: 70, activeMs: 110, recoveryMs: 205,
-      hitbox: { offset: [0, 0.15, 1.2], radius: 1.15 }, damage: 7.5,
-      knockback: { dir: [0, 0.52, 1], base: 11.5, scaling: 11.5 },
+      startupMs: isFast ? 60 : 70, activeMs: 110, recoveryMs: 205,
+      hitbox: { offset: [0, 0.15, 1.2], radius: isHeavy ? 1.3 : 1.15 },
+      damage: isHeavy ? 9.2 : 7.5,
+      knockback: { dir: [0, 0.52, 1], base: isHeavy ? 13.5 : 11.5, scaling: isHeavy ? 13 : 11.5 },
       hooks: {
         onActive(c) {
-          c.setLocalVelocity(0, null, 4)
+          c.setLocalVelocity(0, null, isFast ? 5.2 : 4)
           hitVfx(c, color, p, 1.75, false)
+          if (p === 'youmu' || p === 'chihiro' || p === 'sukuna') {
+            hitVfx(c, '#ffffff', p, 1.9, true)
+          }
           c.fx({ kind: 'ring', pos: at(c, 0.15, 1.0), color, ttl: 240, radius: 1.4, plane: 'vertical' })
         },
       },
@@ -174,18 +185,21 @@ function registerKit(k: KitSpec) {
         } else if (p === 'chihiro') {
           c.fx({ kind: 'summon', model: 'goldfish', pos: at(c, 0.25, 0.9), color: '#ef4444', ttl: 850, size: 0.9, dir: c.forward[0] })
         }
-        const baseVel = k.s1.speed ?? 19
+        const baseVel = p === 'paddle' ? 26 : p === 'sukuna' || p === 'jinhsi' ? 24 : (k.s1.speed ?? 19)
         const spawnMain = (vx: number, vy: number) => c.spawnProjectile({
           pos: at(c, 0.15, 0.9),
           vel: [vx, vy, 0],
-          radius: 0.48,
+          radius: p === 'doh' ? 0.65 : 0.48,
           ttlMs: 1250,
           color: k.s1.projColor,
-          pierce: k.s1.pierce,
+          pierce: k.s1.pierce || p === 'sukuna' || p === 'jinhsi' || p === 'paddle',
           gravity: k.s1.explode ? -16 : 0,
           explodeRadius: k.s1.explode,
           steerable: k.s1.steerable,
         })
+        if (p === 'deku') {
+          c.setLocalVelocity(0, null, -3.5)
+        }
         if (p === 'nona') {
           for (const vy of [-2.4, 0, 2.4]) spawnMain(c.forward[0] * baseVel, vy)
         } else if (p === 'seija') {
@@ -272,7 +286,8 @@ function registerKit(k: KitSpec) {
       },
     })
   } else {
-    reg(upRise(`${p}.up`, k.up, color, { dmg: 8.5, base: 11.5, scaling: 13, rise: 18.5 }))
+    const customRise = p === 'ladyfrog' ? 21.5 : p === 'bakugo' ? 21 : p === 'firefly' ? 20.5 : p === 'ufo' ? 19.5 : 18.5
+    reg(upRise(`${p}.up`, k.up, color, { dmg: isHeavy ? 10 : 8.5, base: 11.5, scaling: 13, rise: customRise }))
   }
 
   if (COUNTER_DOWN_CHARS.has(p)) {
@@ -303,8 +318,24 @@ function registerKit(k: KitSpec) {
         },
       },
     })
+  } else if (p === 'mino') {
+    reg({
+      id: `${p}.down`, name: k.down, energyCost: 0, cooldownMs: 1700, startupMs: 90, activeMs: 360, recoveryMs: 240,
+      hitbox: { offset: [0, -0.45, 0.1], radius: 2.3 }, damage: 12,
+      knockback: { dir: [0, -0.5, 0.8], base: 13.5, scaling: 14, radial: true },
+      hooks: {
+        onStart(c) { c.setVelocity(0, -24, 0) },
+        onTick(c) {
+          if (c.phase === 'active' && c.isGrounded()) {
+            c.fx({ kind: 'ring', pos: [...c.caster.pos], color, ttl: 380, radius: 2.5 })
+            c.shake(0.42)
+            c.endActive()
+          }
+        },
+      },
+    })
   } else {
-    reg(slamMove(`${p}.down`, k.down, color, { dmg: 10, base: 12.5, scaling: 13.5 }))
+    reg(slamMove(`${p}.down`, k.down, color, { dmg: isHeavy ? 11.5 : 10, base: 12.5, scaling: 13.5 }))
   }
 
   if (k.s2.kind === 'zone') {
@@ -316,7 +347,16 @@ function registerKit(k: KitSpec) {
           const model = KIT_SUMMONS[p]
           if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.4, 1.0), color: k.s2.color, ttl: 950, size: 1.0, dir: c.forward[0] })
           const pos: Vec3 = [c.caster.pos[0], Math.max(0, c.caster.pos[1] - 0.35), 0]
-          c.spawnZone(pos, { radius: 3.1, durationMs: 3400, slowFactor: 0.52, color: k.s2.color, damagePerSec: 6.5 })
+          const isGojo = p === 'gojo'
+          const isSukuna = p === 'sukuna'
+          const isViper = p === 'viper'
+          c.spawnZone(pos, {
+            radius: isSukuna ? 3.8 : 3.1,
+            durationMs: isGojo ? 3800 : 3400,
+            slowFactor: isGojo ? 0.25 : p === 'ufo' ? 0.35 : 0.52,
+            color: k.s2.color,
+            damagePerSec: isSukuna ? 9 : isViper ? 8.5 : 6.5,
+          })
           c.fx({ kind: 'ring', pos, color: k.s2.color, ttl: 420, radius: 3.1 })
           if (p === 'ruri') c.fx({ kind: 'pillar', pos, color: '#34d399', ttl: 420, radius: 1.4 })
           if (p === 'lumine') {

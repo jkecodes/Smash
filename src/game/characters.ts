@@ -788,6 +788,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   ...(Object.fromEntries(PARTNERS.map((p) => [p.id, {
     id: p.id, name: p.name, color: p.color,
     scale: p.scale, speedMult: p.speedMult, damageMult: p.damageMult, weightMult: p.weightMult,
+    ...(p.extraJumps ? { extraJumps: p.extraJumps } : {}),
     trait: p.trait,
     loadout: { attack: `${p.id}.a1`, ...tilts(p.id), skill1: `${p.id}.s1`, 'skill1:side': `${p.id}.side`, 'skill1:up': `${p.id}.up`, 'skill1:down': `${p.id}.down`, skill2: `${p.id}.s2`, ...smashes(p.id), ult: `${p.id}.ult` },
   }])) as unknown as Record<(typeof PARTNERS)[number]['id'], CharacterDef>),
