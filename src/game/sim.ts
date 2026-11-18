@@ -385,6 +385,34 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
   def.hooks?.onStart?.(makeCtx(f, f.skill, 0))
 }
 
+function guardUltBounds(f: FighterState, rb: NonNullable<typeof runtime.bodies['p1']>, onEnd = false) {
+  const stage = getStage()
+  const safeX = Math.min(18, stage.half.x - 0.8)
+  const p = rb.translation()
+  const v = rb.linvel()
+  let nx = p.x
+  let ny = p.y
+  let vx = v.x
+  let vy = v.y
+  let changed = false
+
+  if (Math.abs(nx) > safeX) {
+    nx = clamp(nx, -safeX, safeX)
+    vx = -Math.sign(p.x) * Math.min(Math.abs(vx), 6)
+    changed = true
+  }
+  if (ny < -0.5 || (onEnd && (Math.abs(p.x) > safeX || ny < 0.2))) {
+    ny = Math.max(ny, onEnd ? 1.5 : 0.2)
+    vy = Math.max(vy, 2.5)
+    changed = true
+  }
+  if (changed) {
+    rb.setTranslation({ x: nx, y: ny, z: 0 }, true)
+    rb.setLinvel({ x: vx, y: vy, z: 0 }, true)
+    f.pos = [nx, ny, 0]
+  }
+}
+
 function endSkill(f: FighterState) {
   const sk = f.skill
   if (!sk) return
@@ -392,6 +420,7 @@ function endSkill(f: FighterState) {
   if (rb) {
     sk.def.hooks?.onEnd?.(makeCtx(f, sk, 0))
     rb.setGravityScale(1, true)
+    if (sk.def.requiresUlt) guardUltBounds(f, rb, true)
   }
   f.skill = null
   setFsm(f, f.grounded ? 'IDLE' : 'JUMP')
@@ -557,6 +586,7 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
   const v = rb.linvel()
   const k = Math.pow(0.8, dt * 60)
   rb.setLinvel({ x: v.x * k, y: v.y, z: 0 }, true)
+  if (sk.def.requiresUlt) guardUltBounds(f, rb, false)
 
   // 連段輸入緩衝（連按或長按普攻皆可順暢接續下一段）
   const atkHoldReady = inp.held.attack && (!sk.def.charge || sk.released)
