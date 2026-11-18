@@ -718,8 +718,21 @@ const MOVE_ROWS: [string, string][] = [
 
 function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; onClose: () => void }) {
   const [cid, setCid] = useState<CharacterId>(initialChar)
+  usePadMenu(true, onClose, (_id, dx, dy) => {
+    const step = dx || dy
+    if (!step) return
+    setCid((cur) => {
+      const idx = CHARACTER_IDS.indexOf(cur)
+      return CHARACTER_IDS[(idx + step + CHARACTER_IDS.length) % CHARACTER_IDS.length]
+    })
+  })
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.code === 'Escape') onClose() }
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.code === 'Escape' || e.code === 'Enter' || e.code === 'Space') {
+        e.preventDefault()
+        onClose()
+      }
+    }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
@@ -1307,30 +1320,72 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   )
 }
 
-/** 暫停輸入輪詢（Esc / P / 手把 Start；暫停中手把 A、B 繼續） */
-function usePauseControl() {
+/** 暫停輸入輪詢（Esc / P / 手把 Start 切換暫停） */
+function usePauseControl(blocked: boolean) {
   useEffect(() => {
     let raf = 0
     const loop = () => {
-      const { toggle, confirm } = pollPause()
+      const { toggle } = pollPause()
       const s = useGameStore.getState()
-      if (s.phase === 'playing') {
-        if (!s.paused && toggle) s.setPaused(true)
-        else if (s.paused && (toggle || confirm)) s.setPaused(false)
+      if (!blocked && s.phase === 'playing' && toggle) {
+        s.setPaused(!s.paused)
       }
       raf = requestAnimationFrame(loop)
     }
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
-  }, [])
+  }, [blocked])
 }
 
-function PauseOverlay({ onGuide }: { onGuide: () => void }) {
+function PauseOverlay({ onGuide, active }: { onGuide: () => void; active: boolean }) {
   const setPaused = useGameStore((s) => s.setPaused)
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
   const stageId = useGameStore((s) => s.stageId)
   const currentStage = STAGES[stageId] ?? STAGES.reimu
+  const [focusIdx, setFocusIdx] = useState(0)
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 160)
+    return () => clearTimeout(t)
+  }, [])
+
+  const actions = [
+    () => setPaused(false),
+    onGuide,
+    () => { clearEntities(); resetSimStage(); start() },
+    toMenu,
+  ]
+
+  usePadMenu(active && ready, () => { sfx('ui'); actions[focusIdx]?.() }, (_id, dx, dy) => {
+    const step = dx || dy
+    if (!step) return
+    setFocusIdx((i) => (i + step + actions.length) % actions.length)
+  })
+
+  useEffect(() => {
+    if (!active) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code === 'Enter' || e.code === 'Space' || e.code === 'KeyJ') {
+        e.preventDefault()
+        sfx('ui')
+        actions[focusIdx]?.()
+      } else if (e.code === 'KeyR') {
+        e.preventDefault(); clearEntities(); resetSimStage(); start()
+      } else if (e.code === 'KeyM') {
+        e.preventDefault(); toMenu()
+      } else if (e.code === 'KeyG') {
+        e.preventDefault(); onGuide()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [active, focusIdx, start, toMenu, onGuide])
+
+  const btnRing = (idx: number) =>
+    focusIdx === idx ? 'ring-4 ring-yellow-300 scale-105 shadow-lg shadow-yellow-300/25' : 'opacity-85 hover:opacity-100'
+
   return (
     <div className="pointer-events-auto absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/70 text-white">
       <div className="text-5xl font-black tracking-widest">暫停</div>
@@ -1339,12 +1394,12 @@ function PauseOverlay({ onGuide }: { onGuide: () => void }) {
         <span className="text-yellow-300">· {currentStage.theme.tag}</span>
       </div>
       <div className="flex flex-wrap justify-center gap-3">
-        <button onClick={() => setPaused(false)} className="rounded bg-yellow-300 px-6 py-2 font-bold text-black">繼續</button>
-        <button onClick={onGuide} className="rounded bg-cyan-400/25 border border-cyan-300/40 px-5 py-2 font-bold text-cyan-200 hover:bg-cyan-400/35">🎓 角色教學</button>
-        <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded bg-white/20 px-6 py-2 font-bold">重新開始</button>
-        <button onClick={toMenu} className="rounded bg-white/20 px-6 py-2 font-bold">回選單</button>
+        <button onClick={actions[0]} className={`rounded bg-yellow-300 px-6 py-2 font-bold text-black transition ${btnRing(0)}`}>繼續</button>
+        <button onClick={actions[1]} className={`rounded bg-cyan-400/25 border border-cyan-300/40 px-5 py-2 font-bold text-cyan-200 hover:bg-cyan-400/35 transition ${btnRing(1)}`}>🎓 角色教學</button>
+        <button onClick={actions[2]} className={`rounded bg-white/20 px-6 py-2 font-bold transition ${btnRing(2)}`}>重新開始</button>
+        <button onClick={actions[3]} className={`rounded bg-white/20 px-6 py-2 font-bold transition ${btnRing(3)}`}>回選單</button>
       </div>
-      <div className="text-xs text-white/60">按 Esc / P / 手把 Start 或 A、B 繼續</div>
+      <div className="text-xs text-white/60">WASD / 方向鍵 / 手把選擇項目 · Enter / Space / 手把 A 確認 · Esc / P / Start 繼續</div>
     </div>
   )
 }
@@ -1412,6 +1467,19 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     setNameInput(nickname)
   }, [nickname])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code === 'Escape') { e.preventDefault(); onClose() }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  usePadMenu(true, () => {
+    const tag = document.activeElement?.tagName
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA') onClose()
+  })
 
   const handleCopyUid = () => {
     navigator.clipboard?.writeText(uid).catch(() => {})
@@ -1609,10 +1677,11 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
 }
 
 export function HUD() {
-  usePauseControl()
   const [guideChar, setGuideChar] = useState<CharacterId | null>(null)
   const [showProfile, setShowProfile] = useState(false)
   const [resultStep, setResultStep] = useState<'podium' | 'stats'>('podium')
+  const [endFocusIdx, setEndFocusIdx] = useState(1)
+  usePauseControl(guideChar !== null || showProfile)
   const profile = useProfileStore()
   const recordedRef = useRef(false)
   const [showTouch, setShowTouch] = useState(() => {
@@ -1658,24 +1727,53 @@ export function HUD() {
     return (ui[b]?.stats.kos ?? 0) - (ui[a]?.stats.kos ?? 0)
   })
 
-  usePadMenu(phase === 'ended' && !guideChar, () => { clearEntities(); resetSimStage(); start() })
+  const endActions = [
+    () => { sfx('ui'); setResultStep('podium') },
+    () => { clearEntities(); resetSimStage(); start() },
+    toMenu,
+  ]
+
+  usePadMenu(
+    phase === 'ended' && !guideChar && !showProfile,
+    () => {
+      sfx('ui')
+      if (resultStep === 'podium') {
+        setResultStep('stats')
+        setEndFocusIdx(1)
+      } else {
+        endActions[endFocusIdx]?.()
+      }
+    },
+    (_id, dx, dy) => {
+      if (resultStep !== 'stats') return
+      const step = dx || dy
+      if (!step) return
+      setEndFocusIdx((i) => (i + step + 3) % 3)
+    },
+  )
 
   useEffect(() => {
-    if (guideChar) return
+    if (guideChar || showProfile) return
     const onKey = (e: KeyboardEvent) => {
-      if (phase === 'playing' && paused) {
-        if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); setPaused(false) }
-        else if (e.code === 'KeyR') { e.preventDefault(); clearEntities(); resetSimStage(); start() }
-        else if (e.code === 'KeyM') { e.preventDefault(); toMenu() }
-        else if (e.code === 'KeyG') { e.preventDefault(); setGuideChar(selection.p1) }
-      } else if (phase === 'ended') {
-        if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); clearEntities(); resetSimStage(); start() }
-        else if (e.code === 'Escape' || e.code === 'KeyM') { e.preventDefault(); toMenu() }
+      if (phase === 'ended') {
+        if (e.code === 'Enter' || e.code === 'Space' || e.code === 'KeyJ') {
+          e.preventDefault()
+          sfx('ui')
+          if (resultStep === 'podium') {
+            setResultStep('stats')
+            setEndFocusIdx(1)
+          } else {
+            endActions[endFocusIdx]?.()
+          }
+        } else if (e.code === 'Escape' || e.code === 'KeyM') {
+          e.preventDefault()
+          toMenu()
+        }
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [phase, paused, guideChar, selection.p1, start, toMenu])
+  }, [phase, guideChar, showProfile, resultStep, endFocusIdx, start, toMenu])
 
   return (
     <div className="pointer-events-none absolute inset-0">
@@ -1776,7 +1874,7 @@ export function HUD() {
           </div>
         </div>
       )}
-      {phase === 'playing' && paused && <PauseOverlay onGuide={() => setGuideChar(selection.p1)} />}
+      {phase === 'playing' && paused && <PauseOverlay active={!guideChar && !showProfile} onGuide={() => setGuideChar(selection.p1)} />}
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
       {guideChar && <CharGuideModal initialChar={guideChar} onClose={() => setGuideChar(null)} />}
       {phase === 'ended' && winner && resultStep === 'stats' && (
@@ -1836,15 +1934,15 @@ export function HUD() {
           <div className="flex flex-wrap justify-center gap-3">
             <button
               type="button"
-              onClick={() => { sfx('ui'); setResultStep('podium') }}
-              className="rounded-xl bg-white/15 border border-white/25 px-6 py-2.5 text-sm font-bold hover:bg-white/25 transition-colors"
+              onClick={endActions[0]}
+              className={`rounded-xl bg-white/15 border border-white/25 px-6 py-2.5 text-sm font-bold hover:bg-white/25 transition ${endFocusIdx === 0 ? 'ring-4 ring-yellow-300 scale-105' : ''}`}
             >
               ← 返回勝者頒獎台
             </button>
-            <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded-xl bg-yellow-300 px-8 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition-colors shadow-xl">
+            <button onClick={endActions[1]} className={`rounded-xl bg-yellow-300 px-8 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition shadow-xl ${endFocusIdx === 1 ? 'ring-4 ring-white scale-105' : ''}`}>
               再來一場
             </button>
-            <button onClick={toMenu} className="rounded-xl bg-white/20 border border-white/30 px-7 py-2.5 text-base font-bold hover:bg-white/30 transition-colors shadow-xl">
+            <button onClick={endActions[2]} className={`rounded-xl bg-white/20 border border-white/30 px-7 py-2.5 text-base font-bold hover:bg-white/30 transition shadow-xl ${endFocusIdx === 2 ? 'ring-4 ring-yellow-300 scale-105' : ''}`}>
               回選單
             </button>
           </div>
