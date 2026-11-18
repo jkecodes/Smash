@@ -418,7 +418,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-[10px] font-black tracking-widest text-yellow-300 uppercase">
             <span>STAGE PREVIEW</span>
-            <span className="rounded bg-white/10 px-2 py-0.5 text-white/80">{activeStage.theme.subtitle}</span>
+            {!randomStage && <span className="rounded bg-white/10 px-2 py-0.5 text-white/80">{activeStage.theme.subtitle}</span>}
           </div>
           <div className="overflow-hidden rounded-xl border-2 border-white/25 bg-black shadow-lg">
             <StagePreview id={randomStage ? 'random' : stageId} form={stageForm} className="w-full aspect-[2/1]" />
@@ -427,7 +427,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
             <h2 className="text-xl font-black text-white truncate">{randomStage ? 'RANDOM 隨機地圖' : activeStage.theme.name}</h2>
           </div>
           <p className="text-xs text-white/75 leading-relaxed">{randomStage ? '🎲 每次進入戰鬥都會從全部地圖中隨機抽出一張！' : activeStage.theme.desc}</p>
-          {activeStage.gimmick ? (
+          {!randomStage && (activeStage.gimmick ? (
             <div className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-[11px] font-bold text-white/90">
               <span>⚡</span>
               <span className="text-white/60">專屬機關：</span>
@@ -437,7 +437,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
             <div className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/45">
               ⚡ 戰場化／終點化已關閉場地機關
             </div>
-          )}
+          ))}
         </div>
 
         {/* 場地型態切換：一般 / 戰場化 / 終點化 Ω */}
