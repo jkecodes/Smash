@@ -219,8 +219,8 @@ function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
     },
     setGravityScale: (s) => rb.setGravityScale(s, true),
     setInvulnerable: (ms) => { f.invulnMs = Math.max(f.invulnMs, ms) },
-    teleport: (p) => { rb.setTranslation({ x: p[0], y: p[1], z: 0 }, true); f.pos = [p[0], p[1], 0] },
-    spawnZone: (p, d) => addZone(f.id, p, d),
+    teleport: (p) => { rb.setTranslation({ x: p[0], y: p[1], z: 0 }, true); f.pos = [p[0], p[1], 0]; sfx('warp') },
+    spawnZone: (p, d) => { addZone(f.id, p, d); sfx('zone') },
     spawnProjectile: (p) => addProjectile({
       owner: f.id, pos: [...p.pos], vel: [...p.vel], radius: p.radius, ttlMs: p.ttlMs, pierce: !!p.pierce, color: p.color,
       gravity: p.gravity, explodeRadius: p.explodeRadius,
@@ -445,7 +445,10 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
     if (sk.def.charge && !sk.released) {
       // 重擊（普攻+特招同按）只要任一鍵還按著就持續蓄力
       const held = sk.slot === 'smash' ? inp.held.attack || inp.held.skill1 : inp.held[sk.slot]
-      if (held && sk.chargeMs < sk.def.charge.maxMs) sk.chargeMs += dtMs
+      if (held && sk.chargeMs < sk.def.charge.maxMs) {
+        sk.chargeMs += dtMs
+        sfx('charge', sk.chargeRatio)
+      }
       sk.chargeRatio = clamp(sk.chargeMs / sk.def.charge.maxMs, 0, 1)
       if (!held || sk.chargeMs >= sk.def.charge.maxMs) sk.released = true
       else sk.phaseMs = 0 // 蓄力中：前搖計時暫停
@@ -592,8 +595,12 @@ function updateFighter(f: FighterState, dt: number) {
   f.energy = Math.min(ENERGY_MAX, f.energy + ENERGY_REGEN * dt)
   f.dropMs = Math.max(0, f.dropMs - dtMs)
   updatePlatformCollision(f, rb)
+  const wasGrounded = f.grounded
   f.grounded = checkGround(f)
-  if (f.grounded) { f.jumpsLeft = MAX_JUMPS; f.airDodgeUsed = false; f.upSpecialUsed = false }
+  if (f.grounded) {
+    if (!wasGrounded && f.vel[1] < -1.5) sfx('land', Math.min(1, Math.abs(f.vel[1]) / 20))
+    f.jumpsLeft = MAX_JUMPS; f.airDodgeUsed = false; f.upSpecialUsed = false
+  }
   else if (f.jumpsLeft > 1) f.jumpsLeft = 1 // 滯空時最多只能再跳一次（走下平台、被擊飛也一樣）
 
   // 減速力場（只影響敵方）

@@ -4,6 +4,7 @@ import { CHARACTERS, CHARACTER_IDS } from '../game/characters'
 import { clearEntities } from '../game/runtime'
 import { useGameStore } from '../game/store'
 import { FIGHTER_IDS, type Btn, type FighterId, type UiFighter } from '../game/types'
+import { useAudioStore } from '../game/audio'
 
 const damageColor = (d: number) => {
   const t = Math.min(1, d / 200)
@@ -276,6 +277,43 @@ function PauseOverlay() {
   )
 }
 
+function AudioControl() {
+  const muted = useAudioStore((s) => s.muted)
+  const volume = useAudioStore((s) => s.volume)
+  const setMuted = useAudioStore((s) => s.setMuted)
+  const setVolume = useAudioStore((s) => s.setVolume)
+
+  return (
+    <div className="flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-xs text-white/90 backdrop-blur shadow-md ring-1 ring-white/10 select-none">
+      <button
+        type="button"
+        onClick={() => setMuted(!muted)}
+        className="text-sm hover:scale-110 active:scale-95 transition-transform"
+        title="切換靜音（亦可按鍵盤 M）"
+      >
+        {muted || volume === 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}
+      </button>
+      <input
+        type="range"
+        min={0}
+        max={1}
+        step={0.05}
+        value={muted ? 0 : volume}
+        onChange={(e) => {
+          const v = parseFloat(e.target.value)
+          setVolume(v)
+          if (muted && v > 0) setMuted(false)
+        }}
+        className="h-1.5 w-20 cursor-pointer accent-yellow-400"
+        title={`音量: ${Math.round((muted ? 0 : volume) * 100)}%`}
+      />
+      <span className="w-8 text-right font-mono text-[11px] text-white/70">
+        {muted ? '0%' : `${Math.round(volume * 100)}%`}
+      </span>
+    </div>
+  )
+}
+
 export function HUD() {
   usePauseControl()
   const paused = useGameStore((s) => s.paused)
@@ -287,6 +325,9 @@ export function HUD() {
   usePadMenu(phase === 'ended', () => { clearEntities(); start() })
   return (
     <div className="pointer-events-none absolute inset-0">
+      <div className="pointer-events-auto absolute top-4 right-4 z-30">
+        <AudioControl />
+      </div>
       {phase !== 'menu' && (
         <div className="absolute inset-x-0 bottom-4 flex justify-between px-6">
           <Card id="p1" u={ui.p1} />
