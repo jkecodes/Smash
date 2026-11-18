@@ -569,7 +569,7 @@ const KITS: KitSpec[] = [
     side: '冰鯊之魔法「冰牙突襲」', up: '蛛絲之魔法「獵場飛躍」', down: '菌菇之魔法「巨菇壓頂」',
     s2: { name: '夢貘之魔法「夢境吞噬領域」', kind: 'zone', color: '#a855f7' },
     smashes: ['魔男真紅斬', '凍結鯊牙衝', '大狩獵震地'],
-    ult: { name: '全收服魔法「雷狐×冰鯊×夢貘×ウロロ」！', kind: 'burst', color: '#60a5fa' },
+    ult: { name: '全收服魔法「雷狐×冰鯊×夢貘×烏洛洛」！', kind: 'burst', color: '#60a5fa' },
   },
   {
     p: 'ruri', color: '#34d399', a1: '龍角衝撞', a2: '小龍炎爪擊',
@@ -703,8 +703,8 @@ const KITS: KitSpec[] = [
     s1: { name: 'Yellow Big Bang! 星光彈', projColor: '#facc15', explode: 2.0, speed: 19 },
     side: '打工衝刺・全速趕場！', up: '偶像飛躍高音跳', down: '閃耀金幣墜地衝',
     s2: { name: '黃色大爆炸應援區', kind: 'zone', color: '#facc15' },
-    smashes: ['世界一可愛い重擊！', '黃金麥克風上鉤', '大豐收震地拍'],
-    ult: { name: '「世界一可愛い私！」黃金星雨 LIVE！', kind: 'rain', color: '#fde047' },
+    smashes: ['世界第一可愛重擊！', '黃金麥克風上鉤', '大豐收震地拍'],
+    ult: { name: '「世界第一可愛的我！」黃金星雨 LIVE！', kind: 'rain', color: '#fde047' },
   },
   {
     p: 'hutao', color: '#ef4444', a1: '往生堂秘傳槍法', a2: '蝶引來生火炎掃',

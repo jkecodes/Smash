@@ -839,7 +839,7 @@ export const STAGES: Partial<Record<StageId, StageDef>> = {
   ichi: {
     id: 'ichi', half: { x: 9.8, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.8, spawnX: { p1: -4.2, p2: 4.2 },
     platforms: [{ x: -5.5, y: 4.0, w: 3.4, color: '#0c4a6e', edgeColor: '#38bdf8' }, { x: 5.5, y: 4.0, w: 3.4, color: '#0c4a6e', edgeColor: '#38bdf8' }, { x: 0, y: 2.0, w: 2.8, color: '#1e1b4b', edgeColor: '#818cf8', move: { ampX: 3.5, speed: 1.3 } }],
-    theme: { name: 'ウロロ魔法荒野', subtitle: 'Witch Hunt Wilds', tag: '伊奇主場・高崖＋巡弋晶石', desc: '《魔男伊奇》兩側高聳冰崖與低空左右巡弋的反世界晶石台。', bg: '#081526', fog: '#081526', ambientColor: '#bae6fd', ambientIntensity: 0.85, dirLightColor: '#e0f2fe', dirLightIntensity: 1.8, dirLightPos: [-8, 22, 12], mainColor: '#0f172a', surfaceColor: '#1e3a8a', edgeColor: '#38bdf8', gridColor1: '#0369a1', gridColor2: '#082f49', platColor: '#0c4a6e', platEdgeColor: '#38bdf8', accentColor: '#38bdf8' },
+    theme: { name: '烏洛洛魔法荒野', subtitle: 'Witch Hunt Wilds', tag: '伊奇主場・高崖＋巡弋晶石', desc: '《魔男伊奇》兩側高聳冰崖與低空左右巡弋的反世界晶石台。', bg: '#081526', fog: '#081526', ambientColor: '#bae6fd', ambientIntensity: 0.85, dirLightColor: '#e0f2fe', dirLightIntensity: 1.8, dirLightPos: [-8, 22, 12], mainColor: '#0f172a', surfaceColor: '#1e3a8a', edgeColor: '#38bdf8', gridColor1: '#0369a1', gridColor2: '#082f49', platColor: '#0c4a6e', platEdgeColor: '#38bdf8', accentColor: '#38bdf8' },
   },
   ruri: {
     id: 'ruri', half: { x: 10.5, y: 0.5, z: 2.5 }, blast: { x: 26, minY: -14, maxY: 26 }, ledgeX: 10.5, spawnX: { p1: -4.8, p2: 4.8 },
@@ -870,7 +870,7 @@ export const STAGES: Partial<Record<StageId, StageDef>> = {
   saki: {
     id: 'saki', half: { x: 10.2, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 10.2, spawnX: { p1: -4.4, p2: 4.4 },
     platforms: [{ x: -6.8, y: 2.4, w: 2.5, color: '#881337', edgeColor: '#fb7185', move: { ampY: 1.2, speed: 1.5, phase: 0 } }, { x: 6.8, y: 2.4, w: 2.5, color: '#be123c', edgeColor: '#fde047', move: { ampY: 1.2, speed: 1.5, phase: Math.PI } }],
-    theme: { name: '初星學園 LIVE 舞台', subtitle: 'Hatsuboshi Stage', tag: '咲季主場・雙側音響升降台', desc: '《学マス》寬廣主舞台搭配兩側邊緣隨節拍交替升降的音響高台！', bg: '#1e0b18', fog: '#1e0b18', ambientColor: '#fda4af', ambientIntensity: 0.88, dirLightColor: '#fff1f2', dirLightIntensity: 1.85, dirLightPos: [0, 22, 12], mainColor: '#4c0519', surfaceColor: '#881337', edgeColor: '#f43f5e', gridColor1: '#9f1239', gridColor2: '#2e0512', platColor: '#881337', platEdgeColor: '#fb7185', accentColor: '#f43f5e' },
+    theme: { name: '初星學園 LIVE 舞台', subtitle: 'Hatsuboshi Stage', tag: '咲季主場・雙側音響升降台', desc: '《學園偶像大師》寬廣主舞台搭配兩側邊緣隨節拍交替升降的音響高台！', bg: '#1e0b18', fog: '#1e0b18', ambientColor: '#fda4af', ambientIntensity: 0.88, dirLightColor: '#fff1f2', dirLightIntensity: 1.85, dirLightPos: [0, 22, 12], mainColor: '#4c0519', surfaceColor: '#881337', edgeColor: '#f43f5e', gridColor1: '#9f1239', gridColor2: '#2e0512', platColor: '#881337', platEdgeColor: '#fb7185', accentColor: '#f43f5e' },
   },
   spe: {
     id: 'spe', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 26, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -5.5, p2: 5.5 },
@@ -917,7 +917,7 @@ export const STAGES: Partial<Record<StageId, StageDef>> = {
   kotone: {
     id: 'kotone', half: { x: 9.6, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.6, spawnX: { p1: -4.2, p2: 4.2 },
     platforms: [{ x: -5.2, y: 2.4, w: 3.2, color: '#854d0e', edgeColor: '#facc15' }, { x: 0, y: 4.0, w: 3.0, color: '#a16207', edgeColor: '#fde047', move: { ampX: 3.2, speed: 1.35 } }, { x: 5.2, y: 2.4, w: 3.2, color: '#854d0e', edgeColor: '#facc15' }],
-    theme: { name: '初星黃金街頭舞台', subtitle: 'Yellow Big Bang!', tag: 'ことね主場・巡迴星車台', desc: '《学マス》閃耀金黃色燈海的街頭舞台，中央載著應援燈牌的舞台車左右巡迴移動！', bg: '#1c1506', fog: '#1c1506', ambientColor: '#fef08a', ambientIntensity: 0.9, dirLightColor: '#fffbeb', dirLightIntensity: 1.85, dirLightPos: [8, 22, 12], mainColor: '#422006', surfaceColor: '#713f12', edgeColor: '#facc15', gridColor1: '#ca8a04', gridColor2: '#1c1104', platColor: '#854d0e', platEdgeColor: '#facc15', accentColor: '#facc15' },
+    theme: { name: '初星黃金街頭舞台', subtitle: 'Yellow Big Bang!', tag: '琴音主場・巡迴星車台', desc: '《學園偶像大師》閃耀金黃色燈海的街頭舞台，中央載著應援燈牌的舞台車左右巡迴移動！', bg: '#1c1506', fog: '#1c1506', ambientColor: '#fef08a', ambientIntensity: 0.9, dirLightColor: '#fffbeb', dirLightIntensity: 1.85, dirLightPos: [8, 22, 12], mainColor: '#422006', surfaceColor: '#713f12', edgeColor: '#facc15', gridColor1: '#ca8a04', gridColor2: '#1c1104', platColor: '#854d0e', platEdgeColor: '#facc15', accentColor: '#facc15' },
   },
   hutao: {
     id: 'hutao', half: { x: 9.4, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.4, spawnX: { p1: -4, p2: 4 },

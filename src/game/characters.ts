@@ -440,9 +440,9 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   ichi: {
     id: 'ichi', name: 'ICHI 伊奇', color: '#38bdf8',
-    trait: '🐺 魔男伊奇・雷狐・夢貘・冰鯊・ウロロ 3D 魔法召喚！',
+    trait: '🐺 魔男伊奇・雷狐・夢貘・冰鯊・烏洛洛 3D 魔法召喚！',
     guide: {
-      summary: '《魔男伊奇》首位男性魔女！出招會實際召喚出他收服的 3D 雷狐、夢貘、冰鯊與ウロロ魔法共同作戰！',
+      summary: '《魔男伊奇》首位男性魔女！出招會實際召喚出他收服的 3D 雷狐、夢貘、冰鯊與烏洛洛魔法共同作戰！',
       steps: [
         '按【特招 K】召喚 3D 金黃「雷狐」衝鋒並射出高速閃電！',
         '按【技能2 L】召喚 3D 紫色「夢貘」展開夢境吞噬緩速領域。',
@@ -529,7 +529,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     id: 'saki', name: 'SAKI 花海咲季', color: '#f43f5e',
     trait: '🎤 學園偶像大師・初星全力衝刺與舞台閃耀應援區！',
     guide: {
-      summary: '《学マス》全能王牌偶像花海咲季！速度極快，能展開應援結界再以 Starlight 擊飛對手。',
+      summary: '《學園偶像大師》全能王牌偶像花海咲季！速度極快，能展開應援結界再以 Starlight 擊飛對手。',
       steps: [
         '站在戰場中心開【技能2 L】閃耀舞台應援區扣血兼緩速敵人。',
         '用【左右+K】初星學園全力衝刺高速追擊，配合【特招 K】Starlight 應援星彈！',
@@ -655,14 +655,14 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     loadout: { attack: 'akira.a1', ...tilts('akira'), skill1: 'akira.s1', 'skill1:side': 'akira.side', 'skill1:up': 'akira.up', 'skill1:down': 'akira.down', skill2: 'akira.s2', ...smashes('akira'), ult: 'akira.ult' },
   },
   kotone: {
-    id: 'kotone', name: 'KOTONE 藤田ことね', color: '#facc15',
-    trait: '💛 學園偶像大師・世界一可愛い！黃金星光彈與大爆炸應援區！',
+    id: 'kotone', name: 'KOTONE 藤田琴音', color: '#facc15',
+    trait: '💛 學園偶像大師・世界第一可愛！黃金星光彈與大爆炸應援區！',
     guide: {
-      summary: '《学マス》元氣打工偶像藤田ことね！機動性極高，用「Yellow Big Bang!」星光爆彈與應援結界閃耀全場。',
+      summary: '《學園偶像大師》元氣打工偶像藤田琴音！機動性極高，用「Yellow Big Bang!」星光爆彈與應援結界閃耀全場。',
       steps: [
         '在戰場中央施放【技能2 L】黃色大爆炸應援區持續扣血兼緩速敵人。',
         '中距離連發【特招 K】Yellow Big Bang! 星光彈製造大範圍黃金爆風！',
-        '抓準空檔用【左右+K】打工全速趕場衝刺突襲，大招降下「世界一可愛い私！」黃金星雨！',
+        '抓準空檔用【左右+K】打工全速趕場衝刺突襲，大招降下「世界第一可愛的我！」黃金星雨！',
       ],
       combo: 'L (應援區) → K (Yellow Big Bang!) → 左右+K (全速趕場衝刺)',
     },

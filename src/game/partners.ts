@@ -186,7 +186,7 @@ export const PARTNERS: PartnerSpec[] = [
     flags: ['martial', 'windUp'],
   },
   {
-    id: 'hakuri', name: 'HAKURI ハクリ', short: 'HAKURI', color: '#e5e7eb', partnerOf: 'chihiro',
+    id: 'hakuri', name: 'HAKURI 伯理', short: 'HAKURI', color: '#e5e7eb', partnerOf: 'chihiro',
     scale: 1.04, speedMult: 1.06, damageMult: 1.1, weightMult: 1.02,
     trait: '🗡️ 神樂鉢・敵方劍士！居合瞬步與百閃連斬。',
     portrait: { bg: '#0f172a', hair: '#f1f5f9', outfit: '#1e293b', accent: '#38bdf8', eye: '#38bdf8', shortHair: true },
@@ -202,9 +202,9 @@ export const PARTNERS: PartnerSpec[] = [
     flags: ['charge', 'tpSide', 'counter'],
   },
   {
-    id: 'descara', name: 'DESCARA デスカラス', short: 'DESCARA', color: '#7c3aed', partnerOf: 'ichi',
+    id: 'descara', name: 'DESCARA 笛絲卡菈絲', short: 'DESCARA', color: '#7c3aed', partnerOf: 'ichi',
     scale: 0.98, speedMult: 1.04, damageMult: 1.06, weightMult: 0.96,
-    trait: '🪶 魔男のイチ・深淵的魔女！烏鴉瞬移與深淵魔法。',
+    trait: '🪶 魔男的伊奇・深淵的魔女！烏鴉瞬移與深淵魔法。',
     portrait: { bg: '#2e1065', hair: '#18181b', outfit: '#4c1d95', accent: '#c4b5fd', eye: '#e879f9', bobHair: true, witchHat: true },
     preset: { body: '#4c1d95', hair: '#18181b', accent: '#c4b5fd', prop: 'hat', style: 'mage' },
     kit: {
@@ -234,18 +234,18 @@ export const PARTNERS: PartnerSpec[] = [
     flags: ['caster', 'counter'],
   },
   {
-    id: 'miramira', name: 'MIRAMIRA ミラミラ', short: 'MIRAMIRA', color: '#14b8a6', partnerOf: 'nona',
+    id: 'miramira', name: 'MIRAMIRA 蜜拉蜜拉', short: 'MIRAMIRA', color: '#14b8a6', partnerOf: 'nona',
     scale: 0.94, speedMult: 1.04, damageMult: 1.04, weightMult: 0.94,
-    trait: '🕳️ WITCHRIV・沉降魔法「メヴィジララ」使！赤紅魔杖與重力沉降領域。',
+    trait: '🕳️ WITCHRIV・沉降魔法「梅維吉拉拉」使！赤紅魔杖與重力沉降領域。',
     portrait: { bg: '#0f2e2b', hair: '#2d2326', outfit: '#1e3a4c', accent: '#f8fafc', eye: '#c084fc' },
     preset: { body: '#1e3a4c', hair: '#2d2326', accent: '#ef4444', prop: 'needle', style: 'mage' },
     kit: {
       a1: '魔力輕擊', a2: '沉降連咒', tilts: ['紫霧橫掃', '魔力上挑', '重力下壓'],
-      s1: { name: 'メヴィジララ魔彈', projColor: '#a855f7', pierce: true, speed: 19 },
+      s1: { name: '梅維吉拉拉魔彈', projColor: '#a855f7', pierce: true, speed: 19 },
       side: '沉降推進波', up: '浮空魔力躍', down: '重力沉降陷阱',
       s2: { name: '沉降魔法領域', kind: 'zone', color: '#7e22ce' },
       smashes: ['沉降重壓', '魔光沖天', '深淵震地'],
-      ult: { name: '沉降魔法「メヴィジララ」大崩落！', kind: 'rain', color: '#a855f7' },
+      ult: { name: '沉降魔法「梅維吉拉拉」大崩落！', kind: 'rain', color: '#a855f7' },
     },
     flags: ['caster', 'ranged', 'trap'],
   },
