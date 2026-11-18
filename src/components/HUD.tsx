@@ -2050,124 +2050,124 @@ export function HUD() {
         const matchStage = resolveStage(gs.stageId, gs.stageForm)
         const th = matchStage.theme
         return (
-        <div
-          className="pointer-events-auto absolute inset-0 z-20 overflow-hidden text-white select-none"
-          style={{
-            background: `linear-gradient(155deg, ${th.bg} 0%, ${th.mainColor} 42%, ${th.surfaceColor} 74%, ${th.accentColor}cc 100%)`,
-          }}
-        >
-          <StagePreview id={matchStage.id} form={gs.stageForm} className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 mix-blend-screen" />
-          {/* 底部大亂鬥經典斜切黑底 */}
           <div
-            className="pointer-events-none absolute -bottom-16 -left-10 -right-10 h-44 bg-black/90 border-t-4"
-            style={{ transform: 'rotate(-3.5deg)', borderColor: th.edgeColor }}
-          />
+            className="pointer-events-auto absolute inset-0 z-20 overflow-hidden text-white select-none"
+            style={{
+              background: `linear-gradient(155deg, ${th.bg} 0%, ${th.mainColor} 42%, ${th.surfaceColor} 74%, ${th.accentColor}cc 100%)`,
+            }}
+          >
+            <StagePreview id={matchStage.id} form={gs.stageForm} className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 mix-blend-screen" />
+            {/* 底部大亂鬥經典斜切黑底 */}
+            <div
+              className="pointer-events-none absolute -bottom-16 -left-10 -right-10 h-44 bg-black/90 border-t-4"
+              style={{ transform: 'rotate(-3.5deg)', borderColor: th.edgeColor }}
+            />
 
-          {/* 右側：第 1 名勝者 3D 模型站立勝利舞台 */}
-          <div className="pointer-events-none absolute right-[2%] bottom-8 top-4 flex items-center justify-center">
-            <div className="h-80 w-80 sm:h-[28rem] sm:w-[28rem]">
-              <VictoryPodium3D
-                id={winner}
-                charId={selection[winner]}
-                color={PLAYER_COLORS[winner]}
-                stageColors={{ main: th.mainColor, surface: th.surfaceColor, edge: th.edgeColor }}
-              />
+            {/* 右側：第 1 名勝者 3D 模型站立勝利舞台 */}
+            <div className="pointer-events-none absolute right-[2%] bottom-8 top-4 flex items-center justify-center">
+              <div className="h-80 w-80 sm:h-[28rem] sm:w-[28rem]">
+                <VictoryPodium3D
+                  id={winner}
+                  charId={selection[winner]}
+                  color={PLAYER_COLORS[winner]}
+                  stageColors={{ main: th.mainColor, surface: th.surfaceColor, edge: th.edgeColor }}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* 左上：P1 三角旗幟 ＋ 桂冠「1」＋ 大字斜體角色名 */}
-          <div className="relative z-10 flex flex-col justify-between h-full p-6 sm:p-10">
-            <div className="max-w-xl space-y-2" style={{ transform: 'rotate(-3deg)' }}>
-              <div className="flex items-center gap-4">
-                <div
-                  className="px-4 py-1 text-lg sm:text-xl font-black text-white shadow-lg"
-                  style={{
-                    backgroundColor: PLAYER_COLORS[winner],
-                    clipPath: 'polygon(0 0, 100% 35%, 0 100%)',
-                    paddingRight: '2.2rem',
-                  }}
-                >
-                  {winner.toUpperCase()}
-                </div>
-                <div className="relative flex items-center justify-center">
-                  <span className="text-4xl sm:text-5xl">🌿</span>
-                  <span
-                    className="mx-1 text-5xl sm:text-6xl font-black italic text-yellow-300"
-                    style={{ WebkitTextStroke: '3px #000', textShadow: '0 4px 12px rgba(0,0,0,0.9)' }}
+            {/* 左上：P1 三角旗幟 ＋ 桂冠「1」＋ 大字斜體角色名 */}
+            <div className="relative z-10 flex flex-col justify-between h-full p-6 sm:p-10">
+              <div className="max-w-xl space-y-2" style={{ transform: 'rotate(-3deg)' }}>
+                <div className="flex items-center gap-4">
+                  <div
+                    className="px-4 py-1 text-lg sm:text-xl font-black text-white shadow-lg"
+                    style={{
+                      backgroundColor: PLAYER_COLORS[winner],
+                      clipPath: 'polygon(0 0, 100% 35%, 0 100%)',
+                      paddingRight: '2.2rem',
+                    }}
                   >
-                    1
-                  </span>
-                  <span className="text-4xl sm:text-5xl scale-x-[-1]">🌿</span>
+                    {winner.toUpperCase()}
+                  </div>
+                  <div className="relative flex items-center justify-center">
+                    <span className="text-4xl sm:text-5xl">🌿</span>
+                    <span
+                      className="mx-1 text-5xl sm:text-6xl font-black italic text-yellow-300"
+                      style={{ WebkitTextStroke: '3px #000', textShadow: '0 4px 12px rgba(0,0,0,0.9)' }}
+                    >
+                      1
+                    </span>
+                    <span className="text-4xl sm:text-5xl scale-x-[-1]">🌿</span>
+                  </div>
+                </div>
+
+                <div
+                  className="text-5xl sm:text-7xl font-black italic tracking-tight uppercase leading-none"
+                  style={{ WebkitTextStroke: '3px #000', textShadow: '0 6px 0 #000, 0 12px 24px rgba(0,0,0,0.85)' }}
+                >
+                  {SHORT_NAMES[selection[winner]]}
+                </div>
+                <div className="text-lg sm:text-xl font-black text-yellow-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                  {zhNameOf(ui[winner].name)} · 擊墜 {ui[winner].stats.kos} · 輸出 {ui[winner].stats.damageDealt}%
                 </div>
               </div>
 
-              <div
-                className="text-5xl sm:text-7xl font-black italic tracking-tight uppercase leading-none"
-                style={{ WebkitTextStroke: '3px #000', textShadow: '0 6px 0 #000, 0 12px 24px rgba(0,0,0,0.85)' }}
-              >
-                {SHORT_NAMES[selection[winner]]}
-              </div>
-              <div className="text-lg sm:text-xl font-black text-yellow-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
-                {zhNameOf(ui[winner].name)} · 擊墜 {ui[winner].stats.kos} · 輸出 {ui[winner].stats.damageDealt}%
-              </div>
-            </div>
-
-            {/* 左下：第 2～N 名敗者卡片列（人多時自動分兩排且放大）＋ 右下：再來一場 / 回選單 */}
-            <div className="flex flex-wrap items-end justify-between gap-4 pb-2">
-              <div className={`grid gap-4 ${rankedIds.length > 5 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:flex sm:flex-wrap'}`}>
-                {rankedIds.slice(1).map((id, idx) => {
-                  const rank = idx + 2
-                  const u = ui[id]
-                  return (
-                    <div
-                      key={id}
-                      className="relative flex items-center gap-3.5 rounded-2xl border-2 border-black bg-sky-600/95 pr-5 pl-3 py-2.5 shadow-xl min-w-[14.5rem] sm:min-w-[16rem]"
-                      style={{ transform: 'rotate(-1.5deg)' }}
-                    >
-                      <span
-                        className="absolute -top-5 -left-2.5 text-4xl font-black italic text-white"
-                        style={{ WebkitTextStroke: '2.5px #000' }}
+              {/* 左下：第 2～N 名敗者卡片列（人多時自動分兩排且放大）＋ 右下：再來一場 / 回選單 */}
+              <div className="flex flex-wrap items-end justify-between gap-4 pb-2">
+                <div className={`grid gap-4 ${rankedIds.length > 5 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:flex sm:flex-wrap'}`}>
+                  {rankedIds.slice(1).map((id, idx) => {
+                    const rank = idx + 2
+                    const u = ui[id]
+                    return (
+                      <div
+                        key={id}
+                        className="relative flex items-center gap-3.5 rounded-2xl border-2 border-black bg-sky-600/95 pr-5 pl-3 py-2.5 shadow-xl min-w-[14.5rem] sm:min-w-[16rem]"
+                        style={{ transform: 'rotate(-1.5deg)' }}
                       >
-                        {rank}
-                      </span>
-                      <div className="relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-xl border-2 border-black bg-slate-900/90 shrink-0">
-                        <ClappingPodium3D id={id} charId={selection[id]} />
-                      </div>
-                      <div className="text-base leading-tight">
-                        <div className="font-black text-white drop-shadow">{zhNameOf(u.name)}</div>
-                        <div className="text-xs sm:text-sm font-bold text-white/90 font-mono mt-1">
-                          擊墜 {u.stats.kos} · {u.stats.damageDealt}%
-                        </div>
                         <span
-                          className="mt-1.5 inline-block rounded px-2.5 py-0.5 text-xs font-black text-black"
-                          style={{ backgroundColor: PLAYER_COLORS[id] }}
+                          className="absolute -top-5 -left-2.5 text-4xl font-black italic text-white"
+                          style={{ WebkitTextStroke: '2.5px #000' }}
                         >
-                          {id.toUpperCase()}
+                          {rank}
                         </span>
+                        <div className="relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-xl border-2 border-black bg-slate-900/90 shrink-0">
+                          <ClappingPodium3D id={id} charId={selection[id]} />
+                        </div>
+                        <div className="text-base leading-tight">
+                          <div className="font-black text-white drop-shadow">{zhNameOf(u.name)}</div>
+                          <div className="text-xs sm:text-sm font-bold text-white/90 font-mono mt-1">
+                            擊墜 {u.stats.kos} · {u.stats.damageDealt}%
+                          </div>
+                          <span
+                            className="mt-1.5 inline-block rounded px-2.5 py-0.5 text-xs font-black text-black"
+                            style={{ backgroundColor: PLAYER_COLORS[id] }}
+                          >
+                            {id.toUpperCase()}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
-              </div>
+                    )
+                  })}
+                </div>
 
-              <div className="flex gap-2.5">
-                <button
-                  type="button"
-                  onClick={podiumActions[0]}
-                  className={`rounded-xl bg-cyan-400 px-5 py-2.5 text-base font-black text-black hover:bg-cyan-300 transition shadow-xl ${podiumFocusIdx === 0 ? 'ring-4 ring-white scale-105' : 'opacity-85'}`}
-                >
-                  📊 詳細戰績
-                </button>
-                <button onClick={podiumActions[1]} className={`rounded-xl bg-yellow-300 px-7 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition shadow-xl ${podiumFocusIdx === 1 ? 'ring-4 ring-white scale-105' : 'opacity-85'}`}>
-                  再來一場
-                </button>
-                <button onClick={podiumActions[2]} className={`rounded-xl bg-white/20 border border-white/30 px-6 py-2.5 text-base font-bold hover:bg-white/30 transition shadow-xl ${podiumFocusIdx === 2 ? 'ring-4 ring-yellow-300 scale-105' : 'opacity-85'}`}>
-                  回選單
-                </button>
+                <div className="flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={podiumActions[0]}
+                    className={`rounded-xl bg-cyan-400 px-5 py-2.5 text-base font-black text-black hover:bg-cyan-300 transition shadow-xl ${podiumFocusIdx === 0 ? 'ring-4 ring-white scale-105' : 'opacity-85'}`}
+                  >
+                    📊 詳細戰績
+                  </button>
+                  <button onClick={podiumActions[1]} className={`rounded-xl bg-yellow-300 px-7 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition shadow-xl ${podiumFocusIdx === 1 ? 'ring-4 ring-white scale-105' : 'opacity-85'}`}>
+                    再來一場
+                  </button>
+                  <button onClick={podiumActions[2]} className={`rounded-xl bg-white/20 border border-white/30 px-6 py-2.5 text-base font-bold hover:bg-white/30 transition shadow-xl ${podiumFocusIdx === 2 ? 'ring-4 ring-yellow-300 scale-105' : 'opacity-85'}`}>
+                    回選單
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
         )
       })()}
     </div>
