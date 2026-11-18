@@ -475,8 +475,10 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
         ...baseHooks,
         onActive(c) {
           baseHooks?.onActive?.(c)
-          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: auraColor, ttl: 260, radius: 1.9, plane: 'vertical' })
-          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: isSamura ? '#ef4444' : auraColor, ttl: 240, count: 10, speed: 5.5, size: 0.14 })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: auraColor, ttl: 300, radius: 2.1, plane: 'vertical' })
+          c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: auraColor, ttl: 260, radius: 1.05 })
+          c.fx({ kind: 'afterimage', pos: [...c.caster.pos], yaw: c.caster.facing[0] >= 0 ? Math.PI / 2 : -Math.PI / 2, color: auraColor, ttl: 240 })
+          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: isSamura ? '#ef4444' : auraColor, ttl: 260, count: 14, speed: 6.5, size: 0.16 })
           if (slot === 'skill1' || slot === 'skill2') {
             if (isSamura) {
               c.caster.damage = Math.max(0, c.caster.damage - 3)
@@ -996,9 +998,11 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
     store().triggerFatalFlash(tgt.pos[0], tgt.pos[1])
     broadcastNetEvent({ kind: 'fatalFlash', x: tgt.pos[0], y: tgt.pos[1] })
     addFx({ kind: 'fatal', pos: [tgt.pos[0], tgt.pos[1], 0], color: '#ef4444', ttl: 480, radius: 4.5 })
-  } else if (speed >= 18) {
-    runtime.hitstopMs = Math.max(runtime.hitstopMs, clamp((speed - 14) * 3.5, 45, 120))
-    addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1], 0], color: speed >= 26 ? '#ff3366' : '#ffe066', ttl: 280, radius: 1.4 + speed * 0.04, plane: 'vertical' })
+  } else if (speed >= 13) {
+    runtime.hitstopMs = Math.max(runtime.hitstopMs, clamp((speed - 12) * 3.8, 45, 130))
+    const hitColor = attChar?.color ?? PLAYER_COLORS[att.id]
+    addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1], 0], color: speed >= 20 ? '#fde047' : hitColor, ttl: 280, radius: 1.4 + speed * 0.05, plane: 'vertical' })
+    addFx({ kind: 'slash', char: att.character, pos: [tgt.pos[0], tgt.pos[1], 0], yaw: dir[0] >= 0 ? Math.PI / 2 : -Math.PI / 2, color: hitColor, ttl: 200, radius: 1.35 + speed * 0.03 })
   }
   rumble(tgt.id, 0.3 + speed * 0.02, 100 + speed * 5)
   rumble(att.id, 0.2, 60)

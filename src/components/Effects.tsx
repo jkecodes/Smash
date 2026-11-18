@@ -11,9 +11,9 @@ const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
 
 type FxStyle = 'pixel' | 'katana' | 'magic' | 'martial' | 'cute'
 const PIXEL_CHARS = new Set<CharacterId>(['tetro', 'pong', 'invader', 'snake', 'crossy', 'steve', 'frogger', 'pacman'])
-const KATANA_CHARS = new Set<CharacterId>(['chihiro', 'miyabi', 'yodaka', 'rover'])
-const MAGIC_CHARS = new Set<CharacterId>(['reimu', 'marisa', 'nona', 'ichi', 'arisa', 'yugi', 'kaiba', 'lumine'])
-const MARTIAL_CHARS = new Set<CharacterId>(['ryu', 'chunli', 'deku', 'gojo', 'kong', 'red'])
+const KATANA_CHARS = new Set<CharacterId>(['chihiro', 'miyabi', 'yodaka', 'rover', 'samura', 'youmu', 'erika', 'hibari', 'lumine'])
+const MAGIC_CHARS = new Set<CharacterId>(['reimu', 'marisa', 'nona', 'ichi', 'arisa', 'yugi', 'kaiba', 'angelo', 'descara', 'jinhsi'])
+const MARTIAL_CHARS = new Set<CharacterId>(['ryu', 'chunli', 'deku', 'gojo', 'kong', 'red', 'josuke', 'sukuna', 'bakugo', 'hakuri'])
 
 function fxStyleOf(c?: CharacterId): FxStyle {
   if (!c) return 'martial'
@@ -35,7 +35,7 @@ function Slash({ it }: { it: FxItem }) {
     const t = age01(it)
     if (t >= 1) return removeFx(it.id)
     if (mat.current) mat.current.opacity = (1 - t) * 0.95
-    if (mesh.current) mesh.current.scale.setScalar(0.8 + easeOut(t) * 0.5)
+    if (mesh.current) mesh.current.scale.setScalar(0.95 + easeOut(t) * 0.65)
   })
   return (
     <group position={it.pos} rotation={[0, it.yaw ?? 0, 0]}>

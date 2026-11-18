@@ -443,13 +443,17 @@ function FighterView({ id }: { id: FighterId }) {
         <meshBasicMaterial color="#7dd3fc" transparent opacity={0.52} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <group ref={mechAura} visible={false}>
+        <mesh position={[0, 0.35, 0]}>
+          <cylinderGeometry args={[0.92, 0.65, 2.2, 16, 1, true]} />
+          <meshBasicMaterial color={CHARACTERS[charId].color} transparent opacity={0.28} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} />
+        </mesh>
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.35, 0]}>
-          <torusGeometry args={[0.78, 0.06, 8, 28]} />
-          <meshBasicMaterial color="#fde047" transparent opacity={0.85} blending={THREE.AdditiveBlending} depthWrite={false} />
+          <torusGeometry args={[0.95, 0.075, 8, 28]} />
+          <meshBasicMaterial color={CHARACTERS[charId].color} transparent opacity={0.9} blending={THREE.AdditiveBlending} depthWrite={false} />
         </mesh>
         <mesh rotation={[0.45, 0.3, 0]}>
-          <torusGeometry args={[0.92, 0.045, 8, 28]} />
-          <meshBasicMaterial color="#fde047" transparent opacity={0.7} blending={THREE.AdditiveBlending} depthWrite={false} />
+          <torusGeometry args={[1.08, 0.055, 8, 28]} />
+          <meshBasicMaterial color="#fde047" transparent opacity={0.78} blending={THREE.AdditiveBlending} depthWrite={false} />
         </mesh>
       </group>
       <group ref={shield} position={[0, 0.1, 0]} visible={false}>
