@@ -1671,49 +1671,112 @@ export function HUD() {
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
       {guideChar && <CharGuideModal initialChar={guideChar} onClose={() => setGuideChar(null)} />}
       {phase === 'ended' && winner && (
-        <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/75 backdrop-blur-sm text-white p-4">
-          <div className="text-center">
-            <div className="text-xs font-bold tracking-[0.3em] text-yellow-300/80 uppercase">GAME SET</div>
-            <div className="text-5xl sm:text-6xl font-black italic" style={{ color: PLAYER_COLORS[winner] }}>
-              {winner.toUpperCase()} · {ui[winner].name} WINS!
+        <div
+          className="pointer-events-auto absolute inset-0 z-20 overflow-hidden text-white select-none"
+          style={{
+            background: 'linear-gradient(155deg, #1e3a8a 0%, #7c3aed 38%, #db2777 68%, #f59e0b 100%)',
+          }}
+        >
+          {/* 底部大亂鬥經典斜切黑底 */}
+          <div
+            className="pointer-events-none absolute -bottom-16 -left-10 -right-10 h-44 bg-black/90 border-t-4 border-white/80"
+            style={{ transform: 'rotate(-3.5deg)' }}
+          />
+
+          {/* 右側：第 1 名勝者巨型角色展示 */}
+          <div className="pointer-events-none absolute right-[4%] bottom-10 top-6 flex items-center justify-center">
+            <div
+              className="h-64 w-64 sm:h-96 sm:w-96 overflow-hidden rounded-3xl border-4 border-white/80 shadow-[0_0_80px_rgba(253,224,71,0.45)]"
+              style={{ transform: 'rotate(-2deg)' }}
+            >
+              <CharacterPortrait id={selection[winner]} className="h-full w-full" />
             </div>
           </div>
 
-          {/* 2~8 人賽後戰報統計表 */}
-          <div className="w-full max-w-2xl rounded-2xl bg-white/10 border border-white/15 p-4 text-xs shadow-xl">
-            <div className="grid grid-cols-6 border-b border-white/10 pb-2 font-black text-white/60 text-center">
-              <span className="col-span-2 text-left">選手 / 角色</span>
-              <span>剩餘命</span>
-              <span>擊墜數</span>
-              <span>輸出%</span>
-              <span>最高連段</span>
+          {/* 左上：P1 三角旗幟 ＋ 桂冠「1」＋ 大字斜體角色名 */}
+          <div className="relative z-10 flex flex-col justify-between h-full p-6 sm:p-10">
+            <div className="max-w-xl space-y-2" style={{ transform: 'rotate(-3deg)' }}>
+              <div className="flex items-center gap-4">
+                <div
+                  className="px-4 py-1 text-lg sm:text-xl font-black text-white shadow-lg"
+                  style={{
+                    backgroundColor: PLAYER_COLORS[winner],
+                    clipPath: 'polygon(0 0, 100% 35%, 0 100%)',
+                    paddingRight: '2.2rem',
+                  }}
+                >
+                  {winner.toUpperCase()}
+                </div>
+                <div className="relative flex items-center justify-center">
+                  <span className="text-4xl sm:text-5xl">🌿</span>
+                  <span
+                    className="mx-1 text-5xl sm:text-6xl font-black italic text-yellow-300"
+                    style={{ WebkitTextStroke: '3px #000', textShadow: '0 4px 12px rgba(0,0,0,0.9)' }}
+                  >
+                    1
+                  </span>
+                  <span className="text-4xl sm:text-5xl scale-x-[-1]">🌿</span>
+                </div>
+              </div>
+
+              <div
+                className="text-5xl sm:text-7xl font-black italic tracking-tight uppercase leading-none"
+                style={{ WebkitTextStroke: '3px #000', textShadow: '0 6px 0 #000, 0 12px 24px rgba(0,0,0,0.85)' }}
+              >
+                {SHORT_NAMES[selection[winner]]}
+              </div>
+              <div className="text-lg sm:text-xl font-black text-yellow-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                {ui[winner].name} · 擊墜 {ui[winner].stats.kos} · 輸出 {ui[winner].stats.damageDealt}%
+              </div>
             </div>
-            <div className="divide-y divide-white/10">
-              {rankedIds.map((id) => {
-                const u = ui[id]
-                const isWin = id === winner
-                return (
-                  <div key={id} className={`grid grid-cols-6 items-center py-1.5 text-center font-mono ${isWin ? 'bg-yellow-400/10 font-bold' : ''}`}>
-                    <div className="col-span-2 flex items-center gap-2 text-left font-sans">
-                      <span className="rounded px-1.5 py-0.5 text-[10px] font-black text-black" style={{ backgroundColor: PLAYER_COLORS[id] }}>
-                        {id.toUpperCase()}
+
+            {/* 左下：第 2～N 名敗者卡片列 ＋ 右下：再來一場 / 回選單 */}
+            <div className="flex flex-wrap items-end justify-between gap-4 pb-2">
+              <div className="flex flex-wrap items-end gap-3">
+                {rankedIds.slice(1).map((id, idx) => {
+                  const rank = idx + 2
+                  const u = ui[id]
+                  return (
+                    <div
+                      key={id}
+                      className="relative flex items-center gap-2.5 rounded-xl border-2 border-black bg-sky-600/90 pr-3 pl-2 py-1.5 shadow-xl"
+                      style={{ transform: 'rotate(-2deg)' }}
+                    >
+                      <span
+                        className="absolute -top-4 -left-2 text-3xl font-black italic text-white"
+                        style={{ WebkitTextStroke: '2.5px #000' }}
+                      >
+                        {rank}
                       </span>
-                      <span className="truncate font-bold">{u.name}</span>
-                      {isWin && <span className="text-yellow-300">👑</span>}
+                      <div className="h-14 w-14 overflow-hidden rounded-lg border-2 border-black bg-black shrink-0">
+                        <CharacterPortrait id={selection[id]} className="h-full w-full" />
+                      </div>
+                      <div className="text-xs leading-tight">
+                        <div className="font-black text-white drop-shadow">{u.name}</div>
+                        <div className="text-[10px] font-bold text-white/85 font-mono">
+                          擊墜 {u.stats.kos} · {u.stats.damageDealt}%
+                        </div>
+                        <span
+                          className="mt-1 inline-block rounded px-1.5 py-0 text-[10px] font-black text-black"
+                          style={{ backgroundColor: PLAYER_COLORS[id] }}
+                        >
+                          {id.toUpperCase()}
+                        </span>
+                      </div>
                     </div>
-                    <span>{u.stocks}</span>
-                    <span className="text-yellow-300 font-bold">{u.stats.kos}</span>
-                    <span>{u.stats.damageDealt}%</span>
-                    <span>{u.stats.maxCombo}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
+                  )
+                })}
+              </div>
 
-          <div className="flex gap-3">
-            <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded-xl bg-yellow-300 px-8 py-2.5 font-black text-black hover:bg-yellow-200 transition-colors">再來一場</button>
-            <button onClick={toMenu} className="rounded-xl bg-white/20 px-8 py-2.5 font-bold hover:bg-white/30 transition-colors">回選單</button>
+              <div className="flex gap-3">
+                <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded-xl bg-yellow-300 px-8 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition-colors shadow-xl">
+                  再來一場
+                </button>
+                <button onClick={toMenu} className="rounded-xl bg-white/20 border border-white/30 px-7 py-2.5 text-base font-bold hover:bg-white/30 transition-colors shadow-xl">
+                  回選單
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
