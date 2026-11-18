@@ -41,7 +41,7 @@ const upRise = (id: string, name: string, color: string, o: { dmg: number; base:
 })
 
 const dashMove = (id: string, name: string, color: string, o: { speed: number; dmg: number; base: number; scaling: number; cd: number; lift?: number; invuln?: number }): SkillDef => ({
-  id, name, energyCost: 0, cooldownMs: o.cd, startupMs: 110, activeMs: 260, recoveryMs: 280,
+  id, name, energyCost: 0, cooldownMs: o.cd, startupMs: 100, activeMs: 290, recoveryMs: 260,
   hitbox: { offset: [0, 0.05, 0.9], radius: 1.05 }, damage: o.dmg,
   knockback: { dir: [0, o.lift ?? 0.35, 1], base: o.base, scaling: o.scaling },
   hooks: {

@@ -28,12 +28,16 @@ const slash = (c: SkillContext, color: string, o: { d?: number; y?: number; r?: 
 
 function dashMove(id: string, name: string, color: string, o: { speed: number; dmg: number; base: number; scaling: number; cd?: number }): SkillDef {
   return {
-    id, name, energyCost: 0, cooldownMs: o.cd ?? 1700, startupMs: 110, activeMs: 260, recoveryMs: 220,
-    hitbox: { offset: [0, 0.05, 0.7], radius: 1.15 }, damage: o.dmg,
+    id, name, energyCost: 0, cooldownMs: o.cd ?? 1700, startupMs: 100, activeMs: 280, recoveryMs: 220,
+    hitbox: { offset: [0, 0.05, 0.75], radius: 1.2 }, damage: o.dmg,
     knockback: { dir: [0, 0.42, 1], base: o.base, scaling: o.scaling },
     hooks: {
-      onActive(c) { c.setLocalVelocity(0, 1.8, o.speed) },
-      onTick(c) { if (c.phase === 'active') trail(c, 35, color, 220) },
+      onActive(c) { c.setLocalVelocity(0, 1.6, o.speed) },
+      onTick(c) {
+        if (c.phase !== 'active') return
+        c.setLocalVelocity(0, null, o.speed)
+        trail(c, 35, color, 220)
+      },
     },
   }
 }
@@ -247,7 +251,7 @@ function registerKit(k: KitSpec) {
       hooks: {
         onStart(c) { c.fx({ kind: 'afterimage', pos: [...c.caster.pos], color, ttl: 260, size: 0.7 }) },
         onActive(c) {
-          let dest = clampStageX(c.caster.pos[0] + c.forward[0] * 5.2)
+          let dest = clampStageX(c.caster.pos[0] + c.forward[0] * 6.4)
           if (p === 'seija') {
             const tgt = c.nearestEnemy()
             if (tgt) {
@@ -268,8 +272,11 @@ function registerKit(k: KitSpec) {
       knockback: { dir: [0, 0.4, 1], base: 10.5, scaling: 11.5 },
       hooks: {
         onActive(c) {
-          c.setVelocity(c.forward[0] * 17, 2.5, 0)
+          c.setVelocity(c.forward[0] * 21, 2.5, 0)
           c.spawnProjectile({ pos: at(c, 0.15, 0.8), vel: [c.forward[0] * 21, 0, 0], radius: 0.42, ttlMs: 950, color })
+        },
+        onTick(c) {
+          if (c.phase === 'active') c.setLocalVelocity(0, null, 20)
         },
         onHit(c) {
           if (p === 'hutao') c.caster.damage = Math.max(0, c.caster.damage - 3)
