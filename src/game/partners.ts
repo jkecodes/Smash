@@ -4,7 +4,7 @@
  */
 export const PARTNER_IDS = [
   'mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky',
-  'hakuri', 'descara', 'umi', 'lovi', 'sukuna', 'bakugo', 'hibari', 'rintaro', 'hajime', 'doh',
+  'hakuri', 'descara', 'umi', 'miramira', 'sukuna', 'bakugo', 'hibari', 'rintaro', 'hajime', 'doh',
 ] as const
 export type PartnerId = typeof PARTNER_IDS[number]
 
@@ -234,20 +234,20 @@ export const PARTNERS: PartnerSpec[] = [
     flags: ['caster', 'counter'],
   },
   {
-    id: 'lovi', name: 'LOVI ロヴィ', short: 'LOVI', color: '#93c5fd', partnerOf: 'nona',
-    scale: 0.94, speedMult: 1.08, damageMult: 0.98, weightMult: 0.94,
-    trait: '👓 WITCHRIV・諾娜的摯友！書包揮擊與修復光線。',
-    portrait: { bg: '#1e3a8a', hair: '#1e293b', outfit: '#3b82f6', accent: '#e0f2fe', eye: '#38bdf8', bobHair: true, glasses: true },
-    preset: { body: '#3b82f6', hair: '#1e293b', accent: '#e0f2fe', prop: 'book', style: 'mage' },
+    id: 'miramira', name: 'MIRAMIRA ミラミラ', short: 'MIRAMIRA', color: '#a855f7', partnerOf: 'nona',
+    scale: 0.94, speedMult: 1.04, damageMult: 1.04, weightMult: 0.94,
+    trait: '🕳️ WITCHRIV・沉降魔法「メヴィジララ」使！重力沉降領域與紫光魔彈。',
+    portrait: { bg: '#2e1065', hair: '#1e1b2e', outfit: '#3b0764', accent: '#c084fc', eye: '#a855f7' },
+    preset: { body: '#3b0764', hair: '#1e1b2e', accent: '#c084fc', prop: 'orb', style: 'mage' },
     kit: {
-      a1: '眼鏡突刺', a2: '書包揮擊', tilts: ['書包橫掃', '眼鏡反光上挑', '課桌下掃'],
-      s1: { name: '修復光線', projColor: '#93c5fd', pierce: true, speed: 19 },
-      side: '奔跑告白', up: '眼鏡跳躍', down: '課桌地雷',
-      s2: { name: '友情護盾環', kind: 'ring', color: '#bfdbfe' },
-      smashes: ['書包全壘打', '反光沖天', '教室震地'],
-      ult: { name: '「監視局的告發」審判之雨！', kind: 'rain', color: '#93c5fd' },
+      a1: '魔力輕擊', a2: '沉降連咒', tilts: ['紫霧橫掃', '魔力上挑', '重力下壓'],
+      s1: { name: 'メヴィジララ魔彈', projColor: '#a855f7', pierce: true, speed: 19 },
+      side: '沉降推進波', up: '浮空魔力躍', down: '重力沉降陷阱',
+      s2: { name: '沉降魔法領域', kind: 'zone', color: '#7e22ce' },
+      smashes: ['沉降重壓', '魔光沖天', '深淵震地'],
+      ult: { name: '沉降魔法「メヴィジララ」大崩落！', kind: 'rain', color: '#a855f7' },
     },
-    flags: ['caster', 'ranged'],
+    flags: ['caster', 'ranged', 'trap'],
   },
   {
     id: 'sukuna', name: 'SUKUNA 兩面宿儺', short: 'SUKUNA', color: '#ef4444', partnerOf: 'gojo',

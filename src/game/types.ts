@@ -26,7 +26,7 @@ export type CharacterId =
   | 'luigi' | 'blinky' | 'diddy' | 'creeper' | 'chuck' | 'suzuka'
   | 'firefly' | 'ellen' | 'jinhsi' | 'anis' | 'erika' | 'vaus'
   | 'mino' | 'ufo' | 'blackbomber' | 'viper' | 'ladyfrog' | 'paddle' | 'omnelle' | 'ducky'
-  | 'hakuri' | 'descara' | 'umi' | 'lovi' | 'sukuna' | 'bakugo' | 'hibari' | 'rintaro' | 'hajime' | 'doh'
+  | 'hakuri' | 'descara' | 'umi' | 'miramira' | 'sukuna' | 'bakugo' | 'hibari' | 'rintaro' | 'hajime' | 'doh'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'
   | 'ATTACK_STARTUP' | 'ATTACK_ACTIVE' | 'ATTACK_RECOVERY'
