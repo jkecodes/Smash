@@ -279,8 +279,16 @@ function registerKit(k: KitSpec) {
         if (p === 'deku') {
           c.setLocalVelocity(0, null, -3.5)
         }
-        if (p === 'nona') {
-          for (const vy of [-2.4, 0, 2.4]) spawnMain(c.forward[0] * baseVel, vy)
+        if (p === 'nona' || p === 'akira' || p === 'hibari' || p === 'ducky') {
+          const spread = p === 'nona' ? [-2.4, 0, 2.4] : [-1.5, 0, 1.5]
+          for (const vy of spread) spawnMain(c.forward[0] * baseVel, vy)
+        } else if (p === 'rapi' || p === 'anis' || p === 'diddy') {
+          for (const [m, vy] of [[1.15, 0.8], [1.0, 0], [0.85, -0.8]] as const) {
+            spawnMain(c.forward[0] * (baseVel * m), vy)
+          }
+          c.fx({ kind: 'burst', pos: at(c, 0.2, 0.9), color: k.s1.projColor, ttl: 180, count: 8, speed: 5, size: 0.14 })
+        } else if (p === 'ufo' || p === 'viper') {
+          for (const vy of [-0.9, 0.9]) spawnMain(c.forward[0] * baseVel, vy)
         } else if (p === 'bakugo') {
           // 爆豪：AP Shot 貫穿爆破彈 ＋ 雙發手榴彈弧線齊射
           c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 25, 0, 0], radius: 0.44, ttlMs: 1100, color: '#fde047', pierce: true })
@@ -300,6 +308,17 @@ function registerKit(k: KitSpec) {
         } else if (p === 'deku') {
           spawnMain(c.forward[0] * baseVel, 0)
           spawnMain(c.forward[0] * (baseVel * 0.9), 2.5)
+        } else if (p === 'chuck' || p === 'hajime' || p === 'jinhsi' || p === 'vaus' || p === 'paddle') {
+          // 超高速貫穿彈／光束
+          c.spawnProjectile({ pos: at(c, 0.15, 0.9), vel: [c.forward[0] * 29, 0, 0], radius: 0.46, ttlMs: 1150, color: k.s1.projColor, pierce: true })
+          c.fx({ kind: 'beam', pos: at(c, 0.15, 0.9), yaw: yawOf(c), length: 3.5, radius: 0.14, color: k.s1.projColor, ttl: 140 })
+        } else if (p === 'blinky' || p === 'lumine' || p === 'descara') {
+          // 可控追蹤魔彈
+          c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 17, 0, 0], radius: 0.52, ttlMs: 1500, color: k.s1.projColor, steerable: 5.0, explodeRadius: k.s1.explode })
+        } else if (p === 'hakuri') {
+          // 漣伯理：威葬大口徑衝擊波
+          c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 21, 0, 0], radius: 0.72, ttlMs: 1100, color: '#38bdf8', pierce: true })
+          c.fx({ kind: 'ring', pos: at(c, 0.2, 0.9), color: '#38bdf8', ttl: 240, radius: 1.5, plane: 'vertical' })
         } else {
           spawnMain(c.forward[0] * baseVel, k.s1.explode ? 3 : 0)
         }
