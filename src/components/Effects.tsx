@@ -3,7 +3,7 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { removeFx, runtime } from '../game/runtime'
 import { useGameStore } from '../game/store'
-import type { CharacterId, FxItem, Projectile, Zone } from '../game/types'
+import { PLAYER_COLORS, type CharacterId, type FxItem, type Projectile, type Zone } from '../game/types'
 
 const ADD = THREE.AdditiveBlending
 const age01 = (it: FxItem) => (performance.now() - it.createdAt) / it.ttl
@@ -514,6 +514,7 @@ function ProjectileView({ p }: { p: Projectile }) {
   const g = useRef<THREE.Group>(null)
   const spin = useRef<THREE.Group>(null)
   const charId = useGameStore.getState().selection[p.owner]
+  const ownerColor = PLAYER_COLORS[p.owner] ?? p.color
   const skillId = p.source.def.id
   const r = p.radius
 
@@ -533,6 +534,10 @@ function ProjectileView({ p }: { p: Projectile }) {
 
   return (
     <group ref={g} position={p.pos}>
+      <mesh>
+        <torusGeometry args={[r * 1.18, Math.max(0.06, r * 0.12), 8, 20]} />
+        <meshBasicMaterial color={ownerColor} transparent opacity={0.8} blending={ADD} depthWrite={false} />
+      </mesh>
       <group ref={spin}>
         {charId === 'tetro' ? (
           <>

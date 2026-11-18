@@ -19,7 +19,7 @@ import { getActiveFighterIds, useGameStore } from './store'
 import type {
   ActiveSkill, FighterId, FighterState, FsmState, HitSource, HitboxDef, SkillContext, SkillDef, SkillSlot, UiFighter, Vec3,
 } from './types'
-import { ALL_FIGHTER_IDS } from './types'
+import { ALL_FIGHTER_IDS, PLAYER_COLORS } from './types'
 
 const SLOTS: ('ult' | 'skill2' | 'skill1' | 'attack')[] = ['ult', 'skill2', 'skill1', 'attack'] // 同幀多鍵時的優先順序
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
@@ -324,7 +324,7 @@ function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
       gravity: p.gravity, explodeRadius: p.explodeRadius, steerable: p.steerable, maxRange: p.maxRange,
       source: { def: sk.def, hitSet: new Set(), kbMult: sk.kbMult, dmgMult: sk.dmgMult },
     }),
-    fx: (spec) => addFx({ char: f.character, ...spec }),
+    fx: (spec) => addFx({ char: f.character, ...spec, color: PLAYER_COLORS[f.id] ?? spec.color }),
     nearestEnemy: () => nearestEnemyOf(f.id),
     isGrounded: () => f.grounded,
     strike: (override) => {
@@ -736,7 +736,7 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   }
   rumble(tgt.id, 0.3 + speed * 0.02, 100 + speed * 5)
   rumble(att.id, 0.2, 60)
-  addFx({ kind: 'burst', char: att.character, pos: [tgt.pos[0], tgt.pos[1], 0], color: CHARACTERS[att.character].color, ttl: 350, count: 10 + Math.min(20, Math.round(speed)), speed: 3 + speed * 0.25, size: 0.14 })
+  addFx({ kind: 'burst', char: att.character, pos: [tgt.pos[0], tgt.pos[1], 0], color: PLAYER_COLORS[att.id], ttl: 350, count: 10 + Math.min(20, Math.round(speed)), speed: 3 + speed * 0.25, size: 0.14 })
   if (att.skill && att.skill.def === def) def.hooks?.onHit?.(makeCtx(att, att.skill, 0), tgt)
 }
 
