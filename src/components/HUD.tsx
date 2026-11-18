@@ -6,8 +6,9 @@ import { resetSimStage } from '../game/sim'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { STAGES, STAGE_IDS } from '../game/stages'
 import { useGameStore } from '../game/store'
-import { FIGHTER_IDS, type Btn, type FighterId, type UiFighter } from '../game/types'
-import { useAudioStore } from '../game/audio'
+import { FIGHTER_IDS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
+import { sfx, useAudioStore } from '../game/audio'
+import { CharacterPortrait, SHORT_NAMES } from './CharacterPortrait'
 
 const damageColor = (d: number) => {
   const t = Math.min(1, d / 200)
@@ -19,7 +20,8 @@ const SLOT_KEYS: Record<FighterId, Record<string, string>> = {
 }
 
 function Card({ id, u }: { id: FighterId; u: UiFighter }) {
-  const isTetro = useGameStore((s) => s.selection[id] === 'tetro')
+  const charId = useGameStore((s) => s.selection[id])
+  const isTetro = charId === 'tetro'
   const tb = isTetro ? getTetroBoard(id) : null
   const readyLines = isTetro ? getReadyLines(id) : 0
   const clearBanner = tb?.lastClear && performance.now() < tb.lastClear.until ? tb.lastClear : null
@@ -46,10 +48,15 @@ function Card({ id, u }: { id: FighterId; u: UiFighter }) {
         <span className="text-sm font-bold tracking-widest" style={{ color: u.color }}>{id.toUpperCase()} · {u.name}</span>
         <span className="font-mono text-[10px] text-white/60">{u.fsm}</span>
       </div>
-      <div className="flex items-end justify-between">
-        <span className="text-5xl font-black tabular-nums" style={{ color: damageColor(u.damage), textShadow: '0 2px 0 #000' }}>
-          {u.damage}<span className="text-2xl">%</span>
-        </span>
+      <div className="mt-1 flex items-end justify-between gap-2">
+        <div className="flex items-end gap-2.5">
+          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black/50 shadow-inner">
+            <CharacterPortrait id={charId} className="h-full w-full" />
+          </div>
+          <span className="text-5xl font-black leading-none tabular-nums" style={{ color: damageColor(u.damage), textShadow: '0 2px 0 #000' }}>
+            {u.damage}<span className="text-2xl">%</span>
+          </span>
+        </div>
         <span className="flex gap-1 pb-2">
           {Array.from({ length: Math.max(0, u.stocks) }, (_, i) => (
             <span key={i} className="inline-block h-3.5 w-3.5 rounded-sm" style={{ background: u.color }} />
@@ -254,11 +261,8 @@ function StagePicker() {
   const selectStage = useGameStore((s) => s.selectStage)
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="text-xs font-bold tracking-wider text-white/80">
-        🏟️ 選擇對戰場地
-      </div>
-      <div className="grid grid-cols-4 gap-3">
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="grid grid-cols-4 gap-2.5">
         {STAGE_IDS.map((id) => {
           const st = STAGES[id]
           const active = stageId === id
@@ -266,8 +270,8 @@ function StagePicker() {
             <button
               key={id}
               type="button"
-              onClick={() => selectStage(id)}
-              className={`flex flex-col items-start rounded-xl p-2.5 transition-all w-44 text-left border ${active
+              onClick={() => { selectStage(id); sfx('ui') }}
+              className={`flex flex-col items-start rounded-xl px-2.5 py-1.5 transition-all w-44 text-left border ${active
                   ? 'border-yellow-300 bg-white/20 shadow-lg shadow-yellow-500/10 scale-105 ring-1 ring-yellow-300'
                   : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30 opacity-75 hover:opacity-100'
                 }`}
@@ -281,7 +285,7 @@ function StagePicker() {
                   {st.theme.tag}
                 </span>
               </div>
-              <div className="mt-1 text-[10px] text-white/50 leading-tight">
+              <div className="mt-0.5 text-[10px] text-white/50 leading-tight">
                 {st.theme.subtitle}
               </div>
             </button>
@@ -289,7 +293,7 @@ function StagePicker() {
         })}
       </div>
       <div className="text-[11px] text-yellow-200/80 text-center max-w-xl">
-        {STAGES[stageId].theme.desc}
+        🏟️ {STAGES[stageId].theme.desc}
       </div>
     </div>
   )
@@ -395,38 +399,146 @@ function HelpModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+const NAME_STROKE = {
+  textShadow: '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 2px 4px #000',
+}
+
 function Menu() {
   const [wizard, setWizard] = useState<FighterId | null>(null)
   const [showHelp, setShowHelp] = useState(false)
+  const [activePicker, setActivePicker] = useState<FighterId>('p1')
   usePadMenu(wizard === null && !showHelp, () => { clearEntities(); resetSimStage(); useGameStore.getState().startMatch() })
   const selection = useGameStore((s) => s.selection)
   const select = useGameStore((s) => s.select)
   const start = useGameStore((s) => s.startMatch)
 
-  return (
-    <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/70 text-white select-none">
-      <h1 className="text-6xl font-black italic tracking-tight">smash<span className="text-yellow-300">!!!</span></h1>
-      <div className="flex gap-8">
-        {FIGHTER_IDS.map((id) => (
-          <div key={id} className="w-72 rounded-xl bg-white/10 p-3.5 backdrop-blur-sm border border-white/10">
-            <div className="mb-2 text-sm font-bold">{id.toUpperCase()}</div>
-            <div className="flex flex-wrap gap-1.5">
-              {CHARACTER_IDS.map((c) => (
-                <button key={c} onClick={() => select(id, c)}
-                  className={`rounded px-2 py-1.5 text-xs font-bold transition-all ${selection[id] === c ? 'ring-2 ring-white scale-105' : 'opacity-60 hover:opacity-90'}`}
-                  style={{ background: CHARACTERS[c].color, color: '#001' }}>{CHARACTERS[c].name}</button>
-              ))}
-            </div>
-            {CHARACTERS[selection[id]].trait && (
-              <div className="mt-2 rounded bg-black/35 px-2 py-1 text-[11px] text-yellow-200/90 leading-snug">
-                {CHARACTERS[selection[id]].trait}
-              </div>
-            )}
-            <CpuPicker id={id} />
-            <ModelDrop id={id} />
-            <PadInfo id={id} onSetup={() => setWizard(id)} />
+  const pickChar = (target: FighterId, item: CharacterId | 'random') => {
+    let chosen: CharacterId
+    if (item === 'random') {
+      const pool = CHARACTER_IDS.filter((c) => c !== selection[target])
+      chosen = pool[Math.floor(Math.random() * pool.length)] ?? CHARACTER_IDS[0]
+    } else {
+      chosen = item
+    }
+    select(target, chosen)
+    sfx('ui')
+  }
+
+  const row1: (CharacterId | 'random')[] = CHARACTER_IDS.slice(0, 5)
+  const row2: (CharacterId | 'random')[] = [...CHARACTER_IDS.slice(5), 'random']
+
+  const renderCell = (item: CharacterId | 'random') => {
+    const isRand = item === 'random'
+    const p1Sel = !isRand && selection.p1 === item
+    const p2Sel = !isRand && selection.p2 === item
+    const ring = p1Sel && p2Sel
+      ? 'ring-2 ring-inset ring-yellow-300'
+      : p1Sel
+        ? 'ring-2 ring-inset ring-red-500'
+        : p2Sel
+          ? 'ring-2 ring-inset ring-sky-400'
+          : ''
+    const zhSub = isRand ? '隨機' : CHARACTERS[item].name.replace(/^[A-Z]+\s*/, '')
+
+    return (
+      <button
+        key={item}
+        type="button"
+        onClick={() => pickChar(activePicker, item)}
+        onContextMenu={(e) => { e.preventDefault(); pickChar('p2', item) }}
+        title={isRand ? '點擊隨機選擇角色' : `${CHARACTERS[item].name}（左鍵指派給 ${activePicker.toUpperCase()}／右鍵直接指派給 P2）`}
+        className={`relative w-24 h-20 sm:w-28 sm:h-24 overflow-hidden bg-black border-[1.5px] border-black group cursor-pointer focus:outline-none ${ring}`}
+      >
+        <CharacterPortrait id={item} className="w-full h-full object-cover transition-transform duration-150 group-hover:scale-110" />
+        {p1Sel && (
+          <span className="absolute top-0 left-0 z-10 rounded-br bg-red-600 px-1.5 py-0.5 text-[10px] font-black text-white shadow">
+            P1
+          </span>
+        )}
+        {p2Sel && (
+          <span className="absolute top-0 right-0 z-10 rounded-bl bg-sky-500 px-1.5 py-0.5 text-[10px] font-black text-white shadow">
+            P2
+          </span>
+        )}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-1 pb-1 pt-2 text-center"
+          style={NAME_STROKE}
+        >
+          <div className="text-xs sm:text-[13px] font-black tracking-tight text-white leading-none">
+            {isRand ? 'RANDOM' : SHORT_NAMES[item]}
           </div>
-        ))}
+          {zhSub && (
+            <div className="mt-0.5 text-[9px] font-bold text-white/90 leading-none">
+              {zhSub}
+            </div>
+          )}
+        </div>
+      </button>
+    )
+  }
+
+  return (
+    <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/75 text-white select-none overflow-y-auto py-3">
+      <div className="flex items-baseline gap-3">
+        <h1 className="text-4xl sm:text-5xl font-black italic tracking-tight">smash<span className="text-yellow-300">!!!</span></h1>
+        <span className="hidden sm:inline text-[11px] text-white/55">
+          左鍵指派給 <strong className={activePicker === 'p1' ? 'text-red-400' : 'text-sky-400'}>{activePicker.toUpperCase()}</strong>・右鍵可直選 P2
+        </span>
+      </div>
+
+      {/* 大亂鬥風格角色頭像方陣 */}
+      <div className="rounded-lg border-2 border-white/20 bg-black p-1.5 shadow-2xl">
+        <div className="flex justify-center">{row1.map(renderCell)}</div>
+        <div className="flex justify-center">{row2.map(renderCell)}</div>
+      </div>
+
+      {/* P1 & P2 角色展示與設定面板 */}
+      <div className="flex flex-wrap justify-center gap-4">
+        {FIGHTER_IDS.map((id) => {
+          const c = CHARACTERS[selection[id]]
+          const isActive = activePicker === id
+          const borderCls = isActive
+            ? id === 'p1'
+              ? 'border-red-500 ring-2 ring-red-500/40 bg-red-950/30'
+              : 'border-sky-400 ring-2 ring-sky-400/40 bg-sky-950/30'
+            : 'border-white/15 bg-white/10 hover:border-white/30 opacity-90'
+          return (
+            <div
+              key={id}
+              onClick={() => setActivePicker(id)}
+              className={`w-[22rem] rounded-xl border p-2.5 backdrop-blur-sm transition-all cursor-pointer ${borderCls}`}
+            >
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className={`text-xs font-black tracking-wider ${id === 'p1' ? 'text-red-400' : 'text-sky-400'}`}>
+                  {id.toUpperCase()}
+                </span>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isActive ? 'bg-yellow-300 text-black' : 'bg-white/10 text-white/60'}`}>
+                  {isActive ? '🎯 正在選角' : `點擊切換為 ${id.toUpperCase()} 選角`}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black shadow-md">
+                  <CharacterPortrait id={selection[id]} className="h-full w-full" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-black tracking-wide truncate" style={{ color: c.color }}>
+                    {c.name}
+                  </div>
+                  {c.trait && (
+                    <div className="mt-0.5 text-[11px] text-yellow-200/90 leading-snug line-clamp-2">
+                      {c.trait}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <CpuPicker id={id} />
+              <ModelDrop id={id} />
+              <PadInfo id={id} onSetup={() => setWizard(id)} />
+            </div>
+          )
+        })}
       </div>
 
       <StagePicker />
@@ -434,10 +546,10 @@ function Menu() {
       {wizard && <PadWizard id={wizard} onClose={() => setWizard(null)} />}
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
 
-      <div className="flex flex-col items-center gap-2 mt-1">
+      <div className="flex flex-col items-center gap-1.5">
         <button
           onClick={() => { clearEntities(); resetSimStage(); start() }}
-          className="rounded-xl bg-yellow-300 px-12 py-3 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
+          className="rounded-xl bg-yellow-300 px-12 py-2.5 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
         >
           START
         </button>

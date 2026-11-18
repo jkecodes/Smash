@@ -29,7 +29,8 @@
 | `src/components/StageArt.tsx` | 場地程序化表面紋理（`CanvasTexture`）、動態環境粒子、4 場地立體底座與遠景建築／星雲／浮島裝飾 |
 | `src/components/ModelAvatar.tsx` | GLB 載入、自動縮放、動畫 clip 對應、程序化姿勢後備 |
 | `src/components/Effects.tsx` | 斬擊、環、爆發、光束、投射物、力場、大招球、判定框除錯 |
-| `src/components/HUD.tsx` | 傷害％、殘機、能量、護盾、選單、CPU 選擇、手把設定、暫停、結算 |
+| `src/components/HUD.tsx` | 傷害％、頭像、殘機、能量、護盾、大亂鬥風格選角網格、CPU 選擇、手把設定、暫停、結算 |
+| `src/components/CharacterPortrait.tsx` | 8 名角色＋隨機（`?`）專屬 SVG 頭像繪製與縮寫名表（`SHORT_NAMES`） |
 | `public/models/` | Kenney Mini Characters 的 GLB（knight/robot/alien/soldier/zombie）＋ `Textures/colormap.png` |
 
 ### 關鍵設計
@@ -72,7 +73,7 @@
   - 出界擊墜爆發光柱（KO Blast Pillar & Shockwave）。
   - 即時連段提示（`🔥 N HIT COMBO!`）與結算畫面「對戰統計戰報」（擊墜數、輸出傷害、最高連段、完美防禦）。
 - **音效、程序化 BGM 與音量**：全部 Web Audio 合成（音效＋大廳 Synthwave BGM＋對戰熱血 BGM，大招/殘機危急時自動升階）；畫面右上角常駐 BGM 開關（`B` 鍵）、總靜音開關（`M` 鍵）與音量滑桿。
-- **大廳選單簡潔化**：移除原先堆疊於大廳下方的多段文字，改以緊湊膠囊按鈕「📖 操作指南 & 按鍵說明」彈窗整合雙人鍵盤、手把按鍵、進階戰鬥技巧與快捷鍵。
+- **大亂鬥風格選角大廳**：中央為緊湊雙排頭像方陣（8 名原創繪製 SVG 頭像＋`?` 隨機選角格，含粗黑外框白字與 P1 紅／P2 藍標記，左鍵指派給目前選角玩家、右鍵可直選 P2），下方為 P1/P2 角色展示卡與設定；移除堆疊說明文字，改以「📖 操作指南 & 按鍵說明」彈窗呈現；戰鬥中 HUD 狀態卡亦顯示角色頭像。
 - GLB 模型匯入：選單可拖放自己的 .glb（使用者之後打算用 Tripo AI 生成角色）。
 - 最近調整（尚未實機確認手感）：
   - 大招球更難打：hp 7、半徑 0.6、移動更快、被打後 450ms 無敵、存在 20 秒（`sim.ts` 的 `updateBall`／`hitBallIfOverlap`）。
