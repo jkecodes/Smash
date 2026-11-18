@@ -12,6 +12,7 @@ const RETRO_IDS = new Set<CharacterId>([
   'omnom', 'tom', 'ben', 'crossy', 'red', 'steve', 'arisa',
   'chihiro', 'ichi', 'ruri', 'nona', 'gojo', 'deku', 'yodaka', 'saki', 'spe', 'kaoruko',
   'stelle', 'lumine', 'miyabi', 'rover', 'rapi', 'akira', 'kotone', 'hutao', 'seija', 'youmu',
+  'luigi', 'blinky', 'diddy', 'creeper', 'chuck', 'suzuka', 'firefly', 'ellen', 'jinhsi', 'anis', 'erika', 'vaus',
 ])
 
 type AnimePreset = {
@@ -41,6 +42,18 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   hutao: { body: '#18181b', hair: '#3f2318', accent: '#ef4444', prop: 'spear', style: 'spear', twintails: true, huTaoHat: true },
   seija: { body: '#be123c', hair: '#1e1b4b', accent: '#f8fafc', prop: 'horns', style: 'mage', shortHair: true, hornColor: '#e11d48' },
   youmu: { body: '#0f766e', hair: '#e2e8f0', accent: '#34d399', prop: 'katana', style: 'sword', shortHair: true, dualSword: true },
+  luigi: { body: '#16a34a', hair: '#451a03', accent: '#22c55e', prop: 'orb', style: 'martial', shortHair: true },
+  blinky: { body: '#ef4444', hair: '#dc2626', accent: '#38bdf8', prop: 'orb', style: 'mage', shortHair: true },
+  diddy: { body: '#dc2626', hair: '#78350f', accent: '#facc15', prop: 'rifle', style: 'martial', shortHair: true },
+  creeper: { body: '#22c55e', hair: '#15803d', accent: '#4ade80', prop: 'orb', style: 'martial', shortHair: true },
+  chuck: { body: '#facc15', hair: '#eab308', accent: '#f97316', prop: 'orb', style: 'martial', shortHair: true },
+  suzuka: { body: '#22c55e', hair: '#f97316', accent: '#ffffff', prop: 'ears', style: 'martial' },
+  firefly: { body: '#0f766e', hair: '#cbd5e1', accent: '#f97316', prop: 'katana', style: 'sword' },
+  ellen: { body: '#0f172a', hair: '#18181b', accent: '#ef4444', prop: 'spear', style: 'spear' },
+  jinhsi: { body: '#334155', hair: '#f8fafc', accent: '#fde047', prop: 'horns', style: 'mage', hornColor: '#fde047' },
+  anis: { body: '#27272a', hair: '#facc15', accent: '#fb923c', prop: 'rifle', style: 'gun' },
+  erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
+  vaus: { body: '#1e293b', hair: '#38bdf8', accent: '#ef4444', prop: 'orb', style: 'gun', shortHair: true },
 }
 
 export function isRetroAvatar(c: CharacterId): boolean {

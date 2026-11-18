@@ -461,9 +461,9 @@ export const STAGES: Record<StageId, StageDef> = {
   },
   ryu: {
     id: 'ryu',
-    half: { x: 28, y: 0.5, z: 2.5 },
-    blast: { x: 25, minY: -14, maxY: 26 },
-    ledgeX: 28,
+    half: { x: 36, y: 0.5, z: 2.5 },
+    blast: { x: 31, minY: -14, maxY: 28 },
+    ledgeX: 36,
     walkOff: true,
     spawnX: { p1: -4.2, p2: 4.2 },
     platforms: [
@@ -495,9 +495,9 @@ export const STAGES: Record<StageId, StageDef> = {
   },
   chunli: {
     id: 'chunli',
-    half: { x: 28, y: 0.5, z: 2.5 },
-    blast: { x: 25, minY: -14, maxY: 26 },
-    ledgeX: 28,
+    half: { x: 36, y: 0.5, z: 2.5 },
+    blast: { x: 31, minY: -14, maxY: 28 },
+    ledgeX: 36,
     walkOff: true,
     spawnX: { p1: -4.2, p2: 4.2 },
     platforms: [
@@ -867,7 +867,7 @@ export const STAGES: Record<StageId, StageDef> = {
     theme: { name: '初星學園 LIVE 舞台', subtitle: 'Hatsuboshi Stage', tag: '咲季主場・雙側音響升降台', desc: '《学マス》寬廣主舞台搭配兩側邊緣隨節拍交替升降的音響高台！', bg: '#1e0b18', fog: '#1e0b18', ambientColor: '#fda4af', ambientIntensity: 0.88, dirLightColor: '#fff1f2', dirLightIntensity: 1.85, dirLightPos: [0, 22, 12], mainColor: '#4c0519', surfaceColor: '#881337', edgeColor: '#f43f5e', gridColor1: '#9f1239', gridColor2: '#2e0512', platColor: '#881337', platEdgeColor: '#fb7185', accentColor: '#f43f5e' },
   },
   spe: {
-    id: 'spe', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 26, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -5.5, p2: 5.5 },
+    id: 'spe', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -5.5, p2: 5.5 },
     solids: [{ x: -5.5, y: 0, w: 1.0, h: 1.1, color: '#581c87', edgeColor: '#c084fc' }, { x: 5.5, y: 0, w: 1.0, h: 1.1, color: '#581c87', edgeColor: '#c084fc' }],
     platforms: [{ x: -3.5, y: 1.5, w: 1.8, color: '#581c87', edgeColor: '#c084fc' }, { x: 3.5, y: 1.5, w: 1.8, color: '#581c87', edgeColor: '#c084fc' }],
     theme: { name: '東京競馬場終點線', subtitle: 'Tokyo Racecourse', tag: '特別週主場・超寬直線障礙賽', desc: '《賽馬娘》超寬日本ダービー草地大直道與兩座低矮障礙跳欄！', bg: '#0c2419', fog: '#0c2419', ambientColor: '#bbf7d0', ambientIntensity: 0.9, dirLightColor: '#ffffff', dirLightIntensity: 1.85, dirLightPos: [10, 22, 12], mainColor: '#14532d', surfaceColor: '#16a34a', edgeColor: '#c084fc', gridColor1: '#15803d', gridColor2: '#052e16', platColor: '#581c87', platEdgeColor: '#c084fc', accentColor: '#c084fc' },
@@ -898,7 +898,7 @@ export const STAGES: Record<StageId, StageDef> = {
     theme: { name: '瑝瓏今州城', subtitle: 'Jinzhou Wuthering', tag: '漂泊者主場・中空雙翼飛簷', desc: '《鳴潮》中央完全留空、左右兩翼寬闊平展的瑝瓏古風飛簷雙台！', bg: '#141721', fog: '#141721', ambientColor: '#fef08a', ambientIntensity: 0.85, dirLightColor: '#fffbeb', dirLightIntensity: 1.8, dirLightPos: [8, 22, 12], mainColor: '#1e293b', surfaceColor: '#334155', edgeColor: '#facc15', gridColor1: '#ca8a04', gridColor2: '#0f172a', platColor: '#334155', platEdgeColor: '#facc15', accentColor: '#facc15' },
   },
   rapi: {
-    id: 'rapi', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -4.2, p2: 4.2 },
+    id: 'rapi', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -4.2, p2: 4.2 },
     solids: [{ x: -6.5, y: 0, w: 2.0, h: 1.2, color: '#27272a', edgeColor: '#ef4444' }, { x: 6.5, y: 0, w: 2.0, h: 1.2, color: '#27272a', edgeColor: '#ef4444' }],
     platforms: [{ x: -5.2, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 5.2, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 4.6, w: 3.4, color: '#1e293b', edgeColor: '#f97316', move: { ampX: 3.6, speed: 1.1 } }],
     theme: { name: '地面奪回戰壕', subtitle: 'Surface Outpost', tag: '拉毗主場・3掩體＋補給', desc: '《NIKKE》妮姬地面奪回戰線！下層三座防禦掩體與高空巡弋補給台。', bg: '#170a0a', fog: '#170a0a', ambientColor: '#fca5a5', ambientIntensity: 0.82, dirLightColor: '#fee2e2', dirLightIntensity: 1.8, dirLightPos: [0, 22, 12], mainColor: '#27272a', surfaceColor: '#3f3f46', edgeColor: '#ef4444', gridColor1: '#991b1b', gridColor2: '#18181b', platColor: '#450a0a', platEdgeColor: '#ef4444', accentColor: '#ef4444' },
@@ -928,7 +928,7 @@ export const STAGES: Record<StageId, StageDef> = {
     theme: { name: '輝針城・逆轉天守', subtitle: 'Shining Needle Castle', tag: '正邪主場・逆轉浮動層板', desc: '《東方輝針城》上下顛倒的天邪鬼天守閣，中央赤藍層板不斷上下反轉浮動！', bg: '#1a0914', fog: '#1a0914', ambientColor: '#fda4af', ambientIntensity: 0.85, dirLightColor: '#e0f2fe', dirLightIntensity: 1.8, dirLightPos: [6, 22, 12], mainColor: '#311022', surfaceColor: '#4c0519', edgeColor: '#e11d48', gridColor1: '#be123c', gridColor2: '#1e1b4b', platColor: '#9f1239', platEdgeColor: '#38bdf8', accentColor: '#e11d48' },
   },
   youmu: {
-    id: 'youmu', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -4.8, p2: 4.8 },
+    id: 'youmu', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -4.8, p2: 4.8 },
     solids: [
       { x: -7.5, y: 0, w: 2.2, h: 1.3, color: '#065f46', edgeColor: '#34d399' },
       { x: 7.5, y: 0, w: 2.2, h: 1.3, color: '#065f46', edgeColor: '#34d399' },
@@ -939,6 +939,68 @@ export const STAGES: Record<StageId, StageDef> = {
       { x: 0, y: 4.4, w: 3.6, color: '#0f766e', edgeColor: '#34d399' },
     ],
     theme: { name: '白玉樓・西行妖櫻階梯', subtitle: 'Hakugyokurou', tag: '妖夢主場・冥界石階平地', desc: '《東方妖妖夢》西行妖櫻花樹下的白玉樓長石階平地，兩側有實心石階高台與櫻枝平台！', bg: '#091b18', fog: '#091b18', ambientColor: '#a7f3d0', ambientIntensity: 0.88, dirLightColor: '#fdf2f8', dirLightIntensity: 1.82, dirLightPos: [8, 22, 12], mainColor: '#134e4a', surfaceColor: '#065f46', edgeColor: '#34d399', gridColor1: '#10b981', gridColor2: '#022c22', platColor: '#064e3b', platEdgeColor: '#fbcfe8', accentColor: '#34d399' },
+  },
+  luigi: {
+    id: 'luigi', half: { x: 9.8, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.8, spawnX: { p1: -4.2, p2: 4.2 },
+    platforms: [{ x: -5.0, y: 2.2, w: 3.4, color: '#3b0764', edgeColor: '#22c55e' }, { x: 5.0, y: 2.2, w: 3.4, color: '#3b0764', edgeColor: '#22c55e' }, { x: 0, y: 4.4, w: 3.6, color: '#1e1b4b', edgeColor: '#a855f7' }],
+    theme: { name: '路易吉鬼屋大廳', subtitle: "Luigi's Mansion", tag: '路易吉主場・幽靈吊燈', desc: '《路易吉洋樓》陰森紫色洋館大廳與漂浮幽靈吊燈層板！', bg: '#130b21', fog: '#130b21', ambientColor: '#bbf7d0', ambientIntensity: 0.82, dirLightColor: '#e9d5ff', dirLightIntensity: 1.75, dirLightPos: [6, 22, 12], mainColor: '#2e1065', surfaceColor: '#3b0764', edgeColor: '#22c55e', gridColor1: '#6b21a8', gridColor2: '#1e1b4b', platColor: '#3b0764', platEdgeColor: '#22c55e', accentColor: '#22c55e' },
+  },
+  blinky: {
+    id: 'blinky', half: { x: 10.0, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 10.0, spawnX: { p1: -4.5, p2: 4.5 },
+    platforms: [{ x: -5.0, y: 2.3, w: 3.6, color: '#0f172a', edgeColor: '#ef4444' }, { x: 5.0, y: 2.3, w: 3.6, color: '#0f172a', edgeColor: '#ef4444' }],
+    theme: { name: '幽靈重生中樞', subtitle: 'Ghost House', tag: '紅幽靈主場・霓虹雙翼', desc: 'Pac-Man 迷宮中央的幽靈出生匣，紅藍霓虹牆面包圍！', bg: '#09040a', fog: '#09040a', ambientColor: '#fca5a5', ambientIntensity: 0.8, dirLightColor: '#fee2e2', dirLightIntensity: 1.75, dirLightPos: [0, 22, 12], mainColor: '#1e293b', surfaceColor: '#0f172a', edgeColor: '#ef4444', gridColor1: '#991b1b', gridColor2: '#090d16', platColor: '#0f172a', platEdgeColor: '#ef4444', accentColor: '#ef4444' },
+  },
+  diddy: {
+    id: 'diddy', half: { x: 10.2, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 10.2, spawnX: { p1: -4.4, p2: 4.4 },
+    platforms: [{ x: -5.2, y: 2.1, w: 3.2, color: '#78350f', edgeColor: '#facc15' }, { x: 5.2, y: 2.1, w: 3.2, color: '#78350f', edgeColor: '#facc15' }, { x: 0, y: 4.1, w: 3.6, color: '#92400e', edgeColor: '#ef4444', move: { ampX: 2.8, speed: 1.3 } }],
+    theme: { name: '叢林礦車軌道', subtitle: 'Mine Cart Carnage', tag: '狄狄剛主場・移動礦車台', desc: '《Donkey Kong Country》叢林礦坑高空與左右高速來回的木製礦車台！', bg: '#161107', fog: '#161107', ambientColor: '#fde68a', ambientIntensity: 0.86, dirLightColor: '#fef9c3', dirLightIntensity: 1.82, dirLightPos: [8, 22, 12], mainColor: '#451a03', surfaceColor: '#78350f', edgeColor: '#ef4444', gridColor1: '#92400e', gridColor2: '#1c1004', platColor: '#78350f', platEdgeColor: '#facc15', accentColor: '#facc15' },
+  },
+  creeper: {
+    id: 'creeper', half: { x: 9.8, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.8, spawnX: { p1: -4.2, p2: 4.2 },
+    solids: [{ x: -6.2, y: 0, w: 1.8, h: 1.4, color: '#15803d', edgeColor: '#4ade80' }, { x: 6.2, y: 0, w: 1.8, h: 1.4, color: '#15803d', edgeColor: '#4ade80' }],
+    platforms: [{ x: 0, y: 3.0, w: 4.2, color: '#334155', edgeColor: '#4ade80' }],
+    theme: { name: 'Minecraft 地底礦坑', subtitle: 'Creeper Cavern', tag: '苦力怕主場・方塊岩階', desc: '深邃方塊洞窟與兩側實心草地礦階，小心腳下的高壓爆炸！', bg: '#06140c', fog: '#06140c', ambientColor: '#bbf7d0', ambientIntensity: 0.84, dirLightColor: '#dcfce7', dirLightIntensity: 1.78, dirLightPos: [6, 22, 12], mainColor: '#1e293b', surfaceColor: '#16a34a', edgeColor: '#4ade80', gridColor1: '#15803d', gridColor2: '#052e16', platColor: '#334155', platEdgeColor: '#4ade80', accentColor: '#4ade80' },
+  },
+  chuck: {
+    id: 'chuck', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -4.5, p2: 4.5 },
+    solids: [{ x: 0, y: 0, w: 2.4, h: 1.5, color: '#92400e', edgeColor: '#facc15' }],
+    platforms: [{ x: -5.4, y: 2.5, w: 3.2, color: '#78350f', edgeColor: '#facc15' }, { x: 5.4, y: 2.5, w: 3.2, color: '#78350f', edgeColor: '#facc15' }],
+    theme: { name: '豬豬木頭堡壘', subtitle: 'Wood Fortress', tag: '飛鏢黃主場・中央木堡平地', desc: '《Angry Birds》寬闊草地平地與正中央可站立的實心木塊堡壘！', bg: '#0c1b29', fog: '#0c1b29', ambientColor: '#fef08a', ambientIntensity: 0.9, dirLightColor: '#ffffff', dirLightIntensity: 1.85, dirLightPos: [10, 22, 12], mainColor: '#15803d', surfaceColor: '#22c55e', edgeColor: '#facc15', gridColor1: '#16a34a', gridColor2: '#052e16', platColor: '#78350f', platEdgeColor: '#facc15', accentColor: '#facc15' },
+  },
+  suzuka: {
+    id: 'suzuka', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -5.5, p2: 5.5 },
+    platforms: [{ x: -4.8, y: 2.2, w: 3.4, color: '#14532d', edgeColor: '#22c55e' }, { x: 4.8, y: 2.2, w: 3.4, color: '#14532d', edgeColor: '#22c55e' }],
+    theme: { name: '阪神競馬場彎道', subtitle: 'Hanshin Turf', tag: '無聲鈴鹿主場・極速草地直道', desc: '一望無際的綠色草地大直道，專為異次元大逃げ打造的高速戰場！', bg: '#061a12', fog: '#061a12', ambientColor: '#bbf7d0', ambientIntensity: 0.9, dirLightColor: '#ffffff', dirLightIntensity: 1.85, dirLightPos: [10, 22, 12], mainColor: '#14532d', surfaceColor: '#16a34a', edgeColor: '#22c55e', gridColor1: '#15803d', gridColor2: '#052e16', platColor: '#14532d', platEdgeColor: '#22c55e', accentColor: '#22c55e' },
+  },
+  firefly: {
+    id: 'firefly', half: { x: 10.2, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 10.2, spawnX: { p1: -4.4, p2: 4.4 },
+    platforms: [{ x: -5.2, y: 2.4, w: 3.2, color: '#0f172a', edgeColor: '#f97316' }, { x: 5.2, y: 2.4, w: 3.2, color: '#0f172a', edgeColor: '#f97316' }, { x: 0, y: 4.5, w: 3.4, color: '#134e4a', edgeColor: '#5eead4' }],
+    theme: { name: '匹諾康尼流夢礁', subtitle: 'Dreamflux Reef', tag: '流螢主場・星海螢火高台', desc: '《崩壞：星穹鐵道》匹諾康尼深處的秘密天台，螢火與裝甲火光交映！', bg: '#070f1c', fog: '#070f1c', ambientColor: '#99f6e4', ambientIntensity: 0.85, dirLightColor: '#ffedd5', dirLightIntensity: 1.82, dirLightPos: [8, 22, 12], mainColor: '#0f172a', surfaceColor: '#1e293b', edgeColor: '#f97316', gridColor1: '#0f766e', gridColor2: '#090d16', platColor: '#134e4a', platEdgeColor: '#5eead4', accentColor: '#f97316' },
+  },
+  ellen: {
+    id: 'ellen', half: { x: 10.0, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 10.0, spawnX: { p1: -4.2, p2: 4.2 },
+    platforms: [{ x: -4.8, y: 2.3, w: 3.4, color: '#1e293b', edgeColor: '#ef4444' }, { x: 4.8, y: 2.3, w: 3.4, color: '#1e293b', edgeColor: '#38bdf8' }],
+    theme: { name: '光映廣場・維多利亞港', subtitle: 'Lumina Square', tag: '艾蓮主場・冰紅雙翼街台', desc: '《絕區零》光映廣場街頭舞台，紅藍霓虹高台襯托鯊魚妹的急凍剪刀！', bg: '#09111e', fog: '#09111e', ambientColor: '#bae6fd', ambientIntensity: 0.86, dirLightColor: '#f8fafc', dirLightIntensity: 1.82, dirLightPos: [8, 22, 12], mainColor: '#0f172a', surfaceColor: '#1e293b', edgeColor: '#ef4444', gridColor1: '#0284c7', gridColor2: '#090d16', platColor: '#1e293b', platEdgeColor: '#38bdf8', accentColor: '#ef4444' },
+  },
+  jinhsi: {
+    id: 'jinhsi', half: { x: 9.8, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.8, spawnX: { p1: -4.2, p2: 4.2 },
+    platforms: [{ x: -5.0, y: 2.5, w: 3.2, color: '#1e293b', edgeColor: '#fde047' }, { x: 5.0, y: 2.5, w: 3.2, color: '#1e293b', edgeColor: '#fde047' }, { x: 0, y: 4.7, w: 3.8, color: '#334155', edgeColor: '#ffffff', move: { ampY: 0.5, speed: 1.5 } }],
+    theme: { name: '乘霄山・盤龍崖', subtitle: 'Mt. Firmament', tag: '今汐主場・歲主浮雲壇', desc: '《鳴潮》雲霧繚繞的乘霄山盤龍祭壇，中央浮雲壇緩緩上下吐息！', bg: '#0d1522', fog: '#0d1522', ambientColor: '#fef08a', ambientIntensity: 0.88, dirLightColor: '#ffffff', dirLightIntensity: 1.85, dirLightPos: [10, 22, 12], mainColor: '#1e293b', surfaceColor: '#334155', edgeColor: '#fde047', gridColor1: '#eab308', gridColor2: '#0f172a', platColor: '#334155', platEdgeColor: '#fde047', accentColor: '#fde047' },
+  },
+  anis: {
+    id: 'anis', half: { x: 10.0, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 10.0, spawnX: { p1: -4.2, p2: 4.2 },
+    platforms: [{ x: -4.8, y: 2.0, w: 3.4, color: '#27272a', edgeColor: '#fb923c' }, { x: 4.8, y: 2.0, w: 3.4, color: '#27272a', edgeColor: '#fb923c' }, { x: 0, y: 4.2, w: 3.4, color: '#422006', edgeColor: '#facc15' }],
+    theme: { name: '方舟指揮官前哨站', subtitle: 'Ark Outpost', tag: '阿妮絲主場・補給沙發台', desc: '《NIKKE》方舟前哨基地休息區，蘇打罐與榴彈齊飛的戰術舞台！', bg: '#171209', fog: '#171209', ambientColor: '#fed7aa', ambientIntensity: 0.85, dirLightColor: '#fef3c7', dirLightIntensity: 1.8, dirLightPos: [6, 22, 12], mainColor: '#27272a', surfaceColor: '#3f3f46', edgeColor: '#fb923c', gridColor1: '#ea580c', gridColor2: '#18181b', platColor: '#27272a', platEdgeColor: '#fb923c', accentColor: '#fb923c' },
+  },
+  erika: {
+    id: 'erika', half: { x: 9.8, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.8, spawnX: { p1: -4.2, p2: 4.2 },
+    platforms: [{ x: -4.8, y: 2.3, w: 3.4, color: '#1e1b4b', edgeColor: '#facc15' }, { x: 4.8, y: 2.3, w: 3.4, color: '#1e1b4b', edgeColor: '#facc15' }, { x: 0, y: 4.5, w: 3.6, color: '#312e81', edgeColor: '#818cf8' }],
+    theme: { name: '亞雷斯達王城大殿', subtitle: 'Alester Royal Hall', tag: '艾莉卡主場・皇家決鬥廳', desc: '《Shadowverse》皇家護衛駐守的莊嚴王城大殿，金黃劍徽高懸！', bg: '#0f1024', fog: '#0f1024', ambientColor: '#c7d2fe', ambientIntensity: 0.85, dirLightColor: '#fef9c3', dirLightIntensity: 1.82, dirLightPos: [8, 22, 12], mainColor: '#1e1b4b', surfaceColor: '#312e81', edgeColor: '#facc15', gridColor1: '#4f46e5', gridColor2: '#0f172a', platColor: '#1e1b4b', platEdgeColor: '#facc15', accentColor: '#818cf8' },
+  },
+  vaus: {
+    id: 'vaus', half: { x: 10.6, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 10.6, spawnX: { p1: -4.6, p2: 4.6 },
+    platforms: [{ x: -5.5, y: 2.6, w: 3.2, color: '#ef4444', edgeColor: '#ffffff' }, { x: 0, y: 4.2, w: 3.6, color: '#38bdf8', edgeColor: '#ffffff' }, { x: 5.5, y: 2.6, w: 3.2, color: '#22c55e', edgeColor: '#ffffff' }],
+    theme: { name: '打磚塊霓虹矩陣', subtitle: 'Arkanoid Matrix', tag: 'VAUS主場・彩色磚塊層', desc: '經典街機《Arkanoid》霓虹彩色磚塊陣列與能量球反彈場！', bg: '#040814', fog: '#040814', ambientColor: '#7dd3fc', ambientIntensity: 0.84, dirLightColor: '#ffffff', dirLightIntensity: 1.8, dirLightPos: [0, 22, 12], mainColor: '#0f172a', surfaceColor: '#1e293b', edgeColor: '#38bdf8', gridColor1: '#0284c7', gridColor2: '#020617', platColor: '#1e293b', platEdgeColor: '#ffffff', accentColor: '#38bdf8' },
   },
 }
 
@@ -985,6 +1047,18 @@ export const STAGE_GIMMICKS: Record<StageId, StageGimmickDef> = {
   hutao: { kind: 'hazard', name: '巡邏鬼火 Boo Tao', color: '#f97316', pos: [0, 1.5], pos2: [6.8, 0.6], radius: 0.85, power: 9, interval: 5.5, mode: 'patrol' },
   seija: { kind: 'portal', name: '逆轉空間傳送陣', color: '#e11d48', pos: [-7.2, 1.4], pos2: [7.2, 1.4], radius: 0.95, power: 0 },
   youmu: { kind: 'pickup', name: '半靈充能玉', color: '#34d399', pos: [0, 5.1], radius: 0.9, power: 45, interval: 9, mode: 'energy' },
+  luigi: { kind: 'bumper', name: '鬼屋彈簧地板', color: '#22c55e', pos: [0, 0.45], radius: 0.95, power: 15, mode: 'up' },
+  blinky: { kind: 'portal', name: '迷宮左右傳送門', color: '#ef4444', pos: [-8.2, 1.4], pos2: [8.2, 1.4], radius: 0.9, power: 0 },
+  diddy: { kind: 'bumper', name: '叢林木桶彈射墊', color: '#facc15', pos: [0, 0.45], radius: 0.95, power: 16, mode: 'up' },
+  creeper: { kind: 'hazard', name: '洞窟 TNT 炸彈', color: '#4ade80', pos: [0, 0.8], radius: 1.8, power: 10, interval: 4.5, mode: 'bomb' },
+  chuck: { kind: 'wind', name: '彈弓加速順風', color: '#facc15', pos: [0, 0.5], radius: 9.0, power: 14, interval: 5 },
+  suzuka: { kind: 'wind', name: '大逃げ順風氣流', color: '#22c55e', pos: [0, 0.5], radius: 9.5, power: 14, interval: 5 },
+  firefly: { kind: 'hazard', name: '薩姆焦土爆破', color: '#f97316', pos: [0, 0.9], radius: 1.7, power: 9, interval: 4.8, mode: 'bomb' },
+  ellen: { kind: 'pickup', name: '維多利亞冰淇淋（回血）', color: '#38bdf8', pos: [0, 3.2], radius: 0.9, power: 11, interval: 10, mode: 'heal' },
+  jinhsi: { kind: 'pickup', name: '歲主韶光核（充能）', color: '#fde047', pos: [0, 5.2], radius: 0.9, power: 45, interval: 9, mode: 'energy' },
+  anis: { kind: 'pickup', name: '冰涼蘇打罐（回血）', color: '#fb923c', pos: [0, 4.9], radius: 0.9, power: 11, interval: 10, mode: 'heal' },
+  erika: { kind: 'pickup', name: '皇家進化點（充能）', color: '#818cf8', pos: [0, 5.1], radius: 0.9, power: 45, interval: 9, mode: 'energy' },
+  vaus: { kind: 'bumper', name: '能量球彈射核心', color: '#38bdf8', pos: [0, 0.45], radius: 1.0, power: 16, mode: 'radial' },
 }
 
 export const STAGE_IDS = Object.keys(STAGES) as StageId[]

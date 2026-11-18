@@ -28,6 +28,11 @@ const CHAR_MECHANIC: Partial<Record<CharacterId, { kind: MechanicKind; label: st
   marisa: { kind: 'mana', label: '⭐ 八卦爐魔力', color: '#fde047' },
   seija: { kind: 'limit', label: '🔄 逆轉極限', color: '#e11d48' },
   youmu: { kind: 'awaken', label: '👻 半靈人鬼覺醒', color: '#34d399' },
+  firefly: { kind: 'awaken', label: '🔥 燃燒裝甲覺醒', color: '#f97316' },
+  ellen: { kind: 'limit', label: '🦈 急凍剪刃充能', color: '#38bdf8' },
+  jinhsi: { kind: 'limit', label: '🐉 韶光歲主共鳴', color: '#fde047' },
+  suzuka: { kind: 'ko', label: '💨 異次元大逃げ', color: '#22c55e' },
+  creeper: { kind: 'ko', label: '💥 高壓苦力怕', color: '#4ade80' },
 }
 
 const states: Record<FighterId, MechanicState | null> = Object.fromEntries(

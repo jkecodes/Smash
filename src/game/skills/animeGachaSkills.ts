@@ -94,16 +94,16 @@ const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
   hutao: 'ghost',
 }
 
-const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover', 'youmu'])
-const TELEPORT_SIDE_CHARS = new Set(['gojo', 'yodaka', 'miyabi', 'rover', 'seija', 'youmu'])
-const RANGED_SIDE_CHARS = new Set(['rapi', 'hutao', 'nona', 'kotone', 'saki'])
-const TELEPORT_UP_CHARS = new Set(['gojo', 'yodaka', 'nona', 'miyabi', 'youmu'])
-const WIND_UP_CHARS = new Set(['lumine', 'ruri', 'ichi', 'akira'])
-const COUNTER_DOWN_CHARS = new Set(['chihiro', 'gojo', 'kaoruko', 'kotone'])
-const TRAP_DOWN_CHARS = new Set(['rapi', 'ichi', 'hutao', 'nona', 'seija'])
-const GUN_CHARS = new Set(['rapi'])
-const MARTIAL_CHARS = new Set(['gojo', 'deku', 'spe'])
-const CASTER_CHARS = new Set(['ichi', 'ruri', 'nona', 'saki', 'kaoruko', 'akira', 'kotone'])
+const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover', 'youmu', 'firefly', 'ellen', 'erika'])
+const TELEPORT_SIDE_CHARS = new Set(['gojo', 'yodaka', 'miyabi', 'rover', 'seija', 'youmu', 'blinky', 'ellen', 'erika'])
+const RANGED_SIDE_CHARS = new Set(['rapi', 'hutao', 'nona', 'kotone', 'saki', 'anis', 'vaus'])
+const TELEPORT_UP_CHARS = new Set(['gojo', 'yodaka', 'nona', 'miyabi', 'youmu', 'blinky', 'jinhsi'])
+const WIND_UP_CHARS = new Set(['lumine', 'ruri', 'ichi', 'akira', 'diddy', 'firefly'])
+const COUNTER_DOWN_CHARS = new Set(['chihiro', 'gojo', 'kaoruko', 'kotone', 'luigi', 'erika'])
+const TRAP_DOWN_CHARS = new Set(['rapi', 'ichi', 'hutao', 'nona', 'seija', 'diddy', 'creeper', 'anis'])
+const GUN_CHARS = new Set(['rapi', 'anis', 'diddy', 'vaus'])
+const MARTIAL_CHARS = new Set(['gojo', 'deku', 'spe', 'luigi', 'creeper', 'chuck', 'suzuka'])
+const CASTER_CHARS = new Set(['ichi', 'ruri', 'nona', 'saki', 'kaoruko', 'akira', 'kotone', 'blinky', 'jinhsi'])
 
 function hitVfx(c: any, color: string, p: string, r: number, flip = false) {
   if (GUN_CHARS.has(p)) {
@@ -396,7 +396,9 @@ function registerKit(k: KitSpec) {
           c.scratch.rn = (c.scratch.rn ?? 0) - c.dt * 1000
           if (c.scratch.rn <= 0) {
             c.scratch.rn = 175
-            const x = clampStageX((Math.random() - 0.5) * 14)
+            const tgt = c.nearestEnemy()
+            const anchorX = tgt ? tgt.pos[0] : c.caster.pos[0] + c.forward[0] * 4
+            const x = clampStageX(anchorX + (Math.random() - 0.5) * 10)
             c.spawnProjectile({ pos: [x, 13.5, 0], vel: [0, -20, 0], radius: 0.62, ttlMs: 1500, color: k.ult.color, gravity: -14, explodeRadius: 2.4 })
           }
         } else if (k.ult.kind === 'omnislash') {
@@ -667,6 +669,114 @@ const KITS: KitSpec[] = [
     s2: { name: '半靈守護斬環', kind: 'ring', color: '#34d399' },
     smashes: ['樓觀劍・斷鋼斬', '白樓劍沖天破', '半人半靈震地'],
     ult: { name: '人鬼「未來永劫斬」！', kind: 'omnislash', color: '#34d399' },
+  },
+  {
+    p: 'luigi', color: '#22c55e', a1: '綠帽直拳', a2: '高跳上踢',
+    tilts: ['側踢', '上鉤拳', '下蹲滑踢'],
+    s1: { name: '綠色無重力火球', projColor: '#22c55e', speed: 18 },
+    side: '綠箭頭槌蓄力衝！', up: '超級跳躍升空拳', down: '路易吉龍捲風',
+    s2: { name: '鬼屋吸塵器「Poltergust」爆發', kind: 'ring', color: '#22c55e' },
+    smashes: ['必殺綠火掌', '昇龍頭槌', '地板重踏'],
+    ult: { name: '鬼屋吸塵器「大掃除暴走」！', kind: 'burst', color: '#22c55e' },
+  },
+  {
+    p: 'blinky', color: '#ef4444', a1: '幽靈抓擊', a2: '赤影連咬',
+    tilts: ['迷宮橫掃', '驚嚇上撲', '暗影下切'],
+    s1: { name: '追擊紅鬼火彈', projColor: '#ef4444', explode: 2.0, speed: 17, steerable: 4.0 },
+    side: '穿牆鬼步突襲', up: '幽靈飄浮傳送', down: '驚嚇反轉衝擊',
+    s2: { name: '迷宮鬼影封鎖陣', kind: 'zone', color: '#ef4444' },
+    smashes: ['紅幽靈狂暴咬', '天降驚嚇', '迷宮震動'],
+    ult: { name: '四色幽靈「全面圍剿」大暴衝！', kind: 'rush', color: '#ef4444' },
+  },
+  {
+    p: 'diddy', color: '#dc2626', a1: '猴爪連打', a2: '長尾鞭擊',
+    tilts: ['尾鞭橫掃', '倒立上踢', '滑稽下掃'],
+    s1: { name: '花生手槍（Peanut Popgun）', projColor: '#fbbf24', explode: 1.8, speed: 20 },
+    side: '猴子翻滾飛撲', up: '噴射木桶背包', down: '香蕉皮爆彈陷阱',
+    s2: { name: '叢林花生連發砲', kind: 'proj', color: '#f59e0b' },
+    smashes: ['重拳連拍', '木桶上頂', '叢林震地'],
+    ult: { name: '「Rocketbarrel Barrage」噴射木桶轟炸！', kind: 'barrage', color: '#dc2626' },
+  },
+  {
+    p: 'creeper', color: '#4ade80', a1: '綠怪撞擊', a2: '嘶嘶前撲',
+    tilts: ['方塊頭槌', '驚跳上頂', '四足下掃'],
+    s1: { name: '火藥 TNT 拋射', projColor: '#ef4444', explode: 2.4, speed: 15 },
+    side: '嘶嘶衝刺爆破', up: '爆炸氣浪反衝升空', down: '高壓引信定時雷',
+    s2: { name: '苦力怕高壓自爆環！', kind: 'ring', color: '#4ade80' },
+    smashes: ['高壓雷電炸', '沖天爆破', '地裂炸彈'],
+    ult: { name: '閃電高壓苦力怕「大毀滅」！', kind: 'burst', color: '#38bdf8' },
+  },
+  {
+    p: 'chuck', color: '#facc15', a1: '尖嘴連啄', a2: '音速回旋撞',
+    tilts: ['黃風橫掃', '銳角上挑', '俯衝下切'],
+    s1: { name: '三角羽毛飛鏢', projColor: '#facc15', pierce: true, speed: 26 },
+    side: '音速點擊加速衝！', up: '極速斜上衝刺', down: '垂直俯衝砸擊',
+    s2: { name: '黃鳥狂風衝擊波', kind: 'ring', color: '#facc15' },
+    smashes: ['音速重撞', '破空升龍', '流星墜地'],
+    ult: { name: '「Turbo Boost」全場音速大連撞！', kind: 'rush', color: '#facc15' },
+  },
+  {
+    p: 'suzuka', color: '#22c55e', a1: '翡翠疾踢', a2: '領跑雙連踏',
+    tilts: ['草地疾風掃', '輕盈上躍踢', '蹄鐵下踏'],
+    s1: { name: '綠色疾風氣浪', projColor: '#22c55e', pierce: true, speed: 23 },
+    side: '異次元「大逃げ」加速！', up: '翡翠飛躍跨欄', down: '疾風踩踏衝擊',
+    s2: { name: '先頭領跑氣流環', kind: 'ring', color: '#22c55e' },
+    smashes: ['天皇賞全速撞', '天馬沖天踢', '草地大震'],
+    ult: { name: '固有技能「先頭的景色」大逃げ衝線！', kind: 'rush', color: '#22c55e' },
+  },
+  {
+    p: 'firefly', color: '#f97316', a1: '薩姆炎拳', a2: '完全燃燒雙刃',
+    tilts: ['焦土橫斬', '火翼上挑', '熔岩下砸'],
+    s1: { name: '死星過載・炎刃波', projColor: '#f97316', pierce: true, speed: 22 },
+    side: 'Ⅳ型裝甲・噴射突進', up: '火螢飛翼升空', down: '焦土作戰震地',
+    s2: { name: '燃燒裝甲爆裂環', kind: 'ring', color: '#f97316' },
+    smashes: ['薩姆焚天劈', '炎翼升龍', '隕石墜擊'],
+    ult: { name: '「火螢Ⅳ型・完全燃燒」星海連斬！', kind: 'omnislash', color: '#f97316' },
+  },
+  {
+    p: 'ellen', color: '#ef4444', a1: '巨剪橫切', a2: '冷酷鯊尾連擊',
+    tilts: ['冰霜剪擊', '上挑剪刃', '鯊尾下掃'],
+    s1: { name: '急凍寒霜斬波', projColor: '#38bdf8', pierce: true, speed: 22 },
+    side: '「巡游」高速閃襲', up: '鯊魚躍浪升空', down: '冰霜巨剪重砸',
+    s2: { name: '急凍鯊捲風結界', kind: 'ring', color: '#38bdf8' },
+    smashes: ['冰剪斷鋼', '鯊牙沖天', '寒霜震地'],
+    ult: { name: '終結技「無盡寒冬・鯊捲風」！', kind: 'omnislash', color: '#38bdf8' },
+  },
+  {
+    p: 'jinhsi', color: '#fde047', a1: '長刃光斬', a2: '歲主共鳴連打',
+    tilts: ['龍鱗橫閃', '飛龍上挑', '天光下切'],
+    s1: { name: '歲主「角」龍息光彈', projColor: '#fde047', explode: 2.2, speed: 19 },
+    side: '浮空龍影突襲', up: '驚蟄龍吟升空', down: '韶光天降震擊',
+    s2: { name: '今州歲主結界領域', kind: 'zone', color: '#fde047' },
+    smashes: ['龍神破曉斬', '飛龍沖天', '天光墜地'],
+    ult: { name: '共鳴解放「移天換日・歲主降臨」！', kind: 'rain', color: '#fde047' },
+  },
+  {
+    p: 'anis', color: '#fb923c', a1: '榴彈槍托擊', a2: '元氣高踢',
+    tilts: ['散彈橫掃', '對空榴彈', '滑鏟射擊'],
+    s1: { name: '蘇打高爆榴彈', projColor: '#fb923c', explode: 2.2, speed: 17 },
+    side: '反擊部隊突進射擊', up: '爆風反衝躍升', down: '蘇打地雷陣',
+    s2: { name: '雙發高爆榴彈齊射', kind: 'proj', color: '#f59e0b' },
+    smashes: ['超重砲擊', '對空爆裂', '地雷引爆'],
+    ult: { name: '爆裂階段 III「全面蘇打轟炸」！', kind: 'barrage', color: '#fb923c' },
+  },
+  {
+    p: 'erika', color: '#818cf8', a1: '皇家迅劍斬', a2: '女僕二連刺',
+    tilts: ['銀劍橫閃', '上挑劍舞', '護衛下切'],
+    s1: { name: '疾馳劍氣飛刃', projColor: '#818cf8', pierce: true, speed: 23 },
+    side: '潛行暗殺瞬步斬', up: '皇家飛燕升空', down: '絕對護衛反擊斬',
+    s2: { name: '皇家護衛劍陣環', kind: 'ring', color: '#818cf8' },
+    smashes: ['進化疾馳重斬', '銀劍沖天', '護衛震地'],
+    ult: { name: '「秘密的護衛」皇家亂舞千斬！', kind: 'omnislash', color: '#818cf8' },
+  },
+  {
+    p: 'vaus', color: '#38bdf8', a1: '磁力能量撞', a2: '雙管雷射掃',
+    tilts: ['寬幅橫推', '折射上擊', '電磁下掃'],
+    s1: { name: 'Energy Ball 能量球', projColor: '#38bdf8', pierce: true, speed: 22 },
+    side: '戰機高速側移射擊', up: '推進器垂直升空', down: '重力磁場壓制',
+    s2: { name: '雙管紅藍雷射齊射', kind: 'proj', color: '#ef4444' },
+    smashes: ['破磚重砲', '雷射沖天', '空間裂隙震'],
+    ult: { name: '「Breakout」全屏能量球大暴走！', kind: 'barrage', color: '#38bdf8' },
   },
 ]
 

@@ -44,6 +44,18 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   hutao: 'HU TAO',
   seija: 'SEIJA',
   youmu: 'YOUMU',
+  luigi: 'LUIGI',
+  blinky: 'BLINKY',
+  diddy: 'DIDDY',
+  creeper: 'CREEPER',
+  chuck: 'CHUCK',
+  suzuka: 'SUZUKA',
+  firefly: 'FIREFLY',
+  ellen: 'ELLEN',
+  jinhsi: 'JINHSI',
+  anis: 'ANIS',
+  erika: 'ERIKA',
+  vaus: 'VAUS',
 }
 
 const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; witchHat?: boolean }>> = {
@@ -67,6 +79,18 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   hutao: { bg: '#450a0a', hair: '#3f2318', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', twintails: true, huTaoHat: true },
   seija: { bg: '#4c0519', hair: '#1e1b4b', outfit: '#be123c', accent: '#f8fafc', eye: '#ef4444', horns: true, shortHair: true },
   youmu: { bg: '#064e3b', hair: '#e2e8f0', outfit: '#0f766e', accent: '#34d399', eye: '#10b981', bobHair: true },
+  luigi: { bg: '#052e16', hair: '#451a03', outfit: '#16a34a', accent: '#2563eb', eye: '#38bdf8', shortHair: true },
+  blinky: { bg: '#450a0a', hair: '#ef4444', outfit: '#dc2626', accent: '#ffffff', eye: '#38bdf8', shortHair: true },
+  diddy: { bg: '#451a03', hair: '#78350f', outfit: '#dc2626', accent: '#facc15', eye: '#111827', ears: true, shortHair: true },
+  creeper: { bg: '#064e3b', hair: '#22c55e', outfit: '#16a34a', accent: '#111827', eye: '#111827', shortHair: true },
+  chuck: { bg: '#713f12', hair: '#facc15', outfit: '#eab308', accent: '#f97316', eye: '#111827', shortHair: true },
+  suzuka: { bg: '#052e16', hair: '#f97316', outfit: '#22c55e', accent: '#ffffff', eye: '#10b981', ears: true },
+  firefly: { bg: '#0f172a', hair: '#cbd5e1', outfit: '#0f766e', accent: '#f97316', eye: '#38bdf8', bobHair: true },
+  ellen: { bg: '#082f49', hair: '#18181b', outfit: '#0f172a', accent: '#ef4444', eye: '#ef4444', bobHair: true },
+  jinhsi: { bg: '#0f172a', hair: '#f8fafc', outfit: '#334155', accent: '#fde047', eye: '#eab308', horns: true },
+  anis: { bg: '#422006', hair: '#facc15', outfit: '#27272a', accent: '#fb923c', eye: '#f59e0b', bobHair: true },
+  erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
+  vaus: { bg: '#020617', hair: '#38bdf8', outfit: '#1e293b', accent: '#ef4444', eye: '#38bdf8', shortHair: true },
 }
 
 export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'random'; className?: string }) {

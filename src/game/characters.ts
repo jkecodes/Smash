@@ -712,5 +712,77 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     },
     loadout: { attack: 'youmu.a1', ...tilts('youmu'), skill1: 'youmu.s1', 'skill1:side': 'youmu.side', 'skill1:up': 'youmu.up', 'skill1:down': 'youmu.down', skill2: 'youmu.s2', ...smashes('youmu'), ult: 'youmu.ult' },
   },
+  luigi: {
+    id: 'luigi', name: 'LUIGI 路易吉', color: '#22c55e',
+    scale: 1.02, speedMult: 1.0, damageMult: 1.02, weightMult: 0.98,
+    trait: '👻 Super Mario・高跳躍、綠色火箭頭槌與鬼屋吸塵器「Poltergust」！',
+    loadout: { attack: 'luigi.a1', ...tilts('luigi'), skill1: 'luigi.s1', 'skill1:side': 'luigi.side', 'skill1:up': 'luigi.up', 'skill1:down': 'luigi.down', skill2: 'luigi.s2', ...smashes('luigi'), ult: 'luigi.ult' },
+  },
+  blinky: {
+    id: 'blinky', name: 'BLINKY 紅幽靈', color: '#ef4444',
+    scale: 0.94, speedMult: 1.12, damageMult: 0.98, weightMult: 0.92,
+    trait: '👻 Pac-Man・紅幽靈追擊瞬移與四色幽靈圍剿大陣！',
+    loadout: { attack: 'blinky.a1', ...tilts('blinky'), skill1: 'blinky.s1', 'skill1:side': 'blinky.side', 'skill1:up': 'blinky.up', 'skill1:down': 'blinky.down', skill2: 'blinky.s2', ...smashes('blinky'), ult: 'blinky.ult' },
+  },
+  diddy: {
+    id: 'diddy', name: 'DIDDY KONG 狄狄剛', color: '#dc2626',
+    scale: 0.88, speedMult: 1.15, damageMult: 0.95, weightMult: 0.88,
+    trait: '🥜 Donkey Kong・花生手槍、香蕉皮陷阱與噴射木桶背包！',
+    loadout: { attack: 'diddy.a1', ...tilts('diddy'), skill1: 'diddy.s1', 'skill1:side': 'diddy.side', 'skill1:up': 'diddy.up', 'skill1:down': 'diddy.down', skill2: 'diddy.s2', ...smashes('diddy'), ult: 'diddy.ult' },
+  },
+  creeper: {
+    id: 'creeper', name: 'CREEPER 苦力怕', color: '#4ade80',
+    scale: 1.0, speedMult: 0.94, damageMult: 1.18, weightMult: 1.04,
+    trait: '💣 Minecraft・嘶嘶蓄力自爆衝擊波與高壓雷電苦力怕！',
+    loadout: { attack: 'creeper.a1', ...tilts('creeper'), skill1: 'creeper.s1', 'skill1:side': 'creeper.side', 'skill1:up': 'creeper.up', 'skill1:down': 'creeper.down', skill2: 'creeper.s2', ...smashes('creeper'), ult: 'creeper.ult' },
+  },
+  chuck: {
+    id: 'chuck', name: 'CHUCK 飛鏢黃', color: '#facc15',
+    scale: 0.86, speedMult: 1.24, damageMult: 0.92, weightMult: 0.84,
+    trait: '⚡ Angry Birds・全場最速三角加速鳥！點擊即達音速貫穿！',
+    loadout: { attack: 'chuck.a1', ...tilts('chuck'), skill1: 'chuck.s1', 'skill1:side': 'chuck.side', 'skill1:up': 'chuck.up', 'skill1:down': 'chuck.down', skill2: 'chuck.s2', ...smashes('chuck'), ult: 'chuck.ult' },
+  },
+  suzuka: {
+    id: 'suzuka', name: 'SUZUKA 無聲鈴鹿', color: '#22c55e',
+    scale: 0.96, speedMult: 1.22, damageMult: 0.96, weightMult: 0.9,
+    trait: '🐎 賽馬娘・異次元「大逃げ」極速領跑，讓對手連車尾燈都看不到！',
+    loadout: { attack: 'suzuka.a1', ...tilts('suzuka'), skill1: 'suzuka.s1', 'skill1:side': 'suzuka.side', 'skill1:up': 'suzuka.up', 'skill1:down': 'suzuka.down', skill2: 'suzuka.s2', ...smashes('suzuka'), ult: 'suzuka.ult' },
+  },
+  firefly: {
+    id: 'firefly', name: 'FIREFLY 流螢・薩姆', color: '#f97316',
+    scale: 1.08, speedMult: 1.04, damageMult: 1.12, weightMult: 1.08,
+    trait: '🔥 星穹鐵道・裝甲「薩姆」焦土作戰與完全燃燒二刀流！',
+    loadout: { attack: 'firefly.a1', ...tilts('firefly'), skill1: 'firefly.s1', 'skill1:side': 'firefly.side', 'skill1:up': 'firefly.up', 'skill1:down': 'firefly.down', skill2: 'firefly.s2', ...smashes('firefly'), ult: 'firefly.ult' },
+  },
+  ellen: {
+    id: 'ellen', name: 'ELLEN 艾蓮・喬', color: '#ef4444',
+    scale: 0.96, speedMult: 1.12, damageMult: 1.04, weightMult: 0.95,
+    trait: '🦈 絕區零・維多利亞家政鯊魚妹！巡游急凍大剪刀與鯊捲風！',
+    loadout: { attack: 'ellen.a1', ...tilts('ellen'), skill1: 'ellen.s1', 'skill1:side': 'ellen.side', 'skill1:up': 'ellen.up', 'skill1:down': 'ellen.down', skill2: 'ellen.s2', ...smashes('ellen'), ult: 'ellen.ult' },
+  },
+  jinhsi: {
+    id: 'jinhsi', name: 'JINHSI 今汐', color: '#fde047',
+    scale: 0.96, speedMult: 1.04, damageMult: 1.1, weightMult: 0.96,
+    trait: '🐉 鳴潮・今州令尹與歲主「角」共鳴！浮空龍息與韶光天降！',
+    loadout: { attack: 'jinhsi.a1', ...tilts('jinhsi'), skill1: 'jinhsi.s1', 'skill1:side': 'jinhsi.side', 'skill1:up': 'jinhsi.up', 'skill1:down': 'jinhsi.down', skill2: 'jinhsi.s2', ...smashes('jinhsi'), ult: 'jinhsi.ult' },
+  },
+  anis: {
+    id: 'anis', name: 'ANIS 阿妮絲', color: '#fb923c',
+    scale: 0.98, speedMult: 0.96, damageMult: 1.1, weightMult: 1.02,
+    trait: '💥 NIKKE・反擊部隊榴彈砲手！連發高爆蘇打榴彈與全場轟炸！',
+    loadout: { attack: 'anis.a1', ...tilts('anis'), skill1: 'anis.s1', 'skill1:side': 'anis.side', 'skill1:up': 'anis.up', 'skill1:down': 'anis.down', skill2: 'anis.s2', ...smashes('anis'), ult: 'anis.ult' },
+  },
+  erika: {
+    id: 'erika', name: 'ERIKA 艾莉卡', color: '#818cf8',
+    scale: 0.94, speedMult: 1.14, damageMult: 1.02, weightMult: 0.94,
+    trait: '⚔️ Shadowverse・皇家護衛疾馳劍士！潛行突刺與疾馳連擊！',
+    loadout: { attack: 'erika.a1', ...tilts('erika'), skill1: 'erika.s1', 'skill1:side': 'erika.side', 'skill1:up': 'erika.up', 'skill1:down': 'erika.down', skill2: 'erika.s2', ...smashes('erika'), ult: 'erika.ult' },
+  },
+  vaus: {
+    id: 'vaus', name: 'VAUS 打磚塊戰機', color: '#38bdf8',
+    scale: 1.06, speedMult: 1.02, damageMult: 1.06, weightMult: 1.08,
+    trait: '🧱 Atari Arkanoid・能量球反彈與雙管雷射！',
+    loadout: { attack: 'vaus.a1', ...tilts('vaus'), skill1: 'vaus.s1', 'skill1:side': 'vaus.side', 'skill1:up': 'vaus.up', 'skill1:down': 'vaus.down', skill2: 'vaus.s2', ...smashes('vaus'), ult: 'vaus.ult' },
+  },
 }
 export const CHARACTER_IDS = Object.keys(CHARACTERS) as CharacterId[]

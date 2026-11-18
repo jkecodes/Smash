@@ -23,6 +23,8 @@ export type CharacterId =
   | 'chihiro' | 'ichi' | 'ruri' | 'nona' | 'gojo' | 'deku' | 'yodaka' | 'saki' | 'spe' | 'kaoruko'
   | 'stelle' | 'lumine' | 'miyabi' | 'rover' | 'rapi' | 'akira'
   | 'kotone' | 'hutao'
+  | 'luigi' | 'blinky' | 'diddy' | 'creeper' | 'chuck' | 'suzuka'
+  | 'firefly' | 'ellen' | 'jinhsi' | 'anis' | 'erika' | 'vaus'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'
   | 'ATTACK_STARTUP' | 'ATTACK_ACTIVE' | 'ATTACK_RECOVERY'
