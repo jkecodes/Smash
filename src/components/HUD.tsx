@@ -94,7 +94,7 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
       )}
       <div className="flex items-baseline justify-between gap-1.5">
         <div className="flex items-center gap-1.5 min-w-0">
-          {id === (useNetStore.getState().mySlot ?? 'p1') && useProfileStore.getState().avatarDataUrl && (
+          {useGameStore.getState().cpu[id] === 0 && id === (useNetStore.getState().mySlot ?? 'p1') && useProfileStore.getState().avatarDataUrl && (
             <img src={useProfileStore.getState().avatarDataUrl!} alt="" className="h-4 w-4 rounded-full object-cover border border-white/40 shrink-0" />
           )}
           <span className={`font-bold tracking-wide truncate ${compact ? 'text-[11px]' : 'text-sm'}`} style={{ color: pColor }}>
@@ -1793,8 +1793,10 @@ export function HUD() {
     } else if (phase === 'ended' && winner && !recordedRef.current) {
       recordedRef.current = true
       const mySlot = useNetStore.getState().mySlot ?? 'p1'
-      const myStats = ui[mySlot]?.stats
-      profile.recordMatch(winner === mySlot, myStats?.kos ?? 0)
+      if (useGameStore.getState().cpu[mySlot] === 0) {
+        const myStats = ui[mySlot]?.stats
+        profile.recordMatch(winner === mySlot, myStats?.kos ?? 0)
+      }
     }
   }, [phase, winner])
   const activeIds = ALL_FIGHTER_IDS.slice(0, playerCount)
