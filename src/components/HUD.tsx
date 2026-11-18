@@ -1458,9 +1458,18 @@ export function HUD() {
   const [showProfile, setShowProfile] = useState(false)
   const profile = useProfileStore()
   const recordedRef = useRef(false)
-  const [showTouch, setShowTouch] = useState(() =>
-    typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768)
-  )
+  const [showTouch, setShowTouch] = useState(() => {
+    if (typeof window === 'undefined' || connectedPadCount() > 0) return false
+    return window.matchMedia?.('(pointer: coarse)').matches || window.innerWidth < 768
+  })
+
+  useEffect(() => {
+    const onPad = () => {
+      if (connectedPadCount() > 0) setShowTouch(false)
+    }
+    window.addEventListener('gamepadconnected', onPad)
+    return () => window.removeEventListener('gamepadconnected', onPad)
+  }, [])
   const paused = useGameStore((s) => s.paused)
   const ui = useGameStore((s) => s.ui)
   const phase = useGameStore((s) => s.phase)
