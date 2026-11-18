@@ -849,13 +849,18 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
                 </span>
               </div>
               {c.trait && <div className="text-xs font-bold text-yellow-300">{c.trait}</div>}
-              {mechDef && (
+              {mechDef ? (
                 <div className="rounded-lg border px-2.5 py-1.5 text-[11px] space-y-0.5" style={{ borderColor: `${mechDef.color}55`, backgroundColor: `${mechDef.color}18` }}>
                   <div className="font-black flex items-center gap-1.5" style={{ color: mechDef.color }}>
                     <span>🔋 專屬充能條：{mechDef.label}</span>
                     <span className="text-[10px] text-white/60 font-normal">（{MECHANIC_GUIDE[mechDef.kind].title}）</span>
                   </div>
                   <div className="text-white/85 leading-relaxed">{MECHANIC_GUIDE[mechDef.kind].desc}</div>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-2.5 py-1.5 text-[11px] space-y-0.5">
+                  <div className="font-black text-emerald-300">⚔️ 純粹強化型鬥士（無充能條限制）</div>
+                  <div className="text-white/85 leading-relaxed">不需依賴充能條，常駐享有 <strong>+20% 傷害、+15% 擊飛、+12% 判定範圍與 -15% 技能冷卻</strong> 的基礎強度補正！</div>
                 </div>
               )}
               {g && (

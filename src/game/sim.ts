@@ -414,7 +414,10 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
   }
   else if (def.projectile) sfx('shoot')
   else sfx('swing', Math.min(1, def.damage / 25))
-  if (def.cooldownMs) f.cooldowns[def.id] = def.cooldownMs * COOLDOWN_SCALE
+  if (def.cooldownMs) {
+    const cdFactor = getMechanic(f.id) ? 1 : 0.85
+    f.cooldowns[def.id] = def.cooldownMs * COOLDOWN_SCALE * cdFactor
+  }
   // 面向：有移動輸入就朝輸入方向，否則自動朝向最近的對手（輔助瞄準）
   if (Math.abs(inp.moveX) > 0.3) f.facing = [Math.sign(inp.moveX), 0]
   else {
@@ -514,6 +517,9 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
         },
       },
     }
+  }
+  if (!mechState && activeDef.hitbox) {
+    activeDef = { ...activeDef, hitbox: { ...activeDef.hitbox, radius: activeDef.hitbox.radius * 1.12 } }
   }
   const mech = consumeSkillMechanic(f, slot)
   const slotDmgBoost = slot === 'attack' ? 1.12 : 1.25
