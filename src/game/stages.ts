@@ -883,6 +883,16 @@ export const STAGES: Record<StageId, StageDef> = {
     platforms: [{ x: -4.8, y: 1.8, w: 3.2, color: '#831843', edgeColor: '#f472b6' }, { x: 4.8, y: 3.3, w: 3.2, color: '#1e3a8a', edgeColor: '#fbcfe8' }, { x: 0, y: 4.8, w: 2.4, color: '#831843', edgeColor: '#f472b6' }],
     theme: { name: '鄉間通學小路', subtitle: 'Countryside School', tag: '百瀨晶主場・高低門柱＋拱樑', desc: '《百瀨同學的初戀破綻百出。》左低右高的鄉間校門柱與正中央高懸校門拱樑！', bg: '#1b111a', fog: '#1b111a', ambientColor: '#fbcfe8', ambientIntensity: 0.88, dirLightColor: '#fff1f2', dirLightIntensity: 1.82, dirLightPos: [8, 22, 12], mainColor: '#334155', surfaceColor: '#475569', edgeColor: '#f472b6', gridColor1: '#be185d', gridColor2: '#1e293b', platColor: '#831843', platEdgeColor: '#f472b6', accentColor: '#f472b6' },
   },
+  kotone: {
+    id: 'kotone', half: { x: 9.6, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.6, spawnX: { p1: -4.2, p2: 4.2 },
+    platforms: [{ x: -5.2, y: 2.4, w: 3.2, color: '#854d0e', edgeColor: '#facc15' }, { x: 0, y: 4.0, w: 3.0, color: '#a16207', edgeColor: '#fde047', move: { ampX: 3.2, speed: 1.35 } }, { x: 5.2, y: 2.4, w: 3.2, color: '#854d0e', edgeColor: '#facc15' }],
+    theme: { name: '初星黃金街頭舞台', subtitle: 'Yellow Big Bang!', tag: 'ことね主場・巡迴星車台', desc: '《学マス》閃耀金黃色燈海的街頭舞台，中央載著應援燈牌的舞台車左右巡迴移動！', bg: '#1c1506', fog: '#1c1506', ambientColor: '#fef08a', ambientIntensity: 0.9, dirLightColor: '#fffbeb', dirLightIntensity: 1.85, dirLightPos: [8, 22, 12], mainColor: '#422006', surfaceColor: '#713f12', edgeColor: '#facc15', gridColor1: '#ca8a04', gridColor2: '#1c1104', platColor: '#854d0e', platEdgeColor: '#facc15', accentColor: '#facc15' },
+  },
+  hutao: {
+    id: 'hutao', half: { x: 9.4, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.4, spawnX: { p1: -4, p2: 4 },
+    platforms: [{ x: -5.4, y: 1.9, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 3.2, w: 3.4, color: '#18181b', edgeColor: '#f97316' }, { x: 5.4, y: 4.5, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }],
+    theme: { name: '往生堂無妄坡祭壇', subtitle: 'Wuwang Hill Parlor', tag: '胡桃主場・幽冥三階壇', desc: '《原神》璃月無妄坡與往生堂朱紅燈籠高懸的三階幽冥祭壇！', bg: '#16080b', fog: '#16080b', ambientColor: '#fca5a5', ambientIntensity: 0.82, dirLightColor: '#ffe4e6', dirLightIntensity: 1.78, dirLightPos: [-8, 22, 12], mainColor: '#271216', surfaceColor: '#3f1d24', edgeColor: '#ef4444', gridColor1: '#991b1b', gridColor2: '#180609', platColor: '#450a0a', platEdgeColor: '#ef4444', accentColor: '#f97316' },
+  },
 }
 
 export const STAGE_GIMMICKS: Record<StageId, StageGimmickDef> = {
@@ -924,6 +934,8 @@ export const STAGE_GIMMICKS: Record<StageId, StageGimmickDef> = {
   rover: { kind: 'pickup', name: '聲骸共鳴能量核', color: '#facc15', pos: [0, 1.2], radius: 0.95, power: 45, interval: 9, mode: 'energy' },
   rapi: { kind: 'hazard', name: '地面奪回戰壕空襲', color: '#ef4444', pos: [0, 0.8], radius: 1.9, power: 11, interval: 4.0, mode: 'bomb' },
   akira: { kind: 'pickup', name: '初戀櫻花護符（回血）', color: '#f472b6', pos: [0, 5.5], radius: 0.9, power: 11, interval: 10, mode: 'heal' },
+  kotone: { kind: 'pickup', name: '閃耀打工金幣（充能）', color: '#facc15', pos: [0, 1.3], radius: 0.95, power: 45, interval: 8.5, mode: 'energy' },
+  hutao: { kind: 'hazard', name: '巡邏鬼火 Boo Tao', color: '#f97316', pos: [0, 1.5], pos2: [6.8, 0.6], radius: 0.85, power: 9, interval: 5.5, mode: 'patrol' },
 }
 
 export const STAGE_IDS = Object.keys(STAGES) as StageId[]

@@ -332,6 +332,22 @@ export function StagePreview({ id, form = 'normal', className = '' }: { id: Stag
           <circle cx="132" cy="32" r="12" fill="#f472b6" opacity="0.8" />
         </g>
       )}
+      {id === 'kotone' && (
+        <g opacity="0.88">
+          <polygon points="80,14 86,28 100,28 89,37 93,51 80,42 67,51 71,37 60,28 74,28" fill="none" stroke="#facc15" strokeWidth="1.8" />
+          <rect x="22" y="28" width="12" height="34" fill="#713f12" stroke="#facc15" strokeWidth="1" />
+          <rect x="126" y="28" width="12" height="34" fill="#713f12" stroke="#facc15" strokeWidth="1" />
+        </g>
+      )}
+      {id === 'hutao' && (
+        <g opacity="0.88">
+          <circle cx="32" cy="28" r="7" fill="#ef4444" opacity="0.85" />
+          <circle cx="128" cy="28" r="7" fill="#ef4444" opacity="0.85" />
+          <circle cx="80" cy="34" r="14" fill="none" stroke="#f97316" strokeWidth="1.5" />
+          <rect x="29" y="35" width="6" height="27" fill="#18181b" />
+          <rect x="125" y="35" width="6" height="27" fill="#18181b" />
+        </g>
+      )}
 
       {/* 層板配置（依實際 stages.ts 幾何描繪） */}
       {st.platforms.map((p, i) => {

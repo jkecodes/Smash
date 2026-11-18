@@ -637,5 +637,33 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     },
     loadout: { attack: 'akira.a1', ...tilts('akira'), skill1: 'akira.s1', 'skill1:side': 'akira.side', 'skill1:up': 'akira.up', 'skill1:down': 'akira.down', skill2: 'akira.s2', ...smashes('akira'), ult: 'akira.ult' },
   },
+  kotone: {
+    id: 'kotone', name: 'KOTONE 藤田ことね', color: '#facc15',
+    trait: '💛 學園偶像大師・世界一可愛い！黃金星光彈與大爆炸應援區！',
+    guide: {
+      summary: '《学マス》元氣打工偶像藤田ことね！機動性極高，用「Yellow Big Bang!」星光爆彈與應援結界閃耀全場。',
+      steps: [
+        '在戰場中央施放【技能2 L】黃色大爆炸應援區持續扣血兼緩速敵人。',
+        '中距離連發【特招 K】Yellow Big Bang! 星光彈製造大範圍黃金爆風！',
+        '抓準空檔用【左右+K】打工全速趕場衝刺突襲，大招降下「世界一可愛い私！」黃金星雨！',
+      ],
+      combo: 'L (應援區) → K (Yellow Big Bang!) → 左右+K (全速趕場衝刺)',
+    },
+    loadout: { attack: 'kotone.a1', ...tilts('kotone'), skill1: 'kotone.s1', 'skill1:side': 'kotone.side', 'skill1:up': 'kotone.up', 'skill1:down': 'kotone.down', skill2: 'kotone.s2', ...smashes('kotone'), ult: 'kotone.ult' },
+  },
+  hutao: {
+    id: 'hutao', name: 'HU TAO 胡桃', color: '#ef4444',
+    trait: '🔥 原神・往生堂堂主・護摩之杖、血梅香突刺與安神秘法！',
+    guide: {
+      summary: '《原神》璃月往生堂第77代堂主胡桃！極具爆發力的火系長柄武器突刺與鬼火爆炸連段。',
+      steps: [
+        '中距離放出【特招 K】胡桃鬼火彈炸出破綻，再按【左右+K】血梅香火蝶突刺高速穿過對手！',
+        '貼身時施放【技能2 L】彼岸蝶舞燃燒結界震飛周圍敵人！',
+        '集滿大招施放元素爆發「安神秘法」，召喚巨型鬼火橫掃全場！',
+      ],
+      combo: 'K (鬼火彈) → 左右+K (血梅香突刺) → L (彼岸蝶舞爆發)',
+    },
+    loadout: { attack: 'hutao.a1', ...tilts('hutao'), skill1: 'hutao.s1', 'skill1:side': 'hutao.side', 'skill1:up': 'hutao.up', 'skill1:down': 'hutao.down', skill2: 'hutao.s2', ...smashes('hutao'), ult: 'hutao.ult' },
+  },
 }
 export const CHARACTER_IDS = Object.keys(CHARACTERS) as CharacterId[]

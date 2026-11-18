@@ -40,10 +40,12 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   rover: 'ROVER',
   rapi: 'RAPI',
   akira: 'AKIRA',
+  kotone: 'KOTONE',
+  hutao: 'HU TAO',
 }
 
-const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean }>> = {
-  chihiro: { bg: '#4c0519', hair: '#09090b', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444' },
+const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean }>> = {
+  chihiro: { bg: '#4c0519', hair: '#09090b', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', shortHair: true, scar: true },
   ichi: { bg: '#0c4a6e', hair: '#111827', outfit: '#1e3a8a', accent: '#38bdf8', eye: '#38bdf8' },
   ruri: { bg: '#064e3b', hair: '#1e293b', outfit: '#f8fafc', accent: '#34d399', eye: '#f97316', horns: true },
   nona: { bg: '#4a044e', hair: '#fbcfe8', outfit: '#3b0764', accent: '#e879f9', eye: '#a855f7' },
@@ -58,7 +60,9 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   miyabi: { bg: '#083344', hair: '#18181b', outfit: '#0f172a', accent: '#22d3ee', eye: '#ef4444', ears: true },
   rover: { bg: '#1e293b', hair: '#09090b', outfit: '#334155', accent: '#facc15', eye: '#eab308' },
   rapi: { bg: '#450a0a', hair: '#f97316', outfit: '#27272a', accent: '#ef4444', eye: '#ef4444' },
-  akira: { bg: '#500724', hair: '#1e293b', outfit: '#1e3a8a', accent: '#f472b6', eye: '#ec4899' },
+  akira: { bg: '#500724', hair: '#f472b6', outfit: '#1e3a8a', accent: '#fbcfe8', eye: '#ec4899' },
+  kotone: { bg: '#713f12', hair: '#facc15', outfit: '#f59e0b', accent: '#fef08a', eye: '#38bdf8', twintails: true },
+  hutao: { bg: '#450a0a', hair: '#3f2318', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', twintails: true, huTaoHat: true },
 }
 
 export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'random'; className?: string }) {
@@ -538,7 +542,17 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <>
             <rect width="120" height="120" fill={p.bg} />
             <circle cx="60" cy="60" r="46" fill={p.accent} opacity="0.18" />
-            <path d="M28,44 C28,18 92,18 92,44 L96,104 L24,104 Z" fill={p.hair} />
+            {p.shortHair ? (
+              <path d="M32,56 L26,38 L38,24 L52,16 L64,22 L76,16 L86,28 L94,40 L88,56 Z" fill={p.hair} />
+            ) : (
+              <path d="M28,44 C28,18 92,18 92,44 L96,104 L24,104 Z" fill={p.hair} />
+            )}
+            {p.twintails && (
+              <>
+                <path d="M30,44 C18,52 14,82 22,102 C28,96 32,76 34,54 Z" fill={p.hair} />
+                <path d="M90,44 C102,52 106,82 98,102 C92,96 88,76 86,54 Z" fill={p.hair} />
+              </>
+            )}
             {p.horns && (
               <>
                 <polygon points="36,30 42,10 48,28" fill={p.accent} />
@@ -552,7 +566,19 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
               </>
             )}
             <ellipse cx="60" cy="58" rx="22" ry="22" fill="#fde8d7" />
-            <path d="M36,48 Q60,34 84,48 L80,32 Q60,22 40,32 Z" fill={p.hair} />
+            {p.shortHair ? (
+              <path d="M36,46 L44,30 L52,44 L62,28 L72,46 L84,36 L84,48 Q60,38 36,48 Z" fill={p.hair} />
+            ) : (
+              <path d="M36,48 Q60,34 84,48 L80,32 Q60,22 40,32 Z" fill={p.hair} />
+            )}
+            {p.huTaoHat && (
+              <>
+                <ellipse cx="60" cy="36" rx="34" ry="8" fill="#18181b" stroke="#ef4444" strokeWidth="1.8" />
+                <path d="M38,35 C40,14 80,14 82,35 Z" fill="#27272a" />
+                <circle cx="48" cy="28" r="5" fill="#ef4444" />
+                <circle cx="48" cy="28" r="2" fill="#fde047" />
+              </>
+            )}
             {p.blindfold ? (
               <rect x="37" y="49" width="46" height="14" rx="2" fill="#111827" />
             ) : (
@@ -560,6 +586,9 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
                 <ellipse cx="51" cy="59" rx="3.5" ry="4.5" fill={p.eye} />
                 <ellipse cx="69" cy="59" rx="3.5" ry="4.5" fill={p.eye} />
               </>
+            )}
+            {p.scar && (
+              <path d="M68,49 L77,67" stroke="#ef4444" strokeWidth="2.4" strokeLinecap="round" />
             )}
             <path d="M32,82 L88,82 L96,120 L24,120 Z" fill={p.outfit} />
             <polygon points="48,82 60,102 72,82" fill={p.accent} />

@@ -11,12 +11,16 @@ const RETRO_IDS = new Set<CharacterId>([
   'ryu', 'chunli', 'yugi', 'kaiba',
   'omnom', 'tom', 'ben', 'crossy', 'red', 'steve', 'arisa',
   'chihiro', 'ichi', 'ruri', 'nona', 'gojo', 'deku', 'yodaka', 'saki', 'spe', 'kaoruko',
-  'stelle', 'lumine', 'miyabi', 'rover', 'rapi', 'akira',
+  'stelle', 'lumine', 'miyabi', 'rover', 'rapi', 'akira', 'kotone', 'hutao',
 ])
 
-type AnimePreset = { body: string; hair: string; accent: string; head?: string; prop?: 'katana' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat' }
+type AnimePreset = {
+  body: string; hair: string; accent: string; head?: string
+  prop?: 'katana' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat'
+  shortHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean
+}
 const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
-  chihiro: { body: '#18181b', hair: '#09090b', accent: '#ef4444', prop: 'katana' },
+  chihiro: { body: '#18181b', hair: '#09090b', accent: '#ef4444', prop: 'katana', shortHair: true, scar: true },
   ichi: { body: '#1e3a8a', hair: '#111827', accent: '#38bdf8', prop: 'hat' },
   ruri: { body: '#f8fafc', hair: '#1e293b', accent: '#34d399', prop: 'horns' },
   nona: { body: '#4a044e', hair: '#fbcfe8', accent: '#e879f9', prop: 'orb' },
@@ -31,7 +35,9 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   miyabi: { body: '#0f172a', hair: '#18181b', accent: '#22d3ee', prop: 'ears' },
   rover: { body: '#1e293b', hair: '#09090b', accent: '#facc15', prop: 'katana' },
   rapi: { body: '#27272a', hair: '#f97316', accent: '#ef4444', prop: 'rifle' },
-  akira: { body: '#1e3a8a', hair: '#1e293b', accent: '#f472b6', prop: 'orb' },
+  akira: { body: '#1e3a8a', hair: '#f472b6', accent: '#fbcfe8', prop: 'orb' },
+  kotone: { body: '#f59e0b', hair: '#facc15', accent: '#fef08a', prop: 'orb', twintails: true },
+  hutao: { body: '#18181b', hair: '#3f2318', accent: '#ef4444', prop: 'katana', twintails: true, huTaoHat: true },
 }
 
 export function isRetroAvatar(c: CharacterId): boolean {
@@ -910,6 +916,30 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
             <mesh position={[0, 0.06, 0.12]}><boxGeometry args={[0.24, 0.28, 0.1]} /><meshStandardMaterial color={pr.accent} /></mesh>
             <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.2, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
             <mesh position={[0, 0.38, -0.04]}><sphereGeometry args={[0.22, 14, 12]} /><meshStandardMaterial color={pr.hair} /></mesh>
+            {pr.shortHair && (
+              <>
+                <mesh position={[0, 0.56, 0.02]} rotation={[0.2, 0, 0]}><coneGeometry args={[0.1, 0.2, 5]} /><meshStandardMaterial color={pr.hair} /></mesh>
+                <mesh position={[-0.12, 0.52, 0.04]} rotation={[0.1, 0, 0.45]}><coneGeometry args={[0.08, 0.18, 5]} /><meshStandardMaterial color={pr.hair} /></mesh>
+                <mesh position={[0.12, 0.52, 0.04]} rotation={[0.1, 0, -0.45]}><coneGeometry args={[0.08, 0.18, 5]} /><meshStandardMaterial color={pr.hair} /></mesh>
+                <mesh position={[0.06, 0.43, 0.17]} rotation={[0.35, 0, -0.2]}><coneGeometry args={[0.06, 0.16, 4]} /><meshStandardMaterial color={pr.hair} /></mesh>
+              </>
+            )}
+            {pr.scar && (
+              <mesh position={[0.08, 0.34, 0.2]} rotation={[0, 0, -0.35]}><boxGeometry args={[0.025, 0.11, 0.03]} /><meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.35} /></mesh>
+            )}
+            {pr.twintails && (
+              <>
+                <mesh position={[-0.22, 0.22, -0.04]} rotation={[0, 0, 0.22]}><coneGeometry args={[0.075, 0.44, 8]} /><meshStandardMaterial color={pr.hair} /></mesh>
+                <mesh position={[0.22, 0.22, -0.04]} rotation={[0, 0, -0.22]}><coneGeometry args={[0.075, 0.44, 8]} /><meshStandardMaterial color={pr.hair} /></mesh>
+              </>
+            )}
+            {pr.huTaoHat && (
+              <group position={[0, 0.52, 0]}>
+                <mesh><cylinderGeometry args={[0.28, 0.3, 0.05, 16]} /><meshStandardMaterial color="#18181b" /></mesh>
+                <mesh position={[0, 0.1, 0]}><cylinderGeometry args={[0.16, 0.2, 0.18, 14]} /><meshStandardMaterial color="#27272a" /></mesh>
+                <mesh position={[-0.1, 0.1, 0.17]}><sphereGeometry args={[0.055, 8, 8]} /><meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.4} /></mesh>
+              </group>
+            )}
             {pr.prop === 'horns' && (
               <>
                 <mesh position={[0.12, 0.6, 0.04]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.05, 0.22, 6]} /><meshStandardMaterial color="#34d399" /></mesh>

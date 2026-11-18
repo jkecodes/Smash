@@ -1054,6 +1054,35 @@ function AnimeGameDecor({ stage }: { stage: StageDef }) {
           ))}
         </>
       )
+    case 'kotone': // 初星黃金街頭舞台：巨大五角星霓虹燈牌＋雙側聚光燈柱
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.9, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#422006" /></mesh>
+          <group ref={spin} position={[0, 6.2, -14]}>
+            <mesh><torusGeometry args={[3.8, 0.2, 10, 5]} /><meshBasicMaterial color="#facc15" /></mesh>
+            <mesh><octahedronGeometry args={[1.4, 0]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={0.7} /></mesh>
+          </group>
+          {[-8.5, 8.5].map((x, i) => (
+            <mesh key={i} position={[x, 3.5, -12]}><boxGeometry args={[1.8, 7.5, 1.8]} /><meshStandardMaterial color="#713f12" emissive="#facc15" emissiveIntensity={0.25} /></mesh>
+          ))}
+        </>
+      )
+    case 'hutao': // 往生堂無妄坡：朱紅燈籠柱＋幽冥鬼火環
+      return (
+        <>
+          <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.85, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#271216" /></mesh>
+          {[-7.5, 7.5].map((x, i) => (
+            <group key={i} position={[x, 3.2, -11]}>
+              <mesh><cylinderGeometry args={[0.35, 0.45, 7.5, 8]} /><meshStandardMaterial color="#18181b" /></mesh>
+              <mesh position={[0, 2.6, 0.8]}><sphereGeometry args={[0.9, 12, 12]} /><meshStandardMaterial color="#ef4444" emissive="#f97316" emissiveIntensity={0.75} /></mesh>
+            </group>
+          ))}
+          <mesh ref={spin2} position={[0, 6.5, -14]}>
+            <torusGeometry args={[3.2, 0.14, 10, 24]} />
+            <meshBasicMaterial color="#ef4444" transparent opacity={0.7} />
+          </mesh>
+        </>
+      )
     case 'akira': // 鄉間通學小路：校門磚柱與兩側盛開櫻花樹
     default:
       return (

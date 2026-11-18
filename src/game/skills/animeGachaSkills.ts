@@ -338,6 +338,24 @@ const KITS: KitSpec[] = [
     smashes: ['超直球告白撞', '破綻百出上鉤', '書包全壘打震'],
     ult: { name: '「完璧的結婚作戰！」初戀粉紅雨！', kind: 'rain', color: '#f472b6' },
   },
+  {
+    p: 'kotone', color: '#facc15', a1: '麥克風元氣揮擊', a2: '世界一可愛轉身踢',
+    tilts: ['金幣閃耀掃', '雙馬尾甩擊', '打工托盤下壓'],
+    s1: { name: 'Yellow Big Bang! 星光彈', projColor: '#facc15', explode: 2.0, speed: 19 },
+    side: '打工衝刺・全速趕場！', up: '偶像飛躍高音跳', down: '閃耀金幣墜地衝',
+    s2: { name: '黃色大爆炸應援區', kind: 'zone', color: '#facc15' },
+    smashes: ['世界一可愛い重擊！', '黃金麥克風上鉤', '大豐收震地拍'],
+    ult: { name: '「世界一可愛い私！」黃金星雨 LIVE！', kind: 'rain', color: '#fde047' },
+  },
+  {
+    p: 'hutao', color: '#ef4444', a1: '往生堂秘傳槍法', a2: '蝶引來生火炎掃',
+    tilts: ['護摩橫掃', '火蝶上挑', '幽靈下刺'],
+    s1: { name: '胡桃鬼火彈（Boo Tao）', projColor: '#f97316', explode: 2.1, speed: 18 },
+    side: '血梅香・火蝶高速突刺', up: '蝶舞幽冥升空', down: '護摩之杖重砸',
+    s2: { name: '彼岸蝶舞・燃燒結界', kind: 'ring', color: '#ef4444' },
+    smashes: ['護摩之杖破軍槍', '炎蝶沖天挑', '往生堂鎮魂震'],
+    ult: { name: '元素爆發「安神秘法・巨型鬼火」！', kind: 'beam', color: '#ef4444' },
+  },
 ]
 
 for (const k of KITS) registerKit(k)
