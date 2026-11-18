@@ -689,6 +689,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   const playerCount = useGameStore((s) => s.playerCount)
   const setPlayerCount = useGameStore((s) => s.setPlayerCount)
   const selection = useGameStore((s) => s.selection)
+  const setPaused = useGameStore((s) => s.setPaused)
   const select = useGameStore((s) => s.select)
   const stageId = useGameStore((s) => s.stageId)
   const selectStage = useGameStore((s) => s.selectStage)
@@ -714,6 +715,81 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
       }
     },
   )
+
+  useEffect(() => {
+    if (wizard !== null || showHelp || guideOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      const code = e.code
+      let dx = 0, dy = 0
+      if (code === 'ArrowLeft' || code === 'KeyA') dx = -1
+      else if (code === 'ArrowRight' || code === 'KeyD') dx = 1
+      else if (code === 'ArrowUp' || code === 'KeyW') dy = -1
+      else if (code === 'ArrowDown' || code === 'KeyS') dy = 1
+
+      if (dx !== 0 || dy !== 0) {
+        e.preventDefault()
+        sfx('ui')
+        if (step === 'stage') {
+          const cur = useGameStore.getState().stageId
+          selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 6))
+        } else {
+          const cur = useGameStore.getState().selection[safePicker]
+          select(safePicker, stepListGrid(CHARACTER_IDS, cur, dx, dy, 10))
+        }
+        return
+      }
+
+      if (code === 'Enter' || code === 'Space' || code === 'KeyJ') {
+        e.preventDefault()
+        sfx('ui')
+        if (step === 'stage') setStep('char')
+        else { clearEntities(); resetSimStage(); useGameStore.getState().startMatch() }
+      } else if (code === 'Escape' || code === 'Backspace') {
+        if (step === 'char') { e.preventDefault(); sfx('ui'); setStep('stage') }
+      } else if (code === 'KeyQ' || code === 'KeyE') {
+        e.preventDefault()
+        sfx('ui')
+        if (step === 'stage') {
+          const forms: StageForm[] = ['normal', 'battlefield', 'omega']
+          const curF = useGameStore.getState().stageForm
+          const nextF = forms[(forms.indexOf(curF) + (code === 'KeyE' ? 1 : 2)) % forms.length]
+          useGameStore.getState().setStageForm(nextF)
+        } else {
+          setPlayerCount(playerCount + (code === 'KeyE' ? 1 : -1))
+        }
+      } else if (code === 'Tab' && step === 'char') {
+        e.preventDefault()
+        sfx('ui')
+        const idx = activeIds.indexOf(safePicker)
+        setActivePicker(activeIds[(idx + 1) % activeIds.length])
+      } else if (code === 'KeyR') {
+        e.preventDefault()
+        sfx('ui')
+        if (step === 'stage') {
+          const pool = STAGE_IDS.filter((id) => id !== stageId)
+          selectStage(pool[Math.floor(Math.random() * pool.length)] ?? STAGE_IDS[0])
+        } else {
+          const pool = CHARACTER_IDS.filter((c) => c !== selection[safePicker])
+          select(safePicker, pool[Math.floor(Math.random() * pool.length)] ?? CHARACTER_IDS[0])
+        }
+      } else if (code === 'KeyC' && step === 'char') {
+        e.preventDefault()
+        sfx('ui')
+        const target: FighterId = safePicker === 'p1' ? 'p2' : safePicker
+        const curLv = useGameStore.getState().cpu[target]
+        useGameStore.getState().setCpu(target, ((curLv + 1) % 4) as 0 | 1 | 2 | 3)
+      } else if (code === 'KeyG' && step === 'char') {
+        e.preventDefault()
+        onGuide(selection[safePicker])
+      } else if (code === 'KeyH') {
+        e.preventDefault()
+        setShowHelp(true)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [wizard, showHelp, guideOpen, step, safePicker, activeIds, playerCount, stageId, selection, selectStage, select, setPlayerCount, onGuide])
 
   const pickChar = (target: FighterId, item: CharacterId | 'random') => {
     let chosen: CharacterId
@@ -857,6 +933,9 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
             </button>
             <span className="text-white/20">|</span>
             <PadStatus />
+          </div>
+          <div className="text-[11px] font-semibold text-yellow-200/80 bg-black/50 px-3 py-1 rounded-full border border-yellow-300/20">
+            ⌨️ 純鍵盤操作：WASD/方向鍵 移動 · Q/E 切換型態 · R 隨機 · Enter/J 下一步 · H 操作指南
           </div>
         </>
       ) : (
@@ -1077,6 +1156,7 @@ export function HUD() {
   const winner = useGameStore((s) => s.winner)
   const playerCount = useGameStore((s) => s.playerCount)
   const selection = useGameStore((s) => s.selection)
+  const setPaused = useGameStore((s) => s.setPaused)
   const ultCutin = useGameStore((s) => s.ultCutin)
   const fatalFlash = useGameStore((s) => s.fatalFlash)
   const start = useGameStore((s) => s.startMatch)
@@ -1089,6 +1169,23 @@ export function HUD() {
   })
 
   usePadMenu(phase === 'ended' && !guideChar, () => { clearEntities(); resetSimStage(); start() })
+
+  useEffect(() => {
+    if (guideChar) return
+    const onKey = (e: KeyboardEvent) => {
+      if (phase === 'playing' && paused) {
+        if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); setPaused(false) }
+        else if (e.code === 'KeyR') { e.preventDefault(); clearEntities(); resetSimStage(); start() }
+        else if (e.code === 'KeyM') { e.preventDefault(); toMenu() }
+        else if (e.code === 'KeyG') { e.preventDefault(); setGuideChar(selection.p1) }
+      } else if (phase === 'ended') {
+        if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); clearEntities(); resetSimStage(); start() }
+        else if (e.code === 'Escape' || e.code === 'KeyM') { e.preventDefault(); toMenu() }
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [phase, paused, guideChar, selection.p1, start, toMenu])
 
   return (
     <div className="pointer-events-none absolute inset-0">

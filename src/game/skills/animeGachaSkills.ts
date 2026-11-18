@@ -347,7 +347,7 @@ const KITS: KitSpec[] = [
   {
     p: 'rapi', color: '#ef4444', a1: '戰術步槍點射', a2: '強化榴彈槍托擊',
     tilts: ['穿甲三連發', '對空掃射', '戰術滑鏟射'],
-    s1: { name: '妮姬重裝穿甲彈', projColor: '#ef4444', speed: 24 },
+    s1: { name: '妮姬戰術手榴彈', projColor: '#ef4444', explode: 2.2, speed: 17 },
     side: '反擊部隊戰術突進', up: '噴射背包戰術升空', down: '空投高爆集束雷',
     s2: { name: '高爆爆裂導彈', kind: 'proj', color: '#f97316' },
     smashes: ['Red Hood 核心穿射', '對空爆裂榴彈', '地雷陣引爆'],

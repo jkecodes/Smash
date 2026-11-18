@@ -490,7 +490,7 @@ function ProjectileView({ p }: { p: Projectile }) {
       g.current.position.set(p.pos[0], p.pos[1], p.pos[2])
     }
     if (spin.current) {
-      if (charId === 'kong' || charId === 'mario' || charId === 'bomber' || charId === 'snake' || charId === 'marisa' || charId === 'reimu' || charId === 'yugi' || charId === 'kaiba' || charId === 'tetro') {
+      if (charId === 'kong' || charId === 'mario' || charId === 'bomber' || charId === 'snake' || charId === 'marisa' || charId === 'reimu' || charId === 'yugi' || charId === 'kaiba' || charId === 'tetro' || charId === 'rapi' || charId === 'yodaka' || charId === 'kaoruko' || charId === 'akira' || charId === 'kotone') {
         spin.current.rotation.z -= Math.sign(p.vel[0] || 1) * dt * 10
         spin.current.rotation.y += dt * 4
       } else {
@@ -632,7 +632,53 @@ function ProjectileView({ p }: { p: Projectile }) {
             <mesh><octahedronGeometry args={[r * 1.05, 0]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={0.85} /></mesh>
             <mesh><torusGeometry args={[r * 1.15, r * 0.12, 8, 20]} /><meshBasicMaterial color="#ffffff" blending={ADD} /></mesh>
           </>
-        ) : charId === 'arisa' || charId === 'nona' || charId === 'miyabi' || charId === 'rover' ? (
+        ) : charId === 'rapi' ? (
+          <>
+            {/* NIKKE 拉毗：3D 軍用手榴彈 */}
+            <mesh><cylinderGeometry args={[r * 0.65, r * 0.65, r * 1.35, 10]} /><meshStandardMaterial color="#3f6212" roughness={0.5} /></mesh>
+            <mesh position={[0, r * 0.85, 0]}><cylinderGeometry args={[r * 0.25, r * 0.3, r * 0.35, 8]} /><meshStandardMaterial color="#94a3b8" metalness={0.7} /></mesh>
+            <mesh position={[r * 0.35, r * 0.65, 0]} rotation={[0, 0, -0.4]}><boxGeometry args={[r * 0.14, r * 0.9, r * 0.22]} /><meshStandardMaterial color="#cbd5e1" /></mesh>
+            <mesh position={[0, 0, r * 0.68]}><sphereGeometry args={[r * 0.2, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          </>
+        ) : charId === 'spe' ? (
+          <>
+            {/* 賽馬娘：3D 特製紅蘿蔔飛彈 */}
+            <mesh rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[r * 0.55, r * 2.2, 10]} /><meshStandardMaterial color="#f97316" emissive="#ea580c" emissiveIntensity={0.35} /></mesh>
+            <mesh position={[-r * 1.15, 0, 0]}><boxGeometry args={[r * 0.7, r * 0.6, r * 0.25]} /><meshStandardMaterial color="#22c55e" /></mesh>
+          </>
+        ) : charId === 'kaoruko' ? (
+          <>
+            {/* 薰子：3D 草莓鮮奶油蛋糕 */}
+            <mesh><cylinderGeometry args={[r * 0.9, r * 0.9, r * 0.95, 12]} /><meshStandardMaterial color="#fff1f2" /></mesh>
+            <mesh position={[0, r * 0.05, 0]}><cylinderGeometry args={[r * 0.92, r * 0.92, r * 0.25, 12]} /><meshStandardMaterial color="#f472b6" /></mesh>
+            <mesh position={[0, r * 0.68, 0]}><sphereGeometry args={[r * 0.35, 10, 10]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          </>
+        ) : charId === 'akira' ? (
+          <>
+            {/* 百瀨晶：3D 粉紅初戀作戰筆記 / 情書 */}
+            <mesh><boxGeometry args={[r * 1.8, r * 1.25, r * 0.22]} /><meshStandardMaterial color="#fbcfe8" emissive="#f472b6" emissiveIntensity={0.35} /></mesh>
+            <mesh position={[0, 0, r * 0.14]}><sphereGeometry args={[r * 0.3, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          </>
+        ) : charId === 'yodaka' ? (
+          <>
+            {/* 夜鷹：3D 忍者十字手裡劍 */}
+            <mesh><boxGeometry args={[r * 2.4, r * 0.42, r * 0.12]} /><meshStandardMaterial color="#cbd5e1" metalness={0.85} roughness={0.2} /></mesh>
+            <mesh><boxGeometry args={[r * 0.42, r * 2.4, r * 0.12]} /><meshStandardMaterial color="#cbd5e1" metalness={0.85} roughness={0.2} /></mesh>
+            <mesh><cylinderGeometry args={[r * 0.25, r * 0.25, r * 0.18, 10]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+          </>
+        ) : charId === 'nona' ? (
+          <>
+            {/* 諾娜：3D 銀白縫紉魔針 */}
+            <mesh rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[r * 0.35, r * 2.5, 8]} /><meshStandardMaterial color="#e2e8f0" emissive="#e879f9" emissiveIntensity={0.55} /></mesh>
+            <mesh position={[-r * 1.25, 0, 0]}><torusGeometry args={[r * 0.32, r * 0.09, 6, 14]} /><meshBasicMaterial color="#f0abfc" /></mesh>
+          </>
+        ) : charId === 'stelle' ? (
+          <>
+            {/* 星：3D 存護炎槍槍尖 */}
+            <mesh rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[r * 0.52, r * 2.5, 6]} /><meshStandardMaterial color="#f97316" emissive="#facc15" emissiveIntensity={0.75} /></mesh>
+            <mesh position={[-r * 0.9, 0, 0]} rotation={[0, Math.PI / 2, 0]}><torusGeometry args={[r * 0.65, r * 0.1, 8, 16]} /><meshBasicMaterial color="#fde047" /></mesh>
+          </>
+        ) : charId === 'arisa' || charId === 'miyabi' || charId === 'rover' ? (
           <>
             <mesh><boxGeometry args={[r * 2.5, r * 0.38, r * 0.38]} /><meshBasicMaterial color="#ffffff" /></mesh>
             <mesh><sphereGeometry args={[r * 0.95, 12, 12]} /><meshBasicMaterial color={p.color} transparent opacity={0.5} blending={ADD} depthWrite={false} /></mesh>
@@ -642,16 +688,11 @@ function ProjectileView({ p }: { p: Projectile }) {
             <mesh><octahedronGeometry args={[r * 0.9, 0]} /><meshStandardMaterial color="#facc15" emissive="#fde047" emissiveIntensity={0.85} /></mesh>
             <mesh position={[-r * 0.85, 0, 0]} rotation={[0, 0, 0.4]}><coneGeometry args={[r * 0.35, r * 1.1, 5]} /><meshBasicMaterial color="#38bdf8" /></mesh>
           </>
-        ) : charId === 'gojo' || charId === 'ruri' || charId === 'stelle' || charId === 'lumine' || charId === 'saki' ? (
+        ) : charId === 'gojo' || charId === 'ruri' || charId === 'lumine' || charId === 'saki' ? (
           <>
             <mesh><octahedronGeometry args={[r * 0.95, 0]} /><meshBasicMaterial color="#ffffff" /></mesh>
             <mesh><sphereGeometry args={[r * 1.15, 14, 14]} /><meshBasicMaterial color={p.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>
             <mesh rotation={[Math.PI / 4, 0, 0]}><torusGeometry args={[r * 1.1, r * 0.1, 8, 20]} /><meshBasicMaterial color={p.color} blending={ADD} /></mesh>
-          </>
-        ) : charId === 'spe' || charId === 'kaoruko' || charId === 'rapi' || charId === 'akira' ? (
-          <>
-            <mesh><boxGeometry args={[r * 1.8, r * 0.9, r * 0.9]} /><meshStandardMaterial color={p.color} emissive={p.color} emissiveIntensity={0.6} /></mesh>
-            <mesh><sphereGeometry args={[r * 1.05, 12, 12]} /><meshBasicMaterial color="#ffffff" transparent opacity={0.35} blending={ADD} depthWrite={false} /></mesh>
           </>
         ) : (
           <>
