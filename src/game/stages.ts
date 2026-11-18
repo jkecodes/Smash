@@ -918,6 +918,28 @@ export const STAGES: Record<StageId, StageDef> = {
     platforms: [{ x: -5.4, y: 1.9, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 3.2, w: 3.4, color: '#18181b', edgeColor: '#f97316' }, { x: 5.4, y: 4.5, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }],
     theme: { name: '往生堂無妄坡祭壇', subtitle: 'Wuwang Hill Parlor', tag: '胡桃主場・幽冥三階壇', desc: '《原神》璃月無妄坡與往生堂朱紅燈籠高懸的三階幽冥祭壇！', bg: '#16080b', fog: '#16080b', ambientColor: '#fca5a5', ambientIntensity: 0.82, dirLightColor: '#ffe4e6', dirLightIntensity: 1.78, dirLightPos: [-8, 22, 12], mainColor: '#271216', surfaceColor: '#3f1d24', edgeColor: '#ef4444', gridColor1: '#991b1b', gridColor2: '#180609', platColor: '#450a0a', platEdgeColor: '#ef4444', accentColor: '#f97316' },
   },
+  seija: {
+    id: 'seija', half: { x: 9.8, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.8, spawnX: { p1: -4.2, p2: 4.2 },
+    platforms: [
+      { x: -5.2, y: 3.6, w: 3.4, color: '#9f1239', edgeColor: '#38bdf8' },
+      { x: 5.2, y: 3.6, w: 3.4, color: '#1e3a8a', edgeColor: '#e11d48' },
+      { x: 0, y: 1.9, w: 3.2, color: '#881337', edgeColor: '#f8fafc', move: { ampY: 0.65, speed: 1.8 } },
+    ],
+    theme: { name: '輝針城・逆轉天守', subtitle: 'Shining Needle Castle', tag: '正邪主場・逆轉浮動層板', desc: '《東方輝針城》上下顛倒的天邪鬼天守閣，中央赤藍層板不斷上下反轉浮動！', bg: '#1a0914', fog: '#1a0914', ambientColor: '#fda4af', ambientIntensity: 0.85, dirLightColor: '#e0f2fe', dirLightIntensity: 1.8, dirLightPos: [6, 22, 12], mainColor: '#311022', surfaceColor: '#4c0519', edgeColor: '#e11d48', gridColor1: '#be123c', gridColor2: '#1e1b4b', platColor: '#9f1239', platEdgeColor: '#38bdf8', accentColor: '#e11d48' },
+  },
+  youmu: {
+    id: 'youmu', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -4.8, p2: 4.8 },
+    solids: [
+      { x: -7.5, y: 0, w: 2.2, h: 1.3, color: '#065f46', edgeColor: '#34d399' },
+      { x: 7.5, y: 0, w: 2.2, h: 1.3, color: '#065f46', edgeColor: '#34d399' },
+    ],
+    platforms: [
+      { x: -4.5, y: 2.4, w: 3.2, color: '#064e3b', edgeColor: '#fbcfe8' },
+      { x: 4.5, y: 2.4, w: 3.2, color: '#064e3b', edgeColor: '#fbcfe8' },
+      { x: 0, y: 4.4, w: 3.6, color: '#0f766e', edgeColor: '#34d399' },
+    ],
+    theme: { name: '白玉樓・西行妖櫻階梯', subtitle: 'Hakugyokurou', tag: '妖夢主場・冥界石階平地', desc: '《東方妖妖夢》西行妖櫻花樹下的白玉樓長石階平地，兩側有實心石階高台與櫻枝平台！', bg: '#091b18', fog: '#091b18', ambientColor: '#a7f3d0', ambientIntensity: 0.88, dirLightColor: '#fdf2f8', dirLightIntensity: 1.82, dirLightPos: [8, 22, 12], mainColor: '#134e4a', surfaceColor: '#065f46', edgeColor: '#34d399', gridColor1: '#10b981', gridColor2: '#022c22', platColor: '#064e3b', platEdgeColor: '#fbcfe8', accentColor: '#34d399' },
+  },
 }
 
 export const STAGE_GIMMICKS: Record<StageId, StageGimmickDef> = {
@@ -961,6 +983,8 @@ export const STAGE_GIMMICKS: Record<StageId, StageGimmickDef> = {
   akira: { kind: 'pickup', name: '初戀櫻花護符（回血）', color: '#f472b6', pos: [0, 5.5], radius: 0.9, power: 11, interval: 10, mode: 'heal' },
   kotone: { kind: 'pickup', name: '閃耀打工金幣（充能）', color: '#facc15', pos: [0, 1.3], radius: 0.95, power: 45, interval: 8.5, mode: 'energy' },
   hutao: { kind: 'hazard', name: '巡邏鬼火 Boo Tao', color: '#f97316', pos: [0, 1.5], pos2: [6.8, 0.6], radius: 0.85, power: 9, interval: 5.5, mode: 'patrol' },
+  seija: { kind: 'portal', name: '逆轉空間傳送陣', color: '#e11d48', pos: [-7.2, 1.4], pos2: [7.2, 1.4], radius: 0.95, power: 0 },
+  youmu: { kind: 'pickup', name: '半靈充能玉', color: '#34d399', pos: [0, 5.1], radius: 0.9, power: 45, interval: 9, mode: 'energy' },
 }
 
 export const STAGE_IDS = Object.keys(STAGES) as StageId[]

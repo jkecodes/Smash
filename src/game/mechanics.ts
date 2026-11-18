@@ -26,6 +26,8 @@ const CHAR_MECHANIC: Partial<Record<CharacterId, { kind: MechanicKind; label: st
   ichi: { kind: 'mana', label: '🔮 魔力共鳴', color: '#38bdf8' },
   nona: { kind: 'mana', label: '🪡 魔絲充盈', color: '#e879f9' },
   marisa: { kind: 'mana', label: '⭐ 八卦爐魔力', color: '#fde047' },
+  seija: { kind: 'limit', label: '🔄 逆轉極限', color: '#e11d48' },
+  youmu: { kind: 'awaken', label: '👻 半靈人鬼覺醒', color: '#34d399' },
 }
 
 const states: Record<FighterId, MechanicState | null> = Object.fromEntries(

@@ -682,5 +682,35 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     },
     loadout: { attack: 'hutao.a1', ...tilts('hutao'), skill1: 'hutao.s1', 'skill1:side': 'hutao.side', 'skill1:up': 'hutao.up', 'skill1:down': 'hutao.down', skill2: 'hutao.s2', ...smashes('hutao'), ult: 'hutao.ult' },
   },
+  seija: {
+    id: 'seija', name: 'SEIJA 鬼人正邪', color: '#e11d48',
+    scale: 0.94, speedMult: 1.08, damageMult: 1.02, weightMult: 0.94,
+    trait: '🔄 東方輝針城・天邪鬼逆轉彈幕！反轉箭矢、瞬移背刺與逆轉結界！',
+    guide: {
+      summary: '《東方輝針城》的反叛天邪鬼！擅長用可操控的逆轉箭矢與背刺突襲打亂對手節奏。',
+      steps: [
+        '使用【特招 K】逆符「Reverse Hierarchy」發射可上下操控的赤藍逆轉箭矢！',
+        '被逼近時按【左右+K】瞬移到對手背後奇襲，或用【技能2 L】展開反轉力場減速敵人！',
+        '集滿大招施放「Reverse Ideology」，從四面八方連射逆轉彈幕轟飛對手！',
+      ],
+      combo: 'K (逆轉箭矢) → 左右+K (逆針背刺) → L (反轉力場)',
+    },
+    loadout: { attack: 'seija.a1', ...tilts('seija'), skill1: 'seija.s1', 'skill1:side': 'seija.side', 'skill1:up': 'seija.up', 'skill1:down': 'seija.down', skill2: 'seija.s2', ...smashes('seija'), ult: 'seija.ult' },
+  },
+  youmu: {
+    id: 'youmu', name: 'YOUMU 魂魄妖夢', color: '#34d399',
+    scale: 0.96, speedMult: 1.16, damageMult: 1.04, weightMult: 0.94,
+    trait: '⚔️ 東方妖妖夢・樓觀劍×白樓劍二刀流！超高速居合與人鬼未來永劫斬！',
+    guide: {
+      summary: '《東方妖妖夢》白玉樓的半人半靈庭師！擁有極快跑速與樓觀劍蓄力斬擊。',
+      steps: [
+        '長按【普攻 J】蓄力樓觀劍居合斬，或連按打出二刀流三段連擊！',
+        '按【特招 K】放出貫穿劍氣波，【左右+K】施展魂魄瞬閃貼臉斬擊！',
+        '集滿大招施放「人鬼未來永劫斬」，瞬移圍繞對手連續斬擊並終結擊飛！',
+      ],
+      combo: 'J-J-J (二刀流連斬) → 左右+K (魂魄瞬閃) → 上+K (悟入幻想昇龍)',
+    },
+    loadout: { attack: 'youmu.a1', ...tilts('youmu'), skill1: 'youmu.s1', 'skill1:side': 'youmu.side', 'skill1:up': 'youmu.up', 'skill1:down': 'youmu.down', skill2: 'youmu.s2', ...smashes('youmu'), ult: 'youmu.ult' },
+  },
 }
 export const CHARACTER_IDS = Object.keys(CHARACTERS) as CharacterId[]

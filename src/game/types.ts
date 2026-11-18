@@ -17,7 +17,7 @@ export type CharacterId =
   | 'tetro'
   | 'pacman' | 'mario' | 'invader' | 'bomber'
   | 'snake' | 'frogger' | 'kong' | 'pong'
-  | 'reimu' | 'marisa'
+  | 'reimu' | 'marisa' | 'seija' | 'youmu'
   | 'ryu' | 'chunli' | 'yugi' | 'kaiba'
   | 'omnom' | 'tom' | 'ben' | 'crossy' | 'red' | 'steve' | 'arisa'
   | 'chihiro' | 'ichi' | 'ruri' | 'nona' | 'gojo' | 'deku' | 'yodaka' | 'saki' | 'spe' | 'kaoruko'

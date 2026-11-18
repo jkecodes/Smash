@@ -11,7 +11,7 @@ const RETRO_IDS = new Set<CharacterId>([
   'ryu', 'chunli', 'yugi', 'kaiba',
   'omnom', 'tom', 'ben', 'crossy', 'red', 'steve', 'arisa',
   'chihiro', 'ichi', 'ruri', 'nona', 'gojo', 'deku', 'yodaka', 'saki', 'spe', 'kaoruko',
-  'stelle', 'lumine', 'miyabi', 'rover', 'rapi', 'akira', 'kotone', 'hutao',
+  'stelle', 'lumine', 'miyabi', 'rover', 'rapi', 'akira', 'kotone', 'hutao', 'seija', 'youmu',
 ])
 
 type AnimePreset = {
@@ -39,6 +39,8 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   akira: { body: '#1e3a8a', hair: '#f472b6', accent: '#fbcfe8', prop: 'book', style: 'mage' },
   kotone: { body: '#f59e0b', hair: '#facc15', accent: '#fef08a', prop: 'mic', style: 'idol', twintails: true },
   hutao: { body: '#18181b', hair: '#3f2318', accent: '#ef4444', prop: 'spear', style: 'spear', twintails: true, huTaoHat: true },
+  seija: { body: '#be123c', hair: '#1e1b4b', accent: '#f8fafc', prop: 'horns', style: 'mage', shortHair: true, hornColor: '#e11d48' },
+  youmu: { body: '#0f766e', hair: '#e2e8f0', accent: '#34d399', prop: 'katana', style: 'sword', shortHair: true },
 }
 
 export function isRetroAvatar(c: CharacterId): boolean {

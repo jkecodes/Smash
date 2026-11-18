@@ -42,6 +42,8 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   akira: 'AKIRA',
   kotone: 'KOTONE',
   hutao: 'HU TAO',
+  seija: 'SEIJA',
+  youmu: 'YOUMU',
 }
 
 const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; witchHat?: boolean }>> = {
@@ -63,6 +65,8 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   akira: { bg: '#500724', hair: '#f472b6', outfit: '#1e3a8a', accent: '#fbcfe8', eye: '#ec4899', bobHair: true },
   kotone: { bg: '#713f12', hair: '#facc15', outfit: '#f59e0b', accent: '#fef08a', eye: '#38bdf8', twintails: true },
   hutao: { bg: '#450a0a', hair: '#3f2318', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', twintails: true, huTaoHat: true },
+  seija: { bg: '#4c0519', hair: '#1e1b4b', outfit: '#be123c', accent: '#f8fafc', eye: '#ef4444', horns: true, shortHair: true },
+  youmu: { bg: '#064e3b', hair: '#e2e8f0', outfit: '#0f766e', accent: '#34d399', eye: '#10b981', bobHair: true },
 }
 
 export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'random'; className?: string }) {

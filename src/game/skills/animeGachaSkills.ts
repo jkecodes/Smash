@@ -94,13 +94,13 @@ const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
   hutao: 'ghost',
 }
 
-const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover'])
-const TELEPORT_SIDE_CHARS = new Set(['gojo', 'yodaka', 'miyabi', 'rover'])
+const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover', 'youmu'])
+const TELEPORT_SIDE_CHARS = new Set(['gojo', 'yodaka', 'miyabi', 'rover', 'seija', 'youmu'])
 const RANGED_SIDE_CHARS = new Set(['rapi', 'hutao', 'nona', 'kotone', 'saki'])
-const TELEPORT_UP_CHARS = new Set(['gojo', 'yodaka', 'nona', 'miyabi'])
+const TELEPORT_UP_CHARS = new Set(['gojo', 'yodaka', 'nona', 'miyabi', 'youmu'])
 const WIND_UP_CHARS = new Set(['lumine', 'ruri', 'ichi', 'akira'])
 const COUNTER_DOWN_CHARS = new Set(['chihiro', 'gojo', 'kaoruko', 'kotone'])
-const TRAP_DOWN_CHARS = new Set(['rapi', 'ichi', 'hutao', 'nona'])
+const TRAP_DOWN_CHARS = new Set(['rapi', 'ichi', 'hutao', 'nona', 'seija'])
 const GUN_CHARS = new Set(['rapi'])
 const MARTIAL_CHARS = new Set(['gojo', 'deku', 'spe'])
 const CASTER_CHARS = new Set(['ichi', 'ruri', 'nona', 'saki', 'kaoruko', 'akira', 'kotone'])
@@ -604,6 +604,24 @@ const KITS: KitSpec[] = [
     s2: { name: '彼岸蝶舞・燃燒結界', kind: 'ring', color: '#ef4444' },
     smashes: ['護摩之杖破軍槍', '炎蝶沖天挑', '往生堂鎮魂震'],
     ult: { name: '元素爆發「安神秘法・巨型鬼火」！', kind: 'ghostSpin', color: '#ef4444' },
+  },
+  {
+    p: 'seija', color: '#e11d48', a1: '逆轉扇擊', a2: '天邪鬼雙連踢',
+    tilts: ['逆針橫掃', '天邪鬼上挑', '反轉下掃'],
+    s1: { name: '逆符「Reverse Hierarchy」（可操控）', projColor: '#e11d48', pierce: true, speed: 19, steerable: 4.8 },
+    side: '欺符「逆針擊」反向背刺', up: '逆弓「天壤夢弓」升空', down: '反轉結界「Four of a Kind」',
+    s2: { name: '天邪鬼反轉力場', kind: 'zone', color: '#e11d48' },
+    smashes: ['天地逆轉重擊', '萬象反轉上鉤', '逆轉震地'],
+    ult: { name: '「Reverse Ideology」逆轉彈幕齊射！', kind: 'barrage', color: '#e11d48' },
+  },
+  {
+    p: 'youmu', color: '#34d399', a1: '樓觀劍斬', a2: '白樓劍二刀流',
+    tilts: ['樓觀橫閃', '白樓上挑', '半靈下切'],
+    s1: { name: '幽鬼劍「妖童餓鬼之斷」', projColor: '#34d399', pierce: true, speed: 24 },
+    side: '冥想斬「魂魄瞬閃」', up: '人界劍「悟入幻想」昇龍', down: '獄界劍「二百由旬之一閃」',
+    s2: { name: '半靈守護斬環', kind: 'ring', color: '#34d399' },
+    smashes: ['樓觀劍・斷鋼斬', '白樓劍沖天破', '半人半靈震地'],
+    ult: { name: '人鬼「未來永劫斬」！', kind: 'omnislash', color: '#34d399' },
   },
 ]
 
