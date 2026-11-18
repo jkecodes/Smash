@@ -18,7 +18,7 @@ type AnimePreset = {
   body: string; hair: string; accent: string; head?: string
   prop?: 'katana' | 'spear' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat' | 'mic' | 'needle' | 'book'
   style?: 'sword' | 'spear' | 'martial' | 'gun' | 'idol' | 'mage'
-  shortHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; blindfold?: boolean; hornColor?: string
+  shortHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; blindfold?: boolean; hornColor?: string; dualSword?: boolean
 }
 const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   chihiro: { body: '#18181b', hair: '#09090b', accent: '#ef4444', prop: 'katana', style: 'sword', shortHair: true, scar: true },
@@ -40,7 +40,7 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   kotone: { body: '#f59e0b', hair: '#facc15', accent: '#fef08a', prop: 'mic', style: 'idol', twintails: true },
   hutao: { body: '#18181b', hair: '#3f2318', accent: '#ef4444', prop: 'spear', style: 'spear', twintails: true, huTaoHat: true },
   seija: { body: '#be123c', hair: '#1e1b4b', accent: '#f8fafc', prop: 'horns', style: 'mage', shortHair: true, hornColor: '#e11d48' },
-  youmu: { body: '#0f766e', hair: '#e2e8f0', accent: '#34d399', prop: 'katana', style: 'sword', shortHair: true },
+  youmu: { body: '#0f766e', hair: '#e2e8f0', accent: '#34d399', prop: 'katana', style: 'sword', shortHair: true, dualSword: true },
 }
 
 export function isRetroAvatar(c: CharacterId): boolean {
@@ -1025,7 +1025,21 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
                 <mesh position={[0, -0.04, 0.32]}><sphereGeometry args={[0.12, 10, 10]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.85} /></mesh>
               )}
             </group>
-            <group ref={animB} position={[-0.25, 0.06, 0]}><mesh position={[0, -0.12, 0.04]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color={pr.body} /></mesh></group>
+            <group ref={animB} position={[-0.25, 0.06, 0]}>
+              <mesh position={[0, -0.12, 0.04]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color={pr.body} /></mesh>
+              {pr.dualSword && (
+                <group position={[0, -0.04, 0.3]} rotation={[0.95, 0, 0]}>
+                  <mesh position={[0, 0.2, 0]}><boxGeometry args={[0.036, 0.52, 0.06]} /><meshStandardMaterial color="#f8fafc" emissive={pr.accent} emissiveIntensity={0.45} /></mesh>
+                  <mesh position={[0, -0.06, 0]}><boxGeometry args={[0.12, 0.035, 0.12]} /><meshStandardMaterial color="#facc15" /></mesh>
+                </group>
+              )}
+            </group>
+            {pr.dualSword && (
+              <group position={[0, 0.32, -0.38]}>
+                <mesh><sphereGeometry args={[0.16, 12, 12]} /><meshStandardMaterial color="#f8fafc" emissive="#a7f3d0" emissiveIntensity={0.7} transparent opacity={0.9} /></mesh>
+                <mesh position={[0, -0.1, -0.14]} rotation={[0.6, 0, 0]}><coneGeometry args={[0.1, 0.26, 8]} /><meshStandardMaterial color="#ecfdf5" transparent opacity={0.8} /></mesh>
+              </group>
+            )}
           </group>
         )
       })()}
