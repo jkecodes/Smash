@@ -463,8 +463,11 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
     }
   }
   const mech = consumeSkillMechanic(f, slot)
+  const slotDmgBoost = slot === 'attack' ? 1.12 : 1.25
+  const slotKbBoost = slot === 'attack' ? 1.1 : 1.18
   f.skill = {
-    def: activeDef, slot, phase: 'startup', phaseMs: 0, hitSet: new Set(), kbMult: mech.kbMult, dmgMult: mech.dmgMult,
+    def: activeDef, slot, phase: 'startup', phaseMs: 0, hitSet: new Set(),
+    kbMult: mech.kbMult * slotKbBoost, dmgMult: mech.dmgMult * slotDmgBoost,
     chargeMs: 0, chargeRatio: 0, released: !activeDef.charge, ended: false, scratch: {},
   }
   f.comboBufferMs = 0
@@ -898,10 +901,10 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   // 1. 官方大亂鬥雪球擊飛公式：(p/10 + p*d/20) * 體重係數 * 招式成長率 + 基礎擊飛
   const p = tgt.damage
   const weightFactor = 1 / (tgtChar?.weightMult ?? 1)
-  const snowball = (p / 10 + (p * dmg) / 20) * 0.095
-  // 2. 復仇補正（Rage）：自身 >= 35% 時提升擊飛力，150% 達上限 1.12 倍
+  const snowball = (p / 10 + (p * dmg) / 20) * 0.11
+  // 2. 復仇補正（Rage）：自身 >= 35% 時提升擊飛力，150% 達上限 1.18 倍
   const rageT = att.damage >= 35 ? Math.min(1, (att.damage - 35) / 115) : 0
-  const rageMult = 1 + rageT * 0.12
+  const rageMult = 1 + rageT * 0.18
   let speed = (kb.base + snowball * (kb.scaling / 10)) * src.kbMult * staleMult * rageMult * weightFactor
 
   // 3. 方向影響（DI）：受擊者推搖桿可微調最多 ±18° 擊飛角度
