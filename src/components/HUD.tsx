@@ -1509,6 +1509,7 @@ export function HUD() {
   usePauseControl()
   const [guideChar, setGuideChar] = useState<CharacterId | null>(null)
   const [showProfile, setShowProfile] = useState(false)
+  const [resultStep, setResultStep] = useState<'podium' | 'stats'>('podium')
   const profile = useProfileStore()
   const recordedRef = useRef(false)
   const [showTouch, setShowTouch] = useState(() => {
@@ -1539,6 +1540,7 @@ export function HUD() {
   useEffect(() => {
     if (phase === 'playing') {
       recordedRef.current = false
+      setResultStep('podium')
     } else if (phase === 'ended' && winner && !recordedRef.current) {
       recordedRef.current = true
       const mySlot = useNetStore.getState().mySlot ?? 'p1'
@@ -1669,7 +1671,78 @@ export function HUD() {
       {phase === 'playing' && paused && <PauseOverlay onGuide={() => setGuideChar(selection.p1)} />}
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
       {guideChar && <CharGuideModal initialChar={guideChar} onClose={() => setGuideChar(null)} />}
-      {phase === 'ended' && winner && (
+      {phase === 'ended' && winner && resultStep === 'stats' && (
+        <div
+          className="pointer-events-auto absolute inset-0 z-30 flex flex-col items-center justify-center gap-5 p-4 text-white select-none overflow-y-auto"
+          style={{ background: 'linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #312e81 100%)' }}
+        >
+          <div className="flex flex-wrap items-center justify-center gap-4 max-w-6xl w-full">
+            {rankedIds.map((id) => {
+              const u = ui[id]
+              const pCol = PLAYER_COLORS[id]
+              const cpuLv = useGameStore.getState().cpu[id]
+              const isWin = id === winner
+              const rows = [
+                { label: 'KOs 擊墜數', val: `${u.stats.kos}` },
+                { label: '剩餘生命', val: `${u.stocks}` },
+                { label: '最高連段', val: `${u.stats.maxCombo}` },
+                { label: '造成傷害', val: `${u.stats.damageDealt}%` },
+                { label: '承受傷害', val: `${u.stats.damageTaken}%` },
+              ]
+              return (
+                <div
+                  key={id}
+                  className="w-56 sm:w-64 overflow-hidden rounded-xl border-2 border-black/80 bg-black/75 shadow-2xl flex flex-col"
+                >
+                  <div className="relative bg-black px-3 pt-2.5 pb-3 border-b-2" style={{ borderColor: pCol }}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl font-black italic tracking-tight text-white truncate">
+                        {SHORT_NAMES[selection[id]]}
+                      </span>
+                      {isWin && <span className="text-lg">👑</span>}
+                    </div>
+                    <div
+                      className="mt-1 inline-flex items-center gap-2 px-2.5 py-0.5 text-xs font-black italic text-black"
+                      style={{ backgroundColor: pCol, transform: 'skewX(-12deg)' }}
+                    >
+                      <span>{cpuLv > 0 ? `CPU Lv.${cpuLv}` : id.toUpperCase()}</span>
+                      <span className="opacity-80 font-sans not-italic">{u.name}</span>
+                    </div>
+                  </div>
+                  <div className="relative h-32 w-full overflow-hidden bg-black/60">
+                    <CharacterPortrait id={selection[id]} className="h-full w-full object-cover" />
+                    <div className="pointer-events-none absolute inset-0" style={{ boxShadow: `inset 0 0 28px ${pCol}55` }} />
+                  </div>
+                  <div className="divide-y divide-black/40 text-xs" style={{ backgroundColor: `${pCol}cc` }}>
+                    {rows.map((r, i) => (
+                      <div key={r.label} className={`flex items-center justify-between px-3 py-1.5 font-bold ${i % 2 === 0 ? 'bg-black/35' : 'bg-black/55'}`}>
+                        <span className="text-white/85">{r.label}</span>
+                        <span className="font-mono text-sm font-black text-white">{r.val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => { sfx('ui'); setResultStep('podium') }}
+              className="rounded-xl bg-white/15 border border-white/25 px-6 py-2.5 text-sm font-bold hover:bg-white/25 transition-colors"
+            >
+              ← 返回勝者頒獎台
+            </button>
+            <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded-xl bg-yellow-300 px-8 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition-colors shadow-xl">
+              再來一場
+            </button>
+            <button onClick={toMenu} className="rounded-xl bg-white/20 border border-white/30 px-7 py-2.5 text-base font-bold hover:bg-white/30 transition-colors shadow-xl">
+              回選單
+            </button>
+          </div>
+        </div>
+      )}
+      {phase === 'ended' && winner && resultStep === 'podium' && (
         <div
           className="pointer-events-auto absolute inset-0 z-20 overflow-hidden text-white select-none"
           style={{
@@ -1767,11 +1840,18 @@ export function HUD() {
                 })}
               </div>
 
-              <div className="flex gap-3">
-                <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded-xl bg-yellow-300 px-8 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition-colors shadow-xl">
+              <div className="flex gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => { sfx('ui'); setResultStep('stats') }}
+                  className="rounded-xl bg-cyan-400 px-5 py-2.5 text-base font-black text-black hover:bg-cyan-300 transition-colors shadow-xl"
+                >
+                  📊 詳細戰績
+                </button>
+                <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded-xl bg-yellow-300 px-7 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition-colors shadow-xl">
                   再來一場
                 </button>
-                <button onClick={toMenu} className="rounded-xl bg-white/20 border border-white/30 px-7 py-2.5 text-base font-bold hover:bg-white/30 transition-colors shadow-xl">
+                <button onClick={toMenu} className="rounded-xl bg-white/20 border border-white/30 px-6 py-2.5 text-base font-bold hover:bg-white/30 transition-colors shadow-xl">
                   回選單
                 </button>
               </div>
