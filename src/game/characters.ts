@@ -408,6 +408,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   arisa: {
     id: 'arisa', name: 'ARISA 亞里莎', color: '#10b981',
+    speedMult: 1.08, damageMult: 1.15,
     trait: '🧝 Shadowverse 妖精連矢・疾風步・破魔蟲強襲・EP進化齊射',
     guide: {
       summary: '《Shadowverse 闇影詩章》森之精靈弓手！高攻速連矢搭配疾風步穿梭，並能展開聖樹結界緩速扣血再以破魔蟲強襲收頭。',
@@ -584,6 +585,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   lumine: {
     id: 'lumine', name: 'LUMINE 熒', color: '#fde047',
+    damageMult: 1.14,
     trait: '✨ 原神・風渦劍氣・草超綻放領域與荒星墜落！',
     guide: {
       summary: '《原神》旅行者熒！自由切換風、岩、雷、草七元素力，領域控制與空中回場皆極強。',

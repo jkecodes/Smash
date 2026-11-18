@@ -980,7 +980,7 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   // 1. 官方大亂鬥雪球擊飛公式：(p/10 + p*d/20) * 體重係數 * 招式成長率 + 基礎擊飛
   const p = tgt.damage
   const weightFactor = 1 / (tgtChar?.weightMult ?? 1)
-  const snowball = (p / 10 + (p * dmg) / 20) * 0.11
+  const snowball = (p / 10 + (p * dmg) / 20) * 0.122
   // 2. 復仇補正（Rage）：自身 >= 35% 時提升擊飛力，150% 達上限 1.18 倍
   const rageT = att.damage >= 35 ? Math.min(1, (att.damage - 35) / 115) : 0
   const rageMult = 1 + rageT * 0.18
