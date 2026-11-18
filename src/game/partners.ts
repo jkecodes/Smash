@@ -31,7 +31,7 @@ export type PartnerFlag = 'charge' | 'tpSide' | 'ranged' | 'tpUp' | 'windUp' | '
 
 export interface PartnerPortrait {
   bg: string; hair: string; outfit: string; accent: string; eye: string
-  blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; witchHat?: boolean
+  blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; witchHat?: boolean; glasses?: boolean
 }
 export interface PartnerPreset {
   body: string; hair: string; accent: string
@@ -189,8 +189,8 @@ export const PARTNERS: PartnerSpec[] = [
     id: 'hakuri', name: 'HAKURI ハクリ', short: 'HAKURI', color: '#e5e7eb', partnerOf: 'chihiro',
     scale: 1.04, speedMult: 1.06, damageMult: 1.1, weightMult: 1.02,
     trait: '🗡️ 神樂鉢・敵方劍士！居合瞬步與百閃連斬。',
-    portrait: { bg: '#18181b', hair: '#e5e7eb', outfit: '#27272a', accent: '#f4f4f5', eye: '#ef4444', shortHair: true },
-    preset: { body: '#27272a', hair: '#e5e7eb', accent: '#e5e7eb', prop: 'katana', style: 'sword', shortHair: true },
+    portrait: { bg: '#0f172a', hair: '#f1f5f9', outfit: '#1e293b', accent: '#38bdf8', eye: '#38bdf8', shortHair: true },
+    preset: { body: '#1e293b', hair: '#f1f5f9', accent: '#38bdf8', prop: 'orb', style: 'martial', shortHair: true },
     kit: {
       a1: '妖刀抜刀斬', a2: '鉢劍連斬', tilts: ['居合橫斬', '逆刃上挑', '踏步下斬'],
       s1: { name: '妖刀斬波', projColor: '#e5e7eb', pierce: true, speed: 24 },
@@ -237,7 +237,7 @@ export const PARTNERS: PartnerSpec[] = [
     id: 'lovi', name: 'LOVI ロヴィ', short: 'LOVI', color: '#93c5fd', partnerOf: 'nona',
     scale: 0.94, speedMult: 1.08, damageMult: 0.98, weightMult: 0.94,
     trait: '👓 WITCHRIV・諾娜的摯友！書包揮擊與修復光線。',
-    portrait: { bg: '#1e3a8a', hair: '#1e293b', outfit: '#3b82f6', accent: '#e0f2fe', eye: '#38bdf8', bobHair: true },
+    portrait: { bg: '#1e3a8a', hair: '#1e293b', outfit: '#3b82f6', accent: '#e0f2fe', eye: '#38bdf8', bobHair: true, glasses: true },
     preset: { body: '#3b82f6', hair: '#1e293b', accent: '#e0f2fe', prop: 'book', style: 'mage' },
     kit: {
       a1: '眼鏡突刺', a2: '書包揮擊', tilts: ['書包橫掃', '眼鏡反光上挑', '課桌下掃'],
@@ -301,8 +301,8 @@ export const PARTNERS: PartnerSpec[] = [
     id: 'rintaro', name: 'RINTARO 凜太郎', short: 'RINTARO', color: '#fda4af', partnerOf: 'kaoruko',
     scale: 1.08, speedMult: 0.98, damageMult: 1.08, weightMult: 1.06,
     trait: '🍰 薰香花朵凜然綻放・蛋糕店少年！重拳、花束與甜點守護。',
-    portrait: { bg: '#4c0519', hair: '#fde68a', outfit: '#9f1239', accent: '#fda4af', eye: '#f43f5e', shortHair: true },
-    preset: { body: '#9f1239', hair: '#fde68a', accent: '#fda4af', prop: 'book', style: 'martial', shortHair: true },
+    portrait: { bg: '#1e293b', hair: '#facc15', outfit: '#18181b', accent: '#f8fafc', eye: '#334155', shortHair: true },
+    preset: { body: '#18181b', hair: '#facc15', accent: '#f8fafc', prop: 'book', style: 'martial', shortHair: true },
     kit: {
       a1: '蛋糕拳', a2: '凜然連擊', tilts: ['拳擊橫掃', '上勾拳', '低掃踢'],
       s1: { name: '凜然拳風', projColor: '#fda4af', speed: 20 },

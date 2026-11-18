@@ -60,7 +60,7 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   ...(Object.fromEntries(PARTNERS.map((p) => [p.id, p.short])) as Record<(typeof PARTNERS)[number]['id'], string>),
 }
 
-const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; witchHat?: boolean }>> = {
+const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; witchHat?: boolean; glasses?: boolean }>> = {
   chihiro: { bg: '#4c0519', hair: '#09090b', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', shortHair: true, scar: true },
   ichi: { bg: '#0c4a6e', hair: '#111827', outfit: '#1e3a8a', accent: '#38bdf8', eye: '#38bdf8', shortHair: true, witchHat: true },
   ruri: { bg: '#064e3b', hair: '#7c3aed', outfit: '#111827', accent: '#f8fafc', eye: '#ef4444', horns: true, bobHair: true },
@@ -769,6 +769,13 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
               <>
                 <ellipse cx="51" cy="59" rx="3.5" ry="4.5" fill={p.eye} />
                 <ellipse cx="69" cy="59" rx="3.5" ry="4.5" fill={p.eye} />
+              </>
+            )}
+            {p.glasses && (
+              <>
+                <circle cx="51" cy="59" r="7.5" fill="none" stroke="#e2e8f0" strokeWidth="1.8" />
+                <circle cx="69" cy="59" r="7.5" fill="none" stroke="#e2e8f0" strokeWidth="1.8" />
+                <line x1="58.5" y1="59" x2="61.5" y2="59" stroke="#e2e8f0" strokeWidth="1.8" />
               </>
             )}
             {p.scar && (
