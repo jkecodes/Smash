@@ -23,7 +23,7 @@ type AnimePreset = {
 const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   chihiro: { body: '#18181b', hair: '#09090b', accent: '#ef4444', prop: 'katana', style: 'sword', shortHair: true, scar: true },
   ichi: { body: '#1e3a8a', hair: '#111827', accent: '#38bdf8', prop: 'hat', style: 'mage', shortHair: true },
-  ruri: { body: '#f8fafc', hair: '#6b4423', accent: '#d97706', prop: 'horns', style: 'mage', hornColor: '#d97706' },
+  ruri: { body: '#f8fafc', hair: '#7c3aed', accent: '#d97706', prop: 'horns', style: 'mage', hornColor: '#d97706' },
   nona: { body: '#4a044e', hair: '#e9d5ff', accent: '#e879f9', prop: 'needle', style: 'mage' },
   gojo: { body: '#111827', hair: '#f8fafc', accent: '#818cf8', prop: 'orb', style: 'martial', shortHair: true, blindfold: true },
   deku: { body: '#14532d', hair: '#15803d', accent: '#4ade80', prop: 'orb', style: 'martial', shortHair: true },
