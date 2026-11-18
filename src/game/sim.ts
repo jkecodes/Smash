@@ -683,7 +683,7 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   }
   rumble(tgt.id, 0.3 + speed * 0.02, 100 + speed * 5)
   rumble(att.id, 0.2, 60)
-  addFx({ kind: 'burst', pos: [tgt.pos[0], tgt.pos[1], 0], color: '#ffffff', ttl: 350, count: 10 + Math.min(20, Math.round(speed)), speed: 3 + speed * 0.25, size: 0.14 })
+  addFx({ kind: 'burst', char: att.character, pos: [tgt.pos[0], tgt.pos[1], 0], color: CHARACTERS[att.character].color, ttl: 350, count: 10 + Math.min(20, Math.round(speed)), speed: 3 + speed * 0.25, size: 0.14 })
   if (att.skill && att.skill.def === def) def.hooks?.onHit?.(makeCtx(att, att.skill, 0), tgt)
 }
 

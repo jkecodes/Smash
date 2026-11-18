@@ -726,10 +726,33 @@ function ProjectileView({ p }: { p: Projectile }) {
             <mesh><sphereGeometry args={[r * 1.15, 14, 14]} /><meshBasicMaterial color={p.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>
             <mesh rotation={[Math.PI / 4, 0, 0]}><torusGeometry args={[r * 1.1, r * 0.1, 8, 20]} /><meshBasicMaterial color={p.color} blending={ADD} /></mesh>
           </>
+        ) : charId === 'deku' ? (
+          <>
+            {/* 綠谷：Air Force 綠色空氣壓縮氣環 */}
+            <mesh rotation={[0, Math.PI / 2, 0]}><torusGeometry args={[r * 0.95, r * 0.2, 8, 20]} /><meshBasicMaterial color="#4ade80" /></mesh>
+            <mesh><octahedronGeometry args={[r * 0.55, 0]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          </>
+        ) : charId === 'mario' ? (
+          <>
+            {/* 瑪利歐：3D 跳彈火球 */}
+            <mesh><sphereGeometry args={[r * 0.85, 12, 12]} /><meshStandardMaterial color="#f97316" emissive="#ef4444" emissiveIntensity={0.85} /></mesh>
+            <mesh><torusGeometry args={[r * 0.95, r * 0.14, 8, 16]} /><meshBasicMaterial color="#fde047" /></mesh>
+          </>
+        ) : charId === 'frogger' ? (
+          <>
+            {/* 青蛙：3D 荷葉 / 水泡彈 */}
+            <mesh><cylinderGeometry args={[r * 0.95, r * 0.95, r * 0.24, 14]} /><meshStandardMaterial color="#22c55e" emissive="#4ade80" emissiveIntensity={0.4} /></mesh>
+            <mesh position={[0, r * 0.35, 0]}><sphereGeometry args={[r * 0.45, 10, 10]} /><meshBasicMaterial color="#38bdf8" transparent opacity={0.75} /></mesh>
+          </>
+        ) : charId === 'pacman' ? (
+          <>
+            {/* 小精靈：3D 能量豆 Power Pellet */}
+            <mesh><octahedronGeometry args={[r * 0.9, 0]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={0.9} /></mesh>
+          </>
         ) : (
           <>
-            <mesh><sphereGeometry args={[r * 0.6, 16, 16]} /><meshBasicMaterial color="#ffffff" /></mesh>
-            <mesh><sphereGeometry args={[r, 16, 16]} /><meshBasicMaterial color={p.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>
+            <mesh><octahedronGeometry args={[r * 0.85, 0]} /><meshBasicMaterial color="#ffffff" /></mesh>
+            <mesh><torusGeometry args={[r * 1.0, r * 0.12, 8, 20]} /><meshBasicMaterial color={p.color} transparent opacity={0.75} blending={ADD} depthWrite={false} /></mesh>
           </>
         )}
       </group>

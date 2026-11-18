@@ -290,7 +290,7 @@ function FighterView({ id }: { id: FighterId }) {
   const group = useRef<THREE.Group>(null)
   const body = useRef<THREE.Mesh>(null)
   const nose = useRef<THREE.Mesh>(null)
-  const orb = useRef<THREE.Mesh>(null)
+  const orb = useRef<THREE.Group>(null)
   const shield = useRef<THREE.Group>(null)
   const aura = useRef<THREE.Mesh>(null)
   const mat = useRef<THREE.MeshStandardMaterial>(null)
@@ -337,6 +337,8 @@ function FighterView({ id }: { id: FighterId }) {
       const r = f.skill?.chargeRatio ?? 0
       orb.current.visible = !!f.skill && f.skill.def.charge !== undefined && f.skill.phase === 'startup' && !f.skill.released
       orb.current.scale.setScalar(0.15 + r * 0.55)
+      orb.current.rotation.y = performance.now() / 160
+      orb.current.rotation.z = performance.now() / 220
     }
   })
 
@@ -361,10 +363,16 @@ function FighterView({ id }: { id: FighterId }) {
         <boxGeometry args={[0.5, 0.18, 0.12]} />
         <meshBasicMaterial color="#ffffff" />
       </mesh>
-      <mesh ref={orb} position={[0, 0.1, 0.95]}>
-        <sphereGeometry args={[1, 16, 16]} />
-        <meshBasicMaterial color="#aeeaff" transparent opacity={0.85} blending={THREE.AdditiveBlending} />
-      </mesh>
+      <group ref={orb} position={[0, 0.1, 0.95]} visible={false}>
+        <mesh>
+          <octahedronGeometry args={[0.85, 0]} />
+          <meshBasicMaterial color={CHARACTERS[charId].color} transparent opacity={0.9} blending={THREE.AdditiveBlending} />
+        </mesh>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.05, 0.08, 8, 20]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.75} blending={THREE.AdditiveBlending} />
+        </mesh>
+      </group>
       <mesh ref={aura} visible={false}>
         <sphereGeometry args={[0.8, 20, 20]} />
         <meshBasicMaterial color="#ffd24d" transparent opacity={0.35} blending={THREE.AdditiveBlending} depthWrite={false} />
