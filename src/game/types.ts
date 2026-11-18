@@ -217,7 +217,7 @@ export interface SkillContext {
   shake(amount: number): void
 }
 
-export type FxKind = 'slash' | 'ring' | 'burst' | 'afterimage' | 'beam' | 'pillar' | 'slingshot' | 'summon'
+export type FxKind = 'slash' | 'ring' | 'burst' | 'afterimage' | 'beam' | 'pillar' | 'slingshot' | 'summon' | 'fatal'
 export type SummonModel = 'ufo' | 'goldfish' | 'blueEyes' | 'ghost' | 'train' | 'eagle' | 'needle' | 'hollow' | 'iceShark' | 'thunderFox' | 'baku'
 export interface FxSpec {
   kind: FxKind

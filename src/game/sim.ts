@@ -313,7 +313,14 @@ function tryStartSkill(f: FighterState, slot: SkillSlot, inp: InputFrame): boole
 
 function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputFrame) {
   f.energy -= def.energyCost
-  if (def.requiresUlt) { f.ultReady = false; sfx('ultStart') }
+  if (def.requiresUlt) {
+    f.ultReady = false
+    sfx('ultStart')
+    const ch = CHARACTERS[f.character]
+    runtime.hitstopMs = Math.max(runtime.hitstopMs, 420)
+    store().triggerUltCutin({ charId: f.character, name: ch.name, skillName: def.name, color: ch.color })
+    addFx({ kind: 'ring', pos: [...f.pos], color: ch.color, ttl: 480, radius: 3.2, plane: 'vertical' })
+  }
   else if (def.projectile) sfx('shoot')
   else sfx('swing', Math.min(1, def.damage / 25))
   if (def.cooldownMs) f.cooldowns[def.id] = def.cooldownMs * COOLDOWN_SCALE
@@ -602,7 +609,12 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   att.energy = Math.min(ENERGY_MAX, att.energy + dmg * 1.2)
   tgt.energy = Math.min(ENERGY_MAX, tgt.energy + dmg * 0.6)
   runtime.shake = Math.max(runtime.shake, Math.min(0.9, speed * 0.02))
-  if (speed >= 18) {
+  if (speed >= 26 || (speed >= 21 && tgt.damage >= 95)) {
+    runtime.hitstopMs = Math.max(runtime.hitstopMs, 260)
+    runtime.shake = Math.max(runtime.shake, 1.1)
+    store().triggerFatalFlash(tgt.pos[0], tgt.pos[1])
+    addFx({ kind: 'fatal', pos: [tgt.pos[0], tgt.pos[1], 0], color: '#ef4444', ttl: 480, radius: 4.5 })
+  } else if (speed >= 18) {
     runtime.hitstopMs = Math.max(runtime.hitstopMs, clamp((speed - 14) * 3.5, 45, 120))
     addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1], 0], color: speed >= 26 ? '#ff3366' : '#ffe066', ttl: 280, radius: 1.4 + speed * 0.04, plane: 'vertical' })
   }

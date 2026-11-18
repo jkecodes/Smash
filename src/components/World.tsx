@@ -414,9 +414,13 @@ export function CameraRig() {
     cy = THREE.MathUtils.clamp(cy, -2, 13)
     const k = 1 - Math.pow(0.02, dt)
     const sh = runtime.shake
-    const target = new THREE.Vector3(cx * 0.8 + (Math.random() - 0.5) * sh, cy + 4 + (Math.random() - 0.5) * sh, 12 + spread * 1.05)
-    camera.position.lerp(target, k)
-    look.current.lerp(new THREE.Vector3(cx * 0.8, cy + 1, 0), k)
+    const fatal = useGameStore.getState().fatalFlash
+    const zoomActive = fatal && performance.now() < fatal.until
+    const target = zoomActive
+      ? new THREE.Vector3(fatal.x + (Math.random() - 0.5) * sh, fatal.y + 1.2 + (Math.random() - 0.5) * sh, 10.5)
+      : new THREE.Vector3(cx * 0.8 + (Math.random() - 0.5) * sh, cy + 4 + (Math.random() - 0.5) * sh, 12 + spread * 1.05)
+    camera.position.lerp(target, zoomActive ? Math.min(1, k * 2.2) : k)
+    look.current.lerp(zoomActive ? new THREE.Vector3(fatal.x, fatal.y + 0.5, 0) : new THREE.Vector3(cx * 0.8, cy + 1, 0), zoomActive ? Math.min(1, k * 2.2) : k)
     camera.lookAt(look.current)
   })
   return null

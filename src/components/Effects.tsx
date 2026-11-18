@@ -426,6 +426,37 @@ function SummonFx({ it }: { it: FxItem }) {
   )
 }
 
+function FatalFx({ it }: { it: FxItem }) {
+  const g = useRef<THREE.Group>(null)
+  useFrame(() => {
+    const t = age01(it)
+    if (t >= 1) return removeFx(it.id)
+    if (!g.current) return
+    const s = 0.6 + easeOut(t) * 1.4
+    g.current.scale.setScalar(s)
+    g.current.rotation.z = t * 0.4
+  })
+  return (
+    <group ref={g} position={it.pos}>
+      {/* 大亂鬥致命一擊：黑紅閃電交叉裂空星芒 */}
+      {[0, 0.78, 1.57, 2.35].map((a, i) => (
+        <mesh key={i} rotation={[0, 0, a]}>
+          <boxGeometry args={[it.radius ? it.radius * 2.4 : 9, i % 2 === 0 ? 0.35 : 0.22, 0.2]} />
+          <meshBasicMaterial color={i % 2 === 0 ? '#ef4444' : '#ffffff'} transparent opacity={0.95} blending={ADD} depthWrite={false} />
+        </mesh>
+      ))}
+      <mesh>
+        <ringGeometry args={[2.0, 2.7, 32]} />
+        <meshBasicMaterial color="#dc2626" transparent opacity={0.85} side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[1.2, 16, 16]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.65} />
+      </mesh>
+    </group>
+  )
+}
+
 export function FxLayer() {
   useGameStore((s) => s.fxVersion)
   return (
@@ -440,6 +471,7 @@ export function FxLayer() {
           case 'pillar': return <Pillar key={it.id} it={it} />
           case 'slingshot': return <SlingshotFx key={it.id} it={it} />
           case 'summon': return <SummonFx key={it.id} it={it} />
+          case 'fatal': return <FatalFx key={it.id} it={it} />
         }
       })}
     </>

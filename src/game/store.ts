@@ -80,6 +80,10 @@ interface GameStore {
   projVersion: number
   zoneVersion: number
   fxVersion: number
+  ultCutin: { charId: CharacterId; name: string; skillName: string; color: string; until: number } | null
+  fatalFlash: { until: number; x: number; y: number } | null
+  triggerUltCutin(data: { charId: CharacterId; name: string; skillName: string; color: string }): void
+  triggerFatalFlash(x: number, y: number): void
   select(id: FighterId, c: CharacterId): void
   startMatch(): void
   endMatch(w: FighterId): void
@@ -112,17 +116,34 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((s) => ({ playerModel: { ...s.playerModel, [id]: file ? { url: URL.createObjectURL(file), name: file.name } : null } }))
   },
   projVersion: 0, zoneVersion: 0, fxVersion: 0,
+  ultCutin: null,
+  fatalFlash: null,
+  triggerUltCutin: (data) => {
+    const until = performance.now() + 950
+    set({ ultCutin: { ...data, until } })
+    setTimeout(() => {
+      if ((get().ultCutin?.until ?? 0) <= performance.now()) set({ ultCutin: null })
+    }, 980)
+  },
+  triggerFatalFlash: (x, y) => {
+    const until = performance.now() + 420
+    set({ fatalFlash: { until, x, y } })
+    setTimeout(() => {
+      if ((get().fatalFlash?.until ?? 0) <= performance.now()) set({ fatalFlash: null })
+    }, 440)
+  },
   select: (id, c) => set((s) => ({ selection: { ...s.selection, [id]: c } })),
   startMatch: () => {
     const { selection } = get()
     set({
       phase: 'playing', winner: null, paused: false,
+      ultCutin: null, fatalFlash: null,
       fighters: buildFighters(selection),
       ui: buildUi(selection),
     })
   },
-  endMatch: (w) => set({ phase: 'ended', winner: w, paused: false }),
-  toMenu: () => set({ phase: 'menu', winner: null, paused: false }),
+  endMatch: (w) => set({ phase: 'ended', winner: w, paused: false, ultCutin: null, fatalFlash: null }),
+  toMenu: () => set({ phase: 'menu', winner: null, paused: false, ultCutin: null, fatalFlash: null }),
   publishUi: (ui) => set({ ui }),
   toggleDebug: () => set((s) => ({ showDebug: !s.showDebug })),
 }))

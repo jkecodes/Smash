@@ -1077,6 +1077,8 @@ export function HUD() {
   const winner = useGameStore((s) => s.winner)
   const playerCount = useGameStore((s) => s.playerCount)
   const selection = useGameStore((s) => s.selection)
+  const ultCutin = useGameStore((s) => s.ultCutin)
+  const fatalFlash = useGameStore((s) => s.fatalFlash)
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
   const activeIds = ALL_FIGHTER_IDS.slice(0, playerCount)
@@ -1101,6 +1103,36 @@ export function HUD() {
         </div>
       )}
       {phase === 'menu' && <Menu onGuide={setGuideChar} guideOpen={guideChar !== null} />}
+      {phase === 'playing' && fatalFlash && (
+        <div
+          className="pointer-events-none absolute inset-0 z-40"
+          style={{
+            background: 'radial-gradient(circle at 50% 50%, rgba(239,68,68,0.35) 0%, rgba(185,28,28,0.65) 45%, rgba(0,0,0,0.88) 100%)',
+            backgroundImage:
+              'repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,0.22) 0deg 2deg, transparent 2deg 14deg), radial-gradient(circle at 50% 50%, rgba(239,68,68,0.28) 0%, rgba(153,27,27,0.6) 52%, rgba(0,0,0,0.88) 100%)',
+          }}
+        />
+      )}
+      {phase === 'playing' && ultCutin && (
+        <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center bg-black/55 backdrop-blur-[2px]">
+          <div
+            className="relative flex w-full items-center justify-center gap-5 overflow-hidden border-y-4 border-white py-4 shadow-2xl"
+            style={{
+              background: `linear-gradient(110deg, #020617 0%, ${ultCutin.color}cc 35%, #020617 100%)`,
+              transform: 'skewY(-3deg)',
+            }}
+          >
+            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-black shadow-xl">
+              <CharacterPortrait id={ultCutin.charId} className="h-full w-full" />
+            </div>
+            <div className="flex flex-col text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.9)]">
+              <span className="text-xs font-black tracking-[0.35em] text-yellow-300 uppercase">FINAL SMASH!!</span>
+              <span className="text-3xl sm:text-4xl font-black italic tracking-tight">{ultCutin.name}</span>
+              <span className="mt-0.5 text-sm sm:text-base font-extrabold text-white/95">{ultCutin.skillName}</span>
+            </div>
+          </div>
+        </div>
+      )}
       {phase === 'playing' && paused && <PauseOverlay onGuide={() => setGuideChar(selection.p1)} />}
       {guideChar && <CharGuideModal initialChar={guideChar} onClose={() => setGuideChar(null)} />}
       {phase === 'ended' && winner && (
