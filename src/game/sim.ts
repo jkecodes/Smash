@@ -174,8 +174,24 @@ function tryGrabLedge(f: FighterState, inp: InputFrame): boolean {
   for (const side of [-1, 1] as const) {
     const dx = (f.pos[0] - side * ledgeX) * side // >0 = 在平台外側
     if (dx < -0.4 || dx > 2.3 || f.pos[1] > 0.4 || f.pos[1] < -2.6) continue
-    if (ledgeOwner[String(side)]) continue // 已被占用
     if (inp.moveY < -0.5) continue // 按住「下」= 刻意不抓邊
+    const prevId = ledgeOwner[String(side)]
+    if (prevId && prevId !== f.id) {
+      // 大亂鬥搶邊機制（Ledge Trump）：後抓邊者會把原本懸掛的人擠掉彈飛
+      const prev = store().fighters[prevId]
+      const prevRb = runtime.bodies[prevId]
+      if (prev && prevRb) {
+        prev.ledgeSide = 0
+        prev.ledgeCd = LEDGE_REGRAB_MS
+        prev.invulnMs = 0
+        prev.hitstunMs = 340
+        prevRb.setGravityScale(1, true)
+        prevRb.setLinvel({ x: side * 6.5, y: 5.0, z: 0 }, true)
+        setFsm(prev, 'HITSTUN')
+        addFx({ kind: 'burst', pos: [side * ledgeX, 0, 0], color: '#ff6b6b', ttl: 320, count: 12, speed: 5, size: 0.16 })
+        sfx('hit', 0.4)
+      }
+    }
     ledgeOwner[String(side)] = f.id
     f.ledgeSide = side
     f.ledgeMs = 0
