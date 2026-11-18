@@ -52,8 +52,9 @@ export function removeZone(id: number) {
   if (i >= 0) { runtime.zones.splice(i, 1); bump('zoneVersion') }
 }
 export function addSummon(s: Omit<Summon, 'id'>) {
+  const maxOwned = s.kind === 'loong' ? 1 : 2
   const owned = runtime.summons.filter((x) => x.owner === s.owner)
-  if (owned.length >= 2) {
+  if (owned.length >= maxOwned) {
     const oldestIdx = runtime.summons.findIndex((x) => x.owner === s.owner)
     if (oldestIdx >= 0) runtime.summons.splice(oldestIdx, 1)
   }
