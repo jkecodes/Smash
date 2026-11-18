@@ -482,16 +482,27 @@ function updateBall(dt: number) {
   }
   const ms = dt * 1000
   b.ttlMs -= ms; b.flashMs = Math.max(0, b.flashMs - ms); b.turnMs -= ms
-  if (b.turnMs <= 0) {
-    b.turnMs = 1500 + Math.random() * 1500
-    const a = Math.random() * Math.PI * 2
-    b.vel = [Math.cos(a) * 4.2, Math.sin(a) * 2.6, 0]
+  if (b.ttlMs > 0) {
+    if (b.turnMs <= 0) {
+      b.turnMs = 1500 + Math.random() * 1500
+      const a = Math.random() * Math.PI * 2
+      b.vel = [Math.cos(a) * 4.2, Math.sin(a) * 2.6, 0]
+    }
+    b.pos = [b.pos[0] + b.vel[0] * dt, b.pos[1] + b.vel[1] * dt, 0]
+    const maxBallX = stage.half.x + 2
+    if (Math.abs(b.pos[0]) > maxBallX) { b.pos[0] = Math.sign(b.pos[0]) * maxBallX; b.vel[0] *= -1 }
+    if (b.pos[1] < 2.5 || b.pos[1] > 9) { b.pos[1] = clamp(b.pos[1], 2.5, 9); b.vel[1] *= -1 }
+  } else {
+    // 太久沒人打破時不再折返，而是斜上方緩緩飄出畫面外
+    const exitDir = b.pos[0] >= 0 ? 1 : -1
+    b.vel = [exitDir * 9.5, 5.5, 0]
+    b.pos = [b.pos[0] + b.vel[0] * dt, b.pos[1] + b.vel[1] * dt, 0]
+    const blast = stage.blast ?? BLAST
+    if (Math.abs(b.pos[0]) > blast.x + 2 || b.pos[1] > blast.maxY + 2) {
+      runtime.ball = null
+      ballTimer = 12
+    }
   }
-  b.pos = [b.pos[0] + b.vel[0] * dt, b.pos[1] + b.vel[1] * dt, 0]
-  const maxBallX = stage.half.x + 2
-  if (Math.abs(b.pos[0]) > maxBallX) { b.pos[0] = Math.sign(b.pos[0]) * maxBallX; b.vel[0] *= -1 }
-  if (b.pos[1] < 2.5 || b.pos[1] > 9) { b.pos[1] = clamp(b.pos[1], 2.5, 9); b.vel[1] *= -1 }
-  if (b.ttlMs <= 0) { addFx({ kind: 'burst', pos: [...b.pos], color: '#999999', ttl: 500, count: 20, speed: 4, size: 0.15 }); runtime.ball = null; ballTimer = 12 }
 }
 
 /** 角色互相重疊時輕微推開（角色之間沒有剛體碰撞，支援最多 8 人兩兩分離） */
