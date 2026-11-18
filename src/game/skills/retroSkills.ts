@@ -139,16 +139,24 @@ reg({
   hitbox: { offset: [0, 0.1, 0.2], radius: 2.2 }, damage: 13,
   knockback: { dir: [0, 0.65, 1], base: 20, scaling: 16, radial: true, hitstunMs: 1100 },
   hooks: {
-    onStart(c) { c.setGravityScale(0.25) },
+    onStart(c) {
+      c.setGravityScale(0.2)
+      c.scratch.home = [clampStageX(c.caster.pos[0]), Math.max(1.5, c.caster.pos[1]), 0]
+    },
     onTick(c) {
       if (c.phase === 'recovery') return
       c.setInvulnerable(140)
       if (c.phase !== 'active') return
+      const s = useGameStore.getState()
+      const hx = Math.min(14, resolveStage(s.stageId, s.stageForm).half.x - 1.2)
       const e = c.nearestEnemy()
-      const dx = e ? Math.sign(e.pos[0] - c.caster.pos[0]) || c.forward[0] : c.forward[0]
-      const dy = e ? Math.sign(e.pos[1] - c.caster.pos[1]) * 10 : 0
+      const tx = e ? Math.max(-hx, Math.min(hx, e.pos[0])) : 0
+      const ty = e ? Math.max(1.2, Math.min(9, e.pos[1])) : 2.5
+      let dx = Math.sign(tx - c.caster.pos[0]) || c.forward[0]
+      if (Math.abs(c.caster.pos[0]) > hx) dx = -Math.sign(c.caster.pos[0])
+      const dy = Math.max(-8, Math.min(10, (ty - c.caster.pos[1]) * 3.5))
       c.caster.facing = [dx, 0]
-      c.setVelocity(dx * 22, dy, 0)
+      c.setVelocity(dx * 19, dy, 0)
       trail(c, 45, PAC, 280)
       c.scratch.p = (c.scratch.p ?? 0) - c.dt * 1000
       if (c.scratch.p <= 0) {
@@ -156,7 +164,15 @@ reg({
         c.fx({ kind: 'ring', pos: [...c.caster.pos], color: PAC, ttl: 260, radius: 2.2 })
       }
     },
-    onEnd(c) { c.setGravityScale(1) },
+    onEnd(c) {
+      c.setGravityScale(1)
+      c.setVelocity(0, 2, 0)
+      const s = useGameStore.getState()
+      const hx = Math.min(14, resolveStage(s.stageId, s.stageForm).half.x - 1.2)
+      if (Math.abs(c.caster.pos[0]) > hx || c.caster.pos[1] < 0) {
+        c.teleport([Math.max(-hx, Math.min(hx, c.caster.pos[0])), Math.max(2, c.caster.pos[1]), 0])
+      }
+    },
   },
 })
 

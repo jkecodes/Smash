@@ -242,6 +242,19 @@ function applySnapshot(msg: any) {
     }))
     useGameStore.setState((s) => ({ projVersion: s.projVersion + 1 }))
   }
+  if (Array.isArray(msg.zones)) {
+    runtime.zones = msg.zones.map((z: any) => ({
+      id: z.id,
+      owner: z.owner,
+      pos: z.pos,
+      radius: z.radius,
+      color: z.color,
+      slowFactor: 1,
+      ttlMs: z.ttlMs,
+      tickMs: 0,
+    }))
+    useGameStore.setState((s) => ({ zoneVersion: s.zoneVersion + 1 }))
+  }
   if (msg.phase === 'ended' && msg.winner && gs.phase !== 'ended') {
     gs.endMatch(msg.winner)
   }
@@ -329,6 +342,9 @@ export function broadcastStateIfHost() {
     ball: runtime.ball,
     projectiles: runtime.projectiles.map((p) => ({
       id: p.id, owner: p.owner, pos: p.pos, vel: p.vel, radius: p.radius, color: p.color, skillId: p.source.def.id,
+    })),
+    zones: runtime.zones.map((z) => ({
+      id: z.id, owner: z.owner, pos: z.pos, radius: z.radius, color: z.color, ttlMs: z.ttlMs,
     })),
     phase: gs.phase,
     winner: gs.winner,
