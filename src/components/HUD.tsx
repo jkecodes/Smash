@@ -86,7 +86,11 @@ function usePadMenu(active: boolean, onConfirm: () => void) {
 function PadStatus() {
   const [n, setN] = useState(connectedPadCount())
   useEffect(() => { const t = setInterval(() => setN(connectedPadCount()), 500); return () => clearInterval(t) }, [])
-  return <div className="text-xs text-emerald-300">{n > 0 ? `🎮 已偵測到 ${n} 支手把（P1=第1支、P2=第2支；按任一手把按鍵啟用）` : '🎮 未偵測到手把（接上後按任一鍵）'}</div>
+  return (
+    <span className={`text-xs ${n > 0 ? 'text-emerald-300 font-medium' : 'text-white/40'}`}>
+      {n > 0 ? `🎮 已連接 ${n} 支手把` : '🎮 未連接手把'}
+    </span>
+  )
 }
 
 const KIND_LABEL = { xbox: 'Xbox', ps: 'PlayStation', nintendo: 'Nintendo / Joy-Con', generic: '通用手把' } as const
@@ -248,23 +252,125 @@ function StagePicker() {
   )
 }
 
+function HelpModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.code === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [onClose])
+
+  return (
+    <div
+      className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-w-2xl w-full rounded-2xl bg-[#141929] border border-white/20 p-6 text-white shadow-2xl space-y-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="text-base font-black tracking-wider flex items-center gap-2">
+            <span>📖 操作指南與戰鬥技巧</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg bg-white/10 px-3 py-1 text-xs hover:bg-white/20 transition-colors"
+          >
+            ✕ 關閉 (Esc)
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3.5 text-xs">
+          {/* 鍵盤配置 */}
+          <div className="rounded-xl bg-white/5 p-3.5 space-y-2 border border-white/5">
+            <div className="font-bold text-yellow-300 flex items-center gap-1.5">
+              <span>⌨️</span> 鍵盤按鍵配置
+            </div>
+            <div className="space-y-2 text-white/85 text-[11px] leading-relaxed">
+              <div>
+                <span className="text-red-400 font-bold">P1：</span>
+                WASD 移動 / 跳躍 (亦可 Space)<br />
+                <span className="text-white/60">J</span> 攻擊 · <span className="text-white/60">K</span> 特招 · <span className="text-white/60">L</span> 技能2 · <span className="text-white/60">I</span> 大招<br />
+                <span className="text-white/60">LShift</span> 防禦 · <span className="text-white/60">S</span> 快速下墜 / 穿層板
+              </div>
+              <div className="pt-1.5 border-t border-white/10">
+                <span className="text-blue-400 font-bold">P2：</span>
+                方向鍵 移動 / 跳躍 (亦可 Enter)<br />
+                <span className="text-white/60">.</span> 攻擊 · <span className="text-white/60">/</span> 特招 · <span className="text-white/60">'</span> 技能2 · <span className="text-white/60">;</span> 大招<br />
+                <span className="text-white/60">RShift</span> 防禦 · <span className="text-white/60">↓</span> 快速下墜 / 穿層板
+              </div>
+            </div>
+          </div>
+
+          {/* 手把配置 */}
+          <div className="rounded-xl bg-white/5 p-3.5 space-y-2 border border-white/5">
+            <div className="font-bold text-emerald-300 flex items-center gap-1.5">
+              <span>🎮</span> 手把配置（大亂鬥佈局）
+            </div>
+            <div className="space-y-1 text-white/85 text-[11px] leading-relaxed">
+              <div><strong className="text-white/60">左搖桿：</strong>移動 / 上推跳躍 / 下推穿板</div>
+              <div><strong className="text-white/60">右側鍵 (Xbox B / PS ○)：</strong>普攻</div>
+              <div><strong className="text-white/60">下側鍵 (Xbox A / PS ✕)：</strong>特招（持有大招時為大招）</div>
+              <div><strong className="text-white/60">右搖桿：</strong>技能2（支援推住蓄力）</div>
+              <div><strong className="text-white/60">X / Y：</strong>跳躍</div>
+              <div><strong className="text-white/60">LB / RB / LT：</strong>防禦</div>
+              <div><strong className="text-white/60">Start：</strong>暫停</div>
+              <div className="text-[10px] text-white/50 pt-0.5">※ 如非標準手把，可在選單點擊「設定手把」精靈綁定。</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 戰鬥技巧 */}
+        <div className="rounded-xl bg-white/5 p-3 space-y-1.5 text-[11px] border border-white/5 text-white/85">
+          <div className="font-bold text-amber-300 flex items-center gap-1.5">
+            <span>⚡</span> 進階戰鬥機制
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-white/75 text-[11px]">
+            <div>• <strong className="text-white">方向招式：</strong>方向（左右/上/下）＋普攻或特招</div>
+            <div>• <strong className="text-white">蓄力重擊：</strong>普攻＋特招同按並按住蓄力</div>
+            <div>• <strong className="text-white">地面閃避：</strong>防禦中按左右＝翻滾，拿下＝原地閃避</div>
+            <div>• <strong className="text-white">空中閃避：</strong>空中按防禦（落地前限一次）</div>
+            <div>• <strong className="text-white">邊緣抓邊：</strong>落出場外靠近邊緣自動抓邊（按住下不抓）</div>
+            <div>• <strong className="text-white">大招球：</strong>打破場上浮動大招球即獲全屏大招資格</div>
+          </div>
+        </div>
+
+        {/* 快捷鍵 */}
+        <div className="flex justify-between items-center text-[11px] text-white/50 pt-1">
+          <span>快捷鍵：<strong className="text-white/80">Esc/P</strong> 暫停 · <strong className="text-white/80">M</strong> 靜音 · <strong className="text-white/80">H</strong> 判定框除錯 · <strong className="text-white/80">U</strong> 測試給予大招</span>
+          <button
+            onClick={onClose}
+            className="rounded-lg bg-yellow-300 px-5 py-1.5 font-bold text-black hover:bg-yellow-200 transition-colors"
+          >
+            我知道了
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Menu() {
   const [wizard, setWizard] = useState<FighterId | null>(null)
-  usePadMenu(wizard === null, () => { clearEntities(); resetSimStage(); useGameStore.getState().startMatch() })
+  const [showHelp, setShowHelp] = useState(false)
+  usePadMenu(wizard === null && !showHelp, () => { clearEntities(); resetSimStage(); useGameStore.getState().startMatch() })
   const selection = useGameStore((s) => s.selection)
   const select = useGameStore((s) => s.select)
   const start = useGameStore((s) => s.startMatch)
+
   return (
-    <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-5 bg-black/70 text-white">
+    <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/70 text-white select-none">
       <h1 className="text-6xl font-black italic tracking-tight">smash<span className="text-yellow-300">!!!</span></h1>
-      <div className="flex gap-10">
+      <div className="flex gap-8">
         {FIGHTER_IDS.map((id) => (
-          <div key={id} className="w-72 rounded-xl bg-white/10 p-4">
+          <div key={id} className="w-72 rounded-xl bg-white/10 p-3.5 backdrop-blur-sm border border-white/10">
             <div className="mb-2 text-sm font-bold">{id.toUpperCase()}</div>
             <div className="flex flex-wrap gap-1.5">
               {CHARACTER_IDS.map((c) => (
                 <button key={c} onClick={() => select(id, c)}
-                  className={`rounded px-2 py-1.5 text-xs font-bold ${selection[id] === c ? 'ring-2 ring-white' : 'opacity-60'}`}
+                  className={`rounded px-2 py-1.5 text-xs font-bold transition-all ${selection[id] === c ? 'ring-2 ring-white scale-105' : 'opacity-60 hover:opacity-90'}`}
                   style={{ background: CHARACTERS[c].color, color: '#001' }}>{CHARACTERS[c].name}</button>
               ))}
             </div>
@@ -274,20 +380,33 @@ function Menu() {
           </div>
         ))}
       </div>
+
       <StagePicker />
+
       {wizard && <PadWizard id={wizard} onClose={() => setWizard(null)} />}
-      <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded-lg bg-yellow-300 px-10 py-2.5 text-xl font-black text-black hover:bg-yellow-200">START</button>
-      <div className="grid grid-cols-2 gap-x-12 text-xs text-white/70">
-        <div>P1　A/D 移動　W/Space 跳　S 快速下墜　Shift 防禦<br />J 攻擊　K 技能1　L 技能2　I 大招</div>
-        <div>P2　←/→ 移動　↑/Enter 跳　↓ 快速下墜　右Shift 防禦<br />. 攻擊　/ 技能1　' 技能2　; 大招　（亦支援手把）</div>
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+
+      <div className="flex flex-col items-center gap-2 mt-1">
+        <button
+          onClick={() => { clearEntities(); resetSimStage(); start() }}
+          className="rounded-xl bg-yellow-300 px-12 py-3 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
+        >
+          START
+        </button>
+
+        <div className="flex items-center gap-3 text-xs text-white/60">
+          <button
+            type="button"
+            onClick={() => setShowHelp(true)}
+            className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-white/80 hover:bg-white/20 hover:text-white transition-all border border-white/10 hover:border-white/25"
+          >
+            <span>📖</span>
+            <span>操作指南 & 按鍵說明</span>
+          </button>
+          <span className="text-white/20">|</span>
+          <PadStatus />
+        </div>
       </div>
-      <PadStatus />
-      <div className="max-w-3xl text-center text-xs leading-relaxed text-white/60">
-        手把（大亂鬥配置，以按鍵位置為準）：左搖桿移動／上推跳躍・右側鍵（Xbox B）普攻・下側鍵（Xbox A）特招・右搖桿 技能2（按住蓄力）・X/Y 跳躍・LB/RB/LT 防禦<br />搖桿方向（左右/上/下）＋普攻或特招＝不同招式；防禦＋左右＝翻滾、防禦＋下＝原地閃避、空中按防禦＝空中閃避；站在層板上向下推＝穿下去；暫停：Esc / P / 手把 Start；普攻＋特招同按並按住＝蓄力重擊；持有大招資格時按特招＝大招<br />
-        選單：左右選角色・A/B/Start 開始
-      </div>
-      <div className="text-xs text-yellow-200/80">場上會飄出「大招球」：打破它的人獲得一次大招（被擊倒會失去）· 測試：按 U 雙方立即獲得大招 · 靠近平台邊緣自動抓邊（按住下不抓）</div>
-      <div className="text-xs text-white/50">H：切換判定框顯示　·　NOVA 蓄力技（技能2）按住蓄力、放開發射</div>
     </div>
   )
 }
