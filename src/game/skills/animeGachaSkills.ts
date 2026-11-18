@@ -821,6 +821,17 @@ function registerKit(k: KitSpec) {
           } else if (!c.scratch.burstFinisher) {
             c.scratch.burstFinisher = true
             if (p === 'deku' || p === 'firefly') c.setLocalVelocity(0, 2, 16)
+            if (p === 'mino') {
+              for (const yOff of [-0.6, 0.2, 1.0, 1.8]) {
+                c.spawnProjectile({ pos: [c.caster.pos[0], c.caster.pos[1] + yOff, 0], vel: [c.forward[0] * 26, 0, 0], radius: 0.55, ttlMs: 1200, color: '#22d3ee', pierce: true })
+              }
+            } else if (p === 'blackbomber') {
+              for (const [vx, vy] of [[18, 0], [-18, 0], [0, 16], [0, -16]]) {
+                c.spawnProjectile({ pos: [...c.caster.pos], vel: [vx, vy, 0], radius: 0.65, ttlMs: 1100, color: '#ec4899', explodeRadius: 3.0 })
+              }
+            } else if (p === 'umi') {
+              c.caster.damage = Math.max(0, c.caster.damage - 10)
+            }
             c.fx({ kind: 'ring', pos: [...c.caster.pos], color: k.ult.color, ttl: 580, radius: 5.8 })
             c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffffff', ttl: 480, radius: 4.6, plane: 'vertical' })
             c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: k.ult.color, ttl: 600, radius: 3.2 })
