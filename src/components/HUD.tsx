@@ -149,14 +149,14 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
         </div>
       )}
       {mech && (
-        <div className="mt-1 space-y-0.5 rounded bg-white/10 px-1.5 py-0.5 text-[10px]">
-          <div className="flex items-center justify-between font-bold">
+        <div className={`mt-1.5 space-y-1 rounded-lg bg-white/10 px-2 py-1 ${compact ? 'text-[11px]' : 'text-sm'}`}>
+          <div className="flex items-center justify-between font-black tracking-wide">
             <span style={{ color: mech.color }}>{mech.label}</span>
-            <span className={mech.gauge >= 100 || mech.activeMs > 0 ? 'text-yellow-300 animate-pulse' : 'text-white/75'}>
+            <span className={`font-mono ${mech.gauge >= 100 || mech.activeMs > 0 ? 'text-yellow-300 animate-pulse' : 'text-white/90'}`}>
               {mech.activeMs > 0 ? `覺醒 ${(mech.activeMs / 1000).toFixed(1)}s` : mech.gauge >= 100 ? 'MAX!!' : `${Math.round(mech.gauge)}%`}
             </span>
           </div>
-          <div className="h-1 w-full overflow-hidden rounded-full bg-black/50">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/50">
             <div className="h-full transition-all duration-100" style={{ width: `${mech.gauge}%`, backgroundColor: mech.color }} />
           </div>
         </div>
