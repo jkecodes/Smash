@@ -552,10 +552,18 @@ reg({
 // =====================================================================
 const KNG = '#a16207'
 reg({
-  id: 'kong.slap', name: '重拳連拍', energyCost: 0, startupMs: 110, activeMs: 110, recoveryMs: 210,
+  id: 'kong.slap', name: '重拳連拍（可蓄力）', energyCost: 0, startupMs: 110, activeMs: 110, recoveryMs: 210,
+  charge: { maxMs: 750, damageMult: [1, 2.3], knockbackMult: [1, 2.0] },
   hitbox: { offset: [0, 0.1, 1.15], radius: 1.15 }, damage: 6.5,
   knockback: { dir: [0, 0.3, 1], base: 7, scaling: 9 },
-  hooks: { onActive(c) { c.setLocalVelocity(0, null, 4.5); c.shake(0.18); slash(c, '#fb923c', { r: 1.75 }) } },
+  hooks: {
+    onActive(c) {
+      c.setLocalVelocity(0, null, 4.5 + c.chargeRatio * 5)
+      c.shake(0.18 + c.chargeRatio * 0.25)
+      slash(c, '#fb923c', { r: 1.75 + c.chargeRatio * 0.5 })
+      if (c.chargeRatio > 0.35) c.fx({ kind: 'ring', pos: at(c, 0.1, 0.9), color: '#fb923c', ttl: 280, radius: 1.8, plane: 'vertical' })
+    },
+  },
 })
 registerTilts('kong', { color: KNG, names: ['巨臂揮擊', '拍擊對空', '重掌拍地'], dmg: 7.5 })
 reg({
@@ -909,11 +917,20 @@ reg({
 // ================================================================ 11. RYU 隆 (Street Fighter)
 const RYU = '#38bdf8'
 reg({
-  id: 'ryu.a1', name: '正拳直擊', energyCost: 0, chain: 'ryu.a2',
+  id: 'ryu.a1', name: '正拳直擊（可蓄力）', energyCost: 0, chain: 'ryu.a2',
   startupMs: 55, activeMs: 85, recoveryMs: 135,
+  charge: { maxMs: 650, damageMult: [1, 2.2], knockbackMult: [1, 1.9] },
   hitbox: { offset: [0, 0.12, 0.9], radius: 0.88 }, damage: 3.5,
   knockback: { dir: [0, 0.2, 1], base: 5.5, scaling: 5.5 },
-  hooks: { onActive(c) { slash(c, '#ffffff', { r: 1.25 }) } },
+  hooks: {
+    onActive(c) {
+      slash(c, c.chargeRatio > 0.35 ? RYU : '#ffffff', { r: 1.25 + c.chargeRatio * 0.45 })
+      if (c.chargeRatio > 0.35) {
+        c.fx({ kind: 'ring', pos: at(c, 0.1, 0.9), color: RYU, ttl: 260, radius: 1.5, plane: 'vertical' })
+        c.shake(0.22)
+      }
+    },
+  },
 })
 reg({
   id: 'ryu.a2', name: '鳩尾碎重拳', energyCost: 0,

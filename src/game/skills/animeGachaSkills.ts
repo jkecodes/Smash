@@ -90,14 +90,26 @@ const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
   hutao: 'ghost',
 }
 
+const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover'])
+
 function registerKit(k: KitSpec) {
   const { p, color } = k
+  const canCharge = CHARGE_ATTACK_CHARS.has(p)
   reg({
-    id: `${p}.a1`, name: k.a1, energyCost: 0, chain: `${p}.a2`,
+    id: `${p}.a1`, name: canCharge ? `${k.a1}（可蓄力）` : k.a1, energyCost: 0, chain: `${p}.a2`,
     startupMs: 55, activeMs: 85, recoveryMs: 135,
+    ...(canCharge ? { charge: { maxMs: 650, damageMult: [1, 2.3] as [number, number], knockbackMult: [1, 1.95] as [number, number] } } : {}),
     hitbox: { offset: [0, 0.12, 0.95], radius: 0.9 }, damage: 3.5,
     knockback: { dir: [0, 0.22, 1], base: 5.5, scaling: 5.5 },
-    hooks: { onActive(c) { slash(c, '#ffffff', { r: 1.3 }) } },
+    hooks: {
+      onActive(c) {
+        slash(c, c.chargeRatio > 0.35 ? color : '#ffffff', { r: 1.3 + c.chargeRatio * 0.5 })
+        if (c.chargeRatio > 0.35) {
+          c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color, ttl: 260, radius: 1.6, plane: 'vertical' })
+          c.shake(0.24)
+        }
+      },
+    },
   })
   reg({
     id: `${p}.a2`, name: k.a2, energyCost: 0,
