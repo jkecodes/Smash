@@ -655,7 +655,7 @@ function ProjectileView({ p }: { p: Projectile }) {
           )
         ) : charId === 'chihiro' ? (
           <group scale={[r * 1.15, r * 1.15, r * 1.15]}>
-            {/* 六平千紘：直接發射 3D 黑紅金魚（錦／涅） */}
+            {/* 六平千礦：直接發射 3D 黑紅金魚（錦／涅） */}
             <mesh scale={[1.4, 0.85, 0.7]}><sphereGeometry args={[0.7, 14, 14]} /><meshStandardMaterial color="#18181b" emissive="#ef4444" emissiveIntensity={0.55} /></mesh>
             <mesh position={[0.45, 0.12, 0.45]}><sphereGeometry args={[0.1, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
             <mesh position={[0.45, 0.12, -0.45]}><sphereGeometry args={[0.1, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>

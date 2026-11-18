@@ -834,7 +834,7 @@ export const STAGES: Partial<Record<StageId, StageDef>> = {
   chihiro: {
     id: 'chihiro', half: { x: 8.2, y: 0.5, z: 2.5 }, blast: { x: 24, minY: -14, maxY: 26 }, ledgeX: 8.2, spawnX: { p1: -3.5, p2: 3.5 },
     platforms: [{ x: -4.6, y: 3.2, w: 2.4, color: '#7f1d1d', edgeColor: '#ef4444' }, { x: 4.6, y: 3.2, w: 2.4, color: '#18181b', edgeColor: '#f87171' }],
-    theme: { name: '六平鍛刀工坊', subtitle: 'Kagurabachi Forge', tag: '千紘主場・窄橋雙刀架', desc: '《神樂鉢》短兵相接的窄橋鍛刀工坊，兩側高懸雙刀架台。', bg: '#16090c', fog: '#16090c', ambientColor: '#fca5a5', ambientIntensity: 0.82, dirLightColor: '#ffe4e6', dirLightIntensity: 1.8, dirLightPos: [8, 20, 12], mainColor: '#271216', surfaceColor: '#4c1d24', edgeColor: '#ef4444', gridColor1: '#7f1d1d', gridColor2: '#1f080b', platColor: '#7f1d1d', platEdgeColor: '#ef4444', accentColor: '#ef4444' },
+    theme: { name: '六平鍛刀工坊', subtitle: 'Kagurabachi Forge', tag: '千礦主場・窄橋雙刀架', desc: '《神樂鉢》短兵相接的窄橋鍛刀工坊，兩側高懸雙刀架台。', bg: '#16090c', fog: '#16090c', ambientColor: '#fca5a5', ambientIntensity: 0.82, dirLightColor: '#ffe4e6', dirLightIntensity: 1.8, dirLightPos: [8, 20, 12], mainColor: '#271216', surfaceColor: '#4c1d24', edgeColor: '#ef4444', gridColor1: '#7f1d1d', gridColor2: '#1f080b', platColor: '#7f1d1d', platEdgeColor: '#ef4444', accentColor: '#ef4444' },
   },
   ichi: {
     id: 'ichi', half: { x: 9.8, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.8, spawnX: { p1: -4.2, p2: 4.2 },

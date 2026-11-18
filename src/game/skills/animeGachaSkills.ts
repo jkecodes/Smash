@@ -95,7 +95,6 @@ interface KitSpec {
 }
 
 const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
-  chihiro: 'goldfish',
   ichi: 'baku',
   nona: 'needle',
   gojo: 'hollow',
@@ -576,12 +575,12 @@ function registerKit(k: KitSpec) {
 
 const KITS: KitSpec[] = [
   {
-    p: 'chihiro', color: '#ef4444', a1: '淵天抜刀斬', a2: '千紘居合斬',
+    p: 'chihiro', color: '#ef4444', a1: '淵天抜刀斬', a2: '千礦居合斬',
     tilts: ['黑金魚橫閃', '鯉刃上挑', '水墨下切'],
     s1: { name: '妖刀「黑」金魚斬波', projColor: '#ef4444', pierce: true, speed: 22 },
     side: '妖刀「錦」極速突進', up: '涅・昇龍斬空', down: '淵天・水墨震斬',
     s2: { name: '赤金魚吸收反擊環', kind: 'ring', color: '#ef4444' },
-    smashes: ['深淵黑閃重劈', '千紘破曉上斬', '金魚旋渦斬'],
+    smashes: ['深淵黑閃重劈', '千礦破曉上斬', '金魚旋渦斬'],
     ult: { name: '妖刀「淵天」黑・錦・涅 三連奧義！', kind: 'omnislash', color: '#ef4444' },
   },
   {

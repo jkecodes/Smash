@@ -425,7 +425,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     },
   },
   chihiro: {
-    id: 'chihiro', name: 'CHIHIRO 六平千紘', color: '#ef4444',
+    id: 'chihiro', name: 'CHIHIRO 六平千礦', color: '#ef4444',
     trait: '🐟 Kagurabachi 妖刀「淵天」黑・錦・涅金魚水墨斬擊！',
     guide: {
       summary: '《神樂鉢》背負妖刀「淵天」的少年！高速居合拔刀搭配水墨黑金魚斬波遠近皆強。',
