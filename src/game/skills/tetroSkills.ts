@@ -96,16 +96,16 @@ function stackBlocks(c: SkillContext, _count: number) {
   const cells = piece.blocks.map(([x, y]) => [Math.round(x - minX), Math.round(y - minY)] as [number, number])
   const width = Math.max(...cells.map(([x]) => x)) + 1
 
-  // 嘗試不同水平偏移 ox，優先選能落得最低且不超出 4×6 棋盤的位置
+  // 簡化上手：優先把方塊落在左 3 欄（0..2），並自動修補底層空洞，確保每次出招都能穩定累積「待消行」！
   let bestOx = 0
   let bestRow = 99
-  for (let ox = 0; ox <= Math.max(0, 4 - width); ox++) {
+  for (let ox = 0; ox <= Math.max(0, 3 - width); ox++) {
     let row = 5
     while (row >= 0) {
       const collides = cells.some(([dx, dy]) => {
         const r = row + dy
         const col = ox + dx
-        if (r < 0 || col < 0 || col >= 4) return true
+        if (r < 0 || col < 0 || col >= 3) return true
         return r < 6 && b.grid[r][col] !== null
       })
       if (collides) break
@@ -123,20 +123,23 @@ function stackBlocks(c: SkillContext, _count: number) {
     for (const [dx, dy] of cells) {
       const r = bestRow + dy
       const col = bestOx + dx
-      if (r >= 0 && r < 6 && col >= 0 && col < 4 && !b.grid[r][col]) {
+      if (r >= 0 && r < 6 && col >= 0 && col < 3 && !b.grid[r][col]) {
         b.grid[r][col] = piece.color
         placed = true
       }
     }
   }
-  // 若棋盤已滿無法整塊放入，退回補滿空位
-  if (!placed) {
-    for (let r = 0; r < 6; r++) {
-      for (let col = 0; col < 3; col++) {
-        if (!b.grid[r][col]) { b.grid[r][col] = piece.color; break }
-      }
+  // 確保每次出招至少穩定補齊最底層未滿列中的 1 個完整待消行（不會因形狀卡洞）
+  for (let r = 0; r < 6; r++) {
+    if (!(b.grid[r][0] && b.grid[r][1] && b.grid[r][2])) {
+      b.grid[r][0] = b.grid[r][0] ?? piece.color
+      b.grid[r][1] = b.grid[r][1] ?? piece.color
+      b.grid[r][2] = b.grid[r][2] ?? piece.color
+      placed = true
+      break
     }
   }
+  void placed
 
   c.fx({
     kind: 'burst',
