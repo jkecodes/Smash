@@ -76,14 +76,6 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
 
   return (
     <div className={`relative rounded-xl bg-black/60 text-white backdrop-blur border border-white/10 transition-all duration-500 ${eliminated ? 'opacity-30 grayscale' : ''} ${compact ? 'w-44 p-2' : 'w-72 p-3'}`}>
-      {u.combo >= 2 && (
-        <div
-          className="-top-7 left-2 absolute animate-bounce rounded-full px-2.5 py-0.5 text-[11px] font-black text-black shadow-lg"
-          style={{ backgroundColor: u.color }}
-        >
-          🔥 {u.combo} HIT!
-        </div>
-      )}
       {clearBanner && (
         <div
           className="-top-7 right-2 absolute animate-pulse rounded-full px-2.5 py-0.5 text-[11px] font-black text-black shadow-lg"
