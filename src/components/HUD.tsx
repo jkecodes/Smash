@@ -380,6 +380,11 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
   const stageForm = useGameStore((s) => s.stageForm)
   const setStageForm = useGameStore((s) => s.setStageForm)
   const activeStage = STAGES[stageId] ?? STAGES.reimu
+  const btnRefs = useRef<Partial<Record<StageId, HTMLButtonElement>>>({})
+
+  useEffect(() => {
+    btnRefs.current[stageId]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [stageId])
 
   const pickRandomStage = () => {
     const pool = STAGE_IDS.filter((id) => id !== stageId)
@@ -478,6 +483,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
             return (
               <button
                 key={item}
+                ref={(el) => { if (el) btnRefs.current[item] = el }}
                 type="button"
                 onClick={() => {
                   if (active && onNext) onNext()
