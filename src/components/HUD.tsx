@@ -2102,17 +2102,17 @@ export function HUD() {
               </div>
             </div>
 
-            {/* 左下：第 2～N 名敗者卡片列 ＋ 右下：再來一場 / 回選單 */}
+            {/* 左下：第 2～N 名敗者卡片列（人多時自動分兩排且放大）＋ 右下：再來一場 / 回選單 */}
             <div className="flex flex-wrap items-end justify-between gap-4 pb-2">
-              <div className="flex flex-wrap items-end gap-3">
+              <div className={`grid gap-3.5 ${rankedIds.length > 5 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:flex sm:flex-wrap'}`}>
                 {rankedIds.slice(1).map((id, idx) => {
                   const rank = idx + 2
                   const u = ui[id]
                   return (
                     <div
                       key={id}
-                      className="relative flex items-center gap-2.5 rounded-xl border-2 border-black bg-sky-600/90 pr-3 pl-2 py-1.5 shadow-xl"
-                      style={{ transform: 'rotate(-2deg)' }}
+                      className="relative flex items-center gap-3 rounded-xl border-2 border-black bg-sky-600/95 pr-4 pl-2.5 py-2 shadow-xl min-w-[12.5rem]"
+                      style={{ transform: 'rotate(-1.5deg)' }}
                     >
                       <span
                         className="absolute -top-4 -left-2 text-3xl font-black italic text-white"
@@ -2120,17 +2120,17 @@ export function HUD() {
                       >
                         {rank}
                       </span>
-                      <div className="relative h-14 w-14 overflow-hidden rounded-lg border-2 border-black bg-black shrink-0">
+                      <div className="relative h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-lg border-2 border-black bg-black shrink-0">
                         <CharacterPortrait id={selection[id]} className="h-full w-full animate-[bounce_0.75s_ease-in-out_infinite]" />
-                        <span className="absolute -bottom-0.5 right-0 text-base leading-none animate-pulse drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">👏</span>
+                        <span className="absolute -bottom-0.5 right-0 text-lg leading-none animate-pulse drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">👏</span>
                       </div>
-                      <div className="text-xs leading-tight">
-                        <div className="font-black text-white drop-shadow">{u.name}</div>
-                        <div className="text-[10px] font-bold text-white/85 font-mono">
+                      <div className="text-sm leading-tight">
+                        <div className="font-black text-white drop-shadow">{zhNameOf(u.name)}</div>
+                        <div className="text-xs font-bold text-white/90 font-mono mt-0.5">
                           擊墜 {u.stats.kos} · {u.stats.damageDealt}%
                         </div>
                         <span
-                          className="mt-1 inline-block rounded px-1.5 py-0 text-[10px] font-black text-black"
+                          className="mt-1 inline-block rounded px-2 py-0.5 text-[11px] font-black text-black"
                           style={{ backgroundColor: PLAYER_COLORS[id] }}
                         >
                           {id.toUpperCase()}
