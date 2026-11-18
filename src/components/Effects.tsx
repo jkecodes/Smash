@@ -188,11 +188,118 @@ export function FxLayer() {
 
 function ProjectileView({ p }: { p: Projectile }) {
   const g = useRef<THREE.Group>(null)
-  useFrame(() => g.current?.position.set(p.pos[0], p.pos[1], p.pos[2]))
+  const spin = useRef<THREE.Group>(null)
+  const charId = useGameStore.getState().selection[p.owner]
+  const skillId = p.source.def.id
+  const r = p.radius
+
+  useFrame((_, dt) => {
+    if (g.current) {
+      g.current.position.set(p.pos[0], p.pos[1], p.pos[2])
+    }
+    if (spin.current) {
+      if (charId === 'kong' || charId === 'mario' || charId === 'bomber' || charId === 'snake' || charId === 'marisa' || charId === 'reimu' || charId === 'yugi' || charId === 'kaiba' || charId === 'tetro') {
+        spin.current.rotation.z -= Math.sign(p.vel[0] || 1) * dt * 10
+        spin.current.rotation.y += dt * 4
+      } else {
+        spin.current.rotation.z = Math.atan2(p.vel[1], p.vel[0])
+      }
+    }
+  })
+
   return (
     <group ref={g} position={p.pos}>
-      <mesh><sphereGeometry args={[p.radius * 0.6, 16, 16]} /><meshBasicMaterial color="#ffffff" /></mesh>
-      <mesh><sphereGeometry args={[p.radius, 16, 16]} /><meshBasicMaterial color={p.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>
+      <group ref={spin}>
+        {charId === 'tetro' ? (
+          <>
+            <mesh><boxGeometry args={[r * 1.6, r * 1.6, r * 1.6]} /><meshStandardMaterial color={p.color} emissive={p.color} emissiveIntensity={0.6} /></mesh>
+            <mesh><boxGeometry args={[r * 1.75, r * 1.75, r * 1.75]} /><meshBasicMaterial color="#ffffff" wireframe transparent opacity={0.45} /></mesh>
+          </>
+        ) : charId === 'pacman' && skillId.includes('cherry') ? (
+          <>
+            <mesh position={[-r * 0.4, -r * 0.25, 0]}><sphereGeometry args={[r * 0.55, 12, 12]} /><meshStandardMaterial color="#ef4444" emissive="#991b1b" emissiveIntensity={0.4} /></mesh>
+            <mesh position={[r * 0.4, -r * 0.25, 0]}><sphereGeometry args={[r * 0.55, 12, 12]} /><meshStandardMaterial color="#ef4444" emissive="#991b1b" emissiveIntensity={0.4} /></mesh>
+            <mesh position={[0, r * 0.45, 0]}><boxGeometry args={[r * 0.2, r * 0.7, r * 0.2]} /><meshStandardMaterial color="#22c55e" /></mesh>
+          </>
+        ) : charId === 'mario' && skillId.includes('shell') ? (
+          <>
+            <mesh><cylinderGeometry args={[r * 0.9, r * 0.9, r * 0.7, 14]} /><meshStandardMaterial color="#22c55e" emissive="#15803d" emissiveIntensity={0.35} /></mesh>
+            <mesh><cylinderGeometry args={[r * 0.96, r * 0.96, r * 0.22, 14]} /><meshStandardMaterial color="#fef3c7" /></mesh>
+          </>
+        ) : charId === 'invader' ? (
+          <>
+            <mesh><boxGeometry args={[r * 2.4, r * 0.55, r * 0.55]} /><meshBasicMaterial color="#4ade80" /></mesh>
+            <mesh><boxGeometry args={[r * 2.8, r * 0.95, r * 0.95]} /><meshBasicMaterial color={p.color} transparent opacity={0.4} blending={ADD} depthWrite={false} /></mesh>
+          </>
+        ) : charId === 'bomber' ? (
+          <>
+            <mesh><sphereGeometry args={[r * 0.9, 14, 14]} /><meshStandardMaterial color="#0f172a" roughness={0.3} /></mesh>
+            <mesh position={[0, r * 0.95, 0]}><cylinderGeometry args={[r * 0.2, r * 0.25, r * 0.35, 8]} /><meshStandardMaterial color="#64748b" /></mesh>
+            <mesh position={[0, r * 1.25, 0]}><sphereGeometry args={[r * 0.35, 8, 8]} /><meshBasicMaterial color="#fb923c" /></mesh>
+          </>
+        ) : charId === 'snake' ? (
+          <>
+            <mesh><sphereGeometry args={[r * 0.92, 14, 14]} /><meshStandardMaterial color="#ef4444" emissive="#991b1b" emissiveIntensity={0.4} /></mesh>
+            <mesh position={[0, r * 0.95, 0]}><cylinderGeometry args={[r * 0.1, r * 0.12, r * 0.4, 6]} /><meshStandardMaterial color="#78350f" /></mesh>
+            <mesh position={[r * 0.3, r * 1.0, 0]} rotation={[0, 0, -0.6]}><boxGeometry args={[r * 0.45, r * 0.2, r * 0.12]} /><meshStandardMaterial color="#22c55e" /></mesh>
+          </>
+        ) : charId === 'kong' ? (
+          <>
+            <mesh rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[r * 0.85, r * 0.85, r * 1.35, 14]} /><meshStandardMaterial color="#92400e" roughness={0.7} /></mesh>
+            <mesh rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[r * 0.9, r * 0.9, r * 0.2, 14]} /><meshStandardMaterial color="#1e293b" /></mesh>
+          </>
+        ) : charId === 'pong' ? (
+          <>
+            <mesh><boxGeometry args={[r * 1.5, r * 1.5, r * 1.5]} /><meshBasicMaterial color="#ffffff" /></mesh>
+            <mesh><boxGeometry args={[r * 2.1, r * 2.1, r * 2.1]} /><meshBasicMaterial color="#38bdf8" transparent opacity={0.45} blending={ADD} depthWrite={false} /></mesh>
+          </>
+        ) : charId === 'reimu' ? (
+          skillId.includes('amulet') ? (
+            <>
+              <mesh><boxGeometry args={[r * 1.7, r * 1.1, r * 0.18]} /><meshStandardMaterial color="#ffffff" emissive="#fecdd3" emissiveIntensity={0.5} /></mesh>
+              <mesh><boxGeometry args={[r * 0.7, r * 0.7, r * 0.22]} /><meshBasicMaterial color="#ef4444" /></mesh>
+            </>
+          ) : (
+            <>
+              <mesh><sphereGeometry args={[r * 0.85, 16, 16]} /><meshStandardMaterial color="#ffffff" emissive="#ef4444" emissiveIntensity={0.65} /></mesh>
+              <mesh><torusGeometry args={[r * 1.05, r * 0.12, 8, 20]} /><meshBasicMaterial color="#fb7185" /></mesh>
+            </>
+          )
+        ) : charId === 'marisa' ? (
+          skillId.includes('potion') ? (
+            <>
+              <mesh><sphereGeometry args={[r * 0.85, 12, 12]} /><meshStandardMaterial color="#a855f7" emissive="#7e22ce" emissiveIntensity={0.6} /></mesh>
+              <mesh position={[0, r * 0.95, 0]}><cylinderGeometry args={[r * 0.25, r * 0.3, r * 0.4, 8]} /><meshStandardMaterial color="#fde047" /></mesh>
+            </>
+          ) : (
+            <>
+              <mesh><octahedronGeometry args={[r * 1.05, 0]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={0.85} /></mesh>
+              <mesh><sphereGeometry args={[r * 1.25, 12, 12]} /><meshBasicMaterial color={p.color} transparent opacity={0.35} blending={ADD} depthWrite={false} /></mesh>
+            </>
+          )
+        ) : charId === 'ryu' || charId === 'chunli' ? (
+          <>
+            <mesh><sphereGeometry args={[r * 0.65, 16, 16]} /><meshBasicMaterial color="#ffffff" /></mesh>
+            <mesh><sphereGeometry args={[r * 1.05, 16, 16]} /><meshBasicMaterial color={p.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>
+            <mesh rotation={[Math.PI / 4, 0, 0]}><torusGeometry args={[r * 1.15, r * 0.12, 8, 24]} /><meshBasicMaterial color={p.color} transparent opacity={0.8} blending={ADD} /></mesh>
+          </>
+        ) : charId === 'yugi' || charId === 'kaiba' ? (
+          skillId.includes('a1') ? (
+            <mesh><boxGeometry args={[r * 1.8, r * 1.3, r * 0.14]} /><meshStandardMaterial color={charId === 'kaiba' ? '#38bdf8' : '#a855f7'} emissive="#ffffff" emissiveIntensity={0.4} /></mesh>
+          ) : (
+            <>
+              <mesh><boxGeometry args={[r * 2.4, r * 0.7, r * 0.7]} /><meshBasicMaterial color="#ffffff" /></mesh>
+              <mesh><sphereGeometry args={[r * 1.25, 16, 16]} /><meshBasicMaterial color={p.color} transparent opacity={0.5} blending={ADD} depthWrite={false} /></mesh>
+              <mesh><torusGeometry args={[r * 1.1, r * 0.12, 8, 20]} /><meshBasicMaterial color="#fde047" transparent opacity={0.75} blending={ADD} /></mesh>
+            </>
+          )
+        ) : (
+          <>
+            <mesh><sphereGeometry args={[r * 0.6, 16, 16]} /><meshBasicMaterial color="#ffffff" /></mesh>
+            <mesh><sphereGeometry args={[r, 16, 16]} /><meshBasicMaterial color={p.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>
+          </>
+        )}
+      </group>
     </group>
   )
 }
@@ -205,21 +312,23 @@ function ZoneView({ z }: { z: Zone }) {
   const g = useRef<THREE.Group>(null)
   const disc = useRef<THREE.MeshBasicMaterial>(null)
   const ring = useRef<THREE.Mesh>(null)
+  const charId = useGameStore.getState().selection[z.owner]
+  const sides = charId === 'reimu' ? 8 : charId === 'snake' ? 4 : 6
   useFrame((_, dt) => {
     const fade = Math.min(1, z.ttlMs / 300, (z.durationMs - z.ttlMs) / 150 + 0.01)
-    if (disc.current) disc.current.opacity = 0.22 * fade
-    if (ring.current) ring.current.rotation.z += dt * 1.5
-    g.current?.scale.setScalar(0.9 + 0.1 * Math.sin(performance.now() / 200))
+    if (disc.current) disc.current.opacity = 0.24 * fade
+    if (ring.current) ring.current.rotation.z += dt * (charId === 'reimu' ? 2.2 : 1.5)
+    g.current?.scale.setScalar(0.92 + 0.08 * Math.sin(performance.now() / 200))
   })
   return (
     <group position={z.pos} rotation={[-Math.PI / 2, 0, 0]}>
       <group ref={g}>
         <mesh><circleGeometry args={[z.radius, 48]} /><meshBasicMaterial ref={disc} color={z.color} transparent depthWrite={false} blending={ADD} /></mesh>
         <mesh ref={ring}>
-          <ringGeometry args={[z.radius * 0.92, z.radius, 6]} />
-          <meshBasicMaterial color={z.color} transparent opacity={0.8} side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
+          <ringGeometry args={[z.radius * 0.9, z.radius, sides]} />
+          <meshBasicMaterial color={z.color} transparent opacity={0.85} side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
         </mesh>
-        <mesh><ringGeometry args={[z.radius * 0.45, z.radius * 0.5, 32]} /><meshBasicMaterial color={z.color} transparent opacity={0.5} blending={ADD} depthWrite={false} /></mesh>
+        <mesh><ringGeometry args={[z.radius * 0.45, z.radius * 0.5, charId === 'reimu' ? 8 : 32]} /><meshBasicMaterial color={charId === 'reimu' ? '#ffffff' : z.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>
       </group>
     </group>
   )
