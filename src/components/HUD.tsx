@@ -98,7 +98,7 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
             <img src={useProfileStore.getState().avatarDataUrl!} alt="" className="h-4 w-4 rounded-full object-cover border border-white/40 shrink-0" />
           )}
           <span className={`font-bold tracking-wide truncate ${compact ? 'text-[11px]' : 'text-sm'}`} style={{ color: pColor }}>
-            {id.toUpperCase()} · {id === (useNetStore.getState().mySlot ?? 'p1') ? useProfileStore.getState().nickname : u.name}
+            {id.toUpperCase()} · {useGameStore.getState().cpu[id] > 0 ? '電腦' : id === (useNetStore.getState().mySlot ?? 'p1') ? useProfileStore.getState().nickname : u.name}
           </span>
         </div>
         <span className={`shrink-0 truncate font-bold text-white/75 ${compact ? 'max-w-[74px] text-[9px]' : 'max-w-[115px] text-[11px]'}`} title={charName}>
