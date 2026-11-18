@@ -33,17 +33,35 @@ export function registerTilts(p: string, o: TiltOpts) {
   const dmg = o.dmg ?? 6
   const [nf, nu, nd] = o.names
   if (!o.ranged) {
-    reg({ // 前：突進斬，距離長
+    reg({ // 前：突進斬，距離長（地面可長按蓄力）
       id: `${p}.fTilt`, name: nf, energyCost: 0, startupMs: 120, activeMs: 110, recoveryMs: 270,
+      charge: { maxMs: 700, damageMult: [1, 2.1], knockbackMult: [1, 1.85] },
       hitbox: { offset: [0, 0.1, 1.4], radius: 1.1 }, damage: dmg * 1.3,
       knockback: { dir: [0, 0.25, 1], base: 8, scaling: 10 },
-      hooks: { onActive(c) { c.setLocalVelocity(0, null, 7); c.shake(0.12); slash(c, o.color, { d: 1.2, r: 1.9, tilt: 0.15 }) }, onTick(c) { if (c.phase === 'active') trail(c, 50, o.color) } },
+      hooks: {
+        onStart(c) { if (!c.caster.grounded && c.caster.skill) c.caster.skill.released = true },
+        onActive(c) {
+          c.setLocalVelocity(0, null, 7 + c.chargeRatio * 5)
+          c.shake(0.12 + c.chargeRatio * 0.22)
+          slash(c, o.color, { d: 1.2, r: 1.9 + c.chargeRatio * 0.45, tilt: 0.15 })
+          if (c.chargeRatio > 0.35) c.fx({ kind: 'ring', pos: at(c, 0.1, 1.0), color: o.color, ttl: 260, radius: 1.6, plane: 'vertical' })
+        },
+        onTick(c) { if (c.phase === 'active') trail(c, 50, o.color) },
+      },
     })
-    reg({ // 上：對空揮擊（原地，不位移，和「上+特招」的升空招不同）
+    reg({ // 上：對空揮擊（地面可長按蓄力）
       id: `${p}.uTilt`, name: nu, energyCost: 0, startupMs: 90, activeMs: 120, recoveryMs: 260,
+      charge: { maxMs: 700, damageMult: [1, 2.1], knockbackMult: [1, 1.85] },
       hitbox: { offset: [0, 1.15, 0.2], radius: 1.2 }, damage: dmg,
       knockback: { dir: [0, 1, 0.1], base: 9, scaling: 11 },
-      hooks: { onActive(c) { c.shake(0.1); slash(c, o.color, { y: 1.0, d: 0.3, r: 1.7, tilt: Math.PI / 4 }) } },
+      hooks: {
+        onStart(c) { if (!c.caster.grounded && c.caster.skill) c.caster.skill.released = true },
+        onActive(c) {
+          c.shake(0.1 + c.chargeRatio * 0.22)
+          slash(c, o.color, { y: 1.0, d: 0.3, r: 1.7 + c.chargeRatio * 0.45, tilt: Math.PI / 4 })
+          if (c.chargeRatio > 0.35) c.fx({ kind: 'ring', pos: at(c, 1.0, 0.2), color: o.color, ttl: 260, radius: 1.6 })
+        },
+      },
     })
     reg({ // 下：貼地掃踢，絆倒向上彈
       id: `${p}.dTilt`, name: nd, energyCost: 0, startupMs: 80, activeMs: 100, recoveryMs: 230,
@@ -54,15 +72,23 @@ export function registerTilts(p: string, o: TiltOpts) {
   } else {
     const shoot = (c: SkillContext, vx: number, vy: number, r: number, color: string, y = 0.15) =>
       c.spawnProjectile({ pos: at(c, y, 0.9), vel: [c.forward[0] * vx, vy, 0], radius: r, ttlMs: 900, color })
-    reg({ // 前：重型單發
+    reg({ // 前：重型單發（地面可長按蓄力）
       id: `${p}.fTilt`, name: nf, energyCost: 0, startupMs: 150, activeMs: 40, recoveryMs: 300, damage: dmg * 1.2,
+      charge: { maxMs: 700, damageMult: [1, 2.0], knockbackMult: [1, 1.8] },
       knockback: { dir: [0, 0.2, 1], base: 8, scaling: 10 },
-      hooks: { onActive(c) { shoot(c, 22, 0, 0.5, o.color); c.shake(0.12); c.setLocalVelocity(-2.5, null, -2.5) } },
+      hooks: {
+        onStart(c) { if (!c.caster.grounded && c.caster.skill) c.caster.skill.released = true },
+        onActive(c) { shoot(c, 22 + c.chargeRatio * 6, 0, 0.5 + c.chargeRatio * 0.25, o.color); c.shake(0.12 + c.chargeRatio * 0.2); c.setLocalVelocity(-2.5, null, -2.5) },
+      },
     })
-    reg({ // 上：朝斜上方射擊
+    reg({ // 上：朝斜上方射擊（地面可長按蓄力）
       id: `${p}.uTilt`, name: nu, energyCost: 0, startupMs: 100, activeMs: 40, recoveryMs: 260, damage: dmg,
+      charge: { maxMs: 700, damageMult: [1, 2.0], knockbackMult: [1, 1.8] },
       knockback: { dir: [0, 1, 0.2], base: 8, scaling: 10 },
-      hooks: { onActive(c) { shoot(c, 8, 20, 0.35, o.color, 0.6) } },
+      hooks: {
+        onStart(c) { if (!c.caster.grounded && c.caster.skill) c.caster.skill.released = true },
+        onActive(c) { shoot(c, 8, 20 + c.chargeRatio * 5, 0.35 + c.chargeRatio * 0.2, o.color, 0.6) },
+      },
     })
     reg({ // 下：貼地低射
       id: `${p}.dTilt`, name: nd, energyCost: 0, startupMs: 90, activeMs: 40, recoveryMs: 230, damage: dmg * 0.8,
