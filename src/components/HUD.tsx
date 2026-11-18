@@ -334,12 +334,6 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
           </div>
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-xl font-black text-white truncate">{activeStage.theme.name}</h2>
-            <span
-              className="rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0"
-              style={{ backgroundColor: activeStage.theme.accentColor + '33', color: activeStage.theme.accentColor }}
-            >
-              {activeStage.theme.tag}
-            </span>
           </div>
           <p className="text-xs text-white/75 leading-relaxed">{activeStage.theme.desc}</p>
           {activeStage.gimmick ? (
