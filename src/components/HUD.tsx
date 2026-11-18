@@ -1009,7 +1009,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     const isRand = item === 'random'
     const owners = isRand ? [] : activeIds.filter((pid) => selection[pid] === item)
     const firstOwner = owners[0]
-    const zhSub = isRand ? '隨機' : CHARACTERS[item].name.replace(/^[A-Z0-9-]+\s*/, '')
+    const zhSub = isRand ? '隨機' : CHARACTERS[item].name.replace(/^(?:[A-Z0-9-]+\s+)+/, '').replace(/\s+[A-Z0-9-]+$/, '')
 
     return (
       <button
