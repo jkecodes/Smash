@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { InputFrame } from './input'
-import { clearEntities, runtime } from './runtime'
+import { addFx, clearEntities, pendingNetFx, runtime } from './runtime'
 import { resetMechanics } from './mechanics'
 import { useGameStore } from './store'
 import type { StageForm, StageId } from './stages'
@@ -258,6 +258,9 @@ function applySnapshot(msg: any) {
     }))
     useGameStore.setState((s) => ({ zoneVersion: s.zoneVersion + 1 }))
   }
+  if (Array.isArray(msg.fx)) {
+    for (const spec of msg.fx) addFx(spec, false)
+  }
   if (msg.phase === 'ended' && msg.winner && gs.phase !== 'ended') {
     gs.endMatch(msg.winner)
   }
@@ -338,6 +341,7 @@ export function broadcastStateIfHost(force = false) {
       flashMs: f.flashMs, invulnMs: f.invulnMs, stats: f.stats,
     }
   }
+  const fxBatch = pendingNetFx.splice(0, 40)
   sendRaw({
     type: 'state',
     stageTime: runtime.stageTime,
@@ -349,6 +353,7 @@ export function broadcastStateIfHost(force = false) {
     zones: runtime.zones.map((z) => ({
       id: z.id, owner: z.owner, pos: z.pos, radius: z.radius, color: z.color, ttlMs: z.ttlMs,
     })),
+    fx: fxBatch.length ? fxBatch : undefined,
     phase: gs.phase,
     winner: gs.winner,
     stageId: gs.stageId,

@@ -18,11 +18,13 @@ export const runtime: Runtime = {
 }
 
 let uid = 1
+export const pendingNetFx: FxSpec[] = []
 const bump = (k: 'projVersion' | 'zoneVersion' | 'fxVersion') =>
   useGameStore.setState((s) => ({ [k]: s[k] + 1 }) as any)
 
-export function addFx(spec: FxSpec) {
+export function addFx(spec: FxSpec, queueForNet = true) {
   runtime.fx.push({ ...spec, id: uid++, createdAt: performance.now() })
+  if (queueForNet && pendingNetFx.length < 40) pendingNetFx.push(spec)
   bump('fxVersion')
 }
 export function removeFx(id: number) {
@@ -52,6 +54,7 @@ export function clearEntities() {
   runtime.projectiles.length = 0
   runtime.zones.length = 0
   runtime.fx.length = 0
+  pendingNetFx.length = 0
   runtime.ball = null
   runtime.stageTime = 0
   runtime.hitstopMs = 0
