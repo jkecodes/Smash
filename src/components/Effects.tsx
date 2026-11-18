@@ -769,6 +769,162 @@ function ProjectileView({ p }: { p: Projectile }) {
             {/* 小精靈：3D 能量豆 Power Pellet */}
             <mesh><octahedronGeometry args={[r * 0.9, 0]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={0.9} /></mesh>
           </>
+        ) : charId === 'bakugo' ? (
+          <>
+            {/* 爆豪：3D 手榴彈爆炎彈 */}
+            <mesh><sphereGeometry args={[r * 0.85, 10, 10]} /><meshStandardMaterial color="#14532d" emissive="#f97316" emissiveIntensity={0.5} /></mesh>
+            <mesh><torusGeometry args={[r * 1.05, r * 0.14, 8, 16]} /><meshBasicMaterial color="#fde047" /></mesh>
+          </>
+        ) : charId === 'sukuna' ? (
+          <>
+            {/* 宿儺：交叉紅色「解」斬擊波 */}
+            <mesh rotation={[0, 0, 0.55]}><boxGeometry args={[r * 2.4, r * 0.25, r * 0.25]} /><meshBasicMaterial color="#ef4444" /></mesh>
+            <mesh rotation={[0, 0, -0.55]}><boxGeometry args={[r * 2.4, r * 0.25, r * 0.25]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          </>
+        ) : charId === 'ellen' ? (
+          <>
+            {/* 艾蓮：急凍鯊魚鰭冰刃 */}
+            <mesh rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[r * 0.75, r * 2.1, 4]} /><meshStandardMaterial color="#1e293b" emissive="#38bdf8" emissiveIntensity={0.75} /></mesh>
+            <mesh><torusGeometry args={[r * 0.95, r * 0.1, 6, 14]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          </>
+        ) : charId === 'firefly' ? (
+          <>
+            {/* 流螢：薩姆烈焰翠綠核心爆彈 */}
+            <mesh><octahedronGeometry args={[r * 0.85, 0]} /><meshStandardMaterial color="#4ade80" emissive="#22c55e" emissiveIntensity={0.95} /></mesh>
+            <mesh><torusGeometry args={[r * 1.08, r * 0.14, 8, 18]} /><meshBasicMaterial color="#f97316" /></mesh>
+          </>
+        ) : charId === 'jinhsi' ? (
+          <>
+            {/* 今汐：歲主金色龍珠光束 */}
+            <mesh><sphereGeometry args={[r * 0.85, 14, 14]} /><meshStandardMaterial color="#fef08a" emissive="#eab308" emissiveIntensity={1} /></mesh>
+            <mesh rotation={[0, Math.PI / 2, 0]}><torusGeometry args={[r * 1.2, r * 0.12, 8, 20]} /><meshBasicMaterial color="#fde047" /></mesh>
+          </>
+        ) : charId === 'youmu' || charId === 'erika' ? (
+          <>
+            {/* 妖夢／艾莉卡：雙重劍氣斬波 */}
+            <mesh rotation={[0, 0, 0.35]}><boxGeometry args={[r * 2.3, r * 0.28, r * 0.16]} /><meshBasicMaterial color={p.color} /></mesh>
+            <mesh rotation={[0, 0, -0.35]}><boxGeometry args={[r * 1.9, r * 0.22, r * 0.16]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          </>
+        ) : charId === 'seija' ? (
+          <>
+            {/* 正邪：逆轉天邪鬼赤紅箭矢 */}
+            <mesh rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[r * 0.55, r * 2.0, 5]} /><meshStandardMaterial color="#be123c" emissive="#f43f5e" emissiveIntensity={0.85} /></mesh>
+          </>
+        ) : charId === 'luigi' ? (
+          <>
+            {/* 路易吉：綠色跳彈火球 */}
+            <mesh><sphereGeometry args={[r * 0.85, 12, 12]} /><meshStandardMaterial color="#22c55e" emissive="#16a34a" emissiveIntensity={0.85} /></mesh>
+            <mesh><torusGeometry args={[r * 0.95, r * 0.12, 8, 16]} /><meshBasicMaterial color="#fde047" /></mesh>
+          </>
+        ) : charId === 'blinky' ? (
+          <>
+            {/* 紅幽靈：迷你紅幽靈飛彈 */}
+            <mesh><sphereGeometry args={[r * 0.85, 12, 12]} /><meshStandardMaterial color="#ef4444" emissive="#dc2626" emissiveIntensity={0.5} /></mesh>
+            <mesh position={[r * 0.35, r * 0.2, r * 0.65]}><sphereGeometry args={[r * 0.2, 6, 6]} /><meshBasicMaterial color="#ffffff" /></mesh>
+            <mesh position={[r * 0.35, r * 0.2, -r * 0.65]}><sphereGeometry args={[r * 0.2, 6, 6]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          </>
+        ) : charId === 'diddy' ? (
+          <>
+            {/* 狄狄剛：3D 花生彈 */}
+            <mesh rotation={[0, 0, Math.PI / 2]}><capsuleGeometry args={[r * 0.45, r * 0.9, 6, 10]} /><meshStandardMaterial color="#d97706" /></mesh>
+          </>
+        ) : charId === 'creeper' ? (
+          <>
+            {/* 苦力怕：3D 像素 TNT 炸藥方塊 */}
+            <mesh><boxGeometry args={[r * 1.5, r * 1.5, r * 1.5]} /><meshStandardMaterial color="#ef4444" /></mesh>
+            <mesh><boxGeometry args={[r * 1.55, r * 0.5, r * 1.55]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          </>
+        ) : charId === 'chuck' || charId === 'ducky' ? (
+          <>
+            {/* Chuck／鴨子：金黃三角飛鏢／羽毛箭 */}
+            <mesh rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[r * 0.65, r * 2.0, 4]} /><meshStandardMaterial color="#facc15" emissive="#f97316" emissiveIntensity={0.5} /></mesh>
+          </>
+        ) : charId === 'suzuka' ? (
+          <>
+            {/* 賽馬娘：疾風馬蹄光環 */}
+            <mesh rotation={[0, Math.PI / 2, 0]}><torusGeometry args={[r * 0.9, r * 0.18, 8, 16, Math.PI * 1.4]} /><meshBasicMaterial color={p.color} /></mesh>
+          </>
+        ) : charId === 'anis' ? (
+          <>
+            {/* 阿妮絲：橘白蘇打榴彈罐 */}
+            <mesh rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[r * 0.55, r * 0.55, r * 1.3, 12]} /><meshStandardMaterial color="#fb923c" emissive="#f97316" emissiveIntensity={0.5} /></mesh>
+            <mesh rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[r * 0.58, r * 0.58, r * 0.3, 12]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          </>
+        ) : charId === 'vaus' || charId === 'paddle' || charId === 'ufo' ? (
+          <>
+            {/* 街機機體：方塊像素光球／外星雷射 */}
+            <mesh><boxGeometry args={[r * 1.4, r * 1.4, r * 1.4]} /><meshStandardMaterial color={p.color} emissive={p.color} emissiveIntensity={0.85} /></mesh>
+          </>
+        ) : charId === 'mino' ? (
+          <>
+            {/* 米諾：3D L 型俄羅斯方塊飛彈 */}
+            <mesh position={[0, 0, 0]}><boxGeometry args={[r * 1.1, r * 1.1, r * 1.1]} /><meshStandardMaterial color="#a855f7" emissive="#7c3aed" emissiveIntensity={0.6} /></mesh>
+            <mesh position={[-r * 1.05, r * 0.9, 0]}><boxGeometry args={[r * 1.0, r * 1.0, r * 1.0]} /><meshStandardMaterial color="#22d3ee" emissive="#06b6d4" emissiveIntensity={0.6} /></mesh>
+          </>
+        ) : charId === 'blackbomber' ? (
+          <>
+            {/* 黑炸彈人：黑球炸彈＋粉紅導火線 */}
+            <mesh><sphereGeometry args={[r * 0.95, 12, 12]} /><meshStandardMaterial color="#18181b" /></mesh>
+            <mesh position={[0, r * 0.95, 0]}><sphereGeometry args={[r * 0.35, 8, 8]} /><meshBasicMaterial color="#ec4899" /></mesh>
+          </>
+        ) : charId === 'viper' ? (
+          <>
+            {/* 毒蛇：霓虹雙毒牙光刺 */}
+            <mesh position={[0, r * 0.3, 0]} rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[r * 0.3, r * 1.8, 6]} /><meshBasicMaterial color="#a3e635" /></mesh>
+            <mesh position={[0, -r * 0.3, 0]} rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[r * 0.3, r * 1.8, 6]} /><meshBasicMaterial color="#84cc16" /></mesh>
+          </>
+        ) : charId === 'ladyfrog' || charId === 'omnelle' || charId === 'rintaro' ? (
+          <>
+            {/* 粉紅水泡／糖果／花瓣爆彈 */}
+            <mesh><sphereGeometry args={[r * 0.9, 14, 14]} /><meshStandardMaterial color="#f472b6" emissive="#ec4899" emissiveIntensity={0.45} transparent opacity={0.88} /></mesh>
+            <mesh><torusGeometry args={[r * 1.05, r * 0.1, 8, 18]} /><meshBasicMaterial color="#fde047" /></mesh>
+          </>
+        ) : charId === 'hakuri' ? (
+          <>
+            {/* 威葬／風渦雙重共鳴光環 */}
+            <mesh rotation={[0, Math.PI / 2, 0]}><torusGeometry args={[r * 0.95, r * 0.16, 8, 20]} /><meshBasicMaterial color={p.color} /></mesh>
+            <mesh><sphereGeometry args={[r * 0.55, 10, 10]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          </>
+        ) : charId === 'descara' || charId === 'miramira' ? (
+          <>
+            {/* 深淵／沉降魔法：雙色魔導法球 */}
+            <mesh><sphereGeometry args={[r * 0.85, 12, 12]} /><meshStandardMaterial color={charId === 'descara' ? '#09090b' : '#14b8a6'} emissive={p.color} emissiveIntensity={0.75} /></mesh>
+            <mesh rotation={[Math.PI / 3, 0, 0]}><torusGeometry args={[r * 1.15, r * 0.12, 8, 18]} /><meshBasicMaterial color={charId === 'descara' ? '#fde047' : '#a855f7'} /></mesh>
+          </>
+        ) : charId === 'hibari' ? (
+          <>
+            {/* 忍者：旋轉十字手裏劍 */}
+            <mesh><boxGeometry args={[r * 2.1, r * 0.35, r * 0.16]} /><meshStandardMaterial color="#cbd5e1" metalness={0.8} roughness={0.2} /></mesh>
+            <mesh><boxGeometry args={[r * 0.35, r * 2.1, r * 0.16]} /><meshStandardMaterial color="#cbd5e1" metalness={0.8} roughness={0.2} /></mesh>
+          </>
+        ) : charId === 'hajime' ? (
+          <>
+            {/* 久我山元：白底紅線棒球直球 */}
+            <mesh><sphereGeometry args={[r * 0.85, 14, 14]} /><meshStandardMaterial color="#ffffff" /></mesh>
+            <mesh rotation={[0.4, 0.4, 0]}><torusGeometry args={[r * 0.86, r * 0.08, 6, 18]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          </>
+        ) : charId === 'umi' ? (
+          <>
+            {/* 青木海：3D 便當盒炸彈 */}
+            <mesh><boxGeometry args={[r * 1.5, r * 0.9, r * 1.2]} /><meshStandardMaterial color="#d97706" /></mesh>
+            <mesh><boxGeometry args={[r * 1.55, r * 0.25, r * 1.25]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          </>
+        ) : charId === 'doh' ? (
+          <>
+            {/* 多夫：浮空摩艾巨岩磚塊 */}
+            <mesh><boxGeometry args={[r * 1.3, r * 1.8, r * 1.1]} /><meshStandardMaterial color="#92400e" emissive="#a855f7" emissiveIntensity={0.4} /></mesh>
+          </>
+        ) : charId === 'ruri' ? (
+          <>
+            {/* 瑠璃：龍炎電光雙色火球 */}
+            <mesh><sphereGeometry args={[r * 0.9, 12, 12]} /><meshStandardMaterial color="#f97316" emissive="#ef4444" emissiveIntensity={0.85} /></mesh>
+            <mesh><torusGeometry args={[r * 1.1, r * 0.12, 8, 18]} /><meshBasicMaterial color="#34d399" /></mesh>
+          </>
+        ) : charId === 'akira' || charId === 'saki' ? (
+          <>
+            {/* 亞里／咲季：筆記紙頁／應援星光 */}
+            <mesh rotation={[0.2, 0.3, 0]}><boxGeometry args={[r * 1.5, r * 1.1, r * 0.12]} /><meshStandardMaterial color="#ffffff" emissive={p.color} emissiveIntensity={0.5} /></mesh>
+          </>
         ) : (
           <>
             <mesh><octahedronGeometry args={[r * 0.85, 0]} /><meshBasicMaterial color="#ffffff" /></mesh>
