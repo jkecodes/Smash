@@ -1248,9 +1248,11 @@ function updateProjectiles(dt: number) {
       }
     }
     p.vel[1] += p.gravity * dt
+    const prevX = p.pos[0]
+    const prevY = p.pos[1]
     const dx = p.vel[0] * dt
     const dy = p.vel[1] * dt
-    p.pos = [p.pos[0] + dx, p.pos[1] + dy, 0]
+    p.pos = [prevX + dx, prevY + dy, 0]
     p.traveled = (p.traveled ?? 0) + Math.hypot(dx, dy)
     const outOfRange = p.traveled >= (p.maxRange ?? 11) && !(Math.abs(p.vel[0]) < 0.5 && p.vel[1] < 0)
     p.trailMs -= dtMs
@@ -1270,18 +1272,23 @@ function updateProjectiles(dt: number) {
       queueHit(att, tgt, p.source, p.pos)
       if (!p.pierce) { consumed = true; break }
     }
-    // 碰撞場地主體與立體建築牆面（solids）
+    // 碰撞場地主體與立體建築牆面（solids），含子步進檢測避免高速穿透（僅大招貫穿奧義不擋牆）
     const stage = getStage()
-    if (!consumed && !p.pierce) {
-      const hitSolid = stage.solids?.some((s) =>
-        Math.abs(p.pos[0] - s.x) <= s.w / 2 + p.radius * 0.6 &&
-        Math.abs(p.pos[1] - s.y) <= s.h / 2 + p.radius * 0.6,
-      )
-      const hitMainWall =
-        Math.abs(p.pos[0]) <= stage.half.x + p.radius * 0.4 &&
-        p.pos[1] <= p.radius * 0.6 &&
-        p.pos[1] >= -stage.half.y * 2 - 0.8
-      if (hitSolid || hitMainWall) {
+    if (!consumed && !p.source.def.requiresUlt) {
+      let hitWall = false
+      for (let step = 1; step <= 3 && !hitWall; step++) {
+        const t = step / 3
+        const cx = prevX + dx * t
+        const cy = prevY + dy * t
+        if (stage.solids?.some((s) => Math.abs(cx - s.x) <= s.w / 2 + p.radius * 0.55 && Math.abs(cy - s.y) <= s.h / 2 + p.radius * 0.55)) {
+          p.pos = [cx, cy, 0]
+          hitWall = true
+        } else if (Math.abs(cx) <= stage.half.x + p.radius * 0.35 && cy <= 0.05 && cy >= -stage.half.y * 2 - 0.8) {
+          p.pos = [cx, cy, 0]
+          hitWall = true
+        }
+      }
+      if (hitWall) {
         consumed = true
         if (p.explodeRadius > 0) exploded = true
       }
