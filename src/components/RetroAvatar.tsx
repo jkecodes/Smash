@@ -56,7 +56,7 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
   vaus: { body: '#1e293b', hair: '#38bdf8', accent: '#ef4444', prop: 'orb', style: 'gun', shortHair: true },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'bakugo'].includes(p.id))
       .map((p) => [p.id, p.preset]),
   ) as Record<string, AnimePreset>),
 }
@@ -993,6 +993,36 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
             <mesh rotation={[0, 0, 0]}><torusGeometry args={[0.28, 0.03, 8, 16, Math.PI]} /><meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.8} /></mesh>
           </group>
           <group ref={animB} position={[-0.24, 0.08, 0]}><mesh position={[0, -0.12, 0]}><boxGeometry args={[0.1, 0.26, 0.1]} /><meshStandardMaterial color="#fde8d7" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'bakugo' && (
+        <group>
+          {/* 爆豪勝己：黑戰衣紅 X ＋ 頭後橘邊尾翼 ＋ 淡金刺髮 ＋ 雙手巨大深綠手榴彈護手 */}
+          <mesh position={[0, -0.16, 0]} castShadow><cylinderGeometry args={[0.19, 0.3, 0.54, 12]} /><meshStandardMaterial color="#18181b" /></mesh>
+          <mesh position={[0, 0.06, 0.14]} rotation={[0, 0, 0.78]}><boxGeometry args={[0.3, 0.07, 0.08]} /><meshStandardMaterial color="#ea580c" /></mesh>
+          <mesh position={[0, 0.06, 0.14]} rotation={[0, 0, -0.78]}><boxGeometry args={[0.3, 0.07, 0.08]} /><meshStandardMaterial color="#ea580c" /></mesh>
+          <mesh position={[0, 0.24, 0.02]}><cylinderGeometry args={[0.2, 0.22, 0.12, 10]} /><meshStandardMaterial color="#18181b" /></mesh>
+          {/* 頭與淡金刺刺頭＋紅眼 */}
+          <mesh position={[0, 0.38, 0.02]} castShadow><sphereGeometry args={[0.19, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh position={[0, 0.43, -0.02]}><sphereGeometry args={[0.21, 12, 12]} /><meshStandardMaterial color="#fef08a" /></mesh>
+          <mesh position={[0, 0.62, 0.02]}><coneGeometry args={[0.14, 0.24, 5]} /><meshStandardMaterial color="#fef08a" /></mesh>
+          <mesh position={[-0.14, 0.54, 0.04]} rotation={[0, 0, 0.55]}><coneGeometry args={[0.1, 0.22, 5]} /><meshStandardMaterial color="#fef08a" /></mesh>
+          <mesh position={[0.14, 0.54, 0.04]} rotation={[0, 0, -0.55]}><coneGeometry args={[0.1, 0.22, 5]} /><meshStandardMaterial color="#fef08a" /></mesh>
+          <mesh position={[-0.07, 0.39, 0.19]}><sphereGeometry args={[0.032, 8, 8]} /><meshStandardMaterial color="#ef4444" emissive="#dc2626" emissiveIntensity={0.6} /></mesh>
+          <mesh position={[0.07, 0.39, 0.19]}><sphereGeometry args={[0.032, 8, 8]} /><meshStandardMaterial color="#ef4444" emissive="#dc2626" emissiveIntensity={0.6} /></mesh>
+          {/* 頭後兩側橘邊黑尾翼 */}
+          <mesh position={[-0.24, 0.36, -0.18]} rotation={[0, -0.3, 0.9]}><coneGeometry args={[0.09, 0.36, 4]} /><meshStandardMaterial color="#18181b" emissive="#f97316" emissiveIntensity={0.35} /></mesh>
+          <mesh position={[0.24, 0.36, -0.18]} rotation={[0, 0.3, -0.9]}><coneGeometry args={[0.09, 0.36, 4]} /><meshStandardMaterial color="#18181b" emissive="#f97316" emissiveIntensity={0.35} /></mesh>
+          {/* 雙手巨大綠色手榴彈護手＋銀環 */}
+          <group ref={animA} position={[0.3, 0.02, 0.1]}>
+            <mesh><cylinderGeometry args={[0.15, 0.13, 0.32, 10]} /><meshStandardMaterial color="#14532d" /></mesh>
+            <mesh position={[0, 0.04, 0]}><torusGeometry args={[0.15, 0.028, 6, 12]} /><meshStandardMaterial color="#cbd5e1" /></mesh>
+          </group>
+          <group ref={animB} position={[-0.3, 0.02, 0.1]}>
+            <mesh><cylinderGeometry args={[0.15, 0.13, 0.32, 10]} /><meshStandardMaterial color="#14532d" /></mesh>
+            <mesh position={[0, 0.04, 0]}><torusGeometry args={[0.15, 0.028, 6, 12]} /><meshStandardMaterial color="#cbd5e1" /></mesh>
+          </group>
         </group>
       )}
 

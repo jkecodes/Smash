@@ -93,7 +93,7 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
   vaus: { bg: '#020617', hair: '#38bdf8', outfit: '#1e293b', accent: '#ef4444', eye: '#38bdf8', shortHair: true },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'miramira'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'miramira', 'bakugo'].includes(p.id))
       .map((p) => [p.id, p.portrait]),
   ) as Partial<Record<CharacterId, any>>),
 }
@@ -582,6 +582,30 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M36,48 L56,55 M84,48 L64,55" stroke="#451a03" strokeWidth="5" strokeLinecap="round" />
           <polygon points="60,62 48,74 72,74" fill="#f97316" />
           <polygon points="51,74 69,74 60,82" fill="#ea580c" />
+        </>
+      )}
+      {id === 'bakugo' && (
+        <>
+          <rect width="120" height="120" fill="#431407" />
+          {/* 頭後橘邊黑色爆破尾翼 */}
+          <polygon points="82,42 114,24 98,52 116,60 84,68" fill="#18181b" stroke="#f97316" strokeWidth="2.5" strokeLinejoin="round" />
+          <polygon points="38,42 6,24 22,52 4,60 36,68" fill="#18181b" stroke="#f97316" strokeWidth="2.5" strokeLinejoin="round" />
+          {/* 淡金刺刺頭 */}
+          <polygon points="34,54 22,34 38,32 34,12 52,24 60,6 70,24 88,14 82,34 98,36 86,54" fill="#fef08a" stroke="#eab308" strokeWidth="1.5" strokeLinejoin="round" />
+          <ellipse cx="60" cy="56" rx="21" ry="20" fill="#fde8d7" />
+          <polygon points="36,46 46,34 54,46 62,32 70,46 84,36 82,50 60,42" fill="#fef08a" />
+          {/* 兇狠紅眼與黑眼罩/高領 */}
+          <ellipse cx="50" cy="56" rx="4" ry="4" fill="#ef4444" />
+          <ellipse cx="70" cy="56" rx="4" ry="4" fill="#ef4444" />
+          <path d="M42,49 L56,53 M78,49 L64,53" stroke="#18181b" strokeWidth="2.5" strokeLinecap="round" />
+          <rect x="34" y="70" width="52" height="14" rx="4" fill="#18181b" />
+          <circle cx="46" cy="77" r="2.5" fill="#f97316" />
+          <circle cx="74" cy="77" r="2.5" fill="#f97316" />
+          {/* 黑戰服＋胸口橘紅 X＋雙側手榴彈護手 */}
+          <path d="M26,84 L94,84 L100,120 L20,120 Z" fill="#18181b" />
+          <path d="M38,84 L82,120 M82,84 L38,120" stroke="#ea580c" strokeWidth="7" />
+          <circle cx="20" cy="104" r="14" fill="#14532d" stroke="#cbd5e1" strokeWidth="2.5" />
+          <circle cx="100" cy="104" r="14" fill="#14532d" stroke="#cbd5e1" strokeWidth="2.5" />
         </>
       )}
       {id === 'miramira' && (
