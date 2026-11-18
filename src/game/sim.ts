@@ -10,7 +10,7 @@ import { broadcastNetEvent, broadcastStateIfHost, netRuntime, sendGuestInput, us
 import { cpuInput, resetCpu } from './ai'
 import { sfx } from './audio'
 import { debugKeys, readInput, rumble, stopAllRumble, type InputFrame } from './input'
-import { addFx, addProjectile, addZone, removeFx, removeProjectile, removeZone, runtime } from './runtime'
+import { addFx, addProjectile, addSummon, addZone, removeFx, removeProjectile, removeSummon, removeZone, runtime } from './runtime'
 import { getSkill } from './skills'
 import { resetTetroBoards } from './skills/tetroSkills'
 import { getSteveBlocks, resetSteveBlocks, stepSteveBlocks } from './skills/steveBlocks'
@@ -329,6 +329,44 @@ function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
       gravity: p.gravity, explodeRadius: p.explodeRadius, steerable: p.steerable, maxRange: p.maxRange,
       source: { def: sk.def, hitSet: new Set(), kbMult: sk.kbMult, dmgMult: sk.dmgMult },
     }),
+    spawnSummon: (opts = {}) => {
+      const kind = opts.kind ?? 'spirit'
+      const behavior = opts.behavior ?? (kind === 'drone' || kind === 'loong' ? 'shoot' : kind === 'puppet' ? 'chase' : 'orbit')
+      const durationMs = opts.durationMs ?? 7000
+      const damage = opts.damage ?? 5
+      const kbBase = opts.kbBase ?? 6.5
+      const kbScaling = opts.kbScaling ?? 7.5
+      const color = opts.color ?? CHARACTERS[f.character].color
+      const offset = opts.offset ?? [f.facing[0] * 0.9, 1.35, 0]
+      const summonDef: SkillDef = {
+        ...sk.def,
+        name: `${CHARACTERS[f.character].name}・召喚物`,
+        damage,
+        knockback: { dir: [0.6, 0.55, 0], base: kbBase, scaling: kbScaling },
+      }
+      const pos: Vec3 = [f.pos[0] + offset[0], f.pos[1] + offset[1], 0]
+      addSummon({
+        owner: f.id,
+        kind,
+        behavior,
+        pos,
+        vel: [0, 0, 0],
+        color,
+        radius: opts.radius ?? 0.52,
+        ttlMs: durationMs,
+        durationMs,
+        fireCdMs: 350,
+        fireIntervalMs: opts.fireIntervalMs ?? (behavior === 'shoot' ? 950 : 650),
+        damage,
+        kbBase,
+        kbScaling,
+        speed: opts.speed ?? (behavior === 'chase' ? 8.2 : 11),
+        explodeOnHit: opts.explodeOnHit ?? (kind === 'puppet'),
+        source: { def: summonDef, hitSet: new Set(), kbMult: sk.kbMult, dmgMult: sk.dmgMult },
+      })
+      addFx({ kind: 'ring', pos, color, ttl: 280, radius: 1.1, plane: 'vertical' })
+      sfx('zone')
+    },
     fx: (spec) => addFx({ char: f.character, ...spec, color: spec.color ?? PLAYER_COLORS[f.id] }),
     nearestEnemy: () => nearestEnemyOf(f.id),
     isGrounded: () => f.grounded,
@@ -1379,6 +1417,86 @@ function updateZones(dt: number) {
   }
 }
 
+function updateSummons(dt: number) {
+  const fs = store().fighters
+  const dtMs = dt * 1000
+  for (const s of [...runtime.summons]) {
+    const owner = fs[s.owner]
+    s.ttlMs -= dtMs
+    if (!owner?.alive || s.ttlMs <= 0) {
+      addFx({ kind: 'burst', pos: [...s.pos], color: s.color, ttl: 260, count: 10, speed: 4.5, size: 0.14 })
+      removeSummon(s.id)
+      continue
+    }
+
+    const target = nearestEnemyOf(s.owner)
+    const bob = Math.sin(runtime.stageTime * 4 + s.id) * 0.22
+    let goalX = owner.pos[0] - owner.facing[0] * 1.15
+    let goalY = owner.pos[1] + 1.4 + bob
+
+    if (s.behavior === 'shoot') {
+      goalX = owner.pos[0] + owner.facing[0] * 0.9
+      goalY = owner.pos[1] + 1.55 + bob
+    } else if (s.behavior === 'chase' && target) {
+      goalX = target.pos[0]
+      goalY = target.pos[1] + 0.35 + bob * 0.6
+    } else if (s.behavior === 'orbit' && target) {
+      const dxT = target.pos[0] - owner.pos[0]
+      const dyT = target.pos[1] - owner.pos[1]
+      if (Math.hypot(dxT, dyT) < 3.4) {
+        goalX = target.pos[0]
+        goalY = target.pos[1] + 0.3
+      }
+    }
+
+    const dx = goalX - s.pos[0]
+    const dy = goalY - s.pos[1]
+    const distGoal = Math.hypot(dx, dy) || 1
+    const moveSpd = Math.min(s.speed, distGoal * 8)
+    s.vel[0] = (dx / distGoal) * moveSpd
+    s.vel[1] = (dy / distGoal) * moveSpd
+    s.pos[0] += s.vel[0] * dt
+    s.pos[1] += s.vel[1] * dt
+
+    s.fireCdMs -= dtMs
+    if (s.fireCdMs > 0 || !target || !target.alive || target.invulnMs > 0) continue
+
+    const tx = target.pos[0] - s.pos[0]
+    const ty = target.pos[1] - s.pos[1]
+    const distTarget = Math.hypot(tx, ty)
+
+    if (s.behavior === 'shoot') {
+      if (distTarget <= 13 && distTarget > 0.1) {
+        const pSpd = 18
+        addProjectile({
+          owner: s.owner,
+          pos: [...s.pos],
+          vel: [(tx / distTarget) * pSpd, (ty / distTarget) * pSpd, 0],
+          radius: 0.28,
+          ttlMs: 950,
+          pierce: false,
+          color: s.color,
+          maxRange: 13.5,
+          source: { def: s.source.def, hitSet: new Set(), kbMult: s.source.kbMult, dmgMult: s.source.dmgMult },
+        })
+        addFx({ kind: 'ring', pos: [...s.pos], color: s.color, ttl: 180, radius: 0.75, plane: 'vertical' })
+        s.fireCdMs = s.fireIntervalMs
+      }
+    } else if (distTarget <= s.radius + 0.9) {
+      s.source.hitSet.clear()
+      queueHit(owner, target, s.source, s.pos)
+      addFx({ kind: 'burst', pos: [...s.pos], color: s.color, ttl: 260, count: 12, speed: 5.5, size: 0.16 })
+      if (s.explodeOnHit) {
+        addFx({ kind: 'ring', pos: [...s.pos], color: s.color, ttl: 320, radius: 1.9, plane: 'vertical' })
+        sfx('boom')
+        removeSummon(s.id)
+      } else {
+        s.fireCdMs = s.fireIntervalMs
+      }
+    }
+  }
+}
+
 let uiTimer = 0
 function publishUi(dt: number, force = false) {
   uiTimer -= dt
@@ -1447,6 +1565,7 @@ export function stepSimulation(rawDt: number) {
   separateFighters(dt)
   updateBall(dt)
   updateZones(dt)
+  updateSummons(dt)
   stepGimmicks(dt)
   stepSteveBlocks(dt)
   stepMechanics(dt, s.fighters)

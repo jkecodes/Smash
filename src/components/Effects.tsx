@@ -3,7 +3,7 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { removeFx, runtime } from '../game/runtime'
 import { useGameStore } from '../game/store'
-import { PLAYER_COLORS, type CharacterId, type FxItem, type Projectile, type Zone } from '../game/types'
+import { PLAYER_COLORS, type CharacterId, type FxItem, type Projectile, type Summon, type Zone } from '../game/types'
 
 const ADD = THREE.AdditiveBlending
 const age01 = (it: FxItem) => (performance.now() - it.createdAt) / it.ttl
@@ -986,6 +986,58 @@ function ZoneView({ z }: { z: Zone }) {
 export function Zones() {
   useGameStore((s) => s.zoneVersion)
   return <>{runtime.zones.map((z) => <ZoneView key={z.id} z={z} />)}</>
+}
+
+function SummonView({ s }: { s: Summon }) {
+  const g = useRef<THREE.Group>(null)
+  const spin = useRef<THREE.Group>(null)
+  useFrame((_, dt) => {
+    if (g.current) {
+      g.current.position.set(s.pos[0], s.pos[1], s.pos[2])
+      const fade = Math.min(1, s.ttlMs / 350, (s.durationMs - s.ttlMs) / 180 + 0.05)
+      const pulse = 0.94 + 0.08 * Math.sin(performance.now() / 130 + s.id)
+      g.current.scale.setScalar(fade * pulse)
+    }
+    if (spin.current) {
+      spin.current.rotation.y += dt * 3.8
+      spin.current.rotation.z += dt * 2.1
+    }
+  })
+  return (
+    <group ref={g} position={s.pos}>
+      <group ref={spin}>
+        {s.kind === 'drone' ? (
+          <>
+            <mesh><octahedronGeometry args={[s.radius * 0.72, 0]} /><meshStandardMaterial color={s.color} emissive={s.color} emissiveIntensity={1.2} metalness={0.6} roughness={0.2} /></mesh>
+            <mesh position={[-s.radius * 0.65, 0, 0]}><boxGeometry args={[0.12, 0.52, 0.28]} /><meshStandardMaterial color="#e2e8f0" metalness={0.8} roughness={0.2} /></mesh>
+            <mesh position={[s.radius * 0.65, 0, 0]}><boxGeometry args={[0.12, 0.52, 0.28]} /><meshStandardMaterial color="#e2e8f0" metalness={0.8} roughness={0.2} /></mesh>
+          </>
+        ) : s.kind === 'puppet' ? (
+          <>
+            <mesh><boxGeometry args={[s.radius * 1.15, s.radius * 1.15, s.radius * 1.15]} /><meshStandardMaterial color={s.color} emissive={s.color} emissiveIntensity={0.65} roughness={0.35} /></mesh>
+            <mesh position={[-0.14, 0.12, s.radius * 0.58]}><sphereGeometry args={[0.07, 8, 8]} /><meshBasicMaterial color="#ffffff" /></mesh>
+            <mesh position={[0.14, 0.12, s.radius * 0.58]}><sphereGeometry args={[0.07, 8, 8]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          </>
+        ) : s.kind === 'loong' ? (
+          <>
+            <mesh><sphereGeometry args={[s.radius * 0.6, 16, 12]} /><meshStandardMaterial color="#fef08a" emissive={s.color} emissiveIntensity={1.6} /></mesh>
+            <mesh rotation={[Math.PI / 3, 0, 0]}><torusGeometry args={[s.radius * 1.05, 0.055, 8, 28]} /><meshBasicMaterial color={s.color} blending={ADD} transparent opacity={0.9} /></mesh>
+            <mesh rotation={[-Math.PI / 3, Math.PI / 4, 0]}><torusGeometry args={[s.radius * 0.9, 0.045, 8, 24]} /><meshBasicMaterial color="#ffffff" blending={ADD} transparent opacity={0.75} /></mesh>
+          </>
+        ) : (
+          <>
+            <mesh><sphereGeometry args={[s.radius * 0.62, 16, 12]} /><meshStandardMaterial color="#ffffff" emissive={s.color} emissiveIntensity={1.5} /></mesh>
+            <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[s.radius * 0.98, 0.05, 8, 24]} /><meshBasicMaterial color={s.color} blending={ADD} transparent opacity={0.85} /></mesh>
+          </>
+        )}
+      </group>
+      <mesh><sphereGeometry args={[s.radius * 1.25, 12, 10]} /><meshBasicMaterial color={s.color} transparent opacity={0.18} blending={ADD} depthWrite={false} /></mesh>
+    </group>
+  )
+}
+export function Summons() {
+  useGameStore((s) => s.summonVersion)
+  return <>{runtime.summons.map((s) => <SummonView key={s.id} s={s} />)}</>
 }
 
 /** 判定框除錯顯示（H 鍵切換）：每幀把最近的查詢球體畫出來 */

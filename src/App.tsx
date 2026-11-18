@@ -2,7 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { Physics } from '@react-three/rapier'
 import { useGameStore } from './game/store'
 import { STAGES } from './game/stages'
-import { DebugHitboxes, FxLayer, Projectiles, SmashBallView, Zones } from './components/Effects'
+import { DebugHitboxes, FxLayer, Projectiles, SmashBallView, Summons, Zones } from './components/Effects'
 import { HUD } from './components/HUD'
 import { Arena, CameraRig, Fighters, SimLoop } from './components/World'
 import { GRAVITY } from './game/constants'
@@ -34,6 +34,7 @@ export default function App() {
         </Physics>
         <Projectiles />
         <Zones />
+        <Summons />
         <SmashBallView />
         <FxLayer />
         <DebugHitboxes />

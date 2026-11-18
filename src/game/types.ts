@@ -238,6 +238,8 @@ export interface SkillContext {
   spawnZone(pos: Vec3, def: ZoneDef): void
   /** 發射自訂投射物（可指定速度向量 / 重力 / 爆炸半徑），傷害與擊飛取自目前招式 */
   spawnProjectile(p: { pos: Vec3; vel: Vec3; radius: number; ttlMs: number; pierce?: boolean; color: string; gravity?: number; explodeRadius?: number; steerable?: number; maxRange?: number }): void
+  /** 召喚獨立運作的召喚物（自動追蹤、射擊或環繞護衛） */
+  spawnSummon(opts?: SummonSpawnOpts): void
   fx(item: FxSpec): void
   nearestEnemy(): FighterState | null
   isGrounded(): boolean
@@ -314,6 +316,42 @@ export interface UiFighter {
   slots: { slot: SkillSlot; name: string; cd: number; cost: number; locked: boolean }[]
 }
 
+export type SummonKind = 'spirit' | 'drone' | 'puppet' | 'loong'
+export type SummonBehavior = 'shoot' | 'chase' | 'orbit'
+export interface SummonSpawnOpts {
+  kind?: SummonKind
+  behavior?: SummonBehavior
+  durationMs?: number
+  fireIntervalMs?: number
+  damage?: number
+  kbBase?: number
+  kbScaling?: number
+  speed?: number
+  radius?: number
+  color?: string
+  offset?: Vec3
+  explodeOnHit?: boolean
+}
+export interface Summon {
+  id: number
+  owner: FighterId
+  kind: SummonKind
+  behavior: SummonBehavior
+  pos: Vec3
+  vel: Vec3
+  color: string
+  radius: number
+  ttlMs: number
+  durationMs: number
+  fireCdMs: number
+  fireIntervalMs: number
+  damage: number
+  kbBase: number
+  kbScaling: number
+  speed: number
+  explodeOnHit: boolean
+  source: HitSource
+}
 export interface SmashBall {
   pos: Vec3
   vel: Vec3
@@ -333,6 +371,7 @@ export interface Runtime {
   physics: { world: any; rapier: any } | null
   projectiles: Projectile[]
   zones: Zone[]
+  summons: Summon[]
   fx: FxItem[]
   debugSpheres: { pos: Vec3; r: number; ttl: number }[]
   shake: number

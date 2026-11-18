@@ -171,6 +171,27 @@ const GUN_CHARS = new Set(['rapi', 'anis', 'diddy', 'vaus', ...partnerHas('gun')
 const MARTIAL_CHARS = new Set(['gojo', 'deku', 'spe', 'luigi', 'creeper', 'chuck', 'suzuka', ...partnerHas('martial')])
 const CASTER_CHARS = new Set(['ichi', 'ruri', 'nona', 'saki', 'kaoruko', 'akira', 'kotone', 'blinky', 'jinhsi', ...partnerHas('caster')])
 
+const SUMMON_DOWN_CONFIG: Record<string, {
+  kind: 'spirit' | 'drone' | 'puppet' | 'loong'
+  behavior: 'shoot' | 'chase' | 'orbit'
+  durationMs: number
+  fireIntervalMs: number
+  damage: number
+  kbBase: number
+  kbScaling: number
+  speed?: number
+  radius: number
+  color: string
+  explodeOnHit: boolean
+}> = {
+  youmu: { kind: 'spirit', behavior: 'orbit', durationMs: 8000, fireIntervalMs: 650, damage: 5.5, kbBase: 7, kbScaling: 8, radius: 0.52, color: '#34d399', explodeOnHit: false },
+  firefly: { kind: 'drone', behavior: 'shoot', durationMs: 8000, fireIntervalMs: 850, damage: 5, kbBase: 6, kbScaling: 7, radius: 0.52, color: '#f97316', explodeOnHit: false },
+  nona: { kind: 'puppet', behavior: 'chase', durationMs: 7500, fireIntervalMs: 700, damage: 9, kbBase: 9.5, kbScaling: 11, speed: 8.8, radius: 0.54, color: '#e879f9', explodeOnHit: true },
+  jinhsi: { kind: 'loong', behavior: 'shoot', durationMs: 8500, fireIntervalMs: 900, damage: 5.5, kbBase: 6.5, kbScaling: 7.5, radius: 0.55, color: '#fde047', explodeOnHit: false },
+  omnom: { kind: 'puppet', behavior: 'chase', durationMs: 7500, fireIntervalMs: 650, damage: 8.5, kbBase: 9, kbScaling: 10, speed: 9.2, radius: 0.52, color: '#84cc16', explodeOnHit: true },
+  blinky: { kind: 'spirit', behavior: 'chase', durationMs: 8000, fireIntervalMs: 700, damage: 5.5, kbBase: 7, kbScaling: 8, speed: 8.2, radius: 0.52, color: '#ef4444', explodeOnHit: false },
+}
+
 function hitVfx(c: any, color: string, p: string, r: number, flip = false) {
   if (GUN_CHARS.has(p)) {
     c.fx({ kind: 'beam', pos: at(c, 0.15, 0.9), yaw: yawOf(c), length: r * 2.2, radius: 0.18, color, ttl: 150 })
@@ -513,6 +534,19 @@ function registerKit(k: KitSpec) {
           c.fx({ kind: 'ring', pos: at(c, -0.35, 0.6), color: '#a855f7', ttl: 360, radius: 2.2 })
           c.fx({ kind: 'pillar', pos: at(c, -0.2, 0.6), color: '#14b8a6', ttl: 320, radius: 1.1 })
           c.shake(0.32)
+        },
+      },
+    })
+  } else if (SUMMON_DOWN_CONFIG[p]) {
+    const sumCfg = SUMMON_DOWN_CONFIG[p]
+    reg({
+      id: `${p}.down`, name: k.down, energyCost: 0, cooldownMs: 2600, startupMs: 90, activeMs: 120, recoveryMs: 180,
+      hitbox: { offset: [0, 0.2, 0], radius: 1.55 }, damage: 6,
+      knockback: { dir: [0.5, 0.6, 0], base: 8, scaling: 8, radial: true },
+      hooks: {
+        onActive(c) {
+          c.spawnSummon(sumCfg)
+          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: sumCfg.color, ttl: 260, count: 10, speed: 5, size: 0.14 })
         },
       },
     })

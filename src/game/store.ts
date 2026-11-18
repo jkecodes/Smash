@@ -84,6 +84,7 @@ interface GameStore {
   setPlayerModel(id: FighterId, file: File | null): void
   projVersion: number
   zoneVersion: number
+  summonVersion: number
   fxVersion: number
   ultCutin: { charId: CharacterId; name: string; skillName: string; color: string; until: number } | null
   fatalFlash: { until: number; x: number; y: number } | null
@@ -127,7 +128,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (old) URL.revokeObjectURL(old.url)
     set((s) => ({ playerModel: { ...s.playerModel, [id]: file ? { url: URL.createObjectURL(file), name: file.name } : null } }))
   },
-  projVersion: 0, zoneVersion: 0, fxVersion: 0,
+  projVersion: 0, zoneVersion: 0, summonVersion: 0, fxVersion: 0,
   ultCutin: null,
   fatalFlash: null,
   countdown: null,

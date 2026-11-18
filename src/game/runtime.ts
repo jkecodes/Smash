@@ -1,5 +1,5 @@
 import { useGameStore } from './store'
-import type { FxSpec, Runtime, Projectile, Zone, ZoneDef, FighterId, Vec3, HitSource } from './types'
+import type { FxSpec, Runtime, Projectile, Zone, ZoneDef, Summon, FighterId, Vec3, HitSource } from './types'
 
 /** 60FPS 會變動、但 React 不需要訂閱的資料（剛體參考、投射物、特效清單）。 */
 export const runtime: Runtime = {
@@ -9,6 +9,7 @@ export const runtime: Runtime = {
   physics: null,
   projectiles: [],
   zones: [],
+  summons: [],
   fx: [],
   ball: null,
   debugSpheres: [],
@@ -19,7 +20,7 @@ export const runtime: Runtime = {
 
 let uid = 1
 export const pendingNetFx: FxSpec[] = []
-const bump = (k: 'projVersion' | 'zoneVersion' | 'fxVersion') =>
+const bump = (k: 'projVersion' | 'zoneVersion' | 'summonVersion' | 'fxVersion') =>
   useGameStore.setState((s) => ({ [k]: s[k] + 1 }) as any)
 
 export function addFx(spec: FxSpec, queueForNet = true) {
@@ -50,14 +51,28 @@ export function removeZone(id: number) {
   const i = runtime.zones.findIndex((z) => z.id === id)
   if (i >= 0) { runtime.zones.splice(i, 1); bump('zoneVersion') }
 }
+export function addSummon(s: Omit<Summon, 'id'>) {
+  const owned = runtime.summons.filter((x) => x.owner === s.owner)
+  if (owned.length >= 2) {
+    const oldestIdx = runtime.summons.findIndex((x) => x.owner === s.owner)
+    if (oldestIdx >= 0) runtime.summons.splice(oldestIdx, 1)
+  }
+  runtime.summons.push({ ...s, id: uid++ })
+  bump('summonVersion')
+}
+export function removeSummon(id: number) {
+  const i = runtime.summons.findIndex((s) => s.id === id)
+  if (i >= 0) { runtime.summons.splice(i, 1); bump('summonVersion') }
+}
 export function clearEntities() {
   runtime.projectiles.length = 0
   runtime.zones.length = 0
+  runtime.summons.length = 0
   runtime.fx.length = 0
   pendingNetFx.length = 0
   runtime.ball = null
   runtime.stageTime = 0
   runtime.hitstopMs = 0
-  bump('projVersion'); bump('zoneVersion'); bump('fxVersion')
+  bump('projVersion'); bump('zoneVersion'); bump('summonVersion'); bump('fxVersion')
 }
 export type { HitSource }
