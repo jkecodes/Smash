@@ -888,22 +888,35 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   const start = useGameStore((s) => s.startMatch)
 
   const activeIds = ALL_FIGHTER_IDS.slice(0, playerCount)
-  const safePicker = activeIds.includes(activePicker) ? activePicker : 'p1'
+  const canEditSlot = (id: FighterId) =>
+    netRole === 'offline' ? true : netRole === 'guest' ? id === (mySlot ?? 'p2') : !guests.includes(id)
+  const safePicker: FighterId =
+    netRole === 'guest'
+      ? (mySlot ?? 'p2')
+      : activeIds.includes(activePicker) && canEditSlot(activePicker)
+        ? activePicker
+        : 'p1'
   const currentStage = STAGES[stageId] ?? STAGES.reimu
 
   usePadMenu(
     wizard === null && !showHelp && !guideOpen,
     () => {
       if (step === 'stage') { sfx('ui'); setStep('char') }
-      else { clearEntities(); resetSimStage(); useGameStore.getState().startMatch() }
+      else if (netRole !== 'guest') { clearEntities(); resetSimStage(); broadcastStart(); useGameStore.getState().startMatch() }
     },
     (id, dx, dy) => {
       if (step === 'stage') {
+        if (netRole === 'guest') return
         const cur = useGameStore.getState().stageId
         selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 6))
       } else {
-        const cur = useGameStore.getState().selection[id]
-        select(id, stepListGrid(CHARACTER_IDS, cur, dx, dy, 10))
+        const target = netRole === 'guest' ? safePicker : id
+        if (!canEditSlot(target)) return
+        const cur = useGameStore.getState().selection[target]
+        const nextChar = stepListGrid(CHARACTER_IDS, cur, dx, dy, 10)
+        select(target, nextChar)
+        if (netRole === 'guest') sendPick(nextChar)
+        else if (netRole === 'host') setTimeout(broadcastLobby, 0)
       }
     },
   )
@@ -954,9 +967,11 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         }
       } else if (code === 'Tab' && step === 'char') {
         e.preventDefault()
+        const editable = activeIds.filter(canEditSlot)
+        if (editable.length <= 1) return
         sfx('ui')
-        const idx = activeIds.indexOf(safePicker)
-        setActivePicker(activeIds[(idx + 1) % activeIds.length])
+        const idx = editable.indexOf(safePicker)
+        setActivePicker(editable[(idx + 1) % editable.length])
       } else if (code === 'KeyR') {
         e.preventDefault()
         sfx('ui')
@@ -984,7 +999,9 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     return () => window.removeEventListener('keydown', onKey)
   }, [wizard, showHelp, guideOpen, step, safePicker, activeIds, playerCount, stageId, selection, selectStage, select, setPlayerCount, onGuide])
 
-  const pickChar = (target: FighterId, item: CharacterId | 'random') => {
+  const pickChar = (rawTarget: FighterId, item: CharacterId | 'random') => {
+    const target = netRole === 'guest' ? safePicker : rawTarget
+    if (!canEditSlot(target)) return
     const isRand = item === 'random'
     const chosen: CharacterId = isRand
       ? (CHARACTER_IDS[Math.floor(Math.random() * CHARACTER_IDS.length)] ?? CHARACTER_IDS[0])
@@ -1017,7 +1034,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         key={item}
         type="button"
         onClick={() => pickChar(safePicker, item)}
-        onContextMenu={(e) => { e.preventDefault(); pickChar('p2', item) }}
+        onContextMenu={(e) => { e.preventDefault(); if (netRole === 'offline') pickChar('p2', item); else pickChar(safePicker, item) }}
         title={isRand ? '點擊隨機選擇角色' : `${CHARACTERS[item].name}（左鍵指派給 ${safePicker.toUpperCase()}／右鍵直選 P2）`}
         style={firstOwner ? { boxShadow: `inset 0 0 0 2.5px ${PLAYER_COLORS[firstOwner]}` } : undefined}
         className="relative w-14 h-14 sm:w-[4.6rem] sm:h-[4.3rem] overflow-hidden bg-black border border-black group cursor-pointer focus:outline-none"
@@ -1224,15 +1241,16 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
             {activeIds.map((id) => {
               const isRand = randomSlots[id]
               const c = CHARACTERS[selection[id]]
+              const editable = canEditSlot(id)
               const isActive = safePicker === id
               const pCol = PLAYER_COLORS[id]
               const compact = playerCount > 2
               return (
                 <div
                   key={id}
-                  onClick={() => setActivePicker(id)}
+                  onClick={() => { if (editable) setActivePicker(id) }}
                   style={isActive ? { borderColor: pCol, boxShadow: `0 0 0 1px ${pCol}66` } : undefined}
-                  className={`${compact ? 'w-full p-2' : 'w-[21rem] p-2.5'} rounded-xl border backdrop-blur-sm transition-all cursor-pointer ${isActive ? 'bg-white/15' : 'border-white/15 bg-white/10 hover:border-white/30 opacity-90'
+                  className={`${compact ? 'w-full p-2' : 'w-[21rem] p-2.5'} rounded-xl border backdrop-blur-sm transition-all ${editable ? 'cursor-pointer' : 'cursor-default'} ${isActive ? 'bg-white/15' : 'border-white/15 bg-white/10 hover:border-white/30 opacity-90'
                     }`}
                 >
                   <div className="mb-1 flex items-center justify-between gap-1">
@@ -1249,8 +1267,8 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
                           🎓 教學
                         </button>
                       )}
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isActive ? 'bg-yellow-300 text-black' : 'bg-white/10 text-white/60'}`}>
-                        {isActive ? '🎯 選角中' : '選我'}
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isActive ? 'bg-yellow-300 text-black' : editable ? 'bg-white/10 text-white/60' : 'bg-cyan-500/20 text-cyan-200'}`}>
+                        {isActive ? '🎯 選角中' : editable ? '選我' : '🔒 其他玩家'}
                       </span>
                     </div>
                   </div>
