@@ -91,6 +91,12 @@ const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
 }
 
 const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover'])
+const TELEPORT_SIDE_CHARS = new Set(['gojo', 'yodaka', 'miyabi', 'rover'])
+const RANGED_SIDE_CHARS = new Set(['rapi', 'hutao', 'nona', 'kotone', 'saki'])
+const TELEPORT_UP_CHARS = new Set(['gojo', 'yodaka', 'nona', 'miyabi'])
+const WIND_UP_CHARS = new Set(['lumine', 'ruri', 'ichi', 'akira'])
+const COUNTER_DOWN_CHARS = new Set(['chihiro', 'gojo', 'kaoruko', 'kotone'])
+const TRAP_DOWN_CHARS = new Set(['rapi', 'ichi', 'hutao', 'nona'])
 const GUN_CHARS = new Set(['rapi'])
 const MARTIAL_CHARS = new Set(['gojo', 'deku', 'spe'])
 const CASTER_CHARS = new Set(['ichi', 'ruri', 'nona', 'saki', 'kaoruko', 'akira', 'kotone'])
@@ -159,9 +165,96 @@ function registerKit(k: KitSpec) {
       },
     },
   })
-  reg(dashMove(`${p}.side`, k.side, color, { speed: 23, dmg: 8.5, base: 11.5, scaling: 12.5 }))
-  reg(upRise(`${p}.up`, k.up, color, { dmg: 8, base: 11, scaling: 13, rise: 18.2 }))
-  reg(slamMove(`${p}.down`, k.down, color, { dmg: 10, base: 12.5, scaling: 13.5 }))
+  if (TELEPORT_SIDE_CHARS.has(p)) {
+    reg({
+      id: `${p}.side`, name: k.side, energyCost: 0, cooldownMs: 1550, startupMs: 90, activeMs: 120, recoveryMs: 200,
+      hitbox: { offset: [0, 0.15, 0.4], radius: 1.3 }, damage: 9,
+      knockback: { dir: [0, 0.45, 1], base: 11.5, scaling: 12.5 },
+      hooks: {
+        onStart(c) { c.fx({ kind: 'afterimage', pos: [...c.caster.pos], color, ttl: 260, size: 0.7 }) },
+        onActive(c) {
+          const dest = clampStageX(c.caster.pos[0] + c.forward[0] * 5.2)
+          c.teleport([dest, c.caster.pos[1], 0])
+          c.fx({ kind: 'ring', pos: [dest, c.caster.pos[1], 0], color, ttl: 280, radius: 1.5, plane: 'vertical' })
+          c.fx({ kind: 'burst', pos: [dest, c.caster.pos[1], 0], color, ttl: 260, count: 10, speed: 5, size: 0.14 })
+        },
+      },
+    })
+  } else if (RANGED_SIDE_CHARS.has(p)) {
+    reg({
+      id: `${p}.side`, name: k.side, energyCost: 0, cooldownMs: 1500, startupMs: 100, activeMs: 180, recoveryMs: 200,
+      hitbox: { offset: [0, 0.1, 0.5], radius: 1.05 }, damage: 8.5,
+      knockback: { dir: [0, 0.4, 1], base: 10.5, scaling: 11.5 },
+      hooks: {
+        onActive(c) {
+          c.setVelocity(c.forward[0] * 17, 2.5, 0)
+          c.spawnProjectile({ pos: at(c, 0.15, 0.8), vel: [c.forward[0] * 21, 0, 0], radius: 0.42, ttlMs: 950, color })
+        },
+      },
+    })
+  } else {
+    reg(dashMove(`${p}.side`, k.side, color, { speed: 24, dmg: 9.5, base: 12, scaling: 13 }))
+  }
+
+  if (TELEPORT_UP_CHARS.has(p)) {
+    reg({
+      id: `${p}.up`, name: k.up, energyCost: 0, cooldownMs: 1400, startupMs: 85, activeMs: 130, recoveryMs: 240,
+      hitbox: { offset: [0, 0.3, 0], radius: 1.45 }, damage: 8,
+      knockback: { dir: [0, 0.85, 0.4], base: 11, scaling: 12, radial: true },
+      hooks: {
+        onStart(c) { c.fx({ kind: 'ring', pos: [...c.caster.pos], color, ttl: 240, radius: 1.4 }) },
+        onActive(c) {
+          c.teleport([c.caster.pos[0] + c.forward[0] * 1.2, c.caster.pos[1] + 5.0, 0])
+          c.setVelocity(c.forward[0] * 3, 4.5, 0)
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color, ttl: 320, radius: 1.8 })
+        },
+      },
+    })
+  } else if (WIND_UP_CHARS.has(p)) {
+    reg({
+      id: `${p}.up`, name: k.up, energyCost: 0, cooldownMs: 1350, startupMs: 80, activeMs: 320, recoveryMs: 220,
+      hitbox: { offset: [0, -0.1, 0], radius: 1.55 }, damage: 7.5,
+      knockback: { dir: [0, 0.9, 0.3], base: 10.5, scaling: 11.5, radial: true },
+      hooks: {
+        onActive(c) {
+          c.setVelocity(c.forward[0] * 5, 16.5, 0)
+          c.fx({ kind: 'pillar', pos: [...c.caster.pos], color, ttl: 360, radius: 1.3 })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffffff', ttl: 320, radius: 1.8 })
+        },
+      },
+    })
+  } else {
+    reg(upRise(`${p}.up`, k.up, color, { dmg: 8.5, base: 11.5, scaling: 13, rise: 18.5 }))
+  }
+
+  if (COUNTER_DOWN_CHARS.has(p)) {
+    reg({
+      id: `${p}.down`, name: k.down, energyCost: 0, cooldownMs: 1700, startupMs: 90, activeMs: 180, recoveryMs: 230,
+      hitbox: { offset: [0, 0.1, 0], radius: 2.3 }, damage: 10,
+      knockback: { dir: [0, 0.65, 1], base: 13, scaling: 13.5, radial: true },
+      hooks: {
+        onStart(c) { c.setInvulnerable(240) },
+        onActive(c) {
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color, ttl: 340, radius: 2.3, plane: 'vertical' })
+          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#ffffff', ttl: 280, count: 12, speed: 6, size: 0.14 })
+          c.shake(0.32)
+        },
+      },
+    })
+  } else if (TRAP_DOWN_CHARS.has(p)) {
+    reg({
+      id: `${p}.down`, name: k.down, energyCost: 0, cooldownMs: 1800, startupMs: 100, activeMs: 80, recoveryMs: 220,
+      damage: 11, knockback: { dir: [0, 0.75, 1], base: 13, scaling: 14, radial: true },
+      hooks: {
+        onActive(c) {
+          c.setVelocity(-c.forward[0] * 4, 6.5, 0)
+          c.spawnProjectile({ pos: [c.caster.pos[0], c.caster.pos[1] - 0.2, 0], vel: [0, -8, 0], radius: 0.5, ttlMs: 1500, color, gravity: -18, explodeRadius: 2.5 })
+        },
+      },
+    })
+  } else {
+    reg(slamMove(`${p}.down`, k.down, color, { dmg: 10, base: 12.5, scaling: 13.5 }))
+  }
 
   if (k.s2.kind === 'zone') {
     reg({

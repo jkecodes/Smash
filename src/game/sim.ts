@@ -338,6 +338,7 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
   f.energy -= def.energyCost
   if (def.requiresUlt) {
     f.ultReady = false
+    f.invulnMs = Math.max(f.invulnMs, def.startupMs + def.activeMs + 150)
     sfx('ultStart')
     const ch = CHARACTERS[f.character]
     runtime.hitstopMs = Math.max(runtime.hitstopMs, 420)
@@ -514,6 +515,9 @@ function separateFighters(dt: number) {
 
 function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
   const sk = f.skill!
+  if (sk.def.requiresUlt && sk.phase !== 'recovery') {
+    f.invulnMs = Math.max(f.invulnMs, 120)
+  }
   const dtMs = dt * 1000
   const rb = runtime.bodies[f.id]!
   // 施放中水平速度快速衰減（hook 可在 onTick 覆寫）
