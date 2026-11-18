@@ -69,3 +69,47 @@ export function VictoryPodium3D({ id, charId, color, stageColors }: { id: Fighte
     </Canvas>
   )
 }
+
+function ClappingActor({ id, charId }: { id: FighterId; charId: CharacterId }) {
+  const rig = useRef<THREE.Group>(null)
+  const leftHand = useRef<THREE.Mesh>(null)
+  const rightHand = useRef<THREE.Mesh>(null)
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime
+    const clap = Math.abs(Math.sin(t * 7.5))
+    if (rig.current) {
+      rig.current.position.y = -0.18 + clap * 0.06
+      rig.current.rotation.y = Math.sin(t * 2.2) * 0.14
+    }
+    if (leftHand.current && rightHand.current) {
+      const gap = 0.05 + (1 - clap) * 0.16
+      leftHand.current.position.x = -gap
+      rightHand.current.position.x = gap
+    }
+  })
+  return (
+    <group ref={rig} scale={[1.15, 1.15, 1.15]}>
+      {isRetroAvatar(charId) ? (
+        <RetroAvatar id={id} charId={charId} />
+      ) : (
+        <group>
+          <mesh position={[0, 0.15, 0]}><boxGeometry args={[0.8, 0.26, 0.32]} /><meshStandardMaterial color="#00f0f0" emissive="#06b6d4" emissiveIntensity={0.45} /></mesh>
+          <mesh position={[0, 0.42, 0]}><boxGeometry args={[0.28, 0.28, 0.32]} /><meshStandardMaterial color="#22d3ee" emissive="#0891b2" emissiveIntensity={0.5} /></mesh>
+        </group>
+      )}
+      {/* 3D 拍手動畫雙手 */}
+      <mesh ref={leftHand} position={[-0.14, 0.04, 0.34]}><sphereGeometry args={[0.075, 8, 8]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+      <mesh ref={rightHand} position={[0.14, 0.04, 0.34]}><sphereGeometry args={[0.075, 8, 8]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+    </group>
+  )
+}
+
+export function ClappingPodium3D({ id, charId }: { id: FighterId; charId: CharacterId }) {
+  return (
+    <Canvas camera={{ position: [0, 0.25, 2.35], fov: 36 }} gl={{ alpha: true, antialias: true }}>
+      <ambientLight intensity={1.0} />
+      <directionalLight position={[2, 5, 4]} intensity={1.5} color="#ffffff" />
+      <ClappingActor id={id} charId={charId} />
+    </Canvas>
+  )
+}

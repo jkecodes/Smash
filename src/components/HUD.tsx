@@ -12,7 +12,7 @@ import { useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
 import { sfx, useAudioStore } from '../game/audio'
 import { CharacterPortrait, SHORT_NAMES } from './CharacterPortrait'
-import { VictoryPodium3D } from './VictoryPodium3D'
+import { VictoryPodium3D, ClappingPodium3D } from './VictoryPodium3D'
 import { StagePreview } from './StagePreview'
 import { TouchControls } from './TouchControls'
 import { broadcastLobby, broadcastStart, hostRoom, joinRoom, leaveRoom, sendPick, useNetStore } from '../game/net'
@@ -2045,23 +2045,33 @@ export function HUD() {
           </div>
         </div>
       )}
-      {phase === 'ended' && winner && resultStep === 'podium' && (
+      {phase === 'ended' && winner && resultStep === 'podium' && (() => {
+        const gs = useGameStore.getState()
+        const matchStage = resolveStage(gs.stageId, gs.stageForm)
+        const th = matchStage.theme
+        return (
         <div
           className="pointer-events-auto absolute inset-0 z-20 overflow-hidden text-white select-none"
           style={{
-            background: 'linear-gradient(155deg, #1e3a8a 0%, #7c3aed 38%, #db2777 68%, #f59e0b 100%)',
+            background: `linear-gradient(155deg, ${th.bg} 0%, ${th.mainColor} 42%, ${th.surfaceColor} 74%, ${th.accentColor}cc 100%)`,
           }}
         >
+          <StagePreview id={matchStage.id} form={gs.stageForm} className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 mix-blend-screen" />
           {/* 底部大亂鬥經典斜切黑底 */}
           <div
-            className="pointer-events-none absolute -bottom-16 -left-10 -right-10 h-44 bg-black/90 border-t-4 border-white/80"
-            style={{ transform: 'rotate(-3.5deg)' }}
+            className="pointer-events-none absolute -bottom-16 -left-10 -right-10 h-44 bg-black/90 border-t-4"
+            style={{ transform: 'rotate(-3.5deg)', borderColor: th.edgeColor }}
           />
 
           {/* 右側：第 1 名勝者 3D 模型站立勝利舞台 */}
           <div className="pointer-events-none absolute right-[2%] bottom-8 top-4 flex items-center justify-center">
             <div className="h-80 w-80 sm:h-[28rem] sm:w-[28rem]">
-              <VictoryPodium3D id={winner} charId={selection[winner]} color={PLAYER_COLORS[winner]} />
+              <VictoryPodium3D
+                id={winner}
+                charId={selection[winner]}
+                color={PLAYER_COLORS[winner]}
+                stageColors={{ main: th.mainColor, surface: th.surfaceColor, edge: th.edgeColor }}
+              />
             </div>
           </div>
 
@@ -2120,9 +2130,8 @@ export function HUD() {
                       >
                         {rank}
                       </span>
-                      <div className="relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-xl border-2 border-black bg-black shrink-0">
-                        <CharacterPortrait id={selection[id]} className="h-full w-full animate-[bounce_0.75s_ease-in-out_infinite]" />
-                        <span className="absolute -bottom-0.5 right-0.5 text-2xl leading-none animate-pulse drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">👏</span>
+                      <div className="relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-xl border-2 border-black bg-slate-900/90 shrink-0">
+                        <ClappingPodium3D id={id} charId={selection[id]} />
                       </div>
                       <div className="text-base leading-tight">
                         <div className="font-black text-white drop-shadow">{zhNameOf(u.name)}</div>
@@ -2159,7 +2168,8 @@ export function HUD() {
             </div>
           </div>
         </div>
-      )}
+        )
+      })()}
     </div>
   )
 }
