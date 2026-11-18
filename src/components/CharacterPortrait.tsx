@@ -54,7 +54,7 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   yodaka: { bg: '#0f172a', hair: '#334155', outfit: '#09090b', accent: '#38bdf8', eye: '#94a3b8', shortHair: true },
   saki: { bg: '#881337', hair: '#fb7185', outfit: '#be123c', accent: '#fde047', eye: '#f43f5e' },
   spe: { bg: '#3b0764', hair: '#78350f', outfit: '#f8fafc', accent: '#c084fc', eye: '#a855f7', ears: true },
-  kaoruko: { bg: '#500724', hair: '#1e1b2e', outfit: '#831843', accent: '#f9a8d4', eye: '#ec4899' },
+  kaoruko: { bg: '#500724', hair: '#1e1b2e', outfit: '#831843', accent: '#f9a8d4', eye: '#a855f7' },
   stelle: { bg: '#0f172a', hair: '#94a3b8', outfit: '#1e293b', accent: '#facc15', eye: '#eab308' },
   lumine: { bg: '#134e4a', hair: '#fde047', outfit: '#f8fafc', accent: '#5eead4', eye: '#facc15', bobHair: true },
   miyabi: { bg: '#083344', hair: '#18181b', outfit: '#0f172a', accent: '#22d3ee', eye: '#ef4444', ears: true },
