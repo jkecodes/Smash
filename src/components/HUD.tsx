@@ -459,7 +459,7 @@ function HelpModal({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="relative max-w-2xl w-full rounded-2xl bg-[#141929] border border-white/20 p-6 text-white shadow-2xl space-y-4"
+        className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-2xl bg-[#141929] border border-white/20 p-5 text-white shadow-2xl space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -471,39 +471,113 @@ function HelpModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3.5 text-xs">
-          <div className="rounded-xl bg-white/5 p-3.5 space-y-2 border border-white/5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+          <div className="rounded-xl bg-white/5 p-3.5 space-y-2.5 border border-white/5">
             <div className="font-bold text-yellow-300 flex items-center gap-1.5">
-              <span>⌨️</span> 鍵盤按鍵配置
+              <span>⌨️</span> 鍵盤圖解配置（P1 / P2）
             </div>
-            <div className="space-y-2 text-white/85 text-[11px] leading-relaxed">
-              <div>
-                <span className="text-red-400 font-bold">P1：</span>
-                WASD 移動 / 跳躍 (亦可 Space)<br />
-                <span className="text-white/60">J</span> 攻擊 · <span className="text-white/60">K</span> 特招 · <span className="text-white/60">L</span> 技能2 · <span className="text-white/60">I</span> 大招<br />
-                <span className="text-yellow-300 font-bold">O 或 Shift</span> 防禦/閃避 · <span className="text-white/60">S</span> 快速下墜 / 穿層板
-              </div>
-              <div className="pt-1.5 border-t border-white/10">
-                <span className="text-blue-400 font-bold">P2：</span>
-                方向鍵 移動 / 跳躍 (亦可 Enter)<br />
-                <span className="text-white/60">.</span> 攻擊 · <span className="text-white/60">/</span> 特招 · <span className="text-white/60">'</span> 技能2 · <span className="text-white/60">;</span> 大招<br />
-                <span className="text-yellow-300 font-bold">, 或 右Shift</span> 防禦/閃避 · <span className="text-white/60">↓</span> 快速下墜 / 穿層板
-              </div>
+            {/* 鍵盤視覺圖解 SVG */}
+            <svg viewBox="0 0 360 128" className="w-full rounded-lg bg-[#0b1020] border border-white/10 p-1">
+              <text x="12" y="16" fontSize="9" fontWeight="900" fill="#f87171">P1 左側移動 / 跳躍</text>
+              {/* W A S D */}
+              <rect x="44" y="24" width="26" height="24" rx="4" fill="#1e293b" stroke="#f87171" strokeWidth="1.5" />
+              <text x="57" y="40" textAnchor="middle" fontSize="11" fontWeight="900" fill="#fff">W</text>
+              <rect x="14" y="52" width="26" height="24" rx="4" fill="#1e293b" stroke="#f87171" strokeWidth="1.5" />
+              <text x="27" y="68" textAnchor="middle" fontSize="11" fontWeight="900" fill="#fff">A</text>
+              <rect x="44" y="52" width="26" height="24" rx="4" fill="#1e293b" stroke="#f87171" strokeWidth="1.5" />
+              <text x="57" y="68" textAnchor="middle" fontSize="11" fontWeight="900" fill="#fff">S</text>
+              <rect x="74" y="52" width="26" height="24" rx="4" fill="#1e293b" stroke="#f87171" strokeWidth="1.5" />
+              <text x="87" y="68" textAnchor="middle" fontSize="11" fontWeight="900" fill="#fff">D</text>
+              {/* Space / Shift */}
+              <rect x="14" y="84" width="86" height="22" rx="4" fill="#1e293b" stroke="#94a3b8" strokeWidth="1.2" />
+              <text x="57" y="99" textAnchor="middle" fontSize="9" fontWeight="800" fill="#cbd5e1">SPACE 跳躍</text>
+
+              <text x="135" y="16" fontSize="9" fontWeight="900" fill="#fde047">P1 右側招式區</text>
+              {/* I / O */}
+              <rect x="150" y="24" width="32" height="26" rx="4" fill="#4c1d95" stroke="#c084fc" strokeWidth="1.5" />
+              <text x="166" y="37" textAnchor="middle" fontSize="10" fontWeight="900" fill="#fff">I</text>
+              <text x="166" y="46" textAnchor="middle" fontSize="7" fontWeight="700" fill="#e9d5ff">大招</text>
+              <rect x="188" y="24" width="36" height="26" rx="4" fill="#064e3b" stroke="#34d399" strokeWidth="1.5" />
+              <text x="206" y="37" textAnchor="middle" fontSize="10" fontWeight="900" fill="#fff">O</text>
+              <text x="206" y="46" textAnchor="middle" fontSize="7" fontWeight="700" fill="#a7f3d0">防禦</text>
+              {/* J K L */}
+              <rect x="134" y="56" width="32" height="28" rx="4" fill="#7f1d1d" stroke="#f87171" strokeWidth="1.5" />
+              <text x="150" y="70" textAnchor="middle" fontSize="11" fontWeight="900" fill="#fff">J</text>
+              <text x="150" y="80" textAnchor="middle" fontSize="7" fontWeight="700" fill="#fecaca">普攻</text>
+              <rect x="170" y="56" width="32" height="28" rx="4" fill="#78350f" stroke="#fbbf24" strokeWidth="1.5" />
+              <text x="186" y="70" textAnchor="middle" fontSize="11" fontWeight="900" fill="#fff">K</text>
+              <text x="186" y="80" textAnchor="middle" fontSize="7" fontWeight="700" fill="#fde68a">特招</text>
+              <rect x="206" y="56" width="32" height="28" rx="4" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1.5" />
+              <text x="222" y="70" textAnchor="middle" fontSize="11" fontWeight="900" fill="#fff">L</text>
+              <text x="222" y="80" textAnchor="middle" fontSize="7" fontWeight="700" fill="#bfdbfe">技2</text>
+
+              <text x="256" y="16" fontSize="9" fontWeight="900" fill="#60a5fa">P2 雙人對戰</text>
+              <rect x="284" y="24" width="24" height="22" rx="4" fill="#1e293b" stroke="#60a5fa" strokeWidth="1.3" />
+              <text x="296" y="39" textAnchor="middle" fontSize="10" fontWeight="900" fill="#fff">↑</text>
+              <rect x="256" y="50" width="24" height="22" rx="4" fill="#1e293b" stroke="#60a5fa" strokeWidth="1.3" />
+              <text x="268" y="65" textAnchor="middle" fontSize="10" fontWeight="900" fill="#fff">←</text>
+              <rect x="284" y="50" width="24" height="22" rx="4" fill="#1e293b" stroke="#60a5fa" strokeWidth="1.3" />
+              <text x="296" y="65" textAnchor="middle" fontSize="10" fontWeight="900" fill="#fff">↓</text>
+              <rect x="312" y="50" width="24" height="22" rx="4" fill="#1e293b" stroke="#60a5fa" strokeWidth="1.3" />
+              <text x="324" y="65" textAnchor="middle" fontSize="10" fontWeight="900" fill="#fff">→</text>
+              <text x="296" y="90" textAnchor="middle" fontSize="8" fontWeight="700" fill="#93c5fd">攻 .  特 /  技2 &apos;  大 ;</text>
+              <text x="296" y="103" textAnchor="middle" fontSize="8" fontWeight="700" fill="#a7f3d0">防禦：, 或 右Shift</text>
+              <text x="180" y="120" textAnchor="middle" fontSize="8" fontWeight="700" fill="#94a3b8">小技巧：地面同時按 普攻(J) + 特招(K) = 蓄力重擊！</text>
+            </svg>
+            <div className="space-y-1 text-white/80 text-[11px] leading-relaxed">
+              <div><strong className="text-red-400">P1：</strong>WASD 移動 / 跳躍（Space 亦可）· <strong>S</strong> 穿層板 / 快墜 · <strong>Shift / O</strong> 防禦閃避</div>
+              <div><strong className="text-blue-400">P2：</strong>方向鍵移動（Enter 亦可跳）· <strong>. / &apos; ;</strong> 攻擊招式 · <strong>, / 右Shift</strong> 防禦</div>
             </div>
           </div>
 
-          <div className="rounded-xl bg-white/5 p-3.5 space-y-2 border border-white/5">
+          <div className="rounded-xl bg-white/5 p-3.5 space-y-2.5 border border-white/5">
             <div className="font-bold text-emerald-300 flex items-center gap-1.5">
-              <span>🎮</span> 手把配置（大亂鬥佈局）
+              <span>🎮</span> 手把／搖桿圖解（大亂鬥佈局）
             </div>
-            <div className="space-y-1 text-white/85 text-[11px] leading-relaxed">
-              <div><strong className="text-white/60">左搖桿：</strong>移動 / 上推跳躍 / 下推穿板</div>
-              <div><strong className="text-white/60">右側鍵 (Xbox B / PS ○)：</strong>普攻</div>
-              <div><strong className="text-white/60">下側鍵 (Xbox A / PS ✕)：</strong>特招（持有大招時為大招）</div>
-              <div><strong className="text-white/60">右搖桿：</strong>技能2（支援推住蓄力）</div>
-              <div><strong className="text-white/60">X / Y：</strong>跳躍</div>
-              <div><strong className="text-emerald-300">LT / RT / LB / RB：</strong>防禦（左或右扳機皆可）</div>
-              <div><strong className="text-white/60">L3 / R3：</strong>大招 · <strong className="text-white/60">Start：</strong>暫停</div>
+            {/* 手把視覺圖解 SVG */}
+            <svg viewBox="0 0 360 128" className="w-full rounded-lg bg-[#0b1020] border border-white/10 p-1">
+              {/* 肩鍵 LT/LB & RT/RB */}
+              <rect x="78" y="16" width="52" height="14" rx="4" fill="#064e3b" stroke="#34d399" strokeWidth="1.3" />
+              <text x="104" y="26" textAnchor="middle" fontSize="8" fontWeight="900" fill="#a7f3d0">LB / LT 防禦</text>
+              <rect x="230" y="16" width="52" height="14" rx="4" fill="#064e3b" stroke="#34d399" strokeWidth="1.3" />
+              <text x="256" y="26" textAnchor="middle" fontSize="8" fontWeight="900" fill="#a7f3d0">RB / RT 防禦</text>
+
+              {/* 手把本體輪廓 */}
+              <path d="M90,34 L270,34 C294,34 310,60 302,102 C298,116 280,118 268,104 L244,82 L116,82 L92,104 C80,118 62,116 58,102 C50,60 66,34 90,34 Z" fill="#1e293b" stroke="#64748b" strokeWidth="2" />
+
+              {/* 左搖桿 */}
+              <circle cx="108" cy="58" r="14" fill="#0f172a" stroke="#f87171" strokeWidth="2" />
+              <text x="108" y="61" textAnchor="middle" fontSize="8" fontWeight="900" fill="#fca5a5">L搖桿</text>
+              <text x="42" y="56" textAnchor="middle" fontSize="8" fontWeight="800" fill="#fca5a5">移動/跳</text>
+              <text x="42" y="67" textAnchor="middle" fontSize="7" fontWeight="700" fill="#94a3b8">下推穿板</text>
+
+              {/* Start */}
+              <rect x="170" y="48" width="20" height="8" rx="3" fill="#475569" />
+              <text x="180" y="43" textAnchor="middle" fontSize="7" fontWeight="800" fill="#cbd5e1">START 暫停</text>
+
+              {/* 右搖桿 */}
+              <circle cx="216" cy="70" r="11" fill="#0f172a" stroke="#60a5fa" strokeWidth="1.8" />
+              <text x="216" y="73" textAnchor="middle" fontSize="7" fontWeight="900" fill="#93c5fd">R技2</text>
+
+              {/* ABXY 按鍵 */}
+              <circle cx="256" cy="44" r="6.5" fill="#1e293b" stroke="#cbd5e1" strokeWidth="1.2" />
+              <text x="256" y="47" textAnchor="middle" fontSize="7" fontWeight="900" fill="#fff">Y</text>
+              <circle cx="241" cy="56" r="6.5" fill="#1e293b" stroke="#cbd5e1" strokeWidth="1.2" />
+              <text x="241" y="59" textAnchor="middle" fontSize="7" fontWeight="900" fill="#fff">X</text>
+              <circle cx="271" cy="56" r="6.5" fill="#7f1d1d" stroke="#f87171" strokeWidth="1.4" />
+              <text x="271" y="59" textAnchor="middle" fontSize="7" fontWeight="900" fill="#fff">B</text>
+              <circle cx="256" cy="68" r="6.5" fill="#78350f" stroke="#fbbf24" strokeWidth="1.4" />
+              <text x="256" y="71" textAnchor="middle" fontSize="7" fontWeight="900" fill="#fff">A</text>
+
+              {/* 右側標籤 */}
+              <text x="326" y="44" textAnchor="middle" fontSize="7.5" fontWeight="800" fill="#e2e8f0">X/Y 跳躍</text>
+              <text x="326" y="58" textAnchor="middle" fontSize="7.5" fontWeight="800" fill="#fca5a5">B/○ 普攻</text>
+              <text x="326" y="72" textAnchor="middle" fontSize="7.5" fontWeight="800" fill="#fde047">A/✕ 特招</text>
+              <text x="180" y="120" textAnchor="middle" fontSize="8" fontWeight="700" fill="#94a3b8">L3 / R3 按下搖桿 = 大招 · 持大招球時 A/✕ 直接施放</text>
+            </svg>
+            <div className="space-y-1 text-white/80 text-[11px] leading-relaxed">
+              <div><strong className="text-emerald-300">LT / RT / LB / RB：</strong>防禦（左或右皆可），防禦中推左搖桿＝翻滾／閃避</div>
+              <div><strong className="text-blue-300">右搖桿：</strong>推向任意方向立即施放 <strong>技能 2</strong>（支援推住蓄力）</div>
             </div>
           </div>
         </div>
