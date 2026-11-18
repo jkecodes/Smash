@@ -324,10 +324,21 @@ function ProjectileView({ p }: { p: Projectile }) {
           ) : (
             <mesh><boxGeometry args={[r * 2.5, r * 0.35, r * 0.35]} /><meshStandardMaterial color="#a855f7" emissive="#c084fc" emissiveIntensity={0.65} /></mesh>
           )
-        ) : charId === 'arisa' ? (
+        ) : charId === 'arisa' || charId === 'nona' || charId === 'miyabi' || charId === 'chihiro' || charId === 'rover' ? (
           <>
-            <mesh><boxGeometry args={[r * 2.4, r * 0.35, r * 0.35]} /><meshBasicMaterial color="#6ee7b7" /></mesh>
-            <mesh><sphereGeometry args={[r * 0.9, 12, 12]} /><meshBasicMaterial color="#10b981" transparent opacity={0.45} blending={ADD} depthWrite={false} /></mesh>
+            <mesh><boxGeometry args={[r * 2.5, r * 0.38, r * 0.38]} /><meshBasicMaterial color="#ffffff" /></mesh>
+            <mesh><sphereGeometry args={[r * 0.95, 12, 12]} /><meshBasicMaterial color={p.color} transparent opacity={0.5} blending={ADD} depthWrite={false} /></mesh>
+          </>
+        ) : charId === 'gojo' || charId === 'ichi' || charId === 'ruri' || charId === 'stelle' || charId === 'lumine' || charId === 'saki' ? (
+          <>
+            <mesh><octahedronGeometry args={[r * 0.95, 0]} /><meshBasicMaterial color="#ffffff" /></mesh>
+            <mesh><sphereGeometry args={[r * 1.15, 14, 14]} /><meshBasicMaterial color={p.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>
+            <mesh rotation={[Math.PI / 4, 0, 0]}><torusGeometry args={[r * 1.1, r * 0.1, 8, 20]} /><meshBasicMaterial color={p.color} blending={ADD} /></mesh>
+          </>
+        ) : charId === 'spe' || charId === 'kaoruko' || charId === 'rapi' ? (
+          <>
+            <mesh><boxGeometry args={[r * 1.8, r * 0.9, r * 0.9]} /><meshStandardMaterial color={p.color} emissive={p.color} emissiveIntensity={0.6} /></mesh>
+            <mesh><sphereGeometry args={[r * 1.05, 12, 12]} /><meshBasicMaterial color="#ffffff" transparent opacity={0.35} blending={ADD} depthWrite={false} /></mesh>
           </>
         ) : (
           <>

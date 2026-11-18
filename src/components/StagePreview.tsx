@@ -209,6 +209,13 @@ export function StagePreview({ id, form = 'normal', className = '' }: { id: Stag
           <circle cx="108" cy="24" r="2.5" fill="#6ee7b7" />
         </g>
       )}
+      {!['reimu','marisa','tetro','pacman','mario','invader','bomber','snake','frogger','kong','pong','ryu','chunli','yugi','kaiba','omnom','tom','ben','crossy','red','steve','arisa'].includes(id) && (
+        <g opacity="0.8">
+          <rect x="20" y="24" width="12" height="38" fill={theme.platColor} stroke={theme.accentColor} strokeWidth="1" />
+          <rect x="128" y="24" width="12" height="38" fill={theme.platColor} stroke={theme.accentColor} strokeWidth="1" />
+          <circle cx="80" cy="32" r="16" fill="none" stroke={theme.edgeColor} strokeWidth="1.4" opacity="0.6" />
+        </g>
+      )}
 
       {/* 層板配置（依實際 stages.ts 幾何描繪） */}
       {st.platforms.map((p, i) => {

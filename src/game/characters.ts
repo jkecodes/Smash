@@ -413,5 +413,215 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
       skill2: 'arisa.forestSeal', ...smashes('arisa'), ult: 'arisa.evolveBurst',
     },
   },
+  chihiro: {
+    id: 'chihiro', name: 'CHIHIRO 六平千紘', color: '#ef4444',
+    trait: '🐟 Kagurabachi 妖刀「淵天」黑・錦・涅金魚水墨斬擊！',
+    guide: {
+      summary: '《神樂鉢》背負妖刀「淵天」的少年！高速居合拔刀搭配水墨黑金魚斬波遠近皆強。',
+      steps: [
+        '中距離施放【特招 K】妖刀「黑」金魚斬波貫穿牽制，並用【左右+K】「錦」高速突進貼身。',
+        '被敵人圍攻時按【技能2 L】赤金魚吸收反擊環彈開周遭對手。',
+        '用【上+K】「涅」昇龍斬空回場並連擊！',
+      ],
+      combo: 'J → J (居合斬) → 左右+K (錦突進) → L (赤金魚反擊環)',
+    },
+    loadout: { attack: 'chihiro.a1', ...tilts('chihiro'), skill1: 'chihiro.s1', 'skill1:side': 'chihiro.side', 'skill1:up': 'chihiro.up', 'skill1:down': 'chihiro.down', skill2: 'chihiro.s2', ...smashes('chihiro'), ult: 'chihiro.ult' },
+  },
+  ichi: {
+    id: 'ichi', name: 'ICHI 伊奇', color: '#38bdf8',
+    trait: '🐺 魔男伊奇・反世界魔法「ウロロ」＋狩獵魔刀！',
+    guide: {
+      summary: '《魔男伊奇》首位男性魔女！以狩獵陷阱結界控場，再發射冰狼爆裂魔法收頭。',
+      steps: [
+        '先在平台中間放【技能2 L】狩獵魔法結界陣緩速並消耗對手。',
+        '再用【特招 K】冰狼魔法射彈轟炸，並以【左右+K】反世界疾風突刺追擊。',
+        '空中用【下+K】ウロロ重力壓制將人砸出場外！',
+      ],
+      combo: 'L (狩獵結界) → K (冰狼射彈) → 左右+K (疾風突刺)',
+    },
+    loadout: { attack: 'ichi.a1', ...tilts('ichi'), skill1: 'ichi.s1', 'skill1:side': 'ichi.side', 'skill1:up': 'ichi.up', 'skill1:down': 'ichi.down', skill2: 'ichi.s2', ...smashes('ichi'), ult: 'ichi.ult' },
+  },
+  ruri: {
+    id: 'ruri', name: 'RURI 青木瑠璃', color: '#34d399',
+    trait: '🐉 RuriDragon 龍之火炎吐息・角閃電與毒霧領域！',
+    guide: {
+      summary: '《瑠璃龍》覺醒龍族血統的女子高中生！同時擁有火炎吐息、毒霧領域與龍角放電。',
+      steps: [
+        '在敵人活動區按【技能2 L】施放龍角放電毒霧領域持續扣血。',
+        '遠距離噴射【特招 K】龍之火炎吐息製造爆破，並用【左右+K】龍鱗暴衝撞飛。',
+        '被擊出場外用【上+K】龍翼雷電升空回場！',
+      ],
+      combo: 'L (毒霧領域) → K (火炎吐息) → 下+K (青龍落雷)',
+    },
+    loadout: { attack: 'ruri.a1', ...tilts('ruri'), skill1: 'ruri.s1', 'skill1:side': 'ruri.side', 'skill1:up': 'ruri.up', 'skill1:down': 'ruri.down', skill2: 'ruri.s2', ...smashes('ruri'), ult: 'ruri.ult' },
+  },
+  nona: {
+    id: 'nona', name: 'NONA 諾娜', color: '#e879f9',
+    trait: '🪡 WITCHRIV 縫紉魔法「Altoare」貫穿魔針與銀線結界！',
+    guide: {
+      summary: '《WITCHRIV》縫紉魔法使！貫穿魔針高速連射搭配銀線束縛陣，讓對手寸步難行。',
+      steps: [
+        '中距離連續發射【特招 K】Altoare 貫穿魔針壓制走位。',
+        '敵人近身時按下【技能2 L】展開縫紉絲線束縛陣緩速扣血。',
+        '打破大招球發動萬針裁縫大破滅從天降下魔針雨！',
+      ],
+      combo: 'L (絲線束縛) → K (貫穿魔針) → 左右+K (魔絲滑行)',
+    },
+    loadout: { attack: 'nona.a1', ...tilts('nona'), skill1: 'nona.s1', 'skill1:side': 'nona.side', 'skill1:up': 'nona.up', 'skill1:down': 'nona.down', skill2: 'nona.s2', ...smashes('nona'), ult: 'nona.ult' },
+  },
+  gojo: {
+    id: 'gojo', name: 'GOJO 五條悟', color: '#818cf8',
+    trait: '♾️ 咒術迴戰・術式反轉「赫」、順轉「蒼」與虛式「茈」！',
+    guide: {
+      summary: '《咒術迴戰》現代最強咒術師！兼具爆裂「赫」、瞬移突襲與超高擊飛虛式「茈」。',
+      steps: [
+        '遠距用【特招 K】術式反轉「赫」製造大爆炸，或按【技能2 L】發射高擊飛虛式「茈」！',
+        '利用【左右+K】無下限瞬間移動突襲近身接【普攻 J → J】黑閃連打。',
+        '大招展開「無量空處」接終極虛式「茈」橫掃全場！',
+      ],
+      combo: '左右+K (瞬移) → J → J (黑閃) → L (虛式「茈」)',
+    },
+    loadout: { attack: 'gojo.a1', ...tilts('gojo'), skill1: 'gojo.s1', 'skill1:side': 'gojo.side', 'skill1:up': 'gojo.up', 'skill1:down': 'gojo.down', skill2: 'gojo.s2', ...smashes('gojo'), ult: 'gojo.ult' },
+  },
+  deku: {
+    id: 'deku', name: 'DEKU 綠谷出久', color: '#22c55e',
+    trait: '⚡ 我的英雄學院・ONE FOR ALL・Air Force 與底特律粉碎！',
+    guide: {
+      summary: '《我的英雄學院》第九代繼承者！高速 Shoot Style 踢技搭配黑鞭突進與強力震波。',
+      steps: [
+        '用【特招 K】Air Force 空氣彈遠程牽制，再按【左右+K】全覆蓋黑鞭突進貼身。',
+        '近身打完普攻接【技能2 L】底特律粉碎震波大範圍彈飛對手！',
+        '高空使用【下+K】曼徹斯特重踏一舉破招。',
+      ],
+      combo: 'K (空氣彈) → 左右+K (黑鞭突進) → L (底特律粉碎)',
+    },
+    loadout: { attack: 'deku.a1', ...tilts('deku'), skill1: 'deku.s1', 'skill1:side': 'deku.side', 'skill1:up': 'deku.up', 'skill1:down': 'deku.down', skill2: 'deku.s2', ...smashes('deku'), ult: 'deku.ult' },
+  },
+  yodaka: {
+    id: 'yodaka', name: 'YODAKA 夜鷹', color: '#64748b',
+    trait: '🥷 忍事 Shinobigoto・超速手裡劍與一擊必殺體術！',
+    guide: {
+      summary: '《忍事》最強忍者夜鷹！無血統卻擁有全場最快的體術突進與精準手裡劍連射。',
+      steps: [
+        '遠距連丟【特招 K】高速手裡劍壓制，抓空檔按【左右+K】夜鷹疾影暗殺步閃入貼身。',
+        '被圍攻時用【技能2 L】煙霧忍者突襲環彈開所有敵人。',
+        '地面重擊一擊必殺拳擊飛力極高！',
+      ],
+      combo: 'K (手裡劍) → 左右+K (疾影暗殺) → J → J (體術連擊)',
+    },
+    loadout: { attack: 'yodaka.a1', ...tilts('yodaka'), skill1: 'yodaka.s1', 'skill1:side': 'yodaka.side', 'skill1:up': 'yodaka.up', 'skill1:down': 'yodaka.down', skill2: 'yodaka.s2', ...smashes('yodaka'), ult: 'yodaka.ult' },
+  },
+  saki: {
+    id: 'saki', name: 'SAKI 花海咲季', color: '#f43f5e',
+    trait: '🎤 學園偶像大師・初星全力衝刺與舞台閃耀應援區！',
+    guide: {
+      summary: '《学マス》全能王牌偶像花海咲季！速度極快，能展開應援結界再以 Starlight 擊飛對手。',
+      steps: [
+        '站在戰場中心開【技能2 L】閃耀舞台應援區扣血兼緩速敵人。',
+        '用【左右+K】初星學園全力衝刺高速追擊，配合【特招 K】Starlight 應援星彈！',
+        '大招開啟初星 LIVE 降下華麗星光爆彈雨！',
+      ],
+      combo: 'L (舞台應援區) → 左右+K (全力衝刺) → K (星彈補刀)',
+    },
+    loadout: { attack: 'saki.a1', ...tilts('saki'), skill1: 'saki.s1', 'skill1:side': 'saki.side', 'skill1:up': 'saki.up', 'skill1:down': 'saki.down', skill2: 'saki.s2', ...smashes('saki'), ult: 'saki.ult' },
+  },
+  spe: {
+    id: 'spe', name: 'SPECIAL WEEK 特別週', color: '#c084fc',
+    trait: '🐎 賽馬娘・終盤「末腳」超加速＋日本總大將氣勢！',
+    guide: {
+      summary: '《賽馬娘 Pretty Derby》特別週！招牌「末腳」衝刺速度驚人，搭配特製紅蘿蔔爆彈橫掃跑道。',
+      steps: [
+        '中距離拋出【特招 K】特製紅蘿蔔飛彈炸出破綻。',
+        '立刻接【左右+K】終盤「末腳」超加速貫穿並撞飛對手！',
+        '貼身被抓時按【技能2 L】日本總大將氣勢震波震開敵軍。',
+      ],
+      combo: 'K (紅蘿蔔飛彈) → 左右+K (末腳加速撞飛) → L (總大將震波)',
+    },
+    loadout: { attack: 'spe.a1', ...tilts('spe'), skill1: 'spe.s1', 'skill1:side': 'spe.side', 'skill1:up': 'spe.up', 'skill1:down': 'spe.down', skill2: 'spe.s2', ...smashes('spe'), ult: 'spe.ult' },
+  },
+  kaoruko: {
+    id: 'kaoruko', name: 'KAORUKO 和栗薰子', color: '#f9a8d4',
+    trait: '🍰 薰香花朵凛然綻放・愛心草莓蛋糕彈與花香結界！',
+    guide: {
+      summary: '《薰香花朵凛然綻放》和栗薰子！用甜甜的草莓蛋糕爆彈與凛然花香領域掌控節奏。',
+      steps: [
+        '先開【技能2 L】暖心治癒花香結界緩速敵人，再用【特招 K】愛心草莓蛋糕彈轟炸。',
+        '中距離按【左右+K】花朵凛然綻放衝刺近身打【普攻 J → J】連段。',
+        '大招綻放「千朵櫻雨」漫天掉落草莓甜點炸彈！',
+      ],
+      combo: 'L (花香結界) → K (草莓蛋糕彈) → 左右+K (綻放衝刺)',
+    },
+    loadout: { attack: 'kaoruko.a1', ...tilts('kaoruko'), skill1: 'kaoruko.s1', 'skill1:side': 'kaoruko.side', 'skill1:up': 'kaoruko.up', 'skill1:down': 'kaoruko.down', skill2: 'kaoruko.s2', ...smashes('kaoruko'), ult: 'kaoruko.ult' },
+  },
+  stelle: {
+    id: 'stelle', name: 'STELLE 星', color: '#94a3b8',
+    trait: '🏏 崩壞：星穹鐵道・銀河球棒俠・炎槍穿刺與星穹列車！',
+    guide: {
+      summary: '《崩壞：星穹鐵道》開拓者星！毀滅球棒近戰極猛，切換存護炎槍可射出貫穿火柱與全場大招。',
+      steps: [
+        '近身用【普攻 J → J】銀河球棒打出「規則就是用來打破的！」。',
+        '中距離按【特招 K】存護炎槍穿刺炮貫穿多人，被包夾按【技能2 L】炎之存護護盾爆發彈飛！',
+        '大招召喚星穹列車全力衝撞全場！',
+      ],
+      combo: 'J → J (球棒連擊) → K (炎槍穿刺) → L (存護護盾爆)',
+    },
+    loadout: { attack: 'stelle.a1', ...tilts('stelle'), skill1: 'stelle.s1', 'skill1:side': 'stelle.side', 'skill1:up': 'stelle.up', 'skill1:down': 'stelle.down', skill2: 'stelle.s2', ...smashes('stelle'), ult: 'stelle.ult' },
+  },
+  lumine: {
+    id: 'lumine', name: 'LUMINE 熒', color: '#fde047',
+    trait: '✨ 原神・風渦劍氣・草超綻放領域與荒星墜落！',
+    guide: {
+      summary: '《原神》旅行者熒！自由切換風、岩、雷、草七元素力，領域控制與空中回場皆極強。',
+      steps: [
+        '施放【技能2 L】草元素超綻放領域持續傷害敵人。',
+        '用【特招 K】風渦劍氣彈遠攻，再按【左右+K】雷極瞬閃突進接【下+K】荒星墜落！',
+        '回場用【上+K】風場上升氣流穩穩飛回平台。',
+      ],
+      combo: 'L (超綻放領域) → 左右+K (雷極瞬閃) → 下+K (荒星墜落)',
+    },
+    loadout: { attack: 'lumine.a1', ...tilts('lumine'), skill1: 'lumine.s1', 'skill1:side': 'lumine.side', 'skill1:up': 'lumine.up', 'skill1:down': 'lumine.down', skill2: 'lumine.s2', ...smashes('lumine'), ult: 'lumine.ult' },
+  },
+  miyabi: {
+    id: 'miyabi', name: 'MIYABI 星見雅', color: '#22d3ee',
+    trait: '🦊 絕區零・妖刀「無尾」・冰焰妖狐斬波與霜月拔刀！',
+    guide: {
+      summary: '《絕區零》對空六課課長星見雅！極致迅捷的冰焰居合斬與貫穿妖狐斬波。',
+      steps: [
+        '中距離發射【特招 K】冰焰妖狐斬波貫穿敵陣。',
+        '瞬間接【左右+K】六課極速納刀閃穿過敵人，再接【技能2 L】霜落星見結界爆！',
+        '蓄滿地面重擊「霜月三段」一刀將對手轟出爆區！',
+      ],
+      combo: 'K (妖狐斬波) → 左右+K (納刀閃) → L (霜落結界爆)',
+    },
+    loadout: { attack: 'miyabi.a1', ...tilts('miyabi'), skill1: 'miyabi.s1', 'skill1:side': 'miyabi.side', 'skill1:up': 'miyabi.up', 'skill1:down': 'miyabi.down', skill2: 'miyabi.s2', ...smashes('miyabi'), ult: 'miyabi.ult' },
+  },
+  rover: {
+    id: 'rover', name: 'ROVER 漂泊者', color: '#facc15',
+    trait: '🌊 鳴潮・衍射光刃・鉤索突襲與聲骸共鳴爆發！',
+    guide: {
+      summary: '《鳴潮》失憶共鳴者漂泊者！衍射光刃高速貫穿，搭配鉤索突進與時滯重砸節奏極佳。',
+      steps: [
+        '用【特招 K】衍射光刃射擊遠距離消血，並按【左右+K】鉤索極速突襲！',
+        '空中用【下+K】時滯領域重砸壓制下方敵人，或【技能2 L】聲骸共鳴環彈飛對手。',
+        '大招解放「萬象歸一・時停光刃」瞬間清場！',
+      ],
+      combo: 'K (衍射光刃) → 左右+K (鉤索突襲) → L (聲骸共鳴環)',
+    },
+    loadout: { attack: 'rover.a1', ...tilts('rover'), skill1: 'rover.s1', 'skill1:side': 'rover.side', 'skill1:up': 'rover.up', 'skill1:down': 'rover.down', skill2: 'rover.s2', ...smashes('rover'), ult: 'rover.ult' },
+  },
+  rapi: {
+    id: 'rapi', name: 'RAPI 拉毗', color: '#ef4444',
+    trait: '🔫 NIKKE 勝利女神・戰術穿甲彈・空投集束雷與 Red Hood！',
+    guide: {
+      summary: '《NIKKE 勝利女神》反擊部隊隊長拉毗！強大中遠程槍火壓制搭配高爆導彈與 Red Hood 核心爆裂！',
+      steps: [
+        '持續用【特招 K】妮姬重裝穿甲彈與【普攻 J】戰術步槍遠程消耗。',
+        '敵人躲在平台時用【技能2 L】高爆爆裂導彈炸飛掩體上的對手！',
+        '近身用【左右+K】戰術突進或【下+K】空投高爆集束雷反擊。',
+      ],
+      combo: 'K (穿甲彈) → L (爆裂導彈) → 左右+K (戰術突進)',
+    },
+    loadout: { attack: 'rapi.a1', ...tilts('rapi'), skill1: 'rapi.s1', 'skill1:side': 'rapi.side', 'skill1:up': 'rapi.up', 'skill1:down': 'rapi.down', skill2: 'rapi.s2', ...smashes('rapi'), ult: 'rapi.ult' },
+  },
 }
 export const CHARACTER_IDS = Object.keys(CHARACTERS) as CharacterId[]

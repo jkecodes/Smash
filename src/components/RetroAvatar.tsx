@@ -9,7 +9,28 @@ const RETRO_IDS = new Set<CharacterId>([
   'frogger', 'kong', 'pong', 'reimu', 'marisa',
   'ryu', 'chunli', 'yugi', 'kaiba',
   'omnom', 'tom', 'ben', 'crossy', 'red', 'steve', 'arisa',
+  'chihiro', 'ichi', 'ruri', 'nona', 'gojo', 'deku', 'yodaka', 'saki', 'spe', 'kaoruko',
+  'stelle', 'lumine', 'miyabi', 'rover', 'rapi',
 ])
+
+type AnimePreset = { body: string; hair: string; accent: string; head?: string; prop?: 'katana' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat' }
+const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
+  chihiro: { body: '#18181b', hair: '#09090b', accent: '#ef4444', prop: 'katana' },
+  ichi: { body: '#1e3a8a', hair: '#111827', accent: '#38bdf8', prop: 'hat' },
+  ruri: { body: '#f8fafc', hair: '#1e293b', accent: '#34d399', prop: 'horns' },
+  nona: { body: '#4a044e', hair: '#fbcfe8', accent: '#e879f9', prop: 'orb' },
+  gojo: { body: '#111827', hair: '#f8fafc', accent: '#818cf8', prop: 'orb' },
+  deku: { body: '#14532d', hair: '#15803d', accent: '#4ade80', prop: 'orb' },
+  yodaka: { body: '#0f172a', hair: '#334155', accent: '#38bdf8', prop: 'katana' },
+  saki: { body: '#be123c', hair: '#fb7185', accent: '#fde047', prop: 'orb' },
+  spe: { body: '#ffffff', hair: '#78350f', accent: '#c084fc', prop: 'ears' },
+  kaoruko: { body: '#831843', hair: '#1e1b2e', accent: '#f9a8d4', prop: 'orb' },
+  stelle: { body: '#1e293b', hair: '#94a3b8', accent: '#facc15', prop: 'bat' },
+  lumine: { body: '#f8fafc', hair: '#fde047', accent: '#5eead4', prop: 'katana' },
+  miyabi: { body: '#0f172a', hair: '#18181b', accent: '#22d3ee', prop: 'ears' },
+  rover: { body: '#1e293b', hair: '#09090b', accent: '#facc15', prop: 'katana' },
+  rapi: { body: '#27272a', hair: '#f97316', accent: '#ef4444', prop: 'rifle' },
+}
 
 export function isRetroAvatar(c: CharacterId): boolean {
   return RETRO_IDS.has(c)
@@ -138,7 +159,7 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
       if (animB.current) animB.current.rotation.x = running ? 0.35 + Math.sin(t * 10) * 0.15 : Math.sin(t * 3) * 0.08
     } else if (charId === 'omnom' || charId === 'red') {
       if (animA.current) animA.current.rotation.x = running ? Math.sin(t * 14) * 0.25 : Math.sin(t * 4) * 0.08
-    } else if (charId === 'tom' || charId === 'ben' || charId === 'steve' || charId === 'crossy' || charId === 'arisa') {
+    } else if (charId === 'tom' || charId === 'ben' || charId === 'steve' || charId === 'crossy' || charId === 'arisa' || ANIME_PRESETS[charId]) {
       const sw = running ? Math.sin(t * 14) * 0.65 : attacking ? -0.9 : Math.sin(t * 3.5) * 0.1
       if (animA.current) animA.current.rotation.x = sw
       if (animB.current) animB.current.rotation.x = -sw
@@ -875,6 +896,46 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
           <group ref={animB} position={[-0.24, 0.08, 0]}><mesh position={[0, -0.12, 0]}><boxGeometry args={[0.1, 0.26, 0.1]} /><meshStandardMaterial color="#fde8d7" /></mesh></group>
         </group>
       )}
+
+      {ANIME_PRESETS[charId] && (() => {
+        const pr = ANIME_PRESETS[charId]!
+        return (
+          <group>
+            <mesh position={[0, -0.16, 0]} castShadow><cylinderGeometry args={[0.19, 0.3, 0.54, 12]} /><meshStandardMaterial color={pr.body} /></mesh>
+            <mesh position={[0, 0.06, 0.12]}><boxGeometry args={[0.24, 0.28, 0.1]} /><meshStandardMaterial color={pr.accent} /></mesh>
+            <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.2, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+            <mesh position={[0, 0.38, -0.04]}><sphereGeometry args={[0.22, 14, 12]} /><meshStandardMaterial color={pr.hair} /></mesh>
+            {pr.prop === 'horns' && (
+              <>
+                <mesh position={[0.12, 0.6, 0.04]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.05, 0.22, 6]} /><meshStandardMaterial color="#34d399" /></mesh>
+                <mesh position={[-0.12, 0.6, 0.04]} rotation={[0, 0, 0.25]}><coneGeometry args={[0.05, 0.22, 6]} /><meshStandardMaterial color="#34d399" /></mesh>
+              </>
+            )}
+            {pr.prop === 'ears' && (
+              <>
+                <mesh position={[0.14, 0.6, 0]}><coneGeometry args={[0.06, 0.24, 6]} /><meshStandardMaterial color={pr.hair} /></mesh>
+                <mesh position={[-0.14, 0.6, 0]}><coneGeometry args={[0.06, 0.24, 6]} /><meshStandardMaterial color={pr.hair} /></mesh>
+              </>
+            )}
+            {pr.prop === 'hat' && (
+              <mesh position={[0, 0.62, 0]}><coneGeometry args={[0.26, 0.36, 12]} /><meshStandardMaterial color={pr.body} /></mesh>
+            )}
+            <group ref={animA} position={[0.25, 0.06, 0]}>
+              <mesh position={[0, -0.12, 0.06]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color={pr.body} /></mesh>
+              {(pr.prop === 'katana' || pr.prop === 'bat') && (
+                <mesh position={[0, -0.04, 0.38]} rotation={[0.9, 0, 0]}><boxGeometry args={[0.05, pr.prop === 'bat' ? 0.58 : 0.68, 0.08]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.5} /></mesh>
+              )}
+              {pr.prop === 'rifle' && (
+                <mesh position={[0, -0.06, 0.36]}><boxGeometry args={[0.08, 0.14, 0.62]} /><meshStandardMaterial color="#18181b" /></mesh>
+              )}
+              {pr.prop === 'orb' && (
+                <mesh position={[0, -0.04, 0.32]}><sphereGeometry args={[0.12, 10, 10]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.85} /></mesh>
+              )}
+            </group>
+            <group ref={animB} position={[-0.25, 0.06, 0]}><mesh position={[0, -0.12, 0.04]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color={pr.body} /></mesh></group>
+          </group>
+        )
+      })()}
     </group>
   )
 }

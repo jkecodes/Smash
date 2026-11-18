@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
-import type { StageDef, StageId } from '../game/stages'
+import { STAGES, type StageDef, type StageId } from '../game/stages'
 
 function makeCanvasTex(w: number, h: number, draw: (g: CanvasRenderingContext2D, w: number, h: number) => void): THREE.CanvasTexture {
   const c = document.createElement('canvas')
@@ -246,12 +246,21 @@ export function useStageSurfaceTexture(stageId: StageId): THREE.CanvasTexture {
         }
         g.fillStyle = stageId === 'red' ? '#ef4444' : '#38bdf8'
         g.fillRect(0, 0, 14, h); g.fillRect(w - 14, 0, 14, h)
-      } else {
+      } else if (stageId === 'arisa') {
         // arisa：精靈聖樹翡翠法陣
         g.fillStyle = '#064e3b'; g.fillRect(0, 0, w, h)
         g.strokeStyle = 'rgba(110, 231, 183, 0.55)'; g.lineWidth = 3
         g.beginPath(); g.ellipse(w / 2, h / 2, 95, 62, 0, 0, Math.PI * 2); g.stroke()
         g.beginPath(); g.ellipse(w / 2, h / 2, 55, 36, 0, 0, Math.PI * 2); g.stroke()
+      } else {
+        const th = STAGES[stageId].theme
+        g.fillStyle = th.surfaceColor; g.fillRect(0, 0, w, h)
+        g.strokeStyle = th.accentColor + '44'; g.lineWidth = 2
+        for (let x = 0; x <= w; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke() }
+        for (let y = 0; y <= h; y += 64) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke() }
+        g.strokeStyle = th.edgeColor; g.lineWidth = 3
+        g.beginPath(); g.ellipse(w / 2, h / 2, 80, 52, 0, 0, Math.PI * 2); g.stroke()
+        g.fillStyle = th.edgeColor; g.fillRect(0, 0, 14, h); g.fillRect(w - 14, 0, 14, h)
       }
     })
   }, [stageId])
@@ -822,33 +831,56 @@ function ArisaDecor({ stage }: { stage: StageDef }) {
   )
 }
 
+function GenericThemeDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  const { theme } = stage
+  const ring = useRef<THREE.Mesh>(null)
+  useFrame((_, dt) => { if (ring.current) ring.current.rotation.z += dt * 0.4 })
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.75, 2.8, h.z * 1.4]} /><meshStandardMaterial color={theme.mainColor} /></mesh>
+      {[-10, 10].map((x, i) => (
+        <mesh key={i} position={[x, 3.0, -12]}>
+          <boxGeometry args={[2.6, 8.5, 1.8]} />
+          <meshStandardMaterial color={theme.platColor} emissive={theme.accentColor} emissiveIntensity={0.35} />
+        </mesh>
+      ))}
+      <mesh ref={ring} position={[0, 6.4, -15]}>
+        <torusGeometry args={[5.0, 0.16, 12, 32]} />
+        <meshBasicMaterial color={theme.edgeColor} transparent opacity={0.5} />
+      </mesh>
+    </>
+  )
+}
+
 /** 各場地獨特風格、3D 紋理立體底座與遠景建築 */
 export function StageDecor({ stage }: { stage: StageDef }) {
   const { theme } = stage
   return (
     <>
-      {stage.id === 'reimu' && <ReimuDecor stage={stage} />}
-      {stage.id === 'marisa' && <MarisaDecor stage={stage} />}
-      {stage.id === 'tetro' && <TetroDecor stage={stage} />}
-      {stage.id === 'pacman' && <PacmanDecor stage={stage} />}
-      {stage.id === 'mario' && <MarioDecor stage={stage} />}
-      {stage.id === 'invader' && <InvaderDecor stage={stage} />}
-      {stage.id === 'bomber' && <BomberDecor stage={stage} />}
-      {stage.id === 'snake' && <SnakeDecor stage={stage} />}
-      {stage.id === 'frogger' && <FroggerDecor stage={stage} />}
-      {stage.id === 'kong' && <KongDecor stage={stage} />}
-      {stage.id === 'pong' && <PongDecor stage={stage} />}
-      {stage.id === 'ryu' && <RyuDecor stage={stage} />}
-      {stage.id === 'chunli' && <ChunliDecor stage={stage} />}
-      {stage.id === 'yugi' && <YugiDecor stage={stage} />}
-      {stage.id === 'kaiba' && <KaibaDecor stage={stage} />}
-      {stage.id === 'omnom' && <OmnomDecor stage={stage} />}
-      {stage.id === 'tom' && <TomBenDecor stage={stage} />}
-      {stage.id === 'ben' && <TomBenDecor stage={stage} lab />}
-      {stage.id === 'crossy' && <CrossyDecor stage={stage} />}
-      {stage.id === 'red' && <RedDecor stage={stage} />}
-      {stage.id === 'steve' && <SteveDecor stage={stage} />}
-      {stage.id === 'arisa' && <ArisaDecor stage={stage} />}
+      {stage.id === 'reimu' ? <ReimuDecor stage={stage} />
+        : stage.id === 'marisa' ? <MarisaDecor stage={stage} />
+        : stage.id === 'tetro' ? <TetroDecor stage={stage} />
+        : stage.id === 'pacman' ? <PacmanDecor stage={stage} />
+        : stage.id === 'mario' ? <MarioDecor stage={stage} />
+        : stage.id === 'invader' ? <InvaderDecor stage={stage} />
+        : stage.id === 'bomber' ? <BomberDecor stage={stage} />
+        : stage.id === 'snake' ? <SnakeDecor stage={stage} />
+        : stage.id === 'frogger' ? <FroggerDecor stage={stage} />
+        : stage.id === 'kong' ? <KongDecor stage={stage} />
+        : stage.id === 'pong' ? <PongDecor stage={stage} />
+        : stage.id === 'ryu' ? <RyuDecor stage={stage} />
+        : stage.id === 'chunli' ? <ChunliDecor stage={stage} />
+        : stage.id === 'yugi' ? <YugiDecor stage={stage} />
+        : stage.id === 'kaiba' ? <KaibaDecor stage={stage} />
+        : stage.id === 'omnom' ? <OmnomDecor stage={stage} />
+        : stage.id === 'tom' ? <TomBenDecor stage={stage} />
+        : stage.id === 'ben' ? <TomBenDecor stage={stage} lab />
+        : stage.id === 'crossy' ? <CrossyDecor stage={stage} />
+        : stage.id === 'red' ? <RedDecor stage={stage} />
+        : stage.id === 'steve' ? <SteveDecor stage={stage} />
+        : stage.id === 'arisa' ? <ArisaDecor stage={stage} />
+        : <GenericThemeDecor stage={stage} />}
       <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
     </>
   )

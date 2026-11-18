@@ -24,6 +24,39 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   red: 'RED',
   steve: 'STEVE',
   arisa: 'ARISA',
+  chihiro: 'CHIHIRO',
+  ichi: 'ICHI',
+  ruri: 'RURI',
+  nona: 'NONA',
+  gojo: 'GOJO',
+  deku: 'DEKU',
+  yodaka: 'YODAKA',
+  saki: 'SAKI',
+  spe: 'SPE',
+  kaoruko: 'KAORUKO',
+  stelle: 'STELLE',
+  lumine: 'LUMINE',
+  miyabi: 'MIYABI',
+  rover: 'ROVER',
+  rapi: 'RAPI',
+}
+
+const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean }>> = {
+  chihiro: { bg: '#4c0519', hair: '#09090b', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444' },
+  ichi: { bg: '#0c4a6e', hair: '#111827', outfit: '#1e3a8a', accent: '#38bdf8', eye: '#38bdf8' },
+  ruri: { bg: '#064e3b', hair: '#1e293b', outfit: '#f8fafc', accent: '#34d399', eye: '#f97316', horns: true },
+  nona: { bg: '#4a044e', hair: '#fbcfe8', outfit: '#3b0764', accent: '#e879f9', eye: '#a855f7' },
+  gojo: { bg: '#1e1b4b', hair: '#f8fafc', outfit: '#111827', accent: '#818cf8', eye: '#38bdf8', blindfold: true },
+  deku: { bg: '#052e16', hair: '#15803d', outfit: '#14532d', accent: '#4ade80', eye: '#22c55e' },
+  yodaka: { bg: '#0f172a', hair: '#334155', outfit: '#09090b', accent: '#38bdf8', eye: '#94a3b8' },
+  saki: { bg: '#881337', hair: '#fb7185', outfit: '#be123c', accent: '#fde047', eye: '#f43f5e' },
+  spe: { bg: '#3b0764', hair: '#78350f', outfit: '#f8fafc', accent: '#c084fc', eye: '#a855f7', ears: true },
+  kaoruko: { bg: '#500724', hair: '#1e1b2e', outfit: '#831843', accent: '#f9a8d4', eye: '#ec4899' },
+  stelle: { bg: '#0f172a', hair: '#94a3b8', outfit: '#1e293b', accent: '#facc15', eye: '#eab308' },
+  lumine: { bg: '#134e4a', hair: '#fde047', outfit: '#f8fafc', accent: '#5eead4', eye: '#facc15' },
+  miyabi: { bg: '#083344', hair: '#18181b', outfit: '#0f172a', accent: '#22d3ee', eye: '#ef4444', ears: true },
+  rover: { bg: '#1e293b', hair: '#09090b', outfit: '#334155', accent: '#facc15', eye: '#eab308' },
+  rapi: { bg: '#450a0a', hair: '#f97316', outfit: '#27272a', accent: '#ef4444', eye: '#ef4444' },
 }
 
 export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'random'; className?: string }) {
@@ -496,6 +529,41 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M34,82 L86,82 L94,120 L26,120 Z" fill="#10b981" stroke="#6ee7b7" strokeWidth="2" />
         </>
       )}
+
+      {ANIME_PORTRAITS[id as CharacterId] && (() => {
+        const p = ANIME_PORTRAITS[id as CharacterId]!
+        return (
+          <>
+            <rect width="120" height="120" fill={p.bg} />
+            <circle cx="60" cy="60" r="46" fill={p.accent} opacity="0.18" />
+            <path d="M28,44 C28,18 92,18 92,44 L96,104 L24,104 Z" fill={p.hair} />
+            {p.horns && (
+              <>
+                <polygon points="36,30 42,10 48,28" fill={p.accent} />
+                <polygon points="84,30 78,10 72,28" fill={p.accent} />
+              </>
+            )}
+            {p.ears && (
+              <>
+                <polygon points="32,34 40,8 50,30" fill={p.hair} />
+                <polygon points="88,34 80,8 70,30" fill={p.hair} />
+              </>
+            )}
+            <ellipse cx="60" cy="58" rx="22" ry="22" fill="#fde8d7" />
+            <path d="M36,48 Q60,34 84,48 L80,32 Q60,22 40,32 Z" fill={p.hair} />
+            {p.blindfold ? (
+              <rect x="37" y="49" width="46" height="14" rx="2" fill="#111827" />
+            ) : (
+              <>
+                <ellipse cx="51" cy="59" rx="3.5" ry="4.5" fill={p.eye} />
+                <ellipse cx="69" cy="59" rx="3.5" ry="4.5" fill={p.eye} />
+              </>
+            )}
+            <path d="M32,82 L88,82 L96,120 L24,120 Z" fill={p.outfit} />
+            <polygon points="48,82 60,102 72,82" fill={p.accent} />
+          </>
+        )
+      })()}
 
       {id === 'random' && (
         <>

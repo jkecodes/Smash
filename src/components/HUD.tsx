@@ -378,8 +378,8 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
         </button>
       </div>
 
-      {/* 右側：Smash Ultimate 風格高密度 6×4 場地選擇矩陣（左上角為隨機） */}
-      <div className="flex-1 rounded-2xl border-2 border-white/20 bg-black/70 p-2 shadow-2xl">
+      {/* 右側：Smash Ultimate 風格高密度場地選擇矩陣（左上角為隨機） */}
+      <div className="flex-1 rounded-2xl border-2 border-white/20 bg-black/70 p-2 shadow-2xl max-h-[54vh] overflow-y-auto">
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
           {stageCards.map((item) => {
             if (item === 'random') {
@@ -705,7 +705,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 6))
       } else {
         const cur = useGameStore.getState().selection[id]
-        select(id, stepListGrid(CHARACTER_IDS, cur, dx, dy, 8))
+        select(id, stepListGrid(CHARACTER_IDS, cur, dx, dy, 10))
       }
     },
   )
@@ -722,11 +722,14 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     sfx('ui')
   }
 
-  // 隨機在左上角第 1 格 ＋ 22 角色 = 23 格 -> 8x3 整齊格陣
+  // 隨機在左上角第 1 格 ＋ 37 角色 = 38 格 -> 10 欄緊湊格陣
   const rosterGrid: (CharacterId | 'random')[] = ['random', ...CHARACTER_IDS]
-  const row1 = rosterGrid.slice(0, 8)
-  const row2 = rosterGrid.slice(8, 16)
-  const row3 = rosterGrid.slice(16)
+  const rosterRows = [
+    rosterGrid.slice(0, 10),
+    rosterGrid.slice(10, 20),
+    rosterGrid.slice(20, 30),
+    rosterGrid.slice(30),
+  ]
 
   const renderCell = (item: CharacterId | 'random') => {
     const isRand = item === 'random'
@@ -857,11 +860,11 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
             左鍵指派給 <strong style={{ color: PLAYER_COLORS[safePicker] }}>{safePicker.toUpperCase()}</strong>・右鍵直選 P2（亦可用 WASD / 方向鍵或手把上下左右切換）
           </span>
 
-          {/* 8×3 大亂鬥角色選擇盤 */}
-          <div className="rounded-lg border-2 border-white/20 bg-black p-1 shadow-2xl">
-            <div className="flex justify-center">{row1.map(renderCell)}</div>
-            <div className="flex justify-center">{row2.map(renderCell)}</div>
-            <div className="flex justify-center">{row3.map(renderCell)}</div>
+          {/* 10 欄大亂鬥角色選擇盤 */}
+          <div className="rounded-lg border-2 border-white/20 bg-black p-1 shadow-2xl max-h-[38vh] overflow-y-auto">
+            {rosterRows.map((row, ri) => (
+              <div key={ri} className="flex justify-center">{row.map(renderCell)}</div>
+            ))}
           </div>
 
           {/* 2~8 人角色展示與控制面板 */}
