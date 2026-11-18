@@ -1034,6 +1034,14 @@ export function stepSimulation(rawDt: number) {
   runtime.debugSpheres = runtime.debugSpheres.filter((d) => d.ttl > 0)
   runtime.shake *= Math.pow(0.001, dt) // 指數衰減
   if (s.phase !== 'playing') { ballTimer = 4; pending = []; ledgeOwner['-1'] = null; ledgeOwner['1'] = null; publishUi(dt); return }
+  if (s.countdown === '3' || s.countdown === '2' || s.countdown === '1') {
+    for (const id of getActiveFighterIds()) {
+      const f = s.fighters[id]
+      if (!f.alive && f.firstSpawn) respawn(f)
+    }
+    publishUi(dt)
+    return
+  }
   if (useNetStore.getState().role === 'guest') {
     sendGuestInput(readInput('p1'))
     publishUi(dt)

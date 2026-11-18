@@ -1479,6 +1479,7 @@ export function HUD() {
   const setPaused = useGameStore((s) => s.setPaused)
   const ultCutin = useGameStore((s) => s.ultCutin)
   const fatalFlash = useGameStore((s) => s.fatalFlash)
+  const countdown = useGameStore((s) => s.countdown)
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
 
@@ -1547,22 +1548,20 @@ export function HUD() {
           type="button"
           onClick={() => setShowTouch((v) => !v)}
           title="開啟或關閉手機觸控搖桿"
-          className={`rounded-full px-2.5 py-1.5 text-[11px] font-bold backdrop-blur shadow-md ring-1 transition ${
-            showTouch
-              ? 'bg-yellow-300 text-black ring-yellow-200'
-              : 'bg-black/60 text-white/75 ring-white/10 hover:text-white'
-          }`}
+          className={`rounded-full px-2.5 py-1.5 text-[11px] font-bold backdrop-blur shadow-md ring-1 transition ${showTouch
+            ? 'bg-yellow-300 text-black ring-yellow-200'
+            : 'bg-black/60 text-white/75 ring-white/10 hover:text-white'
+            }`}
         >
           📱 觸控
         </button>
         <AudioControl />
       </div>
       {phase !== 'menu' && (
-        <div className={`absolute inset-x-0 flex flex-wrap gap-2 px-3 ${
-          showTouch
-            ? 'top-12 justify-center'
-            : `bottom-3 ${playerCount <= 2 ? 'justify-between px-6' : 'justify-center'}`
-        }`}>
+        <div className={`absolute inset-x-0 flex flex-wrap gap-2 px-3 ${showTouch
+          ? 'top-12 justify-center'
+          : `bottom-3 ${playerCount <= 2 ? 'justify-between px-6' : 'justify-center'}`
+          }`}>
           {activeIds.map((id) => (
             <Card key={id} id={id} u={ui[id]} compact={playerCount > 2 || showTouch} />
           ))}
@@ -1570,6 +1569,21 @@ export function HUD() {
       )}
       {phase === 'playing' && !paused && showTouch && <TouchControls />}
       {phase === 'menu' && <Menu onGuide={setGuideChar} guideOpen={guideChar !== null} />}
+      {phase === 'playing' && countdown && (
+        <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center">
+          <div
+            key={countdown}
+            className={`font-black italic tracking-tight drop-shadow-[0_6px_18px_rgba(0,0,0,0.95)] animate-bounce ${
+              countdown === 'SMASH!!!'
+                ? 'text-6xl sm:text-8xl text-yellow-300'
+                : 'text-7xl sm:text-9xl text-white'
+            }`}
+            style={{ WebkitTextStroke: '3px #000' }}
+          >
+            {countdown}
+          </div>
+        </div>
+      )}
       {phase === 'playing' && fatalFlash && (
         <div
           className="pointer-events-none absolute inset-0 z-40"
