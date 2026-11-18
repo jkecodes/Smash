@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { RetroAvatar, isRetroAvatar } from './RetroAvatar'
 import type { CharacterId, FighterId } from '../game/types'
 
-function VictoryActor({ id, charId, color }: { id: FighterId; charId: CharacterId; color: string }) {
+function VictoryActor({ id, charId, color, stageColors }: { id: FighterId; charId: CharacterId; color: string; stageColors?: { main: string; surface: string; edge: string } }) {
   const rig = useRef<THREE.Group>(null)
   const ring = useRef<THREE.Mesh>(null)
   const startRef = useRef<number | null>(null)
@@ -31,18 +31,18 @@ function VictoryActor({ id, charId, color }: { id: FighterId; charId: CharacterI
 
   return (
     <group>
-      {/* 勝利舞台底座（雙層發光頒獎台） */}
+      {/* 勝利舞台底座（雙層發光頒獎台，套用該場地配色） */}
       <mesh position={[0, -0.82, 0]} receiveShadow>
         <cylinderGeometry args={[1.35, 1.55, 0.24, 32]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.65} roughness={0.25} />
+        <meshStandardMaterial color={stageColors?.main ?? '#1e293b'} metalness={0.55} roughness={0.3} />
       </mesh>
       <mesh position={[0, -0.68, 0]} receiveShadow>
         <cylinderGeometry args={[1.08, 1.18, 0.12, 32]} />
-        <meshStandardMaterial color="#0f172a" metalness={0.5} roughness={0.3} />
+        <meshStandardMaterial color={stageColors?.surface ?? '#0f172a'} metalness={0.45} roughness={0.35} />
       </mesh>
       <mesh ref={ring} position={[0, -0.61, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.92, 1.06, 32]} />
-        <meshBasicMaterial color={color} transparent opacity={0.85} side={THREE.DoubleSide} />
+        <meshBasicMaterial color={stageColors?.edge ?? color} transparent opacity={0.85} side={THREE.DoubleSide} />
       </mesh>
       {/* 第一名腳色 3D 模型 */}
       <group ref={rig} scale={[1.35, 1.35, 1.35]}>
@@ -59,13 +59,13 @@ function VictoryActor({ id, charId, color }: { id: FighterId; charId: CharacterI
   )
 }
 
-export function VictoryPodium3D({ id, charId, color }: { id: FighterId; charId: CharacterId; color: string }) {
+export function VictoryPodium3D({ id, charId, color, stageColors }: { id: FighterId; charId: CharacterId; color: string; stageColors?: { main: string; surface: string; edge: string } }) {
   return (
     <Canvas camera={{ position: [0, 0.75, 3.8], fov: 38 }} gl={{ alpha: true, antialias: true }}>
       <ambientLight intensity={0.95} />
       <directionalLight position={[3, 6, 4]} intensity={1.7} color="#fffbeb" />
       <pointLight position={[-3, 2, 2]} intensity={1.2} color={color} />
-      <VictoryActor id={id} charId={charId} color={color} />
+      <VictoryActor id={id} charId={charId} color={color} stageColors={stageColors} />
     </Canvas>
   )
 }

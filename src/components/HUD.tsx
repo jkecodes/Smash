@@ -2045,23 +2045,33 @@ export function HUD() {
           </div>
         </div>
       )}
-      {phase === 'ended' && winner && resultStep === 'podium' && (
+      {phase === 'ended' && winner && resultStep === 'podium' && (() => {
+        const gs = useGameStore.getState()
+        const matchStage = resolveStage(gs.stageId, gs.stageForm)
+        const th = matchStage.theme
+        return (
         <div
           className="pointer-events-auto absolute inset-0 z-20 overflow-hidden text-white select-none"
           style={{
-            background: 'linear-gradient(155deg, #1e3a8a 0%, #7c3aed 38%, #db2777 68%, #f59e0b 100%)',
+            background: `linear-gradient(155deg, ${th.bg} 0%, ${th.mainColor} 42%, ${th.surfaceColor} 74%, ${th.accentColor}cc 100%)`,
           }}
         >
+          <StagePreview id={matchStage.id} form={gs.stageForm} className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 mix-blend-screen" />
           {/* 底部大亂鬥經典斜切黑底 */}
           <div
-            className="pointer-events-none absolute -bottom-16 -left-10 -right-10 h-44 bg-black/90 border-t-4 border-white/80"
-            style={{ transform: 'rotate(-3.5deg)' }}
+            className="pointer-events-none absolute -bottom-16 -left-10 -right-10 h-44 bg-black/90 border-t-4"
+            style={{ transform: 'rotate(-3.5deg)', borderColor: th.edgeColor }}
           />
 
           {/* 右側：第 1 名勝者 3D 模型站立勝利舞台 */}
           <div className="pointer-events-none absolute right-[2%] bottom-8 top-4 flex items-center justify-center">
             <div className="h-80 w-80 sm:h-[28rem] sm:w-[28rem]">
-              <VictoryPodium3D id={winner} charId={selection[winner]} color={PLAYER_COLORS[winner]} />
+              <VictoryPodium3D
+                id={winner}
+                charId={selection[winner]}
+                color={PLAYER_COLORS[winner]}
+                stageColors={{ main: th.mainColor, surface: th.surfaceColor, edge: th.edgeColor }}
+              />
             </div>
           </div>
 
@@ -2159,7 +2169,8 @@ export function HUD() {
             </div>
           </div>
         </div>
-      )}
+        )
+      })()}
     </div>
   )
 }
