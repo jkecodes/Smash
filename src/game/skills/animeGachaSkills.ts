@@ -47,8 +47,9 @@ function aimDashMove(id: string, name: string, color: string, o: { speed: number
       },
       onTick(c) {
         if (c.phase === 'startup' && !c.caster.skill?.released) {
-          c.setGravityScale(0.15)
-          c.setVelocity(0, 0, 0)
+          c.setGravityScale(0.25)
+          const slowFall = Math.max(-3.2, Math.min(0.5, c.caster.vel[1] - 6 * c.dt))
+          c.setVelocity(0, slowFall, 0)
           const ax = c.aimX ?? c.forward[0]
           const ay = c.aimY ?? 0
           const len = Math.hypot(ax, ay)
