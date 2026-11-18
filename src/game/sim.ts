@@ -4,7 +4,7 @@ import {
   AIR_ACCEL, AIR_SPEED, BLAST, COOLDOWN_SCALE, LEDGE_HANG_MS, LEDGE_REGRAB_MS, LEDGE_X, ENERGY_MAX, ENERGY_REGEN, GRAVITY, GROUND_ACCEL, HALF, JUMP_VEL,
   MAX_DAMAGE, MAX_JUMPS, DROP_THROUGH_MS, PLATFORMS, PLATFORM_THICKNESS, RUN_SPEED, SHIELD_MAX, SPAWN_X, STAGE_HALF,
 } from './constants'
-import { STAGES, getPlatformPos } from './stages'
+import { getPlatformPos, resolveStage } from './stages'
 import { cpuInput, resetCpu } from './ai'
 import { sfx } from './audio'
 import { debugKeys, readInput, rumble, type InputFrame } from './input'
@@ -21,7 +21,7 @@ const SLOTS: ('ult' | 'skill2' | 'skill1' | 'attack')[] = ['ult', 'skill2', 'ski
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 const store = () => useGameStore.getState()
-const getStage = () => STAGES[store().stageId] ?? STAGES.reimu
+const getStage = () => resolveStage(store().stageId, store().stageForm)
 
 function nearestEnemyOf(id: FighterId): FighterState | null {
   const fs = store().fighters

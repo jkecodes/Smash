@@ -1,5 +1,5 @@
 import { CHARACTERS } from './characters'
-import { STAGES } from './stages'
+import { resolveStage } from './stages'
 import type { InputFrame } from './input'
 import { runtime } from './runtime'
 import { getSkill } from './skills'
@@ -170,7 +170,8 @@ export function cpuInput(id: FighterId, dt: number): InputFrame {
   const start = (a: Act | null) => { if (a) m.act = a; return !!a }
 
   // ---- 3. 場外回場
-  const stage = STAGES[useGameStore.getState().stageId] ?? STAGES.reimu
+  const st = useGameStore.getState()
+  const stage = resolveStage(st.stageId, st.stageForm)
   const offstage = Math.abs(x) > (stage.half.x - 0.4) || y < -0.4
   if (offstage && !busy) {
     mx = homeDir

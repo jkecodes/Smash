@@ -1,10 +1,10 @@
 import { useId } from 'react'
-import { STAGES, type StageId } from '../game/stages'
+import { resolveStage, type StageForm, type StageId } from '../game/stages'
 
 /**
  * 每個對戰場地的專屬 16:9 預覽縮圖（含實際層板配置 ＋ 場地主題插畫）。
  */
-export function StagePreview({ id, className = '' }: { id: StageId | 'random'; className?: string }) {
+export function StagePreview({ id, form = 'normal', className = '' }: { id: StageId | 'random'; form?: StageForm; className?: string }) {
   const uid = useId().replace(/:/g, '')
   if (id === 'random') {
     return (
@@ -23,7 +23,7 @@ export function StagePreview({ id, className = '' }: { id: StageId | 'random'; c
       </svg>
     )
   }
-  const st = STAGES[id]
+  const st = resolveStage(id, form)
   const { theme } = st
 
   // 將世界座標 X (-12..12) / Y (-2..8) 映設到 160x80 SVG 畫布

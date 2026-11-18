@@ -5,7 +5,7 @@ import { clearEntities } from '../game/runtime'
 import { resetSimStage } from '../game/sim'
 import { getSkill } from '../game/skills'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
-import { STAGES, STAGE_IDS, type StageId } from '../game/stages'
+import { STAGES, STAGE_IDS, type StageForm, type StageId } from '../game/stages'
 import { useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
 import { sfx, useAudioStore } from '../game/audio'
@@ -298,9 +298,17 @@ function CpuPicker({ id }: { id: FighterId }) {
   )
 }
 
+const FORM_OPTIONS: { id: StageForm; label: string; hint: string }[] = [
+  { id: 'normal', label: '一般型態', hint: '原版專屬地形' },
+  { id: 'battlefield', label: '戰場化', hint: '標準 3 層板' },
+  { id: 'omega', label: '終點化 Ω', hint: '純平面無層板' },
+]
+
 function StagePicker({ onNext }: { onNext?: () => void }) {
   const stageId = useGameStore((s) => s.stageId)
   const selectStage = useGameStore((s) => s.selectStage)
+  const stageForm = useGameStore((s) => s.stageForm)
+  const setStageForm = useGameStore((s) => s.setStageForm)
   const activeStage = STAGES[stageId] ?? STAGES.reimu
 
   const pickRandomStage = () => {
@@ -313,59 +321,121 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
   const stageCards: (StageId | 'random')[] = ['random', ...STAGE_IDS]
 
   return (
-    <div className="flex flex-col items-center gap-2.5 max-w-5xl w-full px-3">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
-        {stageCards.map((item) => {
-          if (item === 'random') {
+    <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 max-w-6xl w-full px-3">
+      {/* 左側：Smash Ultimate 風格當前地圖焦點預覽卡 ＋ 型態切換 */}
+      <div className="w-full lg:w-80 shrink-0 rounded-2xl border-2 border-yellow-300/70 bg-black/65 p-3.5 backdrop-blur-md shadow-2xl flex flex-col justify-between gap-2.5">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[10px] font-black tracking-widest text-yellow-300 uppercase">
+            <span>STAGE PREVIEW</span>
+            <span className="rounded bg-white/10 px-2 py-0.5 text-white/80">{activeStage.theme.subtitle}</span>
+          </div>
+          <div className="overflow-hidden rounded-xl border-2 border-white/25 bg-black shadow-lg">
+            <StagePreview id={stageId} form={stageForm} className="w-full aspect-[2/1]" />
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-xl font-black text-white truncate">{activeStage.theme.name}</h2>
+            <span
+              className="rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0"
+              style={{ backgroundColor: activeStage.theme.accentColor + '33', color: activeStage.theme.accentColor }}
+            >
+              {activeStage.theme.tag}
+            </span>
+          </div>
+          <p className="text-xs text-white/75 leading-relaxed">{activeStage.theme.desc}</p>
+        </div>
+
+        {/* 場地型態切換：一般 / 戰場化 / 終點化 Ω */}
+        <div className="space-y-1.5 border-t border-white/10 pt-2.5">
+          <div className="text-[10px] font-bold text-white/55 tracking-wider">場地型態（保留美術外觀與背景）</div>
+          <div className="grid grid-cols-3 gap-1.5">
+            {FORM_OPTIONS.map((f) => {
+              const on = stageForm === f.id
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => { setStageForm(f.id); sfx('ui') }}
+                  title={f.hint}
+                  className={`rounded-lg px-1.5 py-1.5 text-center transition border ${on
+                    ? 'border-yellow-300 bg-yellow-300 text-black font-black shadow'
+                    : 'border-white/15 bg-white/10 text-white/80 hover:bg-white/20 font-bold'
+                  }`}
+                >
+                  <div className="text-[11px] leading-tight">{f.label}</div>
+                  <div className={`text-[9px] leading-tight mt-0.5 ${on ? 'text-black/70' : 'text-white/45'}`}>{f.hint}</div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => { sfx('ui'); onNext?.() }}
+          className="w-full rounded-xl bg-yellow-300 py-2.5 text-base font-black text-black hover:bg-yellow-200 active:scale-[0.98] transition-all shadow-lg shadow-yellow-500/20"
+        >
+          確定地圖 → 選擇角色
+        </button>
+      </div>
+
+      {/* 右側：Smash Ultimate 風格高密度 4×4 場地選擇矩陣（左上角為隨機） */}
+      <div className="flex-1 rounded-2xl border-2 border-white/20 bg-black/70 p-2 shadow-2xl">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
+          {stageCards.map((item) => {
+            if (item === 'random') {
+              return (
+                <button
+                  key="random"
+                  type="button"
+                  onClick={pickRandomStage}
+                  className="relative overflow-hidden border-[1.5px] border-black bg-slate-900 group cursor-pointer focus:outline-none hover:ring-2 hover:ring-yellow-300/70"
+                >
+                  <StagePreview id="random" className="w-full aspect-[2/1] object-cover transition-transform duration-150 group-hover:scale-105" />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent px-1.5 pb-1 pt-2 text-center">
+                    <div className="text-xs font-black text-yellow-300 leading-none" style={NAME_STROKE}>RANDOM 隨機</div>
+                  </div>
+                </button>
+              )
+            }
+            const st = STAGES[item]
+            const active = stageId === item
             return (
               <button
-                key="random"
+                key={item}
                 type="button"
-                onClick={pickRandomStage}
-                className="flex flex-col items-start rounded-xl p-2 transition-all text-left border border-white/20 bg-black/55 hover:bg-white/15 hover:border-yellow-300/60"
+                onClick={() => {
+                  if (active && onNext) onNext()
+                  else selectStage(item)
+                  sfx('ui')
+                }}
+                onDoubleClick={() => onNext?.()}
+                className={`relative overflow-hidden border-[1.5px] border-black bg-black group cursor-pointer focus:outline-none transition-transform ${active
+                  ? 'ring-2 ring-inset ring-yellow-300 z-10 scale-[1.03]'
+                  : 'opacity-85 hover:opacity-100 hover:ring-1 hover:ring-white/50'
+                }`}
               >
-                <StagePreview id="random" className="mb-1.5 h-14 sm:h-16 w-full rounded-lg border border-white/15 bg-black/50" />
-                <div className="flex w-full items-center justify-between gap-1.5">
-                  <span className="text-xs sm:text-sm font-black text-yellow-300 truncate">RANDOM 隨機</span>
-                  <span className="text-[10px]">🎲</span>
-                </div>
-                <div className="text-[10px] font-bold text-white/60 truncate w-full">
-                  隨機挑選一張對戰場地
+                <StagePreview id={item} form={stageForm} className="w-full aspect-[2/1] object-cover transition-transform duration-150 group-hover:scale-105" />
+                <span
+                  className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full border border-black/60 shadow"
+                  style={{ backgroundColor: CHARACTERS[item].color }}
+                />
+                {active && (
+                  <span className="absolute top-1 left-1 rounded bg-yellow-300 px-1 py-0 text-[9px] font-black text-black shadow">
+                    OK
+                  </span>
+                )}
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent px-1 pb-1 pt-3 text-center"
+                  style={NAME_STROKE}
+                >
+                  <div className="text-[11px] sm:text-xs font-black text-white leading-none truncate">
+                    {st.theme.name}
+                  </div>
                 </div>
               </button>
             )
-          }
-          const st = STAGES[item]
-          const active = stageId === item
-          return (
-            <button
-              key={item}
-              type="button"
-              onClick={() => {
-                if (active && onNext) onNext()
-                else selectStage(item)
-                sfx('ui')
-              }}
-              onDoubleClick={() => onNext?.()}
-              className={`flex flex-col items-start rounded-xl p-2 transition-all text-left border ${active
-                ? 'border-yellow-300 bg-white/20 shadow-lg shadow-yellow-500/20 scale-[1.03] ring-2 ring-yellow-300'
-                : 'border-white/15 bg-black/45 hover:bg-white/15 hover:border-white/35 opacity-85 hover:opacity-100'
-              }`}
-            >
-              <StagePreview id={item} className="mb-1.5 h-14 sm:h-16 w-full rounded-lg border border-white/15 bg-black/50" />
-              <div className="flex w-full items-center justify-between gap-1.5">
-                <span className="text-xs sm:text-sm font-black text-white truncate">{st.theme.name}</span>
-                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: CHARACTERS[item].color }} />
-              </div>
-              <div className="text-[10px] font-bold truncate w-full" style={{ color: st.theme.accentColor }}>
-                {st.theme.tag}
-              </div>
-            </button>
-          )
-        })}
-      </div>
-      <div className="rounded-full bg-black/50 border border-white/15 px-4 py-1.5 text-xs text-yellow-200/90 text-center">
-        🏟️ <strong className="text-white">{activeStage.theme.name}</strong>：{activeStage.theme.desc}
+          })}
+        </div>
       </div>
     </div>
   )
@@ -767,28 +837,18 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
 
       {step === 'stage' ? (
         <>
-          <div className="text-xs text-white/75">先選擇對戰場地（可用鍵盤 WASD / 方向鍵或手把移動切換，再次點擊已選地圖或按「下一步」開始選角）</div>
           <StagePicker onNext={() => setStep('char')} />
-          <div className="flex flex-col items-center gap-2 mt-1">
+          <div className="flex items-center gap-2.5 text-xs text-white/60">
             <button
               type="button"
-              onClick={() => { sfx('ui'); setStep('char') }}
-              className="rounded-xl bg-yellow-300 px-10 py-2.5 text-lg font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
+              onClick={() => setShowHelp(true)}
+              className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-white/80 hover:bg-white/20 hover:text-white transition-all border border-white/10"
             >
-              下一步：選擇角色 →
+              <span>📖</span>
+              <span>操作指南 & 按鍵說明</span>
             </button>
-            <div className="flex items-center gap-2.5 text-xs text-white/60">
-              <button
-                type="button"
-                onClick={() => setShowHelp(true)}
-                className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-white/80 hover:bg-white/20 hover:text-white transition-all border border-white/10"
-              >
-                <span>📖</span>
-                <span>操作指南 & 按鍵說明</span>
-              </button>
-              <span className="text-white/20">|</span>
-              <PadStatus />
-            </div>
+            <span className="text-white/20">|</span>
+            <PadStatus />
           </div>
         </>
       ) : (

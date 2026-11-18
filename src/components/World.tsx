@@ -6,7 +6,7 @@ import { RetroAvatar, isRetroAvatar } from './RetroAvatar'
 import * as THREE from 'three'
 import { CHARACTERS } from '../game/characters'
 import { PLATFORM_THICKNESS } from '../game/constants'
-import { STAGES, getPlatformPos, type PlatformDef, type StageTheme } from '../game/stages'
+import { getPlatformPos, resolveStage, type PlatformDef, type StageTheme } from '../game/stages'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { StageDecor, StageParticles, useStageSurfaceTexture } from './StageArt'
 import { runtime } from '../game/runtime'
@@ -69,17 +69,18 @@ function PlatformView({ p, i, h, theme }: { p: PlatformDef; i: number; h: { x: n
 /** 場地：動態載入懸空主平台與穿透式層板 */
 export function Arena() {
   const stageId = useGameStore((s) => s.stageId)
-  const stage = STAGES[stageId] ?? STAGES.reimu
+  const stageForm = useGameStore((s) => s.stageForm)
+  const stage = resolveStage(stageId, stageForm)
   const h = stage.half
   const theme = stage.theme
   const surfaceTex = useStageSurfaceTexture(stage.id)
 
   useEffect(() => {
     return () => { runtime.platformBodies = [] }
-  }, [stage.id])
+  }, [stage.id, stageForm])
 
   return (
-    <group key={stage.id}>
+    <group key={`${stage.id}-${stageForm}`}>
       <RigidBody type="fixed" colliders={false} friction={0} collisionGroups={interactionGroups(0, [1])}>
         <CuboidCollider args={[h.x, h.y, h.z]} position={[0, -h.y, 0]} friction={0} />
       </RigidBody>
@@ -393,7 +394,8 @@ export function CameraRig() {
   const { camera } = useThree()
   const look = useRef(new THREE.Vector3(0, 2, 0))
   const stageId = useGameStore((s) => s.stageId)
-  const stage = STAGES[stageId] ?? STAGES.reimu
+  const stageForm = useGameStore((s) => s.stageForm)
+  const stage = resolveStage(stageId, stageForm)
 
   useFrame((_, dt) => {
     const fs = useGameStore.getState().fighters

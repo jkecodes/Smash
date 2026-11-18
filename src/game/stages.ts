@@ -558,3 +558,20 @@ export const STAGES: Record<StageId, StageDef> = {
 }
 
 export const STAGE_IDS = Object.keys(STAGES) as StageId[]
+
+export type StageForm = 'normal' | 'battlefield' | 'omega'
+
+/** 依場地型態（一般 / 戰場化 / 終點化）解析實際層板配置，保留原有美術主題與背景 */
+export function resolveStage(id: StageId, form: StageForm = 'normal'): StageDef {
+  const base = STAGES[id] ?? STAGES.reimu
+  if (form === 'normal') return base
+  if (form === 'omega') return { ...base, platforms: [] }
+  return {
+    ...base,
+    platforms: [
+      { x: -4.8, y: 2.3, w: 3.6, color: base.theme.platColor, edgeColor: base.theme.platEdgeColor },
+      { x: 4.8, y: 2.3, w: 3.6, color: base.theme.platColor, edgeColor: base.theme.platEdgeColor },
+      { x: 0, y: 4.6, w: 3.6, color: base.theme.platColor, edgeColor: base.theme.platEdgeColor },
+    ],
+  }
+}
