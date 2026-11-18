@@ -12,6 +12,7 @@ import { useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
 import { sfx, useAudioStore } from '../game/audio'
 import { CharacterPortrait, SHORT_NAMES } from './CharacterPortrait'
+import { VictoryPodium3D } from './VictoryPodium3D'
 import { StagePreview } from './StagePreview'
 import { TouchControls } from './TouchControls'
 import { broadcastLobby, broadcastStart, hostRoom, joinRoom, leaveRoom, sendPick, useNetStore } from '../game/net'
@@ -2057,13 +2058,10 @@ export function HUD() {
             style={{ transform: 'rotate(-3.5deg)' }}
           />
 
-          {/* 右側：第 1 名勝者巨型角色展示 */}
-          <div className="pointer-events-none absolute right-[4%] bottom-10 top-6 flex items-center justify-center">
-            <div
-              className="h-64 w-64 sm:h-96 sm:w-96 overflow-hidden rounded-3xl border-4 border-white/80 shadow-[0_0_80px_rgba(253,224,71,0.45)]"
-              style={{ transform: 'rotate(-2deg)' }}
-            >
-              <CharacterPortrait id={selection[winner]} className="h-full w-full" />
+          {/* 右側：第 1 名勝者 3D 模型站立勝利舞台 */}
+          <div className="pointer-events-none absolute right-[2%] bottom-8 top-4 flex items-center justify-center">
+            <div className="h-80 w-80 sm:h-[28rem] sm:w-[28rem]">
+              <VictoryPodium3D id={winner} charId={selection[winner]} color={PLAYER_COLORS[winner]} />
             </div>
           </div>
 
@@ -2122,8 +2120,9 @@ export function HUD() {
                       >
                         {rank}
                       </span>
-                      <div className="h-14 w-14 overflow-hidden rounded-lg border-2 border-black bg-black shrink-0">
-                        <CharacterPortrait id={selection[id]} className="h-full w-full" />
+                      <div className="relative h-14 w-14 overflow-hidden rounded-lg border-2 border-black bg-black shrink-0">
+                        <CharacterPortrait id={selection[id]} className="h-full w-full animate-[bounce_0.75s_ease-in-out_infinite]" />
+                        <span className="absolute -bottom-0.5 right-0 text-base leading-none animate-pulse drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">👏</span>
                       </div>
                       <div className="text-xs leading-tight">
                         <div className="font-black text-white drop-shadow">{u.name}</div>
