@@ -1626,11 +1626,10 @@ export function HUD() {
         <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center">
           <div
             key={countdown}
-            className={`font-black italic tracking-tight drop-shadow-[0_6px_18px_rgba(0,0,0,0.95)] animate-bounce ${
-              countdown === 'SMASH!!!'
-                ? 'text-6xl sm:text-8xl text-yellow-300'
-                : 'text-7xl sm:text-9xl text-white'
-            }`}
+            className={`font-black italic tracking-tight drop-shadow-[0_6px_18px_rgba(0,0,0,0.95)] animate-bounce ${countdown === 'SMASH!!!'
+              ? 'text-6xl sm:text-8xl text-yellow-300'
+              : 'text-7xl sm:text-9xl text-white'
+              }`}
             style={{ WebkitTextStroke: '3px #000' }}
           >
             {countdown}
