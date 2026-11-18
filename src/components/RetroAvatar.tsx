@@ -26,7 +26,7 @@ type AnimePreset = {
 const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   chihiro: { body: '#18181b', hair: '#09090b', accent: '#ef4444', prop: 'katana', style: 'sword', shortHair: true, scar: true },
   ichi: { body: '#1e3a8a', hair: '#111827', accent: '#38bdf8', prop: 'hat', style: 'mage', shortHair: true },
-  ruri: { body: '#111827', hair: '#7c3aed', accent: '#f8fafc', prop: 'horns', style: 'mage', hornColor: '#f8fafc' },
+  ruri: { body: '#111827', hair: '#1e3a8a', accent: '#fef3c7', prop: 'horns', style: 'mage', hornColor: '#fef3c7' },
   nona: { body: '#4a044e', hair: '#e9d5ff', accent: '#e879f9', prop: 'needle', style: 'mage' },
   gojo: { body: '#111827', hair: '#f8fafc', accent: '#818cf8', prop: 'orb', style: 'martial', shortHair: true, blindfold: true },
   deku: { body: '#14532d', hair: '#15803d', accent: '#4ade80', prop: 'orb', style: 'martial', shortHair: true },
@@ -44,18 +44,13 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   hutao: { body: '#18181b', hair: '#3f2318', accent: '#ef4444', prop: 'spear', style: 'spear', twintails: true, huTaoHat: true },
   seija: { body: '#be123c', hair: '#1e1b4b', accent: '#f8fafc', prop: 'horns', style: 'mage', shortHair: true, hornColor: '#e11d48' },
   youmu: { body: '#0f766e', hair: '#e2e8f0', accent: '#34d399', prop: 'katana', style: 'sword', shortHair: true, dualSword: true },
-  luigi: { body: '#16a34a', hair: '#451a03', accent: '#22c55e', prop: 'orb', style: 'martial', shortHair: true },
-  blinky: { body: '#ef4444', hair: '#dc2626', accent: '#38bdf8', prop: 'orb', style: 'mage', shortHair: true },
-  creeper: { body: '#22c55e', hair: '#15803d', accent: '#4ade80', prop: 'orb', style: 'martial', shortHair: true },
   suzuka: { body: '#22c55e', hair: '#f97316', accent: '#ffffff', prop: 'ears', style: 'martial' },
   firefly: { body: '#0f766e', hair: '#cbd5e1', accent: '#f97316', prop: 'katana', style: 'sword' },
-  ellen: { body: '#0f172a', hair: '#18181b', accent: '#ef4444', prop: 'spear', style: 'spear' },
   jinhsi: { body: '#334155', hair: '#f8fafc', accent: '#fde047', prop: 'horns', style: 'mage', hornColor: '#fde047' },
   anis: { body: '#27272a', hair: '#facc15', accent: '#fb923c', prop: 'rifle', style: 'gun' },
   erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
-  vaus: { body: '#1e293b', hair: '#38bdf8', accent: '#ef4444', prop: 'orb', style: 'gun', shortHair: true },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'bakugo'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'bakugo', 'sukuna'].includes(p.id))
       .map((p) => [p.id, p.preset]),
   ) as Record<string, AnimePreset>),
 }
@@ -992,6 +987,91 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
             <mesh rotation={[0, 0, 0]}><torusGeometry args={[0.28, 0.03, 8, 16, Math.PI]} /><meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.8} /></mesh>
           </group>
           <group ref={animB} position={[-0.24, 0.08, 0]}><mesh position={[0, -0.12, 0]}><boxGeometry args={[0.1, 0.26, 0.1]} /><meshStandardMaterial color="#fde8d7" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'creeper' && (
+        <group>
+          {/* Minecraft 苦力怕：四足綠色方塊怪＋黑色苦力怕臉 */}
+          <mesh position={[0, 0.04, 0]} castShadow><boxGeometry args={[0.36, 0.48, 0.24]} /><meshStandardMaterial color="#22c55e" /></mesh>
+          <mesh position={[0, 0.46, 0]} castShadow><boxGeometry args={[0.38, 0.38, 0.38]} /><meshStandardMaterial color="#22c55e" /></mesh>
+          <mesh position={[-0.09, 0.5, 0.2]}><boxGeometry args={[0.08, 0.08, 0.02]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[0.09, 0.5, 0.2]}><boxGeometry args={[0.08, 0.08, 0.02]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[0, 0.39, 0.2]}><boxGeometry args={[0.16, 0.1, 0.02]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[-0.12, -0.26, 0.14]}><boxGeometry args={[0.14, 0.2, 0.14]} /><meshStandardMaterial color="#16a34a" /></mesh>
+          <mesh position={[0.12, -0.26, 0.14]}><boxGeometry args={[0.14, 0.2, 0.14]} /><meshStandardMaterial color="#16a34a" /></mesh>
+          <mesh position={[-0.12, -0.26, -0.14]}><boxGeometry args={[0.14, 0.2, 0.14]} /><meshStandardMaterial color="#16a34a" /></mesh>
+          <mesh position={[0.12, -0.26, -0.14]}><boxGeometry args={[0.14, 0.2, 0.14]} /><meshStandardMaterial color="#16a34a" /></mesh>
+        </group>
+      )}
+
+      {charId === 'blinky' && (
+        <group>
+          {/* Pac-Man Blinky 紅幽靈：圓頂＋波浪裙擺＋大白藍眼 */}
+          <mesh position={[0, 0.18, 0]} castShadow><sphereGeometry args={[0.34, 14, 12]} /><meshStandardMaterial color="#ef4444" emissive="#dc2626" emissiveIntensity={0.25} /></mesh>
+          <mesh position={[0, -0.04, 0]} castShadow><cylinderGeometry args={[0.34, 0.36, 0.38, 14]} /><meshStandardMaterial color="#ef4444" emissive="#dc2626" emissiveIntensity={0.25} /></mesh>
+          <mesh position={[-0.12, 0.22, 0.28]}><sphereGeometry args={[0.095, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[0.12, 0.22, 0.28]}><sphereGeometry args={[0.095, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[-0.11, 0.22, 0.36]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#2563eb" /></mesh>
+          <mesh position={[0.13, 0.22, 0.36]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#2563eb" /></mesh>
+        </group>
+      )}
+
+      {charId === 'vaus' && (
+        <group>
+          {/* Arkanoid Vaus 戰機：銀藍紅橫向膠囊戰機＋浮空能量球 */}
+          <mesh position={[0, 0.05, 0]} castShadow><boxGeometry args={[0.82, 0.24, 0.28]} /><meshStandardMaterial color="#cbd5e1" metalness={0.5} roughness={0.3} /></mesh>
+          <mesh position={[-0.4, 0.05, 0]}><boxGeometry args={[0.16, 0.26, 0.3]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          <mesh position={[0.4, 0.05, 0]}><boxGeometry args={[0.16, 0.26, 0.3]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          <mesh position={[0, 0.14, 0]}><boxGeometry args={[0.44, 0.14, 0.22]} /><meshStandardMaterial color="#38bdf8" emissive="#0ea5e9" emissiveIntensity={0.65} /></mesh>
+          <group ref={animA} position={[0, 0.42, 0.12]}><mesh><sphereGeometry args={[0.12, 10, 10]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={0.9} /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'luigi' && (
+        <group>
+          {/* 路易吉：藍吊帶褲＋綠襯衫＋八字鬍＋L 綠帽 */}
+          <mesh position={[0, -0.14, 0]} castShadow><cylinderGeometry args={[0.21, 0.26, 0.48, 12]} /><meshStandardMaterial color="#2563eb" /></mesh>
+          <mesh position={[0, 0.08, 0]}><boxGeometry args={[0.3, 0.2, 0.24]} /><meshStandardMaterial color="#16a34a" /></mesh>
+          <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.2, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh position={[0, 0.29, 0.2]}><boxGeometry args={[0.18, 0.05, 0.06]} /><meshStandardMaterial color="#451a03" /></mesh>
+          <mesh position={[0, 0.48, 0]}><sphereGeometry args={[0.21, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#16a34a" /></mesh>
+          <mesh position={[0, 0.45, 0.2]}><boxGeometry args={[0.28, 0.05, 0.16]} /><meshStandardMaterial color="#15803d" /></mesh>
+          <group ref={animA} position={[0.25, 0.06, 0]}><mesh position={[0, -0.1, 0]}><sphereGeometry args={[0.09, 8, 8]} /><meshStandardMaterial color="#ffffff" /></mesh></group>
+          <group ref={animB} position={[-0.25, 0.06, 0]}><mesh position={[0, -0.1, 0]}><sphereGeometry args={[0.09, 8, 8]} /><meshStandardMaterial color="#ffffff" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'sukuna' && (
+        <group>
+          {/* 兩面宿儺：白黑和服＋粉紅刺髮＋臉部黑紋＋四隻紅眼 */}
+          <mesh position={[0, -0.16, 0]} castShadow><cylinderGeometry args={[0.2, 0.31, 0.56, 12]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[0, 0.04, 0.14]}><boxGeometry args={[0.26, 0.32, 0.08]} /><meshStandardMaterial color="#18181b" /></mesh>
+          <mesh position={[0, 0.35, 0.02]} castShadow><sphereGeometry args={[0.2, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh position={[0, 0.4, -0.02]}><sphereGeometry args={[0.22, 12, 12]} /><meshStandardMaterial color="#fda4af" /></mesh>
+          <mesh position={[0, 0.58, 0.02]}><coneGeometry args={[0.12, 0.22, 5]} /><meshStandardMaterial color="#fda4af" /></mesh>
+          <mesh position={[-0.07, 0.37, 0.19]}><sphereGeometry args={[0.03, 8, 8]} /><meshStandardMaterial color="#ef4444" emissive="#dc2626" emissiveIntensity={0.6} /></mesh>
+          <mesh position={[0.07, 0.37, 0.19]}><sphereGeometry args={[0.03, 8, 8]} /><meshStandardMaterial color="#ef4444" emissive="#dc2626" emissiveIntensity={0.6} /></mesh>
+          <mesh position={[-0.07, 0.31, 0.19]}><sphereGeometry args={[0.022, 8, 8]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          <mesh position={[0.07, 0.31, 0.19]}><sphereGeometry args={[0.022, 8, 8]} /><meshStandardMaterial color="#ef4444" /></mesh>
+        </group>
+      )}
+
+      {charId === 'ellen' && (
+        <group>
+          {/* 艾蓮・喬：黑白女僕裝＋紅眼＋巨型鯊魚剪＋大鯊魚尾 */}
+          <mesh position={[0, -0.16, 0]} castShadow><cylinderGeometry args={[0.18, 0.34, 0.54, 12]} /><meshStandardMaterial color="#0f172a" /></mesh>
+          <mesh position={[0, 0.06, 0.12]}><boxGeometry args={[0.22, 0.26, 0.08]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.19, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh position={[0, 0.38, -0.04]}><sphereGeometry args={[0.21, 14, 12]} /><meshStandardMaterial color="#18181b" /></mesh>
+          <mesh position={[-0.07, 0.35, 0.19]}><sphereGeometry args={[0.03, 8, 8]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          <mesh position={[0.07, 0.35, 0.19]}><sphereGeometry args={[0.03, 8, 8]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          {/* 大鯊魚尾 */}
+          <mesh position={[0, -0.18, -0.3]} rotation={[0.5, 0, 0]}><coneGeometry args={[0.14, 0.48, 6]} /><meshStandardMaterial color="#1e293b" /></mesh>
+          <mesh position={[0, -0.26, -0.52]} rotation={[1.2, 0, 0]}><boxGeometry args={[0.28, 0.06, 0.22]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          <group ref={animA} position={[0.26, 0.06, 0.28]} rotation={[0.8, 0, 0]}>
+            <mesh><boxGeometry args={[0.08, 0.72, 0.14]} /><meshStandardMaterial color="#cbd5e1" emissive="#ef4444" emissiveIntensity={0.45} /></mesh>
+          </group>
         </group>
       )}
 

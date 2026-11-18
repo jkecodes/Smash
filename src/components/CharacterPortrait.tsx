@@ -63,7 +63,7 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
 const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; witchHat?: boolean; glasses?: boolean }>> = {
   chihiro: { bg: '#4c0519', hair: '#09090b', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', shortHair: true, scar: true },
   ichi: { bg: '#0c4a6e', hair: '#111827', outfit: '#1e3a8a', accent: '#38bdf8', eye: '#38bdf8', shortHair: true, witchHat: true },
-  ruri: { bg: '#064e3b', hair: '#7c3aed', outfit: '#111827', accent: '#f8fafc', eye: '#ef4444', horns: true, bobHair: true },
+  ruri: { bg: '#064e3b', hair: '#1e3a8a', outfit: '#111827', accent: '#fef3c7', eye: '#ef4444', horns: true, bobHair: true },
   nona: { bg: '#4a044e', hair: '#e9d5ff', outfit: '#3b0764', accent: '#e879f9', eye: '#a855f7', bobHair: true },
   gojo: { bg: '#1e1b4b', hair: '#f8fafc', outfit: '#111827', accent: '#818cf8', eye: '#38bdf8', blindfold: true, shortHair: true },
   deku: { bg: '#052e16', hair: '#15803d', outfit: '#14532d', accent: '#4ade80', eye: '#22c55e', shortHair: true },
@@ -81,18 +81,13 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   hutao: { bg: '#450a0a', hair: '#3f2318', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', twintails: true, huTaoHat: true },
   seija: { bg: '#4c0519', hair: '#1e1b4b', outfit: '#be123c', accent: '#f8fafc', eye: '#ef4444', horns: true, shortHair: true },
   youmu: { bg: '#064e3b', hair: '#e2e8f0', outfit: '#0f766e', accent: '#34d399', eye: '#10b981', bobHair: true },
-  luigi: { bg: '#052e16', hair: '#451a03', outfit: '#16a34a', accent: '#2563eb', eye: '#38bdf8', shortHair: true },
-  blinky: { bg: '#450a0a', hair: '#ef4444', outfit: '#dc2626', accent: '#ffffff', eye: '#38bdf8', shortHair: true },
-  creeper: { bg: '#064e3b', hair: '#22c55e', outfit: '#16a34a', accent: '#111827', eye: '#111827', shortHair: true },
   suzuka: { bg: '#052e16', hair: '#f97316', outfit: '#22c55e', accent: '#ffffff', eye: '#10b981', ears: true },
   firefly: { bg: '#0f172a', hair: '#cbd5e1', outfit: '#0f766e', accent: '#f97316', eye: '#38bdf8', bobHair: true },
-  ellen: { bg: '#082f49', hair: '#18181b', outfit: '#0f172a', accent: '#ef4444', eye: '#ef4444', bobHair: true },
   jinhsi: { bg: '#0f172a', hair: '#f8fafc', outfit: '#334155', accent: '#fde047', eye: '#eab308', horns: true },
   anis: { bg: '#422006', hair: '#facc15', outfit: '#27272a', accent: '#fb923c', eye: '#f59e0b', bobHair: true },
   erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
-  vaus: { bg: '#020617', hair: '#38bdf8', outfit: '#1e293b', accent: '#ef4444', eye: '#38bdf8', shortHair: true },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'miramira', 'bakugo'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'miramira', 'bakugo', 'sukuna'].includes(p.id))
       .map((p) => [p.id, p.portrait]),
   ) as Partial<Record<CharacterId, any>>),
 }
@@ -603,6 +598,84 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           {/* 紅星背心 */}
           <path d="M32,86 L88,86 L94,120 L26,120 Z" fill="#dc2626" />
           <polygon points="60,92 63,100 71,100 65,105 67,113 60,108 53,113 55,105 49,100 57,100" fill="#facc15" />
+        </>
+      )}
+      {id === 'creeper' && (
+        <>
+          <rect width="120" height="120" fill="#064e3b" />
+          <rect x="20" y="20" width="80" height="80" fill="#22c55e" stroke="#15803d" strokeWidth="3" />
+          <rect x="32" y="36" width="18" height="18" fill="#09090b" />
+          <rect x="70" y="36" width="18" height="18" fill="#09090b" />
+          <rect x="50" y="54" width="20" height="14" fill="#09090b" />
+          <rect x="40" y="62" width="40" height="18" fill="#09090b" />
+          <rect x="40" y="76" width="12" height="12" fill="#09090b" />
+          <rect x="68" y="76" width="12" height="12" fill="#09090b" />
+        </>
+      )}
+      {id === 'blinky' && (
+        <>
+          <rect width="120" height="120" fill="#1e0707" />
+          <path d="M22,56 C22,20 98,20 98,56 L98,104 L85,92 L72,104 L60,92 L48,104 L35,92 L22,104 Z" fill="#ef4444" />
+          <ellipse cx="45" cy="52" rx="11" ry="14" fill="#ffffff" />
+          <ellipse cx="75" cy="52" rx="11" ry="14" fill="#ffffff" />
+          <circle cx="49" cy="54" r="5.5" fill="#2563eb" />
+          <circle cx="79" cy="54" r="5.5" fill="#2563eb" />
+        </>
+      )}
+      {id === 'vaus' && (
+        <>
+          <rect width="120" height="120" fill="#020617" />
+          <rect x="16" y="48" width="88" height="24" rx="12" fill="#cbd5e1" stroke="#38bdf8" strokeWidth="2.5" />
+          <rect x="14" y="48" width="18" height="24" rx="6" fill="#ef4444" />
+          <rect x="88" y="48" width="18" height="24" rx="6" fill="#ef4444" />
+          <rect x="38" y="53" width="44" height="14" rx="4" fill="#0ea5e9" />
+          <circle cx="60" cy="26" r="7" fill="#fde047" />
+        </>
+      )}
+      {id === 'luigi' && (
+        <>
+          <rect width="120" height="120" fill="#052e16" />
+          <path d="M28,46 C28,16 92,16 92,46 Z" fill="#16a34a" />
+          <rect x="26" y="40" width="68" height="10" rx="5" fill="#15803d" />
+          <circle cx="60" cy="30" r="10" fill="#ffffff" />
+          <text x="60" y="34" textAnchor="middle" fontSize="13" fontWeight="900" fill="#16a34a">L</text>
+          <ellipse cx="60" cy="64" rx="22" ry="20" fill="#fde8d7" />
+          <ellipse cx="52" cy="60" rx="3.5" ry="5" fill="#2563eb" />
+          <ellipse cx="68" cy="60" rx="3.5" ry="5" fill="#2563eb" />
+          <path d="M44,72 Q52,66 60,72 Q68,66 76,72 Q68,78 60,75 Q52,78 44,72 Z" fill="#451a03" />
+          <path d="M30,86 L90,86 L96,120 L24,120 Z" fill="#2563eb" />
+          <rect x="34" y="86" width="12" height="16" fill="#16a34a" />
+          <rect x="74" y="86" width="12" height="16" fill="#16a34a" />
+        </>
+      )}
+      {id === 'sukuna' && (
+        <>
+          <rect width="120" height="120" fill="#450a0a" />
+          <path d="M28,54 L22,34 L38,26 L50,12 L62,24 L74,12 L86,28 L98,38 L90,54 Z" fill="#fda4af" />
+          <ellipse cx="60" cy="58" rx="22" ry="22" fill="#fde8d7" />
+          <path d="M36,46 L46,32 L54,44 L62,28 L72,44 L84,34 L84,48 Q60,38 36,48 Z" fill="#fda4af" />
+          <path d="M40,42 L48,46 M80,42 L72,46 M54,50 L66,50" stroke="#18181b" strokeWidth="2.5" strokeLinecap="round" />
+          <ellipse cx="50" cy="56" rx="4" ry="3.5" fill="#ef4444" />
+          <ellipse cx="70" cy="56" rx="4" ry="3.5" fill="#ef4444" />
+          <ellipse cx="48" cy="64" rx="3" ry="2" fill="#ef4444" />
+          <ellipse cx="72" cy="64" rx="3" ry="2" fill="#ef4444" />
+          <path d="M30,84 L90,84 L96,120 L24,120 Z" fill="#f8fafc" />
+          <polygon points="44,84 60,114 76,84" fill="#18181b" />
+        </>
+      )}
+      {id === 'ellen' && (
+        <>
+          <rect width="120" height="120" fill="#082f49" />
+          {/* 背後鯊魚尾 */}
+          <path d="M84,96 L112,72 L106,96 L116,112 L88,108 Z" fill="#1e293b" stroke="#ef4444" strokeWidth="2" />
+          <path d="M30,44 C30,18 90,18 90,44 L92,80 L28,80 Z" fill="#18181b" />
+          <path d="M32,32 Q60,20 88,32" fill="none" stroke="#f8fafc" strokeWidth="5" strokeDasharray="6 4" />
+          <ellipse cx="60" cy="58" rx="21" ry="21" fill="#fde8d7" />
+          <path d="M36,48 Q60,34 84,48 L80,32 Q60,22 40,32 Z" fill="#18181b" />
+          <ellipse cx="51" cy="58" rx="3.8" ry="4.5" fill="#ef4444" />
+          <ellipse cx="69" cy="58" rx="3.8" ry="4.5" fill="#ef4444" />
+          <path d="M32,82 L88,82 L94,120 L26,120 Z" fill="#0f172a" />
+          <polygon points="48,82 60,100 72,82" fill="#f8fafc" />
         </>
       )}
       {id === 'bakugo' && (
