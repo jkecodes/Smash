@@ -705,8 +705,8 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
 }
 
 // ---------------------------------------------------------------- combat
-/** 抓取狀態表：抓取者 ID → { 被抓目標 ID, 剩餘抓持時間 ms } */
-const grabHold: Partial<Record<FighterId, { target: FighterId; ms: number }>> = {}
+/** 抓取狀態表：抓取者 ID → { 被抓目標 ID, 剩餘抓持時間 ms, 防誤觸寬限 graceMs } */
+const grabHold: Partial<Record<FighterId, { target: FighterId; ms: number; graceMs: number }>> = {}
 
 function executeThrow(att: FighterState, tgt: FighterState, dirX: number, dirY: number) {
   const trb = runtime.bodies[tgt.id]
@@ -1103,9 +1103,10 @@ function updateFighter(f: FighterState, dt: number) {
       delete grabHold[f.id]
     } else {
       hold.ms -= dt * 1000
+      hold.graceMs = Math.max(0, hold.graceMs - dt * 1000)
       rb.setLinvel({ x: 0, y: Math.min(0, rb.linvel().y), z: 0 }, true)
-      const pinX = t.x + f.facing[0] * 0.95
-      const pinY = t.y + 0.12
+      const pinX = t.x + f.facing[0] * 1.05
+      const pinY = t.y + 0.15
       trb.setGravityScale(0, true)
       trb.setTranslation({ x: pinX, y: pinY, z: 0 }, true)
       trb.setLinvel({ x: 0, y: 0, z: 0 }, true)
@@ -1118,7 +1119,7 @@ function updateFighter(f: FighterState, dt: number) {
         sfx('hit', 0.45)
         addFx({ kind: 'burst', pos: [pinX, pinY + 0.2, 0], color: '#fde047', ttl: 180, count: 6, speed: 4, size: 0.12 })
       }
-      if (Math.abs(inp.moveX) > 0.45 || Math.abs(inp.moveY) > 0.45) {
+      if (hold.graceMs <= 0 && (Math.abs(inp.moveX) > 0.45 || Math.abs(inp.moveY) > 0.45 || inp.pressed.grab)) {
         delete grabHold[f.id]
         executeThrow(f, tgt, inp.moveX, inp.moveY)
       } else if (hold.ms <= 0) {
@@ -1150,17 +1151,17 @@ function updateFighter(f: FighterState, dt: number) {
     startDodge(f, 'air', m > 0.4 ? inp.moveX / Math.max(1, m) : 0, m > 0.4 ? (Math.abs(inp.moveY) > 0.5 ? Math.sign(inp.moveY) : 0) : 0)
     return
   }
-  // 抓取與投擲（Grab 鍵，或防禦中按普攻：先抓住對手定身，再推方向鍵投擲或按普攻膝擊！）
+  // 抓取與投擲（Grab 鍵，或防禦中按普攻：先抓住對手定身，過 220ms 寬限後推方向鍵投擲或按普攻膝擊！）
   if (inp.pressed.grab || (inp.held.shield && inp.pressed.attack)) {
-    const grabCenter: Vec3 = [t.x + f.facing[0] * 1.1, t.y + 0.1, 0]
-    addFx({ kind: 'ring', pos: grabCenter, color: PLAYER_COLORS[f.id], ttl: 180, radius: 0.85, plane: 'vertical' })
-    const hitIds = queryBall(grabCenter, 1.15).filter((id) => id !== f.id && store().fighters[id]?.alive)
+    const grabCenter: Vec3 = [t.x + f.facing[0] * 1.15, t.y + 0.1, 0]
+    addFx({ kind: 'ring', pos: grabCenter, color: PLAYER_COLORS[f.id], ttl: 180, radius: 0.95, plane: 'vertical' })
+    const hitIds = queryBall(grabCenter, 1.35).filter((id) => id !== f.id && store().fighters[id]?.alive)
     if (hitIds.length > 0) {
       const tgt = store().fighters[hitIds[0]]
       if (tgt.skill) endSkill(tgt)
       setFsm(tgt, 'HITSTUN')
-      tgt.hitstunMs = 1100
-      grabHold[f.id] = { target: tgt.id, ms: 1100 }
+      tgt.hitstunMs = 1200
+      grabHold[f.id] = { target: tgt.id, ms: 1200, graceMs: 220 }
       sfx('block')
       addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1] + 0.2, 0], color: '#fde047', ttl: 260, radius: 1.3 })
       return
