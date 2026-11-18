@@ -1018,7 +1018,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     <div className={`pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-3 text-white select-none overflow-y-auto py-3 px-2 ${step === 'stage' ? 'bg-black/55' : 'bg-black/75'}`}>
       {/* 標題與流程步驟指示（① 選擇地圖 → ② 選擇角色） */}
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <h1 className="text-3xl sm:text-5xl font-black italic tracking-tight">smash<span className="text-yellow-300">!!!</span></h1>
+        <h1 className="text-3xl sm:text-5xl font-black italic tracking-tight">Smash<span className="text-yellow-300">!!!</span></h1>
         <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-black/50 p-1 text-xs font-black">
           <button
             type="button"
