@@ -4,8 +4,25 @@ import { STAGES, type StageId } from '../game/stages'
 /**
  * 每個對戰場地的專屬 16:9 預覽縮圖（含實際層板配置 ＋ 場地主題插畫）。
  */
-export function StagePreview({ id, className = '' }: { id: StageId; className?: string }) {
+export function StagePreview({ id, className = '' }: { id: StageId | 'random'; className?: string }) {
   const uid = useId().replace(/:/g, '')
+  if (id === 'random') {
+    return (
+      <svg viewBox="0 0 160 80" className={className} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id={`rbg-${uid}`} cx="50%" cy="45%" r="70%">
+            <stop offset="0%" stopColor="#334155" />
+            <stop offset="100%" stopColor="#090d16" />
+          </radialGradient>
+        </defs>
+        <rect width="160" height="80" fill={`url(#rbg-${uid})`} />
+        <rect x="26" y="62" width="108" height="8" rx="2" fill="#1e293b" stroke="#fde047" strokeWidth="1.2" opacity="0.5" />
+        <text x="80" y="54" textAnchor="middle" fontSize="48" fontWeight="900" fontFamily="sans-serif" fill="#fde047" stroke="#000000" strokeWidth="2.5">
+          ?
+        </text>
+      </svg>
+    )
+  }
   const st = STAGES[id]
   const { theme } = st
 

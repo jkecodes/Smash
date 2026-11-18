@@ -5,7 +5,7 @@ import { clearEntities } from '../game/runtime'
 import { resetSimStage } from '../game/sim'
 import { getSkill } from '../game/skills'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
-import { STAGES, STAGE_IDS } from '../game/stages'
+import { STAGES, STAGE_IDS, type StageId } from '../game/stages'
 import { useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
 import { sfx, useAudioStore } from '../game/audio'
@@ -310,19 +310,40 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
     sfx('ui')
   }
 
+  const stageCards: (StageId | 'random')[] = ['random', ...STAGE_IDS]
+
   return (
-    <div className="flex flex-col items-center gap-3 max-w-5xl w-full px-3">
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full">
-        {STAGE_IDS.map((id) => {
-          const st = STAGES[id]
-          const active = stageId === id
+    <div className="flex flex-col items-center gap-2.5 max-w-5xl w-full px-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
+        {stageCards.map((item) => {
+          if (item === 'random') {
+            return (
+              <button
+                key="random"
+                type="button"
+                onClick={pickRandomStage}
+                className="flex flex-col items-start rounded-xl p-2 transition-all text-left border border-white/20 bg-black/55 hover:bg-white/15 hover:border-yellow-300/60"
+              >
+                <StagePreview id="random" className="mb-1.5 h-14 sm:h-16 w-full rounded-lg border border-white/15 bg-black/50" />
+                <div className="flex w-full items-center justify-between gap-1.5">
+                  <span className="text-xs sm:text-sm font-black text-yellow-300 truncate">RANDOM 隨機</span>
+                  <span className="text-[10px]">🎲</span>
+                </div>
+                <div className="text-[10px] font-bold text-white/60 truncate w-full">
+                  隨機挑選一張對戰場地
+                </div>
+              </button>
+            )
+          }
+          const st = STAGES[item]
+          const active = stageId === item
           return (
             <button
-              key={id}
+              key={item}
               type="button"
               onClick={() => {
                 if (active && onNext) onNext()
-                else selectStage(id)
+                else selectStage(item)
                 sfx('ui')
               }}
               onDoubleClick={() => onNext?.()}
@@ -331,10 +352,10 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
                 : 'border-white/15 bg-black/45 hover:bg-white/15 hover:border-white/35 opacity-85 hover:opacity-100'
               }`}
             >
-              <StagePreview id={id} className="mb-1.5 h-16 sm:h-20 w-full rounded-lg border border-white/15 bg-black/50" />
+              <StagePreview id={item} className="mb-1.5 h-14 sm:h-16 w-full rounded-lg border border-white/15 bg-black/50" />
               <div className="flex w-full items-center justify-between gap-1.5">
                 <span className="text-xs sm:text-sm font-black text-white truncate">{st.theme.name}</span>
-                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: CHARACTERS[id].color }} />
+                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: CHARACTERS[item].color }} />
               </div>
               <div className="text-[10px] font-bold truncate w-full" style={{ color: st.theme.accentColor }}>
                 {st.theme.tag}
@@ -343,17 +364,8 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
           )
         })}
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <div className="rounded-full bg-black/50 border border-white/15 px-4 py-1.5 text-xs text-yellow-200/90 text-center">
-          🏟️ <strong className="text-white">{activeStage.theme.name}</strong>：{activeStage.theme.desc}
-        </div>
-        <button
-          type="button"
-          onClick={pickRandomStage}
-          className="rounded-full bg-white/15 border border-white/25 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-white/25 transition"
-        >
-          🎲 隨機地圖
-        </button>
+      <div className="rounded-full bg-black/50 border border-white/15 px-4 py-1.5 text-xs text-yellow-200/90 text-center">
+        🏟️ <strong className="text-white">{activeStage.theme.name}</strong>：{activeStage.theme.desc}
       </div>
     </div>
   )
@@ -621,7 +633,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     (id, dx, dy) => {
       if (step === 'stage') {
         const cur = useGameStore.getState().stageId
-        selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 5))
+        selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 4))
       } else {
         const cur = useGameStore.getState().selection[id]
         select(id, stepListGrid(CHARACTER_IDS, cur, dx, dy, 8))
@@ -641,9 +653,10 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     sfx('ui')
   }
 
-  // 15 角色 + 隨機 = 16 格 -> 8x2 整齊格陣
-  const row1: (CharacterId | 'random')[] = CHARACTER_IDS.slice(0, 8)
-  const row2: (CharacterId | 'random')[] = [...CHARACTER_IDS.slice(8), 'random']
+  // 隨機在左上角第 1 格 ＋ 15 角色 = 16 格 -> 8x2 整齊格陣
+  const rosterGrid: (CharacterId | 'random')[] = ['random', ...CHARACTER_IDS]
+  const row1 = rosterGrid.slice(0, 8)
+  const row2 = rosterGrid.slice(8)
 
   const renderCell = (item: CharacterId | 'random') => {
     const isRand = item === 'random'
