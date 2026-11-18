@@ -1283,15 +1283,19 @@ export function RetroAvatar({ id, charId, hideProps = false }: { id: FighterId; 
 
       {charId === 'omnelle' && (
         <group>
-          {/* OM NELLE：粉紅圓滾小怪獸＋頭頂蝴蝶結＋大眼睛 */}
-          <mesh position={[0, 0.02, 0]} castShadow><sphereGeometry args={[0.34, 14, 14]} /><meshStandardMaterial color="#f472b6" /></mesh>
-          <mesh position={[-0.12, 0.14, 0.28]}><sphereGeometry args={[0.095, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
-          <mesh position={[0.12, 0.14, 0.28]}><sphereGeometry args={[0.095, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
-          <mesh position={[-0.12, 0.14, 0.36]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#111827" /></mesh>
-          <mesh position={[0.12, 0.14, 0.36]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#111827" /></mesh>
-          <mesh position={[0, 0.38, 0.04]}><boxGeometry args={[0.26, 0.1, 0.1]} /><meshStandardMaterial color="#be185d" emissive="#ec4899" emissiveIntensity={0.5} /></mesh>
-          <mesh position={[-0.16, -0.32, 0.06]}><boxGeometry args={[0.14, 0.1, 0.18]} /><meshStandardMaterial color="#db2777" /></mesh>
-          <mesh position={[0.16, -0.32, 0.06]}><boxGeometry args={[0.14, 0.1, 0.18]} /><meshStandardMaterial color="#db2777" /></mesh>
+          {/* OM NELLE：亮綠色圓滾小怪獸＋頭頂捲捲觸角＋深綠睫毛＋藍眼珠 */}
+          <mesh position={[0, 0.02, 0]} castShadow><sphereGeometry args={[0.35, 14, 14]} /><meshStandardMaterial color="#84cc16" /></mesh>
+          <mesh position={[-0.12, 0.14, 0.29]}><sphereGeometry args={[0.095, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[0.12, 0.14, 0.29]}><sphereGeometry args={[0.095, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[-0.11, 0.14, 0.37]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#2563eb" /></mesh>
+          <mesh position={[0.11, 0.14, 0.37]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#2563eb" /></mesh>
+          <mesh position={[-0.2, 0.22, 0.3]} rotation={[0, 0, -0.35]}><boxGeometry args={[0.11, 0.03, 0.03]} /><meshStandardMaterial color="#14532d" /></mesh>
+          <mesh position={[0.2, 0.22, 0.3]} rotation={[0, 0, 0.35]}><boxGeometry args={[0.11, 0.03, 0.03]} /><meshStandardMaterial color="#14532d" /></mesh>
+          <mesh position={[0.06, 0.44, 0]} rotation={[0, 0, -0.25]}><cylinderGeometry args={[0.03, 0.04, 0.2, 8]} /><meshStandardMaterial color="#84cc16" /></mesh>
+          <mesh position={[0.14, 0.54, 0]}><torusGeometry args={[0.07, 0.028, 6, 14, Math.PI * 1.5]} /><meshStandardMaterial color="#84cc16" /></mesh>
+          <mesh position={[0, -0.04, 0.3]}><boxGeometry args={[0.28, 0.11, 0.08]} /><meshStandardMaterial color="#7f1d1d" /></mesh>
+          <mesh position={[-0.16, -0.32, 0.06]}><boxGeometry args={[0.14, 0.1, 0.18]} /><meshStandardMaterial color="#65a30d" /></mesh>
+          <mesh position={[0.16, -0.32, 0.06]}><boxGeometry args={[0.14, 0.1, 0.18]} /><meshStandardMaterial color="#65a30d" /></mesh>
         </group>
       )}
 

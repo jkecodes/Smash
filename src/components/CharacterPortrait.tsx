@@ -818,14 +818,18 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
       )}
       {id === 'omnelle' && (
         <>
-          <rect width="120" height="120" fill="#500724" />
-          <circle cx="60" cy="66" r="34" fill="#f472b6" />
-          <polygon points="44,24 60,34 76,24 76,38 60,34 44,38" fill="#be185d" />
-          <circle cx="46" cy="56" r="11" fill="#ffffff" />
-          <circle cx="74" cy="56" r="11" fill="#ffffff" />
-          <circle cx="47" cy="56" r="5" fill="#111827" />
-          <circle cx="73" cy="56" r="5" fill="#111827" />
-          <path d="M44,78 Q60,92 76,78 Z" fill="#831843" />
+          <rect width="120" height="120" fill="#14532d" />
+          <path d="M66,34 Q72,14 82,20 Q88,24 80,30 Q74,30 76,24" fill="none" stroke="#84cc16" strokeWidth="6" strokeLinecap="round" />
+          <circle cx="60" cy="66" r="34" fill="#84cc16" stroke="#365314" strokeWidth="2.5" />
+          <path d="M28,44 L44,50 M92,44 L76,50" stroke="#14532d" strokeWidth="4.5" strokeLinecap="round" />
+          <circle cx="46" cy="54" r="12" fill="#ffffff" />
+          <circle cx="74" cy="54" r="12" fill="#ffffff" />
+          <circle cx="49" cy="55" r="5" fill="#2563eb" />
+          <circle cx="71" cy="55" r="5" fill="#2563eb" />
+          <path d="M36,74 Q60,96 84,74 Z" fill="#7f1d1d" />
+          <polygon points="44,75 49,82 54,75" fill="#ffffff" />
+          <polygon points="58,75 62,82 66,75" fill="#ffffff" />
+          <polygon points="68,75 73,82 78,75" fill="#ffffff" />
         </>
       )}
       {id === 'ducky' && (
