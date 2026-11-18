@@ -10,6 +10,7 @@ import './game/skills' // 註冊所有招式
 
 export default function App() {
   const paused = useGameStore((s) => s.paused)
+  const ultCutin = useGameStore((s) => s.ultCutin)
   const stageId = useGameStore((s) => s.stageId)
   const stage = STAGES[stageId] ?? STAGES.reimu
   const theme = stage.theme
@@ -26,7 +27,7 @@ export default function App() {
           intensity={theme.dirLightIntensity}
           castShadow
         />
-        <Physics gravity={[0, GRAVITY, 0]} timeStep="vary" paused={paused}>
+        <Physics gravity={[0, GRAVITY, 0]} timeStep="vary" paused={paused || !!ultCutin}>
           <Arena />
           <Fighters />
           <SimLoop />

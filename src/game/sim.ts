@@ -992,12 +992,13 @@ function publishUi(dt: number, force = false) {
 }
 
 export function stepSimulation(rawDt: number) {
-  if (store().paused) return // 暫停：整個模擬凍結
+  const s = store()
+  if (s.paused) return // 暫停：整個模擬凍結
+  if (s.ultCutin && performance.now() < s.ultCutin.until) return // 大招特寫動畫期間凍結全場動作
   const dt = Math.min(rawDt, 1 / 30)
   runtime.hitstopMs = Math.max(0, runtime.hitstopMs - dt * 1000)
   stepPlatforms(dt)
   if (debugKeys.toggle) { debugKeys.toggle = false; store().toggleDebug() }
-  const s = store()
   if (debugKeys.giveUlt) { debugKeys.giveUlt = false; for (const id of getActiveFighterIds()) s.fighters[id].ultReady = true }
   for (const d of runtime.debugSpheres) d.ttl -= dt * 1000
   runtime.debugSpheres = runtime.debugSpheres.filter((d) => d.ttl > 0)
