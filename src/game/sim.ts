@@ -163,6 +163,7 @@ export function resetSimStage() {
   lastGroups.clear()
   ledgeOwner['-1'] = null
   ledgeOwner['1'] = null
+  for (const k of Object.keys(staleQueue)) delete staleQueue[k as FighterId]
   resetTetroBoards()
   resetSteveBlocks()
   resetMechanics()
@@ -696,15 +697,24 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
 }
 
 // ---------------------------------------------------------------- combat
+/** 招式衰減佇列（記錄每位玩家最近命中的 9 次招式 ID） */
+const staleQueue: Partial<Record<FighterId, string[]>> = {}
+
 function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: Vec3, _kind: string) {
   if (tgt.invulnMs > 0 || !tgt.alive) return
   src.hitSet.add(tgt.id)
   const def = src.def
   const attChar = CHARACTERS[att.character]
   const tgtChar = CHARACTERS[tgt.character]
-  const dmg = def.damage * src.dmgMult * (attChar?.damageMult ?? 1)
+  const rawDmg = def.damage * src.dmgMult * (attChar?.damageMult ?? 1)
   const kb = def.knockback
   const trb = runtime.bodies[tgt.id]!
+
+  // 招式衰減（Stale-Move Negation）：最近 9 次命中重複同一招會遞減威力（最低 0.55 倍）
+  const q = staleQueue[att.id] ?? (staleQueue[att.id] = [])
+  const staleHits = q.filter((id) => id === def.id).length
+  const staleMult = Math.max(0.55, 1 - staleHits * 0.08)
+  const dmg = rawDmg * staleMult
 
   // 世界方向
   let dir: Vec3
@@ -732,6 +742,8 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
     return
   }
   const wasInHitstun = tgt.fsm === 'HITSTUN'
+  q.push(def.id)
+  if (q.length > 9) q.shift()
   tgt.lastHitBy = att.id
   tgt.coyoteMs = 0
   tgt.damage = Math.min(MAX_DAMAGE, tgt.damage + dmg)
@@ -744,7 +756,26 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   tgt.comboCount = 0
   tgt.comboTimerMs = 0
 
-  let speed = ((kb.base + kb.scaling * (tgt.damage / 100)) * src.kbMult) / (tgtChar?.weightMult ?? 1)
+  // 1. 官方大亂鬥雪球擊飛公式：(p/10 + p*d/20) * 體重係數 * 招式成長率 + 基礎擊飛
+  const p = tgt.damage
+  const weightFactor = 1 / (tgtChar?.weightMult ?? 1)
+  const snowball = (p / 10 + (p * dmg) / 20) * 0.095
+  // 2. 復仇補正（Rage）：自身 >= 35% 時提升擊飛力，150% 達上限 1.12 倍
+  const rageT = att.damage >= 35 ? Math.min(1, (att.damage - 35) / 115) : 0
+  const rageMult = 1 + rageT * 0.12
+  let speed = (kb.base + snowball * (kb.scaling / 10)) * src.kbMult * staleMult * rageMult * weightFactor
+
+  // 3. 方向影響（DI）：受擊者推搖桿可微調最多 ±18° 擊飛角度
+  if (!store().cpu[tgt.id]) {
+    const di = readInput(tgt.id)
+    const diX = di.moveX
+    const diY = di.moveY
+    if (diX !== 0 || diY !== 0) {
+      const perp = -dir[1] * diX + dir[0] * diY
+      const angle = Math.atan2(dir[1], dir[0]) + clamp(perp, -1, 1) * 0.314
+      dir = [Math.cos(angle), Math.sin(angle), 0]
+    }
+  }
   if (tgt.statusKind === 'freeze') {
     tgt.statusKind = null
     tgt.statusMs = 0
