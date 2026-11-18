@@ -135,13 +135,29 @@ function registerKit(k: KitSpec) {
       },
     },
   })
+  const hasJab3 = CHARGE_ATTACK_CHARS.has(p) || p === 'spe' || p === 'saki' || p === 'kotone' || p === 'yodaka'
   reg({
-    id: `${p}.a2`, name: k.a2, energyCost: 0,
-    startupMs: 75, activeMs: 100, recoveryMs: 195,
-    hitbox: { offset: [0, 0.12, 1.1], radius: 1.05 }, damage: 6.5,
-    knockback: { dir: [0, 0.45, 1], base: 10, scaling: 10.5 },
-    hooks: { onActive(c) { hitVfx(c, color, p, 1.6, true) } },
+    id: `${p}.a2`, name: k.a2, energyCost: 0, ...(hasJab3 ? { chain: `${p}.a3` } : {}),
+    startupMs: 65, activeMs: 90, recoveryMs: 175,
+    hitbox: { offset: [0, 0.12, 1.05], radius: 1.0 }, damage: 4.5,
+    knockback: { dir: [0, 0.35, 1], base: hasJab3 ? 6.5 : 10, scaling: hasJab3 ? 6 : 10.5 },
+    hooks: { onActive(c) { hitVfx(c, color, p, 1.45, true) } },
   })
+  if (hasJab3) {
+    reg({
+      id: `${p}.a3`, name: `${k.a2}・終結連打`, energyCost: 0,
+      startupMs: 70, activeMs: 110, recoveryMs: 205,
+      hitbox: { offset: [0, 0.15, 1.2], radius: 1.15 }, damage: 7.5,
+      knockback: { dir: [0, 0.52, 1], base: 11.5, scaling: 11.5 },
+      hooks: {
+        onActive(c) {
+          c.setLocalVelocity(0, null, 4)
+          hitVfx(c, color, p, 1.75, false)
+          c.fx({ kind: 'ring', pos: at(c, 0.15, 1.0), color, ttl: 240, radius: 1.4, plane: 'vertical' })
+        },
+      },
+    })
+  }
   registerTilts(p, { color, names: k.tilts })
   reg({
     id: `${p}.s1`, name: k.s1.name, energyCost: 0, cooldownMs: 1200, startupMs: 135, activeMs: 50, recoveryMs: 215,

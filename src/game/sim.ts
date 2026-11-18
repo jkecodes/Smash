@@ -577,6 +577,24 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
       startSkill(f, next, 'attack', inp)
       return
     }
+    // 普攻接招延伸：收招達 55ms 後可快速銜接方向攻擊（上A/橫A/下A）或跳躍取消
+    if (sk.slot === 'attack' && sk.phaseMs >= 55) {
+      const hasDir = Math.abs(inp.moveX) > 0.6 || Math.abs(inp.moveY) > 0.6
+      if (hasDir && inp.pressed.attack) {
+        endSkill(f)
+        tryStartSkill(f, 'attack', inp)
+        return
+      }
+      if (inp.pressed.jump && f.jumpsLeft > 0) {
+        endSkill(f)
+        f.jumpsLeft--
+        f.jumpBufferMs = 0
+        sfx('jump', 0)
+        rb.setLinvel({ x: v.x, y: JUMP_VEL * 0.85, z: 0 }, true)
+        setFsm(f, 'JUMP')
+        return
+      }
+    }
     if (sk.phaseMs >= sk.def.recoveryMs) endSkill(f)
   }
 }
@@ -845,6 +863,18 @@ function updateFighter(f: FighterState, dt: number) {
   if (inp.pressed.skill1 && f.ultReady && tryStartSkill(f, 'ult', inp)) return
   // 普攻 + 特招 同按 = 蓄力重擊
   if (((inp.pressed.attack && inp.held.skill1) || (inp.pressed.skill1 && inp.held.attack)) && tryStartSkill(f, 'smash', inp)) return
+  // 小跳攻擊（同大亂鬥 跳躍 + 普攻 同時按）：立即以 72% 跳躍高度起跳並接空中普攻
+  const coyotePre = !f.grounded && (f.coyoteMs ?? 0) > 0
+  if ((f.grounded || coyotePre) && (inp.pressed.jump || (f.jumpBufferMs ?? 0) > 0) && inp.pressed.attack) {
+    rb.setLinvel({ x: lv.x, y: JUMP_VEL * 0.72, z: 0 }, true)
+    f.grounded = false
+    f.jumpsLeft = MAX_JUMPS - 1
+    f.jumpBufferMs = 0
+    f.coyoteMs = 0
+    sfx('jump', 0)
+    addFx({ kind: 'ring', pos: [t.x, t.y - 0.45, 0], color: '#ffffff', ttl: 220, radius: 0.75 })
+    if (tryStartSkill(f, 'attack', inp)) return
+  }
   for (const slot of SLOTS) if (inp.pressed[slot] && tryStartSkill(f, slot, inp)) return
 
   // 站在層板上向下推（約 0.1 秒）→ 穿下去
