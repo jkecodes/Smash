@@ -27,47 +27,43 @@ function trail(c: SkillContext, ms: number, color: string, ttl = 240) {
 const slash = (c: SkillContext, color: string, o: { d?: number; y?: number; r?: number; tilt?: number; flip?: boolean; ttl?: number } = {}) =>
   c.fx({ kind: 'slash', pos: at(c, o.y ?? 0.1, o.d ?? 0.9), yaw: yawOf(c), plane: 'horizontal', tilt: o.tilt ?? 0.25, flip: o.flip, color, ttl: o.ttl ?? 220, radius: o.r ?? 1.55 })
 
-/** 蓄力瞄準衝刺（按住左右+特招可 360° 瞄準，放開往指定方向高速衝刺） */
+/** 蓄力瞄準橫向衝刺（按住左右+特招可蓄力並選擇向左或向右，放開往純水平方向高速衝刺） */
 function aimDashMove(id: string, name: string, color: string, o: { speed: number; dmg: number; base: number; scaling: number; cd?: number }): SkillDef {
   return {
-    id, name: `${name}（可瞄準）`, energyCost: 0, cooldownMs: o.cd ?? 1700, startupMs: 55, activeMs: 280, recoveryMs: 210,
+    id, name: `${name}（可蓄力）`, energyCost: 0, cooldownMs: o.cd ?? 1700, startupMs: 55, activeMs: 280, recoveryMs: 210,
     charge: { maxMs: 700, damageMult: [1, 1.55], knockbackMult: [1, 1.35] },
     hitbox: { offset: [0, 0.05, 0.75], radius: 1.25 }, damage: o.dmg,
     knockback: { dir: [0, 0.45, 1], base: o.base, scaling: o.scaling },
     hooks: {
       onStart(c) {
         c.scratch.dx = c.forward[0]
-        c.scratch.dy = 0.12
       },
       onActive(c) {
         c.setGravityScale(1)
         const spd = o.speed * (1 + c.chargeRatio * 0.3)
-        c.setVelocity((c.scratch.dx ?? c.forward[0]) * spd, (c.scratch.dy ?? 0.12) * spd, 0)
+        c.setVelocity((c.scratch.dx ?? c.forward[0]) * spd, 0, 0)
         c.fx({ kind: 'ring', pos: [...c.caster.pos], color, ttl: 260, radius: 1.4, plane: 'vertical' })
       },
       onTick(c) {
         if (c.phase === 'startup' && !c.caster.skill?.released) {
           c.setGravityScale(0.25)
-          const slowFall = Math.max(-3.2, Math.min(0.5, c.caster.vel[1] - 6 * c.dt))
+          const slowFall = Math.max(-3.2, Math.min(0, c.caster.vel[1] - 6 * c.dt))
           c.setVelocity(0, slowFall, 0)
-          const ax = c.aimX ?? c.forward[0]
-          const ay = c.aimY ?? 0
-          const len = Math.hypot(ax, ay)
-          if (len > 0.25) {
-            c.scratch.dx = ax / len
-            c.scratch.dy = ay / len
-            if (ax !== 0) c.caster.facing[0] = ax > 0 ? 1 : -1
+          const ax = c.aimX ?? 0
+          if (Math.abs(ax) > 0.25) {
+            c.scratch.dx = ax > 0 ? 1 : -1
+            c.caster.facing[0] = c.scratch.dx
           }
           c.scratch.ret = (c.scratch.ret ?? 0) - c.dt * 1000
           if (c.scratch.ret <= 0) {
             c.scratch.ret = 70
-            c.fx({ kind: 'ring', pos: [c.caster.pos[0] + (c.scratch.dx ?? 1) * 2.2, c.caster.pos[1] + (c.scratch.dy ?? 0) * 2.2, 0], color: '#fde047', ttl: 95, radius: 0.5 })
+            c.fx({ kind: 'ring', pos: [c.caster.pos[0] + (c.scratch.dx ?? 1) * 2.2, c.caster.pos[1], 0], color: '#fde047', ttl: 95, radius: 0.5, plane: 'vertical' })
           }
           return
         }
         if (c.phase !== 'active') return
         const spd = o.speed * (1 + c.chargeRatio * 0.3)
-        c.setVelocity((c.scratch.dx ?? c.forward[0]) * spd, (c.scratch.dy ?? 0.12) * spd, 0)
+        c.setVelocity((c.scratch.dx ?? c.forward[0]) * spd, 0, 0)
         trail(c, 35, color, 220)
       },
       onEnd(c) { c.setGravityScale(1) },
