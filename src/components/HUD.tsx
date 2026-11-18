@@ -61,7 +61,8 @@ function PadSlotIcon({ kind, slot }: { kind: 'xbox' | 'ps' | 'nintendo' | 'gener
 function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact?: boolean }) {
   const charId = useGameStore((s) => s.selection[id])
   if (!u) return null
-  const charName = CHARACTERS[charId]?.name ?? charId.toUpperCase()
+  const fullCharName = CHARACTERS[charId]?.name ?? charId.toUpperCase()
+  const charName = (fullCharName.match(/^[A-Za-z0-9.'&!\- ]+/)?.[0] ?? fullCharName).trim()
   const isTetro = charId === 'tetro'
   const tb = isTetro ? getTetroBoard(id) : null
   const steveInv = charId === 'steve' ? getSteveInv(id) : null
