@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { sfx } from './audio'
-import { CHARACTERS } from './characters'
+import { CHARACTERS, CHARACTER_IDS } from './characters'
 import { ENERGY_MAX, SHIELD_MAX, SPAWN_X, START_STOCKS } from './constants'
 import type { StageForm, StageId } from './stages'
 import { ALL_FIGHTER_IDS, type CharacterId, type FighterId, type FighterState, type UiFighter } from './types'
@@ -63,6 +63,7 @@ interface GameStore {
   stockCount: number
   setStockCount(n: number): void
   selection: Record<FighterId, CharacterId>
+  randomSlots: Record<FighterId, boolean>
   stageId: StageId
   selectStage(id: StageId): void
   stageForm: StageForm
@@ -88,7 +89,7 @@ interface GameStore {
   countdown: '3' | '2' | '1' | 'SMASH!!!' | null
   triggerUltCutin(data: { charId: CharacterId; name: string; skillName: string; color: string }): void
   triggerFatalFlash(x: number, y: number): void
-  select(id: FighterId, c: CharacterId): void
+  select(id: FighterId, c: CharacterId, isRandom?: boolean): void
   startMatch(): void
   endMatch(w: FighterId): void
   toMenu(): void
@@ -108,6 +109,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   stageForm: 'normal',
   setStageForm: (stageForm) => set({ stageForm }),
   selection: { ...DEFAULT_SELECTION },
+  randomSlots: { p1: false, p2: false, p3: false, p4: false, p5: false, p6: false, p7: false, p8: false },
   fighters: buildFighters(DEFAULT_SELECTION),
   ui: buildUi(DEFAULT_SELECTION),
   showDebug: true,
@@ -139,16 +141,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if ((get().fatalFlash?.until ?? 0) <= performance.now()) set({ fatalFlash: null })
     }, 440)
   },
-  select: (id, c) => set((s) => ({ selection: { ...s.selection, [id]: c } })),
+  select: (id, c, isRandom = false) => set((s) => ({
+    selection: { ...s.selection, [id]: c },
+    randomSlots: { ...s.randomSlots, [id]: isRandom },
+  })),
   startMatch: () => {
-    const { selection, stockCount } = get()
+    const { selection, randomSlots, stockCount } = get()
+    const nextSel = { ...selection }
+    for (const id of ALL_FIGHTER_IDS) {
+      if (randomSlots[id]) {
+        nextSel[id] = CHARACTER_IDS[Math.floor(Math.random() * CHARACTER_IDS.length)] ?? CHARACTER_IDS[0]
+      }
+    }
     const matchSeq = Date.now()
     ;(useGameStore as any)._matchSeq = matchSeq
     set({
       phase: 'playing', winner: null, paused: false,
       ultCutin: null, fatalFlash: null, countdown: '3',
-      fighters: buildFighters(selection, stockCount),
-      ui: buildUi(selection),
+      selection: nextSel,
+      fighters: buildFighters(nextSel, stockCount),
+      ui: buildUi(nextSel),
     })
     sfx('ui')
     setTimeout(() => { if ((useGameStore as any)._matchSeq === matchSeq && get().phase === 'playing') { set({ countdown: '2' }); sfx('ui') } }, 700)

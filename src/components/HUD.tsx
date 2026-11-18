@@ -880,6 +880,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   const stockCount = useGameStore((s) => s.stockCount)
   const setStockCount = useGameStore((s) => s.setStockCount)
   const selection = useGameStore((s) => s.selection)
+  const randomSlots = useGameStore((s) => s.randomSlots)
   const setPaused = useGameStore((s) => s.setPaused)
   const select = useGameStore((s) => s.select)
   const stageId = useGameStore((s) => s.stageId)
@@ -961,8 +962,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
           const pool = STAGE_IDS.filter((id) => id !== stageId)
           selectStage(pool[Math.floor(Math.random() * pool.length)] ?? STAGE_IDS[0])
         } else {
-          const pool = CHARACTER_IDS.filter((c) => c !== selection[safePicker])
-          select(safePicker, pool[Math.floor(Math.random() * pool.length)] ?? CHARACTER_IDS[0])
+          select(safePicker, selection[safePicker], true)
         }
       } else if (code === 'KeyC' && step === 'char') {
         e.preventDefault()
@@ -983,14 +983,11 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   }, [wizard, showHelp, guideOpen, step, safePicker, activeIds, playerCount, stageId, selection, selectStage, select, setPlayerCount, onGuide])
 
   const pickChar = (target: FighterId, item: CharacterId | 'random') => {
-    let chosen: CharacterId
-    if (item === 'random') {
-      const pool = CHARACTER_IDS.filter((c) => c !== selection[target])
-      chosen = pool[Math.floor(Math.random() * pool.length)] ?? CHARACTER_IDS[0]
-    } else {
-      chosen = item
-    }
-    select(target, chosen)
+    const isRand = item === 'random'
+    const chosen: CharacterId = isRand
+      ? (CHARACTER_IDS[Math.floor(Math.random() * CHARACTER_IDS.length)] ?? CHARACTER_IDS[0])
+      : item
+    select(target, chosen, isRand)
     if (netRole === 'guest') sendPick(chosen)
     else if (netRole === 'host') setTimeout(broadcastLobby, 0)
     sfx('ui')
@@ -1007,7 +1004,9 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
 
   const renderCell = (item: CharacterId | 'random') => {
     const isRand = item === 'random'
-    const owners = isRand ? [] : activeIds.filter((pid) => selection[pid] === item)
+    const owners = isRand
+      ? activeIds.filter((pid) => randomSlots[pid])
+      : activeIds.filter((pid) => !randomSlots[pid] && selection[pid] === item)
     const firstOwner = owners[0]
     const zhSub = isRand ? '隨機' : CHARACTERS[item].name.replace(/^(?:[A-Z0-9-]+\s+)+/, '').replace(/\s+[A-Z0-9-]+$/, '')
 
@@ -1221,6 +1220,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
             : 'grid grid-cols-2 md:grid-cols-4 gap-2 max-w-5xl w-full px-2'
           }>
             {activeIds.map((id) => {
+              const isRand = randomSlots[id]
               const c = CHARACTERS[selection[id]]
               const isActive = safePicker === id
               const pCol = PLAYER_COLORS[id]
@@ -1238,13 +1238,15 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
                       {id.toUpperCase()}
                     </span>
                     <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); sfx('ui'); onGuide(selection[id]) }}
-                        className="rounded-full bg-cyan-400/20 border border-cyan-300/35 px-2 py-0.5 text-[10px] font-bold text-cyan-200 hover:bg-cyan-400/35"
-                      >
-                        🎓 教學
-                      </button>
+                      {!isRand && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); sfx('ui'); onGuide(selection[id]) }}
+                          className="rounded-full bg-cyan-400/20 border border-cyan-300/35 px-2 py-0.5 text-[10px] font-bold text-cyan-200 hover:bg-cyan-400/35"
+                        >
+                          🎓 教學
+                        </button>
+                      )}
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isActive ? 'bg-yellow-300 text-black' : 'bg-white/10 text-white/60'}`}>
                         {isActive ? '🎯 選角中' : '選我'}
                       </span>
@@ -1253,15 +1255,15 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
 
                   <div className="flex items-center gap-2">
                     <div className={`${compact ? 'h-11 w-11' : 'h-14 w-14'} shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black shadow-md`}>
-                      <CharacterPortrait id={selection[id]} className="h-full w-full" />
+                      <CharacterPortrait id={isRand ? 'random' : selection[id]} className="h-full w-full" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className={`${compact ? 'text-xs' : 'text-sm'} font-black tracking-wide truncate`} style={{ color: c.color }}>
-                        {c.name}
+                      <div className={`${compact ? 'text-xs' : 'text-sm'} font-black tracking-wide truncate`} style={{ color: isRand ? '#fde047' : c.color }}>
+                        {isRand ? 'RANDOM 隨機' : c.name}
                       </div>
-                      {c.trait && (
+                      {(isRand || c.trait) && (
                         <div className={`mt-0.5 text-yellow-200/90 leading-snug ${compact ? 'text-[10px] line-clamp-1' : 'text-[11px] line-clamp-2'}`}>
-                          {c.trait}
+                          {isRand ? '🎲 每次進入戰鬥都會隨機重抽一位角色！' : c.trait}
                         </div>
                       )}
                     </div>
@@ -1705,6 +1707,7 @@ export function HUD() {
   const winner = useGameStore((s) => s.winner)
   const playerCount = useGameStore((s) => s.playerCount)
   const selection = useGameStore((s) => s.selection)
+  const randomSlots = useGameStore((s) => s.randomSlots)
   const setPaused = useGameStore((s) => s.setPaused)
   const ultCutin = useGameStore((s) => s.ultCutin)
   const fatalFlash = useGameStore((s) => s.fatalFlash)
