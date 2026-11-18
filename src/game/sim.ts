@@ -280,7 +280,7 @@ function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
       gravity: p.gravity, explodeRadius: p.explodeRadius,
       source: { def: sk.def, hitSet: new Set(), kbMult: sk.kbMult, dmgMult: sk.dmgMult },
     }),
-    fx: (spec) => addFx(spec),
+    fx: (spec) => addFx({ char: f.character, ...spec }),
     nearestEnemy: () => nearestEnemyOf(f.id),
     isGrounded: () => f.grounded,
     strike: (override) => {

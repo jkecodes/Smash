@@ -620,7 +620,12 @@ const PNG = '#e2e8f0'
 reg({
   id: 'pong.serve', name: '彈板發球', energyCost: 0, startupMs: 85, activeMs: 40, recoveryMs: 170,
   damage: 4, knockback: { dir: [0, 0.2, 1], base: 5, scaling: 6, hitstunMs: 220 },
-  projectile: { speed: 25, radius: 0.32, lifetimeMs: 1100, pierce: false, offset: [0, 0.1, 0.9], color: '#ffffff' },
+  projectile: { speed: 25, radius: 0.32, lifetimeMs: 1100, pierce: false, offset: [0, 0.1, 0.45], color: '#ffffff' },
+  hooks: {
+    onActive(c) {
+      c.fx({ kind: 'ring', pos: at(c, 0.1, 0.45), color: '#38bdf8', ttl: 200, radius: 0.9, plane: 'vertical' })
+    },
+  },
 })
 registerTilts('pong', { color: PNG, names: ['高速抽球', '挑高發球', '切球下射'], ranged: true })
 reg({

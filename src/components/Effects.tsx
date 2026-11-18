@@ -3,19 +3,34 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { removeFx, runtime } from '../game/runtime'
 import { useGameStore } from '../game/store'
-import type { FxItem, Projectile, Zone } from '../game/types'
+import type { CharacterId, FxItem, Projectile, Zone } from '../game/types'
 
 const ADD = THREE.AdditiveBlending
 const age01 = (it: FxItem) => (performance.now() - it.createdAt) / it.ttl
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
 
+type FxStyle = 'pixel' | 'katana' | 'magic' | 'martial' | 'cute'
+const PIXEL_CHARS = new Set<CharacterId>(['tetro', 'pong', 'invader', 'snake', 'crossy', 'steve', 'frogger', 'pacman'])
+const KATANA_CHARS = new Set<CharacterId>(['chihiro', 'miyabi', 'yodaka', 'rover'])
+const MAGIC_CHARS = new Set<CharacterId>(['reimu', 'marisa', 'nona', 'ichi', 'arisa', 'yugi', 'kaiba', 'lumine'])
+const MARTIAL_CHARS = new Set<CharacterId>(['ryu', 'chunli', 'deku', 'gojo', 'kong', 'red'])
+
+function fxStyleOf(c?: CharacterId): FxStyle {
+  if (!c) return 'martial'
+  if (PIXEL_CHARS.has(c)) return 'pixel'
+  if (KATANA_CHARS.has(c)) return 'katana'
+  if (MAGIC_CHARS.has(c)) return 'magic'
+  if (MARTIAL_CHARS.has(c)) return 'martial'
+  return 'cute'
+}
+
 function Slash({ it }: { it: FxItem }) {
-  const mesh = useRef<THREE.Mesh>(null)
+  const mesh = useRef<THREE.Group>(null)
   const mat = useRef<THREE.MeshBasicMaterial>(null)
   const r = it.radius ?? 1.5
   const arc = Math.PI * 0.75
-  // 2.5D：斬擊弧畫在 (前方, 上方) 平面，攝影機側視才看得見
   const theta = Math.PI - arc / 2
+  const style = fxStyleOf(it.char)
   useFrame(() => {
     const t = age01(it)
     if (t >= 1) return removeFx(it.id)
@@ -24,11 +39,65 @@ function Slash({ it }: { it: FxItem }) {
   })
   return (
     <group position={it.pos} rotation={[0, it.yaw ?? 0, 0]}>
-      <group rotation={[(it.plane === 'vertical' ? 0 : (it.tilt ?? 0) * 2) , 0, 0]} scale={[1, it.flip ? -1 : 1, 1]}>
-        <mesh ref={mesh} rotation={[0, Math.PI / 2, 0]}>
-          <ringGeometry args={[r * 0.55, r, 32, 1, theta, arc]} />
-          <meshBasicMaterial ref={mat} color={it.color} transparent side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
-        </mesh>
+      <group rotation={[(it.plane === 'vertical' ? 0 : (it.tilt ?? 0) * 2), 0, 0]} scale={[1, it.flip ? -1 : 1, 1]}>
+        <group ref={mesh}>
+          {style === 'pixel' ? (
+            <>
+              {[-0.6, -0.3, 0, 0.3, 0.6].map((a, i) => (
+                <mesh key={i} position={[0, Math.sin(a) * r * 0.85, Math.cos(a) * r * 0.85]}>
+                  <boxGeometry args={[0.22, 0.22, 0.22]} />
+                  <meshBasicMaterial ref={i === 0 ? mat : undefined} color={i % 2 === 0 ? it.color : '#ffffff'} transparent blending={ADD} depthWrite={false} />
+                </mesh>
+              ))}
+            </>
+          ) : style === 'katana' ? (
+            <>
+              <mesh rotation={[0, Math.PI / 2, 0]}>
+                <ringGeometry args={[r * 0.72, r, 32, 1, theta, arc]} />
+                <meshBasicMaterial ref={mat} color={it.color} transparent side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
+              </mesh>
+              <mesh rotation={[0, Math.PI / 2, 0.22]}>
+                <ringGeometry args={[r * 0.86, r * 0.96, 32, 1, theta, arc]} />
+                <meshBasicMaterial color="#ffffff" transparent opacity={0.9} side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
+              </mesh>
+            </>
+          ) : style === 'magic' ? (
+            <>
+              <mesh rotation={[0, Math.PI / 2, 0]}>
+                <ringGeometry args={[r * 0.6, r, 8, 1, theta, arc]} />
+                <meshBasicMaterial ref={mat} color={it.color} transparent side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
+              </mesh>
+              <mesh position={[0, 0, r * 0.85]}>
+                <octahedronGeometry args={[0.22, 0]} />
+                <meshBasicMaterial color="#fde047" transparent opacity={0.9} blending={ADD} />
+              </mesh>
+            </>
+          ) : style === 'cute' ? (
+            <>
+              <mesh rotation={[0, Math.PI / 2, 0]}>
+                <ringGeometry args={[r * 0.55, r, 24, 1, theta, arc]} />
+                <meshBasicMaterial ref={mat} color={it.color} transparent side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
+              </mesh>
+              {[-0.4, 0, 0.4].map((a, i) => (
+                <mesh key={i} position={[0, Math.sin(a) * r, Math.cos(a) * r]}>
+                  <octahedronGeometry args={[0.14, 0]} />
+                  <meshBasicMaterial color="#fde047" transparent opacity={0.85} blending={ADD} />
+                </mesh>
+              ))}
+            </>
+          ) : (
+            <>
+              <mesh rotation={[0, Math.PI / 2, 0]}>
+                <ringGeometry args={[r * 0.52, r, 32, 1, theta, arc]} />
+                <meshBasicMaterial ref={mat} color={it.color} transparent side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
+              </mesh>
+              <mesh rotation={[0, Math.PI / 2, 0]}>
+                <ringGeometry args={[r * 0.68, r * 0.82, 32, 1, theta, arc]} />
+                <meshBasicMaterial color="#ffffff" transparent opacity={0.65} side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
+              </mesh>
+            </>
+          )}
+        </group>
       </group>
     </group>
   )
@@ -38,6 +107,8 @@ function Ring({ it }: { it: FxItem }) {
   const mesh = useRef<THREE.Group>(null)
   const mat = useRef<THREE.MeshBasicMaterial>(null)
   const R = it.radius ?? 2
+  const style = fxStyleOf(it.char)
+  const segs = style === 'pixel' ? 4 : style === 'magic' ? 8 : style === 'katana' ? 6 : 48
   useFrame(() => {
     const t = age01(it)
     if (t >= 1) return removeFx(it.id)
@@ -48,12 +119,12 @@ function Ring({ it }: { it: FxItem }) {
     <group ref={mesh} position={it.pos}>
       {/* 同時畫地面平放環與面向鏡頭的環，側視下都看得到 */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.88, 1, 56]} />
+        <ringGeometry args={[0.88, 1, segs]} />
         <meshBasicMaterial ref={mat} color={it.color} transparent side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
       </mesh>
       <mesh>
-        <ringGeometry args={[0.9, 1, 56]} />
-        <meshBasicMaterial color={it.color} transparent opacity={0.6} side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
+        <ringGeometry args={[0.9, 1, segs]} />
+        <meshBasicMaterial color={style === 'magic' ? '#fde047' : it.color} transparent opacity={0.6} side={THREE.DoubleSide} blending={ADD} depthWrite={false} />
       </mesh>
     </group>
   )

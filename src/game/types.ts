@@ -232,6 +232,7 @@ export interface FxSpec {
   tilt?: number
   flip?: boolean
   shape?: 'box' | 'sphere'
+  char?: CharacterId
 }
 export interface FxItem extends FxSpec { id: number; createdAt: number }
 

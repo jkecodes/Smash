@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { runtime } from '../game/runtime'
 import { useGameStore } from '../game/store'
 import type { CharacterId, FighterId } from '../game/types'
 
@@ -131,9 +132,12 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
       if (animB.current) animB.current.scale.setScalar(1 + Math.max(0, Math.sin(t * 5)) * 0.18)
     } else if (charId === 'pong') {
       if (animA.current) {
+        const ballOut = runtime.projectiles.some((p) => p.owner === id)
+        animA.current.visible = !ballOut && f.fsm !== 'ATTACK_ACTIVE'
         const orbit = t * (attacking ? 11 : 4.8)
         animA.current.position.set(0, Math.sin(orbit) * 0.34, 0.36 + Math.cos(orbit) * 0.16)
       }
+      if (attacking) root.current.rotation.x = 0.25
     } else if (charId === 'reimu') {
       // 兩顆陰陽玉繞體公轉 ＋ 御幣揮動
       if (animA.current) {
