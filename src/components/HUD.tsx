@@ -1169,8 +1169,16 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
               maxLength={4}
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+              onKeyDown={(e) => {
+                e.stopPropagation()
+                if (e.key === 'Enter' && joinCode.trim().length >= 4) {
+                  sfx('ui')
+                  joinRoom(joinCode)
+                  setStep('char')
+                }
+              }}
               placeholder="輸入4碼房號"
-              className="w-24 rounded-lg border border-white/20 bg-white/10 px-2 py-1 text-center font-mono font-bold uppercase text-white placeholder:text-white/40 focus:border-cyan-300 focus:outline-none"
+              className="w-24 select-text rounded-lg border border-white/20 bg-white/10 px-2 py-1 text-center font-mono font-bold uppercase text-white placeholder:text-white/40 focus:border-cyan-300 focus:outline-none"
             />
             <button
               type="button"
@@ -1604,15 +1612,17 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
                 placeholder="帳號 (3~16位英數字)"
                 value={authUser}
                 onChange={(e) => setAuthUser(e.target.value)}
+                onKeyDown={(e) => e.stopPropagation()}
                 maxLength={16}
-                className="rounded-lg border border-white/20 bg-black/40 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-yellow-300 focus:outline-none"
+                className="select-text rounded-lg border border-white/20 bg-black/40 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-yellow-300 focus:outline-none"
               />
               <input
                 type="password"
                 placeholder="密碼 (至少4位)"
                 value={authPass}
                 onChange={(e) => setAuthPass(e.target.value)}
-                className="rounded-lg border border-white/20 bg-black/40 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-yellow-300 focus:outline-none"
+                onKeyDown={(e) => e.stopPropagation()}
+                className="select-text rounded-lg border border-white/20 bg-black/40 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-yellow-300 focus:outline-none"
               />
             </div>
             {authMode === 'register' && (
@@ -1621,8 +1631,9 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
                 placeholder="玩家暱稱（選填，預設同帳號）"
                 value={authNick}
                 onChange={(e) => setAuthNick(e.target.value)}
+                onKeyDown={(e) => e.stopPropagation()}
                 maxLength={16}
-                className="w-full rounded-lg border border-white/20 bg-black/40 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-cyan-300 focus:outline-none"
+                className="w-full select-text rounded-lg border border-white/20 bg-black/40 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-cyan-300 focus:outline-none"
               />
             )}
             {authErr && <div className="text-xs font-bold text-rose-400">{authErr}</div>}
@@ -1651,7 +1662,8 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
                 maxLength={16}
                 value={nameInput}
                 onChange={(e) => { setNameInput(e.target.value); setNickname(e.target.value) }}
-                className="flex-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-sm font-bold text-white focus:border-yellow-300 focus:outline-none"
+                onKeyDown={(e) => e.stopPropagation()}
+                className="flex-1 select-text rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-sm font-bold text-white focus:border-yellow-300 focus:outline-none"
               />
             </div>
             <div className="flex flex-wrap gap-2">

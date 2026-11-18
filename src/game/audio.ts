@@ -61,6 +61,9 @@ if (typeof window !== 'undefined') {
   window.addEventListener('pointerdown', unlock)
   window.addEventListener('gamepadconnected', unlock)
   window.addEventListener('keydown', (e) => {
+    const t = (e.target as HTMLElement | null) ?? (document.activeElement as HTMLElement | null)
+    const tag = t?.tagName
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || t?.isContentEditable) return
     if (e.code === 'KeyM' && !e.repeat) { const s = useAudioStore.getState(); s.setMuted(!s.muted) }
     if (e.code === 'KeyB' && !e.repeat) { const s = useAudioStore.getState(); s.setBgmMuted(!s.bgmMuted) }
   })
