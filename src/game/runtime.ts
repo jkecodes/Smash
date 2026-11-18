@@ -33,7 +33,7 @@ export function removeFx(id: number) {
 }
 export function addProjectile(p: Omit<Projectile, 'id' | 'trailMs' | 'gravity' | 'explodeRadius'> & { gravity?: number; explodeRadius?: number; maxRange?: number; steerable?: number }) {
   const gravity = p.gravity ?? 0
-  const maxRange = p.maxRange ?? (p.steerable ? 22 : gravity !== 0 ? 14 : p.pierce ? 12.5 : 11)
+  const maxRange = p.maxRange ?? (p.source.def.requiresUlt ? 999 : p.steerable ? 22 : gravity !== 0 ? 14 : p.pierce ? 12.5 : 11)
   runtime.projectiles.push({ ...p, gravity, explodeRadius: p.explodeRadius ?? 0, traveled: 0, maxRange, steerable: p.steerable ?? 0, id: uid++, trailMs: 0 })
   bump('projVersion')
 }
