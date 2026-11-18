@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { pollPause, captureAxis, captureBase, captureButton, clearMap, connectedPadCount, describePad, getPad, loadMap, readMenuPad, saveMap, type PadMap } from '../game/input'
 import { CHARACTERS, CHARACTER_IDS } from '../game/characters'
 import { clearEntities } from '../game/runtime'
@@ -13,6 +13,7 @@ import { CharacterPortrait, SHORT_NAMES } from './CharacterPortrait'
 import { StagePreview } from './StagePreview'
 import { TouchControls } from './TouchControls'
 import { broadcastLobby, broadcastStart, hostRoom, joinRoom, leaveRoom, sendPick, useNetStore } from '../game/net'
+import { resizeAvatarFile, useProfileStore } from '../game/profile'
 
 const damageColor = (d: number) => {
   const t = Math.min(1, d / 200)
@@ -51,9 +52,14 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
         </div>
       )}
       <div className="flex items-baseline justify-between gap-1">
-        <span className={`font-bold tracking-wide truncate ${compact ? 'text-[11px]' : 'text-sm'}`} style={{ color: pColor }}>
-          {id.toUpperCase()} · {u.name}
-        </span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          {id === (useNetStore.getState().mySlot ?? 'p1') && useProfileStore.getState().avatarDataUrl && (
+            <img src={useProfileStore.getState().avatarDataUrl!} alt="" className="h-4 w-4 rounded-full object-cover border border-white/40 shrink-0" />
+          )}
+          <span className={`font-bold tracking-wide truncate ${compact ? 'text-[11px]' : 'text-sm'}`} style={{ color: pColor }}>
+            {id.toUpperCase()} · {id === (useNetStore.getState().mySlot ?? 'p1') ? useProfileStore.getState().nickname : u.name}
+          </span>
+        </div>
         {!compact && <span className="font-mono text-[10px] text-white/60 shrink-0">{u.fsm}</span>}
       </div>
       <div className="mt-1 flex items-end justify-between gap-2">
@@ -1280,9 +1286,105 @@ function AudioControl() {
   )
 }
 
+function ProfileModal({ onClose }: { onClose: () => void }) {
+  const { nickname, avatarDataUrl, wins, losses, totalKos, setNickname, setAvatar, resetStats } = useProfileStore()
+  const [nameInput, setNameInput] = useState(nickname)
+  const [err, setErr] = useState<string | null>(null)
+  const total = wins + losses
+  const winRate = total > 0 ? Math.round((wins / total) * 100) : 0
+
+  const handleUpload = async (file: File | null) => {
+    if (!file) return
+    try {
+      setErr(null)
+      const dataUrl = await resizeAvatarFile(file)
+      setAvatar(dataUrl)
+      sfx('ui')
+    } catch (e: any) {
+      setErr(e?.message ?? '上傳失敗')
+    }
+  }
+
+  return (
+    <div className="pointer-events-auto absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl border border-white/20 bg-[#141929] p-5 text-white shadow-2xl space-y-4" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <span className="text-base font-black tracking-wider">👤 玩家檔案與戰績紀錄</span>
+          <button type="button" onClick={onClose} className="rounded-lg bg-white/10 px-3 py-1 text-xs hover:bg-white/20">✕ 關閉</button>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 border-yellow-300/80 bg-slate-900 flex items-center justify-center shadow-lg">
+            {avatarDataUrl ? (
+              <img src={avatarDataUrl} alt="avatar" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-3xl">👤</span>
+            )}
+          </div>
+          <div className="flex-1 space-y-2">
+            <label className="block text-[11px] font-bold text-white/60">玩家暱稱</label>
+            <div className="flex gap-1.5">
+              <input
+                type="text"
+                maxLength={16}
+                value={nameInput}
+                onChange={(e) => { setNameInput(e.target.value); setNickname(e.target.value) }}
+                className="flex-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-sm font-bold text-white focus:border-yellow-300 focus:outline-none"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <label className="cursor-pointer rounded-lg bg-cyan-400 px-3 py-1 text-xs font-black text-black hover:bg-cyan-300 transition">
+                📷 上傳頭貼
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUpload(e.target.files?.[0] ?? null)} />
+              </label>
+              {avatarDataUrl && (
+                <button type="button" onClick={() => setAvatar(null)} className="rounded-lg bg-white/15 px-2.5 py-1 text-xs font-bold hover:bg-red-500/40">
+                  移除頭貼
+                </button>
+              )}
+            </div>
+            {err && <div className="text-xs text-red-400">{err}</div>}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-2 rounded-xl border border-white/10 bg-white/5 p-3 text-center">
+          <div>
+            <div className="text-[10px] text-white/55">勝場</div>
+            <div className="text-xl font-black text-emerald-400 font-mono">{wins}</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-white/55">敗場</div>
+            <div className="text-xl font-black text-rose-400 font-mono">{losses}</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-white/55">勝率</div>
+            <div className="text-xl font-black text-yellow-300 font-mono">{winRate}%</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-white/55">總擊墜</div>
+            <div className="text-xl font-black text-cyan-300 font-mono">{totalKos}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-1">
+          <button type="button" onClick={resetStats} className="rounded-lg bg-white/10 px-3 py-1.5 text-xs text-white/60 hover:bg-red-500/30 hover:text-white">
+            重置勝敗紀錄
+          </button>
+          <button type="button" onClick={onClose} className="rounded-lg bg-yellow-300 px-5 py-1.5 text-xs font-black text-black hover:bg-yellow-200">
+            完成
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function HUD() {
   usePauseControl()
   const [guideChar, setGuideChar] = useState<CharacterId | null>(null)
+  const [showProfile, setShowProfile] = useState(false)
+  const profile = useProfileStore()
+  const recordedRef = useRef(false)
   const [showTouch, setShowTouch] = useState(() =>
     typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768)
   )
@@ -1297,6 +1399,17 @@ export function HUD() {
   const fatalFlash = useGameStore((s) => s.fatalFlash)
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
+
+  useEffect(() => {
+    if (phase === 'playing') {
+      recordedRef.current = false
+    } else if (phase === 'ended' && winner && !recordedRef.current) {
+      recordedRef.current = true
+      const mySlot = useNetStore.getState().mySlot ?? 'p1'
+      const myStats = ui[mySlot]?.stats
+      profile.recordMatch(winner === mySlot, myStats?.kos ?? 0)
+    }
+  }, [phase, winner])
   const activeIds = ALL_FIGHTER_IDS.slice(0, playerCount)
   const rankedIds = [...activeIds].sort((a, b) => {
     if (a === winner) return -1
@@ -1325,6 +1438,28 @@ export function HUD() {
 
   return (
     <div className="pointer-events-none absolute inset-0">
+      {phase !== 'playing' && (
+        <button
+          type="button"
+          onClick={() => { sfx('ui'); setShowProfile(true) }}
+          className="pointer-events-auto absolute top-3 left-3 z-30 flex items-center gap-2 rounded-full border border-white/20 bg-black/65 pl-1.5 pr-3 py-1 text-xs text-white shadow-lg backdrop-blur hover:border-yellow-300/70 transition"
+          title="點擊編輯玩家頭貼與查看勝敗紀錄"
+        >
+          <div className="h-7 w-7 overflow-hidden rounded-full border border-yellow-300/70 bg-slate-800 flex items-center justify-center shrink-0">
+            {profile.avatarDataUrl ? (
+              <img src={profile.avatarDataUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-sm">👤</span>
+            )}
+          </div>
+          <div className="text-left leading-tight">
+            <div className="font-black text-white">{profile.nickname}</div>
+            <div className="text-[10px] font-bold text-yellow-300">
+              🏆 {profile.wins}勝 {profile.losses}敗
+            </div>
+          </div>
+        </button>
+      )}
       <div className="pointer-events-auto absolute top-3 right-3 z-30 flex items-center gap-2">
         <button
           type="button"
@@ -1384,6 +1519,7 @@ export function HUD() {
         </div>
       )}
       {phase === 'playing' && paused && <PauseOverlay onGuide={() => setGuideChar(selection.p1)} />}
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
       {guideChar && <CharGuideModal initialChar={guideChar} onClose={() => setGuideChar(null)} />}
       {phase === 'ended' && winner && (
         <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/75 backdrop-blur-sm text-white p-4">
