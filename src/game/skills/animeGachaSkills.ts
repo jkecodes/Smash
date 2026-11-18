@@ -50,6 +50,10 @@ function upRise(id: string, name: string, color: string, o: { dmg: number; base:
       onActive(c) {
         c.setVelocity(c.forward[0] * 4, o.rise ?? 18, 0)
         c.fx({ kind: 'pillar', pos: [...c.caster.pos], color, ttl: 320, radius: 1.25 })
+        if (id.startsWith('bakugo.') || id.startsWith('firefly.')) {
+          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#f97316', ttl: 320, count: 16, speed: 7, size: 0.2 })
+          c.shake(0.28)
+        }
       },
       onTick(c) { if (c.phase === 'active') trail(c, 38, color, 210) },
     },
@@ -223,6 +227,9 @@ function registerKit(k: KitSpec) {
         }
         if (p === 'nona') {
           for (const vy of [-2.4, 0, 2.4]) spawnMain(c.forward[0] * baseVel, vy)
+        } else if (p === 'sukuna') {
+          spawnMain(c.forward[0] * baseVel, 0.7)
+          spawnMain(c.forward[0] * (baseVel * 1.08), -0.7)
         } else if (p === 'seija') {
           spawnMain(c.forward[0] * baseVel, 0)
           spawnMain(-c.forward[0] * (baseVel * 0.8), 1.8)
@@ -314,7 +321,20 @@ function registerKit(k: KitSpec) {
     reg(upRise(`${p}.up`, k.up, color, { dmg: isHeavy ? 10 : 8.5, base: 11.5, scaling: 13, rise: customRise }))
   }
 
-  if (COUNTER_DOWN_CHARS.has(p)) {
+  if (p === 'miramira') {
+    reg({
+      id: `${p}.down`, name: k.down, energyCost: 0, cooldownMs: 1750, startupMs: 100, activeMs: 170, recoveryMs: 220,
+      hitbox: { offset: [0, -0.1, 0.6], radius: 2.1 }, damage: 10.5,
+      knockback: { dir: [0, -0.85, 0.2], base: 11.5, scaling: 13, radial: true },
+      hooks: {
+        onActive(c) {
+          c.fx({ kind: 'ring', pos: at(c, -0.35, 0.6), color: '#a855f7', ttl: 360, radius: 2.2 })
+          c.fx({ kind: 'pillar', pos: at(c, -0.2, 0.6), color: '#14b8a6', ttl: 320, radius: 1.1 })
+          c.shake(0.32)
+        },
+      },
+    })
+  } else if (COUNTER_DOWN_CHARS.has(p)) {
     reg({
       id: `${p}.down`, name: k.down, energyCost: 0, cooldownMs: 1700, startupMs: 90, activeMs: 180, recoveryMs: 230,
       hitbox: { offset: [0, 0.1, 0], radius: 2.3 }, damage: 10,
