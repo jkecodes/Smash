@@ -104,10 +104,15 @@ function upRise(id: string, name: string, color: string, o: { dmg: number; base:
     hooks: {
       onActive(c) {
         c.setVelocity(c.forward[0] * 4, o.rise ?? 18, 0)
-        c.fx({ kind: 'pillar', pos: [...c.caster.pos], color, ttl: 320, radius: 1.25 })
-        if (id.startsWith('bakugo.') || id.startsWith('firefly.') || id.startsWith('creeper.')) {
-          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#f97316', ttl: 320, count: 16, speed: 7, size: 0.2 })
-          c.shake(0.28)
+        if (id.startsWith('bakugo.') || id.startsWith('firefly.') || id.startsWith('creeper.') || id.startsWith('blackbomber.')) {
+          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#f97316', ttl: 340, count: 20, speed: 8, size: 0.22 })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fde047', ttl: 280, radius: 1.8 })
+          c.shake(0.3)
+        } else if (id.startsWith('ellen.') || id.startsWith('chihiro.') || id.startsWith('erika.') || id.startsWith('hakuri.') || id.startsWith('descara.')) {
+          c.fx({ kind: 'slash', pos: at(c, 0.5, 0.4), yaw: yawOf(c), plane: 'vertical', tilt: 0.2, color, ttl: 280, radius: 2.1 })
+          c.fx({ kind: 'beam', pos: [...c.caster.pos], yaw: yawOf(c), length: 4.5, radius: 0.25, color, ttl: 220 })
+        } else {
+          c.fx({ kind: 'pillar', pos: [...c.caster.pos], color, ttl: 320, radius: 1.25 })
         }
       },
       onTick(c) { if (c.phase === 'active') trail(c, 38, color, 210) },
@@ -540,7 +545,14 @@ function registerKit(k: KitSpec) {
             damagePerSec: isSukuna ? 9 : isViper ? 8.5 : 6.5,
           })
           c.fx({ kind: 'ring', pos, color: k.s2.color, ttl: 420, radius: 3.1 })
-          if (p === 'ruri') c.fx({ kind: 'pillar', pos, color: '#34d399', ttl: 420, radius: 1.4 })
+          if (p === 'ruri' || p === 'miramira') c.fx({ kind: 'pillar', pos, color: k.s2.color, ttl: 420, radius: 1.4 })
+          if (p === 'umi' || p === 'kaoruko') {
+            c.caster.damage = Math.max(0, c.caster.damage - 5)
+            c.fx({ kind: 'burst', pos, color: '#4ade80', ttl: 360, count: 14, speed: 5, size: 0.16 })
+          }
+          if (p === 'sukuna') {
+            c.fx({ kind: 'slash', pos: [pos[0], pos[1] + 0.8, 0], yaw: 0.4, plane: 'horizontal', tilt: 0.3, color: '#ef4444', ttl: 300, radius: 3.2 })
+          }
           if (p === 'lumine') {
             for (const vx of [-7, 7]) {
               c.spawnProjectile({ pos: [pos[0], pos[1] + 0.8, 0], vel: [vx, 7, 0], radius: 0.45, ttlMs: 1100, color: '#4ade80', gravity: -18, explodeRadius: 2.0 })

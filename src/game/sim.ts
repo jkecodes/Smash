@@ -329,7 +329,7 @@ function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
       gravity: p.gravity, explodeRadius: p.explodeRadius, steerable: p.steerable, maxRange: p.maxRange,
       source: { def: sk.def, hitSet: new Set(), kbMult: sk.kbMult, dmgMult: sk.dmgMult },
     }),
-    fx: (spec) => addFx({ char: f.character, ...spec, color: PLAYER_COLORS[f.id] ?? spec.color }),
+    fx: (spec) => addFx({ char: f.character, ...spec, color: spec.color ?? PLAYER_COLORS[f.id] }),
     nearestEnemy: () => nearestEnemyOf(f.id),
     isGrounded: () => f.grounded,
     strike: (override) => {
