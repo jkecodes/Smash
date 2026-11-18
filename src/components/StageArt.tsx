@@ -482,8 +482,49 @@ function SnakeDecor({ stage }: { stage: StageDef }) {
           </mesh>
         ))}
       </group>
-      <mesh position={[0, 7.5, -18]}><boxGeometry args={[1.8, 1.8, 1.2]} /><meshBasicMaterial color="#ef4444" /></mesh>
+      <SnakeApples />
     </>
+  )
+}
+
+/** 立體紅蘋果（球體＋蘋果柄＋綠葉），貪食蛇場地的醒目目標物 */
+function Apple({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
+  return (
+    <group position={position} scale={scale}>
+      <mesh castShadow>
+        <sphereGeometry args={[0.7, 20, 16]} />
+        <meshStandardMaterial color="#ef4444" emissive="#991b1b" emissiveIntensity={0.45} roughness={0.25} metalness={0.1} />
+      </mesh>
+      <mesh position={[0.22, 0.28, 0.5]}>
+        <sphereGeometry args={[0.14, 10, 10]} />
+        <meshBasicMaterial color="#fecaca" transparent opacity={0.7} />
+      </mesh>
+      <mesh position={[0, 0.78, 0]}>
+        <cylinderGeometry args={[0.05, 0.06, 0.38, 8]} />
+        <meshStandardMaterial color="#78350f" />
+      </mesh>
+      <mesh position={[0.24, 0.84, 0]} rotation={[0, 0, -0.7]} scale={[1, 0.45, 0.25]}>
+        <sphereGeometry args={[0.28, 10, 8]} />
+        <meshStandardMaterial color="#22c55e" emissive="#15803d" emissiveIntensity={0.35} />
+      </mesh>
+    </group>
+  )
+}
+
+function SnakeApples() {
+  const g = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    g.current?.children.forEach((c, i) => {
+      c.position.y = [7.2, 5.0, 5.4][i] + Math.sin(clock.elapsedTime * 2 + i * 1.7) * 0.35
+      c.rotation.y = clock.elapsedTime * 0.9 + i
+    })
+  })
+  return (
+    <group ref={g}>
+      <Apple position={[0, 7.2, -6]} scale={1.5} />
+      <Apple position={[-8.5, 5.0, -5]} scale={1.1} />
+      <Apple position={[8.5, 5.4, -5]} scale={1.1} />
+    </group>
   )
 }
 

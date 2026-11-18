@@ -106,18 +106,24 @@ export function rumble(id: FighterId, strength: number, ms = 120) {
   const m = Math.min(1, strength)
   act.playEffect('dual-rumble', { duration: ms, strongMagnitude: m, weakMagnitude: m * 0.7 }).catch?.(() => {})
 }
-/** 選單用：回傳該玩家手把的「邊緣觸發」操作 */
-const menuPrev = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, { dx: 0, ok: false }])) as Record<FighterId, { dx: number; ok: boolean }>
-export function readMenuPad(id: FighterId): { dx: number; confirm: boolean } {
+/** 選單用：回傳該玩家手把的「邊緣觸發」操作（左右 dx、上下 dy：上為 -1） */
+const menuPrev = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, { dx: 0, dy: 0, ok: false }])) as Record<FighterId, { dx: number; dy: number; ok: boolean }>
+export function readMenuPad(id: FighterId): { dx: number; dy: number; confirm: boolean } {
   const pad = padFor(id)
-  if (!pad) return { dx: 0, confirm: false }
-  const [ax] = radial(pad.axes[0] ?? 0, 0)
+  if (!pad) return { dx: 0, dy: 0, confirm: false }
+  const [ax, ay] = radial(pad.axes[0] ?? 0, pad.axes[1] ?? 0)
   let dx = ax > 0.6 ? 1 : ax < -0.6 ? -1 : 0
+  let dy = ay > 0.6 ? 1 : ay < -0.6 ? -1 : 0
+  if (Math.abs(ax) > Math.abs(ay)) dy = 0
+  else dx = 0
   if (pad.buttons[14]?.pressed) dx = -1
   if (pad.buttons[15]?.pressed) dx = 1
+  if (pad.buttons[12]?.pressed) dy = -1
+  if (pad.buttons[13]?.pressed) dy = 1
   const ok = !!(pad.buttons[1]?.pressed || pad.buttons[0]?.pressed || pad.buttons[9]?.pressed)
-  const out = { dx: dx !== menuPrev[id].dx ? dx : 0, confirm: ok && !menuPrev[id].ok }
-  menuPrev[id] = { dx, ok }
+  const p = menuPrev[id]
+  const out = { dx: dx !== p.dx ? dx : 0, dy: dy !== p.dy ? dy : 0, confirm: ok && !p.ok }
+  menuPrev[id] = { dx, dy, ok }
   return out
 }
 const anyKey = (list: string[]) => list.some((c) => keys.has(c))

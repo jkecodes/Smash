@@ -119,8 +119,29 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
   )
 }
 
-/** 手把操作選單：左右選角色、A/B/Start 確認；結算畫面按確認再來一場 */
-function usePadMenu(active: boolean, onConfirm: () => void) {
+/** 選角格陣欄數（與 Menu 中 8×2 頭像方陣一致） */
+const GRID_COLS = 8
+/** 在選角格陣中依方向移動：左右循環、上下換列（超出範圍時夾在最後一格） */
+function stepGrid(cur: CharacterId, dx: number, dy: number): CharacterId {
+  const n = CHARACTER_IDS.length
+  let i = Math.max(0, CHARACTER_IDS.indexOf(cur))
+  if (dx) i = (i + dx + n) % n
+  if (dy) {
+    const j = i + dy * GRID_COLS
+    if (j >= 0 && j < n) i = j
+    else if (dy > 0 && Math.floor(i / GRID_COLS) < Math.floor((n - 1) / GRID_COLS)) i = n - 1
+  }
+  return CHARACTER_IDS[i]
+}
+
+/** 鍵盤選單：P1 用 WASD、P2 用方向鍵，上下左右移動選角 */
+const MENU_KEYS: Partial<Record<FighterId, Record<string, [number, number]>>> = {
+  p1: { KeyA: [-1, 0], KeyD: [1, 0], KeyW: [0, -1], KeyS: [0, 1] },
+  p2: { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] },
+}
+
+/** 手把操作選單：上下左右選角色、A/B/Start 確認；結算畫面按確認再來一場 */
+function usePadMenu(active: boolean, onConfirm: () => void, keyboardNav = false) {
   const select = useGameStore((s) => s.select)
   useEffect(() => {
     if (!active) return
@@ -128,19 +149,31 @@ function usePadMenu(active: boolean, onConfirm: () => void) {
     const loop = () => {
       const count = useGameStore.getState().playerCount
       for (const id of ALL_FIGHTER_IDS.slice(0, count)) {
-        const { dx, confirm } = readMenuPad(id)
-        if (dx) {
+        const { dx, dy, confirm } = readMenuPad(id)
+        if (dx || dy) {
           const cur = useGameStore.getState().selection[id]
-          const i = CHARACTER_IDS.indexOf(cur)
-          select(id, CHARACTER_IDS[(i + dx + CHARACTER_IDS.length) % CHARACTER_IDS.length])
+          select(id, stepGrid(cur, dx, dy))
+          sfx('ui')
         }
         if (confirm) { onConfirm(); return }
       }
       raf = requestAnimationFrame(loop)
     }
     raf = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(raf)
-  }, [active, select, onConfirm])
+    const onKey = (e: KeyboardEvent) => {
+      if (!keyboardNav || e.repeat) return
+      for (const id of ['p1', 'p2'] as FighterId[]) {
+        const d = MENU_KEYS[id]?.[e.code]
+        if (!d) continue
+        e.preventDefault()
+        const cur = useGameStore.getState().selection[id]
+        select(id, stepGrid(cur, d[0], d[1]))
+        sfx('ui')
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('keydown', onKey) }
+  }, [active, select, onConfirm, keyboardNav])
 }
 function PadStatus() {
   const [n, setN] = useState(connectedPadCount())
@@ -506,7 +539,7 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
                       <span className="text-[10px] font-mono text-cyan-300">{inputLabel}</span>
                     </div>
                     <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px] text-white/60">
-                      <span>傷害 {sk.damage}%</span>
+                      <span>傷害 {Math.round(sk.damage * 10) / 10}%</span>
                       <span>· 擊飛 {sk.knockback.base}+{sk.knockback.scaling}×</span>
                       {sk.energyCost > 0 && <span>· 耗能 {sk.energyCost}</span>}
                       {sk.cooldownMs ? <span>· CD {(sk.cooldownMs * 0.5 / 1000).toFixed(1)}s</span> : null}
@@ -555,7 +588,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
 
   usePadMenu(wizard === null && !showHelp && !guideOpen, () => {
     clearEntities(); resetSimStage(); useGameStore.getState().startMatch()
-  })
+  }, true)
 
   const pickChar = (target: FighterId, item: CharacterId | 'random') => {
     let chosen: CharacterId

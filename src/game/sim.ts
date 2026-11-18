@@ -348,7 +348,8 @@ function enterActive(f: FighterState, sk: ActiveSkill, dt: number) {
   sk.hitSet.clear()
   const ch = sk.def.charge
   if (ch) {
-    sk.kbMult = lerp(ch.knockbackMult[0], ch.knockbackMult[1], sk.chargeRatio)
+    // 擊退倍率採非線性曲線：輕微蓄力幾乎不加擊退，需接近蓄滿才有大幅提升
+    sk.kbMult = lerp(ch.knockbackMult[0], ch.knockbackMult[1], Math.pow(sk.chargeRatio, 2.2))
     sk.dmgMult = lerp(ch.damageMult[0], ch.damageMult[1], sk.chargeRatio)
   }
   const ctx = makeCtx(f, sk, dt)

@@ -289,7 +289,7 @@ reg({ // 下：地底伸手，延遲後從地面抓起
 /** 蓄力重擊一律是近戰招式（含遠程角色，改成近身重擊） */
 export function registerSmashes(p: string, o: { color: string; names: [string, string, string]; dmg?: number }) {
   const dmg = o.dmg ?? 11
-  const charge = { maxMs: 1000, knockbackMult: [1, 2.4] as [number, number], damageMult: [1, 1.8] as [number, number] }
+  const charge = { maxMs: 1000, knockbackMult: [1, 2.1] as [number, number], damageMult: [1, 1.8] as [number, number] }
   const chargeFx = (c: SkillContext) => {
     if (c.phase !== 'startup') return
     c.scratch.cf = (c.scratch.cf ?? 0) - c.dt * 1000
@@ -303,7 +303,7 @@ export function registerSmashes(p: string, o: { color: string; names: [string, s
     reg({
       id: `${p}.fSmash`, name: nf, energyCost: 0, startupMs: 120, activeMs: 140, recoveryMs: 480, charge,
       hitbox: { offset: [0, 0.15, 1.6], radius: 1.35 }, damage: dmg,
-      knockback: { dir: [0, 0.35, 1], base: 12, scaling: 16 },
+      knockback: { dir: [0, 0.35, 1], base: 9, scaling: 13 },
       hooks: {
         onTick: chargeFx,
         onActive(c) { c.setLocalVelocity(0, null, 6); c.shake(0.3 + c.chargeRatio * 0.5); slash(c, c.chargeRatio > 0.9 ? '#ffffff' : o.color, { d: 1.3, r: 2 + c.chargeRatio * 1.0, tilt: 0.4, ttl: 320 }); c.fx({ kind: 'burst', pos: at(c, 0.2, 1.8), color: o.color, ttl: 450, count: 14 + Math.round(c.chargeRatio * 20), speed: 7, size: 0.18 }) },
@@ -312,7 +312,7 @@ export function registerSmashes(p: string, o: { color: string; names: [string, s
     reg({
       id: `${p}.uSmash`, name: nu, energyCost: 0, startupMs: 120, activeMs: 150, recoveryMs: 480, charge,
       hitbox: { offset: [0, 1.3, 0.2], radius: 1.5 }, damage: dmg,
-      knockback: { dir: [0, 1, 0.1], base: 13, scaling: 16 },
+      knockback: { dir: [0, 1, 0.1], base: 10, scaling: 13 },
       hooks: {
         onTick: chargeFx,
         onActive(c) { c.shake(0.3 + c.chargeRatio * 0.5); slash(c, c.chargeRatio > 0.9 ? '#ffffff' : o.color, { y: 1.1, d: 0.3, r: 2 + c.chargeRatio * 0.8, tilt: Math.PI / 4, ttl: 320 }); c.fx({ kind: 'burst', pos: at(c, 1.4, 0.2), color: o.color, ttl: 450, count: 18, speed: 7, size: 0.18 }) },
@@ -321,7 +321,7 @@ export function registerSmashes(p: string, o: { color: string; names: [string, s
     reg({
       id: `${p}.dSmash`, name: nd, energyCost: 0, startupMs: 120, activeMs: 150, recoveryMs: 480, charge,
       hitbox: { offset: [0, -0.2, 0], radius: 2.3 }, damage: dmg * 0.95,
-      knockback: { dir: [0, 0.6, 1], base: 11, scaling: 15, radial: true },
+      knockback: { dir: [0, 0.6, 1], base: 8.5, scaling: 12, radial: true },
       hooks: {
         onTick: chargeFx,
         onActive(c) { const g: P3 = [c.caster.pos[0], Math.max(0, c.caster.pos[1] - 0.45), 0]; c.shake(0.3 + c.chargeRatio * 0.5); c.fx({ kind: 'ring', pos: g, color: o.color, ttl: 400, radius: 2.3 + c.chargeRatio }); c.fx({ kind: 'burst', pos: g, color: o.color, ttl: 450, count: 22, speed: 7, size: 0.18 }) },
