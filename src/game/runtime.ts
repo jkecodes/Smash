@@ -29,8 +29,10 @@ export function removeFx(id: number) {
   const i = runtime.fx.findIndex((f) => f.id === id)
   if (i >= 0) { runtime.fx.splice(i, 1); bump('fxVersion') }
 }
-export function addProjectile(p: Omit<Projectile, 'id' | 'trailMs' | 'gravity' | 'explodeRadius'> & { gravity?: number; explodeRadius?: number }) {
-  runtime.projectiles.push({ ...p, gravity: p.gravity ?? 0, explodeRadius: p.explodeRadius ?? 0, id: uid++, trailMs: 0 })
+export function addProjectile(p: Omit<Projectile, 'id' | 'trailMs' | 'gravity' | 'explodeRadius'> & { gravity?: number; explodeRadius?: number; maxRange?: number }) {
+  const gravity = p.gravity ?? 0
+  const maxRange = p.maxRange ?? (gravity !== 0 ? 14 : p.pierce ? 12.5 : 11)
+  runtime.projectiles.push({ ...p, gravity, explodeRadius: p.explodeRadius ?? 0, traveled: 0, maxRange, id: uid++, trailMs: 0 })
   bump('projVersion')
 }
 export function removeProjectile(id: number) {

@@ -853,7 +853,11 @@ function updateProjectiles(dt: number) {
   for (const p of [...runtime.projectiles]) {
     p.ttlMs -= dtMs
     p.vel[1] += p.gravity * dt
-    p.pos = [p.pos[0] + p.vel[0] * dt, p.pos[1] + p.vel[1] * dt, 0]
+    const dx = p.vel[0] * dt
+    const dy = p.vel[1] * dt
+    p.pos = [p.pos[0] + dx, p.pos[1] + dy, 0]
+    p.traveled = (p.traveled ?? 0) + Math.hypot(dx, dy)
+    const outOfRange = p.traveled >= (p.maxRange ?? 11) && !(Math.abs(p.vel[0]) < 0.5 && p.vel[1] < 0)
     p.trailMs -= dtMs
     if (p.trailMs <= 0 && p.radius >= 0.4) {
       p.trailMs = 50
@@ -874,6 +878,7 @@ function updateProjectiles(dt: number) {
     // 落地（碰到平台頂面）
     const stage = getStage()
     if (!consumed && p.gravity !== 0 && p.vel[1] < 0 && p.pos[1] <= p.radius && Math.abs(p.pos[0]) <= stage.half.x) { consumed = true; exploded = true }
+    if (!consumed && outOfRange) { consumed = true; if (p.explodeRadius > 0) exploded = true }
     if (!consumed && p.ttlMs <= 0 && p.explodeRadius > 0) { consumed = true; exploded = true }
     if (exploded && p.explodeRadius > 0) explodeProjectile(p)
     else if (consumed) addFx({ kind: 'burst', pos: [...p.pos], color: p.color, ttl: 400, count: 16, speed: 6, size: 0.18 })

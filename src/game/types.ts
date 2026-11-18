@@ -253,6 +253,8 @@ export interface Projectile {
   trailMs: number
   gravity: number
   explodeRadius: number
+  traveled?: number
+  maxRange?: number
 }
 export interface Zone {
   id: number
