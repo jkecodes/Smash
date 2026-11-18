@@ -693,7 +693,7 @@ function HelpModal({ onClose }: { onClose: () => void }) {
             <div>部分角色擁有專屬充能條（攻擊／受擊或隨時間累積至 <span className="text-yellow-300">100%</span> 觸發）：</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 text-[10.5px] text-white/70">
               <div>• <strong className="text-red-300">極限 / K.O. 條：</strong>集滿後強化下一次特招或普攻擊飛</div>
-              <div>• <strong className="text-purple-300">覺醒條：</strong>集滿自動變身約 8 秒（擴大判定＋覺醒波）</div>
+              <div>• <strong className="text-purple-300">覺醒條：</strong>超過 50% 自動覺醒（擴大判定＋覺醒波）</div>
               <div>• <strong className="text-sky-300">波導背水條：</strong>自身 % 越高傷害越強</div>
               <div>• <strong className="text-amber-300">魔力條：</strong>自動回魔，75% 以上施放特招自動增傷</div>
             </div>

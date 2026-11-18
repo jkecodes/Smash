@@ -89,7 +89,7 @@ export const MECHANIC_GUIDE: Record<MechanicKind, { title: string; desc: string 
   },
   awaken: {
     title: '覺醒充能條（Awaken）',
-    desc: '輸出或受擊累積覺醒值，滿 100% 自動進入約 8 秒覺醒狀態：全身燃起氣場、判定範圍擴大 1.35 倍、特招追加貫穿覺醒波（座村更會長出烏鴉翅膀自由飛行＋回血）。',
+    desc: '輸出或受擊累積覺醒值，超過 50% 即自動進入覺醒狀態：全身燃起氣場、判定範圍擴大 1.35 倍、特招追加貫穿覺醒波（座村更會長出烏鴉翅膀自由飛行＋回血）。',
   },
   ko: {
     title: 'K.O. 必殺拳充能條（K.O.）',
@@ -145,7 +145,8 @@ export function onMechanicHit(att: FighterState, tgt: FighterState, dmg: number)
       ma.gauge = Math.min(100, ma.gauge + dmg * 2.2)
     } else if (ma.kind === 'awaken' && ma.activeMs <= 0) {
       ma.gauge = Math.min(100, ma.gauge + dmg * 2.0)
-      if (ma.gauge >= 100) {
+      if (ma.gauge >= 50) {
+        ma.gauge = 100
         ma.activeMs = 6500
         addFx({ kind: 'ring', pos: [...att.pos], color: ma.color, ttl: 420, radius: 2.2, plane: 'vertical' })
       }
@@ -159,7 +160,8 @@ export function onMechanicHit(att: FighterState, tgt: FighterState, dmg: number)
       mt.gauge = Math.min(100, mt.gauge + dmg * 2.6)
     } else if (mt.kind === 'awaken' && mt.activeMs <= 0) {
       mt.gauge = Math.min(100, mt.gauge + dmg * 2.8)
-      if (mt.gauge >= 100) {
+      if (mt.gauge >= 50) {
+        mt.gauge = 100
         mt.activeMs = 6500
         addFx({ kind: 'ring', pos: [...tgt.pos], color: mt.color, ttl: 420, radius: 2.2, plane: 'vertical' })
       }
