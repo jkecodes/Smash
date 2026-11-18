@@ -234,11 +234,11 @@ export const PARTNERS: PartnerSpec[] = [
     flags: ['caster', 'counter'],
   },
   {
-    id: 'miramira', name: 'MIRAMIRA ミラミラ', short: 'MIRAMIRA', color: '#a855f7', partnerOf: 'nona',
+    id: 'miramira', name: 'MIRAMIRA ミラミラ', short: 'MIRAMIRA', color: '#14b8a6', partnerOf: 'nona',
     scale: 0.94, speedMult: 1.04, damageMult: 1.04, weightMult: 0.94,
-    trait: '🕳️ WITCHRIV・沉降魔法「メヴィジララ」使！重力沉降領域與紫光魔彈。',
-    portrait: { bg: '#2e1065', hair: '#1e1b2e', outfit: '#3b0764', accent: '#c084fc', eye: '#a855f7' },
-    preset: { body: '#3b0764', hair: '#1e1b2e', accent: '#c084fc', prop: 'orb', style: 'mage' },
+    trait: '🕳️ WITCHRIV・沉降魔法「メヴィジララ」使！赤紅魔杖與重力沉降領域。',
+    portrait: { bg: '#0f2e2b', hair: '#2d2326', outfit: '#1e3a4c', accent: '#f8fafc', eye: '#c084fc' },
+    preset: { body: '#1e3a4c', hair: '#2d2326', accent: '#ef4444', prop: 'needle', style: 'mage' },
     kit: {
       a1: '魔力輕擊', a2: '沉降連咒', tilts: ['紫霧橫掃', '魔力上挑', '重力下壓'],
       s1: { name: 'メヴィジララ魔彈', projColor: '#a855f7', pierce: true, speed: 19 },

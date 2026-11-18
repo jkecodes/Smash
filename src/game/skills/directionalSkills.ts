@@ -28,50 +28,78 @@ interface TiltOpts {
   dmg?: number
   /** 遠程型：改以投射物攻擊 */
   ranged?: boolean
+  /** 招式流派：影響動作幀數、特效與打擊手感 */
+  style?: 'sword' | 'martial' | 'gun' | 'caster' | 'heavy'
 }
 export function registerTilts(p: string, o: TiltOpts) {
   const dmg = o.dmg ?? 6
   const [nf, nu, nd] = o.names
-  if (!o.ranged) {
-    reg({ // 前：突進斬，距離長（地面可長按蓄力）
-      id: `${p}.fTilt`, name: nf, energyCost: 0, startupMs: 120, activeMs: 110, recoveryMs: 270,
+  const st = o.style ?? (o.ranged ? 'gun' : 'sword')
+  const isGun = o.ranged || st === 'gun'
+  const isMartial = st === 'martial'
+  const isCaster = st === 'caster'
+  const isHeavy = st === 'heavy'
+  if (!isGun) {
+    reg({ // 前：依流派區分突進斬／重拳／魔力波／重砸
+      id: `${p}.fTilt`, name: nf, energyCost: 0,
+      startupMs: isMartial ? 85 : isHeavy ? 145 : 115, activeMs: 110, recoveryMs: isMartial ? 210 : 270,
       charge: { maxMs: 700, damageMult: [1, 2.1], knockbackMult: [1, 1.85] },
-      hitbox: { offset: [0, 0.1, 1.4], radius: 1.1 }, damage: dmg * 1.3,
-      knockback: { dir: [0, 0.25, 1], base: 8, scaling: 10 },
+      hitbox: { offset: [0, 0.1, isMartial ? 1.15 : 1.4], radius: isHeavy ? 1.28 : 1.1 },
+      damage: dmg * (isHeavy ? 1.55 : 1.3),
+      knockback: { dir: [0, 0.25, 1], base: isHeavy ? 10 : 8, scaling: isHeavy ? 12 : 10 },
       hooks: {
         onStart(c) { if (!c.caster.grounded && c.caster.skill) c.caster.skill.released = true },
         onActive(c) {
-          c.setLocalVelocity(0, null, 7 + c.chargeRatio * 5)
-          c.shake(0.12 + c.chargeRatio * 0.22)
-          slash(c, o.color, { d: 1.2, r: 1.9 + c.chargeRatio * 0.45, tilt: 0.15 })
+          c.setLocalVelocity(0, null, (isMartial ? 9 : 7) + c.chargeRatio * 5)
+          c.shake((isHeavy ? 0.22 : 0.12) + c.chargeRatio * 0.22)
+          if (isCaster) {
+            c.fx({ kind: 'ring', pos: at(c, 0.15, 1.1), color: o.color, ttl: 240, radius: 1.45, plane: 'vertical' })
+            c.fx({ kind: 'burst', pos: at(c, 0.15, 1.1), color: o.color, ttl: 210, count: 8, speed: 4.5, size: 0.13 })
+          } else if (isMartial) {
+            c.fx({ kind: 'ring', pos: at(c, 0.12, 1.0), color: o.color, ttl: 200, radius: 1.25, plane: 'vertical' })
+            c.fx({ kind: 'burst', pos: at(c, 0.12, 1.0), color: '#ffffff', ttl: 180, count: 7, speed: 5, size: 0.12 })
+          } else {
+            slash(c, o.color, { d: 1.2, r: (isHeavy ? 2.2 : 1.9) + c.chargeRatio * 0.45, tilt: 0.15 })
+          }
           if (c.chargeRatio > 0.35) c.fx({ kind: 'ring', pos: at(c, 0.1, 1.0), color: o.color, ttl: 260, radius: 1.6, plane: 'vertical' })
         },
         onTick(c) { if (c.phase === 'active') trail(c, 50, o.color) },
       },
     })
-    reg({ // 上：對空揮擊（地面可長按蓄力）
-      id: `${p}.uTilt`, name: nu, energyCost: 0, startupMs: 90, activeMs: 120, recoveryMs: 260,
+    reg({ // 上：對空揮擊／升龍／魔力柱（地面可長按蓄力）
+      id: `${p}.uTilt`, name: nu, energyCost: 0,
+      startupMs: isMartial ? 70 : 90, activeMs: 120, recoveryMs: isMartial ? 210 : 260,
       charge: { maxMs: 700, damageMult: [1, 2.1], knockbackMult: [1, 1.85] },
-      hitbox: { offset: [0, 1.15, 0.2], radius: 1.2 }, damage: dmg,
-      knockback: { dir: [0, 1, 0.1], base: 9, scaling: 11 },
+      hitbox: { offset: [0, 1.15, 0.2], radius: isHeavy ? 1.35 : 1.2 },
+      damage: dmg * (isHeavy ? 1.2 : 1.0),
+      knockback: { dir: [0, 1, 0.1], base: isHeavy ? 10.5 : 9, scaling: 11 },
       hooks: {
         onStart(c) { if (!c.caster.grounded && c.caster.skill) c.caster.skill.released = true },
         onActive(c) {
           c.shake(0.1 + c.chargeRatio * 0.22)
-          c.fx({ kind: 'slash', pos: at(c, 1.05, 0.25), yaw: yawOf(c), plane: 'vertical', tilt: 0.15, color: o.color, ttl: 240, radius: 1.75 + c.chargeRatio * 0.45 })
-          c.fx({ kind: 'pillar', pos: at(c, 0.2, 0.25), color: o.color, ttl: 220, radius: 0.75 })
+          if (isCaster) {
+            c.fx({ kind: 'pillar', pos: at(c, 0.3, 0.25), color: o.color, ttl: 280, radius: 1.1 })
+            c.fx({ kind: 'ring', pos: at(c, 1.1, 0.25), color: o.color, ttl: 240, radius: 1.5 })
+          } else if (isMartial) {
+            c.fx({ kind: 'burst', pos: at(c, 1.1, 0.25), color: o.color, ttl: 220, count: 10, speed: 5.5, size: 0.14 })
+            c.fx({ kind: 'pillar', pos: at(c, 0.2, 0.25), color: o.color, ttl: 200, radius: 0.65 })
+          } else {
+            c.fx({ kind: 'slash', pos: at(c, 1.05, 0.25), yaw: yawOf(c), plane: 'vertical', tilt: 0.15, color: o.color, ttl: 240, radius: 1.75 + c.chargeRatio * 0.45 })
+            c.fx({ kind: 'pillar', pos: at(c, 0.2, 0.25), color: o.color, ttl: 220, radius: 0.75 })
+          }
           if (c.chargeRatio > 0.35) c.fx({ kind: 'ring', pos: at(c, 1.0, 0.2), color: o.color, ttl: 260, radius: 1.6 })
         },
       },
     })
-    reg({ // 下：貼地掃踢，絆倒向上彈
-      id: `${p}.dTilt`, name: nd, energyCost: 0, startupMs: 80, activeMs: 100, recoveryMs: 230,
+    reg({ // 下：貼地掃踢／低位震波，絆倒向上彈
+      id: `${p}.dTilt`, name: nd, energyCost: 0,
+      startupMs: isMartial ? 65 : 80, activeMs: 100, recoveryMs: 220,
       hitbox: { offset: [0, -0.35, 1.25], radius: 0.95 }, damage: dmg * 0.85,
       knockback: { dir: [0, 0.7, 0.6], base: 6, scaling: 8, hitstunMs: 320 },
       hooks: {
         onActive(c) {
-          slash(c, o.color, { y: -0.4, d: 1.0, r: 1.5, tilt: -0.1, flip: true })
-          c.fx({ kind: 'ring', pos: at(c, -0.42, 0.9), color: o.color, ttl: 220, radius: 1.15 })
+          if (!isCaster && !isMartial) slash(c, o.color, { y: -0.4, d: 1.0, r: 1.5, tilt: -0.1, flip: true })
+          c.fx({ kind: 'ring', pos: at(c, -0.42, 0.9), color: o.color, ttl: 220, radius: isCaster ? 1.45 : 1.15 })
         },
       },
     })
@@ -290,7 +318,8 @@ reg({ // 下：斜下方炸藥包
 //  ZOMBIE
 // =====================================================================
 registerTilts('zombie', { color: '#7fd67f', names: ['撕扯', '抓臉', '絆腿'] })
-reg({ ...dashSide('zombie.lunge', '飛撲', '#7fd67f', { speed: 17, dmg: 8, base: 9, scaling: 13, cd: 2000 }),
+reg({
+  ...dashSide('zombie.lunge', '飛撲', '#7fd67f', { speed: 17, dmg: 8, base: 9, scaling: 13, cd: 2000 }),
   hooks: {
     onTick(c) { if (c.phase === 'active') { c.setLocalVelocity(0, null, 17); trail(c, 55, '#7fd67f') } },
     onHit(c) { c.caster.damage = Math.max(0, c.caster.damage - 2) }, // 吸血

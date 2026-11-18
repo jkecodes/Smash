@@ -123,21 +123,31 @@ function hitVfx(c: any, color: string, p: string, r: number, flip = false) {
 
 const HEAVY_CHARS = new Set(['deku', 'bakugo', 'sukuna', 'firefly', 'ellen', 'doh', 'stelle'])
 const FAST_SWORD_CHARS = new Set(['chihiro', 'youmu', 'yodaka', 'miyabi', 'erika', 'hakuri', 'hibari', 'rover'])
+const TONGUE_CHARS = new Set(['ladyfrog', 'omnelle'])
+const EXPLODE_CHARS = new Set(['bakugo', 'creeper', 'blackbomber'])
 
 function registerKit(k: KitSpec) {
   const { p, color } = k
   const canCharge = CHARGE_ATTACK_CHARS.has(p)
   const isHeavy = HEAVY_CHARS.has(p)
   const isFast = FAST_SWORD_CHARS.has(p)
+  const isGun = GUN_CHARS.has(p)
+  const isCaster = CASTER_CHARS.has(p)
+  const isMartial = MARTIAL_CHARS.has(p)
+  const isTongue = TONGUE_CHARS.has(p)
+  const tiltStyle = isGun ? 'gun' : isHeavy ? 'heavy' : isCaster ? 'caster' : isMartial ? 'martial' : 'sword'
   reg({
     id: `${p}.a1`, name: canCharge ? `${k.a1}（可蓄力）` : k.a1, energyCost: 0, chain: `${p}.a2`,
-    startupMs: isFast ? 45 : isHeavy ? 65 : 55, activeMs: 85, recoveryMs: isFast ? 120 : 135,
+    startupMs: isFast || isMartial ? 45 : isHeavy ? 65 : 55, activeMs: 85, recoveryMs: isFast || isMartial ? 120 : 135,
     ...(canCharge ? { charge: { maxMs: 650, damageMult: [1, 2.3] as [number, number], knockbackMult: [1, 1.95] as [number, number] } } : {}),
-    hitbox: { offset: [0, 0.12, isFast ? 1.05 : 0.95], radius: isFast ? 1.02 : 0.9 },
+    hitbox: { offset: [0, 0.12, isTongue ? 1.35 : isFast ? 1.05 : 0.95], radius: isTongue ? 1.05 : isFast ? 1.02 : 0.9 },
     damage: isHeavy ? 4.6 : 3.5,
     knockback: { dir: [0, 0.22, 1], base: isHeavy ? 6.5 : 5.5, scaling: isHeavy ? 6.5 : 5.5 },
     hooks: {
       onActive(c) {
+        if (isMartial || isFast) c.setLocalVelocity(0, null, 2.4)
+        if (isGun) c.spawnProjectile({ pos: at(c, 0.15, 0.85), vel: [c.forward[0] * 22, 0, 0], radius: 0.25, ttlMs: 320, color })
+        else if (isCaster && !canCharge) c.spawnProjectile({ pos: at(c, 0.15, 0.85), vel: [c.forward[0] * 14, 0, 0], radius: 0.3, ttlMs: 360, color })
         hitVfx(c, c.chargeRatio > 0.35 ? color : '#ffffff', p, 1.3 + c.chargeRatio * 0.5)
         if (c.chargeRatio > 0.35) {
           c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color, ttl: 260, radius: 1.6, plane: 'vertical' })
@@ -146,20 +156,28 @@ function registerKit(k: KitSpec) {
       },
     },
   })
-  const hasJab3 = CHARGE_ATTACK_CHARS.has(p) || p === 'spe' || p === 'saki' || p === 'kotone' || p === 'yodaka'
+  const hasJab3 = CHARGE_ATTACK_CHARS.has(p) || p === 'spe' || p === 'saki' || p === 'kotone' || p === 'yodaka' || EXPLODE_CHARS.has(p)
   reg({
     id: `${p}.a2`, name: k.a2, energyCost: 0, ...(hasJab3 ? { chain: `${p}.a3` } : {}),
-    startupMs: isFast ? 55 : 65, activeMs: 90, recoveryMs: isFast ? 155 : 175,
-    hitbox: { offset: [0, 0.12, isFast ? 1.15 : 1.05], radius: isFast ? 1.1 : 1.0 },
+    startupMs: isFast || isMartial ? 55 : 65, activeMs: 90, recoveryMs: isFast ? 155 : 175,
+    hitbox: { offset: [0, 0.12, isTongue ? 1.45 : isFast ? 1.15 : 1.05], radius: isFast || isTongue ? 1.1 : 1.0 },
     damage: isHeavy ? 5.6 : 4.5,
-    knockback: { dir: [0, 0.35, 1], base: hasJab3 ? 6.5 : 10, scaling: hasJab3 ? 6 : 10.5 },
-    hooks: { onActive(c) { hitVfx(c, color, p, 1.45, true) } },
+    knockback: { dir: [0, isCaster ? 0.58 : 0.35, isCaster ? 0.75 : 1], base: hasJab3 ? 6.5 : 10, scaling: hasJab3 ? 6 : 10.5 },
+    hooks: {
+      onActive(c) {
+        if (isGun) {
+          c.spawnProjectile({ pos: at(c, 0.18, 0.9), vel: [c.forward[0] * 21, 1.8, 0], radius: 0.24, ttlMs: 340, color })
+          c.spawnProjectile({ pos: at(c, 0.12, 0.9), vel: [c.forward[0] * 21, -1.2, 0], radius: 0.24, ttlMs: 340, color })
+        }
+        hitVfx(c, color, p, 1.45, true)
+      },
+    },
   })
   if (hasJab3) {
     reg({
       id: `${p}.a3`, name: `${k.a2}・終結連打`, energyCost: 0,
       startupMs: isFast ? 60 : 70, activeMs: 110, recoveryMs: 205,
-      hitbox: { offset: [0, 0.15, 1.2], radius: isHeavy ? 1.3 : 1.15 },
+      hitbox: { offset: [0, 0.15, 1.2], radius: isHeavy || EXPLODE_CHARS.has(p) ? 1.35 : 1.15 },
       damage: isHeavy ? 9.2 : 7.5,
       knockback: { dir: [0, 0.52, 1], base: isHeavy ? 13.5 : 11.5, scaling: isHeavy ? 13 : 11.5 },
       hooks: {
@@ -169,12 +187,16 @@ function registerKit(k: KitSpec) {
           if (p === 'youmu' || p === 'chihiro' || p === 'sukuna') {
             hitVfx(c, '#ffffff', p, 1.9, true)
           }
+          if (EXPLODE_CHARS.has(p)) {
+            c.fx({ kind: 'burst', pos: at(c, 0.15, 1.1), color: '#f97316', ttl: 260, count: 14, speed: 7, size: 0.18 })
+            c.shake(0.32)
+          }
           c.fx({ kind: 'ring', pos: at(c, 0.15, 1.0), color, ttl: 240, radius: 1.4, plane: 'vertical' })
         },
       },
     })
   }
-  registerTilts(p, { color, names: k.tilts })
+  registerTilts(p, { color, names: k.tilts, ranged: isGun, style: tiltStyle })
   reg({
     id: `${p}.s1`, name: k.s1.name, energyCost: 0, cooldownMs: 1200, startupMs: 135, activeMs: 50, recoveryMs: 215,
     damage: 9.5, knockback: { dir: [0, 0.45, 1], base: 11, scaling: 11.5 },

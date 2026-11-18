@@ -93,7 +93,7 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
   vaus: { bg: '#020617', hair: '#38bdf8', outfit: '#1e293b', accent: '#ef4444', eye: '#38bdf8', shortHair: true },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'miramira'].includes(p.id))
       .map((p) => [p.id, p.portrait]),
   ) as Partial<Record<CharacterId, any>>),
 }
@@ -582,6 +582,26 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M36,48 L56,55 M84,48 L64,55" stroke="#451a03" strokeWidth="5" strokeLinecap="round" />
           <polygon points="60,62 48,74 72,74" fill="#f97316" />
           <polygon points="51,74 69,74 60,82" fill="#ea580c" />
+        </>
+      )}
+      {id === 'miramira' && (
+        <>
+          <rect width="120" height="120" fill="#0f2e2b" />
+          <rect x="8" y="8" width="104" height="104" rx="8" fill="none" stroke="#5eead4" strokeWidth="1.5" opacity="0.45" />
+          {/* 層次狼尾深褐長髮 */}
+          <path d="M26,46 C26,16 94,16 94,46 L104,106 L16,106 Z" fill="#2d2326" />
+          <polygon points="26,44 16,52 28,58" fill="#2d2326" />
+          <polygon points="94,44 106,52 92,58" fill="#2d2326" />
+          {/* 臉部與紫粉雙眼 */}
+          <ellipse cx="60" cy="54" rx="20" ry="20" fill="#fde8d7" />
+          <path d="M36,46 Q48,30 60,44 Q72,30 84,46 L80,28 Q60,18 40,28 Z" fill="#2d2326" />
+          <ellipse cx="51" cy="55" rx="3.8" ry="4.5" fill="#c084fc" />
+          <ellipse cx="69" cy="55" rx="3.8" ry="4.5" fill="#c084fc" />
+          {/* 白膨袖襯衫 ＋ 深青背心裙 */}
+          <path d="M22,82 L98,82 L106,120 L14,120 Z" fill="#f8fafc" />
+          <path d="M40,80 L80,80 L86,120 L34,120 Z" fill="#1e3a4c" />
+          {/* 紅色彎鉤魔杖 */}
+          <path d="M24,116 L36,74 Q42,60 52,68" fill="none" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" />
         </>
       )}
       {id === 'descara' && (
