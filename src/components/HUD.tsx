@@ -1023,14 +1023,12 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     sfx('ui')
   }
 
-  // 隨機在左上角第 1 格 ＋ 37 角色 = 38 格 -> 10 欄緊湊格陣
+  // 每 10 格自動換行
   const rosterGrid: (CharacterId | 'random')[] = ['random', ...CHARACTER_IDS]
-  const rosterRows = [
-    rosterGrid.slice(0, 10),
-    rosterGrid.slice(10, 20),
-    rosterGrid.slice(20, 30),
-    rosterGrid.slice(30),
-  ]
+  const rosterRows = Array.from(
+    { length: Math.ceil(rosterGrid.length / 10) },
+    (_, i) => rosterGrid.slice(i * 10, (i + 1) * 10),
+  )
 
   const renderCell = (item: CharacterId | 'random') => {
     const isRand = item === 'random'
