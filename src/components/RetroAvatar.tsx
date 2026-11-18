@@ -883,9 +883,15 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
           <group ref={animB} position={[0, 0.06, -0.18]}>
             <mesh position={[0, -0.24, -0.1]} rotation={[0.25, 0, 0]} castShadow><boxGeometry args={[0.46, 0.58, 0.07]} /><meshStandardMaterial color="#e2e8f0" /></mesh>
           </group>
-          {/* 棕刺髮頭 ＋ 高領 */}
+          {/* 棕刺髮頭 ＋ 完整後腦髮罩與兩側劉海 ＋ 高領 */}
           <mesh position={[0, 0.36, 0.02]} castShadow><sphereGeometry args={[0.19, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
-          <mesh position={[0, 0.48, -0.02]} castShadow><coneGeometry args={[0.24, 0.32, 6]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <mesh position={[0, 0.4, -0.04]} castShadow><sphereGeometry args={[0.215, 14, 12]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <mesh position={[0, 0.56, 0.02]} rotation={[0.15, 0, 0]}><coneGeometry args={[0.14, 0.24, 5]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <mesh position={[-0.14, 0.44, 0.08]} rotation={[0.25, 0, 0.5]}><coneGeometry args={[0.09, 0.22, 5]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <mesh position={[0.14, 0.44, 0.08]} rotation={[0.25, 0, -0.5]}><coneGeometry args={[0.09, 0.22, 5]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <mesh position={[0, 0.24, -0.14]} rotation={[-0.4, 0, 0]}><boxGeometry args={[0.28, 0.2, 0.14]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <mesh position={[-0.06, 0.37, 0.19]}><sphereGeometry args={[0.028, 8, 8]} /><meshStandardMaterial color="#38bdf8" /></mesh>
+          <mesh position={[0.06, 0.37, 0.19]}><sphereGeometry args={[0.028, 8, 8]} /><meshStandardMaterial color="#38bdf8" /></mesh>
           {/* 青眼白龍光環決鬥盤 */}
           <mesh position={[0.26, 0.04, 0.3]}><boxGeometry args={[0.14, 0.07, 0.4]} /><meshStandardMaterial color="#38bdf8" emissive="#0284c7" emissiveIntensity={0.6} /></mesh>
           <group ref={animA} position={[0, 0.15, 0]}>
