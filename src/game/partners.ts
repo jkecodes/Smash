@@ -5,6 +5,7 @@
 export const PARTNER_IDS = [
   'mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky',
   'hakuri', 'descara', 'umi', 'miramira', 'sukuna', 'bakugo', 'hibari', 'rintaro', 'hajime', 'doh',
+  'josuke', 'angelo',
 ] as const
 export type PartnerId = typeof PARTNER_IDS[number]
 
@@ -344,6 +345,38 @@ export const PARTNERS: PartnerSpec[] = [
       ult: { name: 'Dimension Controller 全場磚塊轟炸！', kind: 'rain', color: '#a855f7' },
     },
     flags: ['caster', 'trap'],
+  },
+  {
+    id: 'josuke', name: 'JOSUKE 東方仗助', short: 'JOSUKE', color: '#ec4899', partnerOf: 'gojo',
+    scale: 1.0, speedMult: 1.06, damageMult: 1.12, weightMult: 1.02,
+    trait: '💎 JOJO・瘋狂鑽石！嘟拉拉高速連打、修復飛石貫穿與髮型暴怒覺醒。',
+    portrait: { bg: '#4a044e', hair: '#1e1b4b', outfit: '#312e81', accent: '#f472b6', eye: '#38bdf8', shortHair: true },
+    preset: { body: '#312e81', hair: '#1e1b4b', accent: '#f472b6', prop: 'orb', style: 'martial', shortHair: true },
+    kit: {
+      a1: '嘟拉拉連拳', a2: '瘋狂重拳', tilts: ['橫掃重拳', '上鉤拳', '下段踢'],
+      s1: { name: '修復飛石貫穿', projColor: '#f472b6', pierce: true, speed: 22 },
+      side: '嘟拉拉突進連打', up: '修復岩壁升空', down: '瘋狂修復反擊',
+      s2: { name: '歸位追蹤碎塊', kind: 'proj', color: '#38bdf8' },
+      smashes: ['瘋狂鑽石重擊', '衝天升龍拳', '碎地修復震波'],
+      ult: { name: '瘋狂鑽石・嘟拉拉拉拉奧義！', kind: 'rush', color: '#ec4899' },
+    },
+    flags: ['martial', 'charge', 'counter'],
+  },
+  {
+    id: 'angelo', name: 'ANGELO 片桐安十郎', short: 'ANGELO', color: '#06b6d4', partnerOf: 'gojo',
+    scale: 1.0, speedMult: 0.98, damageMult: 1.08, weightMult: 1.0,
+    trait: '💧 JOJO・水項鍊替身！可操控潛行水彈、召喚自主追蹤水項鍊與安傑羅岩領域。',
+    portrait: { bg: '#083344', hair: '#18181b', outfit: '#334155', accent: '#06b6d4', eye: '#ef4444', shortHair: true },
+    preset: { body: '#334155', hair: '#18181b', accent: '#06b6d4', prop: 'orb', style: 'mage', shortHair: true },
+    kit: {
+      a1: '水刃斬擊', a2: '高壓水鞭', tilts: ['水流橫劈', '噴泉上衝', '水壓掃擊'],
+      s1: { name: '水項鍊・潛行水彈', projColor: '#06b6d4', speed: 18, steerable: 7 },
+      side: '高壓蒸氣突刺', up: '水龍捲升空', down: '召喚「水項鍊」',
+      s2: { name: '安傑羅岩・石化領域', kind: 'zone', color: '#0891b2' },
+      smashes: ['水壓爆裂掌', '水柱沖天', '石化重壓'],
+      ult: { name: '水項鍊・體內侵蝕終結！', kind: 'barrage', color: '#06b6d4' },
+    },
+    flags: ['caster', 'ranged', 'trap'],
   },
 ]
 

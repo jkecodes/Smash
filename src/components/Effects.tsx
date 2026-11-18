@@ -932,16 +932,17 @@ function ProjectileView({ p }: { p: Projectile }) {
             {/* 多夫：浮空摩艾巨岩磚塊 */}
             <mesh><boxGeometry args={[r * 1.3, r * 1.8, r * 1.1]} /><meshStandardMaterial color="#92400e" emissive="#a855f7" emissiveIntensity={0.4} /></mesh>
           </>
-        ) : charId === 'ruri' ? (
+        ) : charId === 'josuke' ? (
           <>
-            {/* 瑠璃：龍炎電光雙色火球 */}
-            <mesh><sphereGeometry args={[r * 0.9, 12, 12]} /><meshStandardMaterial color="#f97316" emissive="#ef4444" emissiveIntensity={0.85} /></mesh>
-            <mesh><torusGeometry args={[r * 1.1, r * 0.12, 8, 18]} /><meshBasicMaterial color="#34d399" /></mesh>
+            {/* 東方仗助：瘋狂鑽石修復碎石 */}
+            <mesh><dodecahedronGeometry args={[r * 0.95, 0]} /><meshStandardMaterial color="#f472b6" emissive="#38bdf8" emissiveIntensity={0.65} /></mesh>
+            <mesh><torusGeometry args={[r * 1.1, 0.1, 8, 18]} /><meshBasicMaterial color="#ec4899" transparent opacity={0.85} blending={ADD} depthWrite={false} /></mesh>
           </>
-        ) : charId === 'akira' || charId === 'saki' ? (
+        ) : charId === 'angelo' ? (
           <>
-            {/* 亞里／咲季：筆記紙頁／應援星光 */}
-            <mesh rotation={[0.2, 0.3, 0]}><boxGeometry args={[r * 1.5, r * 1.1, r * 0.12]} /><meshStandardMaterial color="#ffffff" emissive={p.color} emissiveIntensity={0.5} /></mesh>
+            {/* 片桐安十郎：水項鍊水彈 */}
+            <mesh><sphereGeometry args={[r * 0.95, 14, 12]} /><meshStandardMaterial color="#06b6d4" emissive="#22d3ee" emissiveIntensity={0.85} transparent opacity={0.88} /></mesh>
+            <mesh><torusGeometry args={[r * 1.12, 0.1, 8, 20]} /><meshBasicMaterial color="#67e8f9" transparent opacity={0.8} blending={ADD} depthWrite={false} /></mesh>
           </>
         ) : (
           <>
