@@ -239,6 +239,38 @@ function Pillar({ it }: { it: FxItem }) {
   )
 }
 
+function SlingshotFx({ it }: { it: FxItem }) {
+  const g = useRef<THREE.Group>(null)
+  const band = useRef<THREE.Mesh>(null)
+  useFrame(() => {
+    const t = age01(it)
+    if (t >= 1) return removeFx(it.id)
+    if (band.current) {
+      // 前 32% 拉弓蓄力向後拉，之後彈射回彈
+      const pull = t < 0.32 ? -(t / 0.32) * 0.9 : Math.max(0, 1 - (t - 0.32) * 4) * 0.45
+      band.current.position.z = pull
+      band.current.scale.z = 1 + Math.abs(pull) * 1.4
+    }
+    if (g.current) {
+      const s = t > 0.78 ? 1 - (t - 0.78) / 0.22 : 1
+      g.current.scale.setScalar(Math.max(0.01, s))
+    }
+  })
+  return (
+    <group ref={g} position={[it.pos[0], it.pos[1] - 0.4, it.pos[2]]} rotation={[0, it.yaw ?? 0, 0]}>
+      {/* 木質 Y 型彈弓底座與雙叉臂 */}
+      <mesh position={[0, 0.35, 0]}><cylinderGeometry args={[0.1, 0.12, 0.75, 8]} /><meshStandardMaterial color="#78350f" /></mesh>
+      <mesh position={[-0.22, 0.92, 0]} rotation={[0, 0, 0.38]}><cylinderGeometry args={[0.075, 0.09, 0.65, 8]} /><meshStandardMaterial color="#92400e" /></mesh>
+      <mesh position={[0.22, 0.92, 0]} rotation={[0, 0, -0.38]}><cylinderGeometry args={[0.075, 0.09, 0.65, 8]} /><meshStandardMaterial color="#92400e" /></mesh>
+      {/* 彈力橡皮筋與皮兜 */}
+      <mesh ref={band} position={[0, 1.05, 0]}>
+        <boxGeometry args={[0.72, 0.07, 0.14]} />
+        <meshStandardMaterial color="#451a03" emissive="#dc2626" emissiveIntensity={0.25} />
+      </mesh>
+    </group>
+  )
+}
+
 export function FxLayer() {
   useGameStore((s) => s.fxVersion)
   return (
@@ -251,6 +283,7 @@ export function FxLayer() {
           case 'afterimage': return <Afterimage key={it.id} it={it} />
           case 'beam': return <Beam key={it.id} it={it} />
           case 'pillar': return <Pillar key={it.id} it={it} />
+          case 'slingshot': return <SlingshotFx key={it.id} it={it} />
         }
       })}
     </>

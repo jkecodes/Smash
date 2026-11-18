@@ -1620,11 +1620,21 @@ reg({
 })
 registerTilts('red', { color: RED, names: ['怒眉橫撞', '朝天鳥喙頂', '重羽下墜擊'] })
 reg({
-  id: 'red.slingshot', name: '彈弓小鳥飛彈', energyCost: 0, cooldownMs: 1300, startupMs: 150, activeMs: 50, recoveryMs: 220,
-  damage: 10, knockback: { dir: [0, 0.5, 1], base: 12, scaling: 12.5 },
+  id: 'red.slingshot', name: '彈弓自體投射！', energyCost: 0, cooldownMs: 1450, startupMs: 220, activeMs: 280, recoveryMs: 200,
+  hitbox: { offset: [0, 0.1, 0.25], radius: 0.95 },
+  damage: 12, knockback: { dir: [0, 0.55, 1], base: 14, scaling: 13.5 },
   hooks: {
+    onStart(c) {
+      c.fx({ kind: 'slingshot', pos: [...c.caster.pos], color: '#78350f', ttl: 700, yaw: c.forward[0] > 0 ? Math.PI / 2 : -Math.PI / 2 })
+      c.setVelocity(-c.forward[0] * 3.5, 1.5, 0)
+    },
     onActive(c) {
-      c.spawnProjectile({ pos: at(c, 0.15, 0.9), vel: [c.forward[0] * 20, 4, 0], radius: 0.48, ttlMs: 1300, color: RED, gravity: -16, explodeRadius: 1.9 })
+      c.setVelocity(c.forward[0] * 24, 7.5, 0)
+      c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fde047', ttl: 300, radius: 1.4, plane: 'vertical' })
+      c.fx({ kind: 'burst', pos: [...c.caster.pos], color: RED, ttl: 280, count: 10, speed: 5, size: 0.14 })
+    },
+    onTick(c) {
+      if (c.phase === 'active') c.fx({ kind: 'afterimage', pos: [...c.caster.pos], color: RED, ttl: 160, size: 0.45 })
     },
   },
 })

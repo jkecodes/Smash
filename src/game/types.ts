@@ -217,7 +217,7 @@ export interface SkillContext {
   shake(amount: number): void
 }
 
-export type FxKind = 'slash' | 'ring' | 'burst' | 'afterimage' | 'beam' | 'pillar'
+export type FxKind = 'slash' | 'ring' | 'burst' | 'afterimage' | 'beam' | 'pillar' | 'slingshot'
 export interface FxSpec {
   kind: FxKind
   pos: Vec3
