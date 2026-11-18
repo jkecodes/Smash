@@ -76,7 +76,7 @@ export const PARTNERS: PartnerSpec[] = [
   },
   {
     id: 'ufo', name: 'MYSTERY UFO 神秘飛碟', short: 'UFO', color: '#ef4444', partnerOf: 'invader',
-    scale: 1.1, speedMult: 0.96, damageMult: 1.1, weightMult: 1.05, extraJumps: 2,
+    scale: 1.1, speedMult: 0.96, damageMult: 1.1, weightMult: 1.05, extraJumps: 5,
     trait: '🛸 Space Invaders・神秘母艦！牽引光束與綠色光彈齊射。',
     portrait: { bg: '#450a0a', hair: '#ef4444', outfit: '#991b1b', accent: '#fca5a5', eye: '#fde047', shortHair: true },
     preset: { body: '#dc2626', hair: '#7f1d1d', accent: '#fca5a5', prop: 'orb', style: 'gun', shortHair: true },
@@ -172,7 +172,7 @@ export const PARTNERS: PartnerSpec[] = [
   },
   {
     id: 'ducky', name: 'DUCKY 馬路鴨', short: 'DUCKY', color: '#fde047', partnerOf: 'crossy',
-    scale: 0.82, speedMult: 1.16, damageMult: 0.9, weightMult: 0.82, extraJumps: 2,
+    scale: 0.82, speedMult: 1.16, damageMult: 0.9, weightMult: 0.82, extraJumps: 4,
     trait: '🦆 Crossy Road・過馬路的小鴨！羽毛飛鏢與全車道衝刺。',
     portrait: { bg: '#713f12', hair: '#fde047', outfit: '#facc15', accent: '#f97316', eye: '#111827', shortHair: true },
     preset: { body: '#facc15', hair: '#fef08a', accent: '#f97316', prop: 'orb', style: 'martial', shortHair: true },
@@ -204,7 +204,7 @@ export const PARTNERS: PartnerSpec[] = [
   },
   {
     id: 'descara', name: 'DESCARA 笛絲卡菈絲', short: 'DESCARA', color: '#7c3aed', partnerOf: 'ichi',
-    scale: 0.98, speedMult: 1.04, damageMult: 1.06, weightMult: 0.96,
+    scale: 0.98, speedMult: 1.04, damageMult: 1.06, weightMult: 0.96, extraJumps: 4,
     trait: '🪶 魔男的伊奇・深淵的魔女！烏鴉瞬移與深淵魔法。',
     portrait: { bg: '#2e1065', hair: '#18181b', outfit: '#4c1d95', accent: '#c4b5fd', eye: '#e879f9', bobHair: true, witchHat: true },
     preset: { body: '#4c1d95', hair: '#18181b', accent: '#c4b5fd', prop: 'hat', style: 'mage' },
@@ -284,7 +284,7 @@ export const PARTNERS: PartnerSpec[] = [
   },
   {
     id: 'hibari', name: 'HIBARI 雲雀', short: 'HIBARI', color: '#94a3b8', partnerOf: 'yodaka',
-    scale: 0.94, speedMult: 1.18, damageMult: 1.0, weightMult: 0.92,
+    scale: 0.94, speedMult: 1.18, damageMult: 1.0, weightMult: 0.92, extraJumps: 4,
     trait: '🥷 SHINOBI GOTO・9 號部隊！忍法瞬身與猪心通合擊。',
     portrait: { bg: '#1e293b', hair: '#475569', outfit: '#0f172a', accent: '#94a3b8', eye: '#38bdf8', bobHair: true },
     preset: { body: '#0f172a', hair: '#475569', accent: '#94a3b8', prop: 'katana', style: 'sword' },
@@ -380,7 +380,7 @@ export const PARTNERS: PartnerSpec[] = [
   },
   {
     id: 'samura', name: 'SAMURA 座村清市', short: 'SAMURA', color: '#f59e0b', partnerOf: 'chihiro',
-    scale: 1.0, speedMult: 1.14, damageMult: 1.14, weightMult: 0.98,
+    scale: 1.0, speedMult: 1.14, damageMult: 1.14, weightMult: 0.98, extraJumps: 2,
     trait: '🪶 神樂缽・妖刀「飛宗」盲劍客！居合白契流、鴉羽瞬移斬與「雀」覺醒。',
     portrait: { bg: '#1c1917', hair: '#18181b', outfit: '#0f172a', accent: '#f59e0b', eye: '#fbbf24', shortHair: true, scar: true, blindfold: true },
     preset: { body: '#0f172a', hair: '#18181b', accent: '#f59e0b', bladeColor: '#09090b', prop: 'katana', style: 'sword', shortHair: true },

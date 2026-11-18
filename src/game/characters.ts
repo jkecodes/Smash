@@ -185,7 +185,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     },
   },
   reimu: {
-    id: 'reimu', name: '博麗靈夢 REIMU', color: '#f43f5e',
+    id: 'reimu', name: '博麗靈夢 REIMU', color: '#f43f5e', extraJumps: 4,
     trait: '⛩️ 博麗靈符三連彈幕・高彈跳陰陽玉・退魔八方結界與夢想封印',
     guide: {
       summary: '東方 Project 主角！擅長「彈幕壓制＋結界控場」的紅白巫女。御幣揮擊帶靈符射擊，陰陽玉彈跳極強，大招夢想封印自動追蹤敵人。',
@@ -203,7 +203,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     },
   },
   marisa: {
-    id: 'marisa', name: '霧雨魔理沙 MARISA', color: '#facc15',
+    id: 'marisa', name: '霧雨魔理沙 MARISA', color: '#facc15', extraJumps: 4,
     trait: '⭐ 魔導星塵飛彈・彗星掃帚極速衝鋒・八卦爐蓄力魔砲＆極限火花',
     guide: {
       summary: '東方 Project 高火力魔法使！速度極快、爆發力驚人，騎掃帚 Blazing Star 高速衝貫，搭配八卦爐魔砲與全屏 Master Spark 轟碎對手。',
@@ -370,7 +370,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   red: {
     id: 'red', name: 'RED 怒鳥紅', color: '#dc2626',
-    scale: 0.86, speedMult: 1.14, damageMult: 0.92, weightMult: 0.86,
+    scale: 0.86, speedMult: 1.14, damageMult: 0.92, weightMult: 0.86, extraJumps: 4,
     trait: '🐦 Angry Birds 彈弓全力暴衝・炸藥蛋空襲・神鷹 Mighty Eagle',
     guide: {
       summary: '《Angry Birds》高爆發撞擊專家！彈弓高速衝鋒與戰吼震波擊飛極強，空中還能下炸藥蛋反打底下對手。',
@@ -454,7 +454,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   ruri: {
     id: 'ruri', name: 'RURI 青木瑠璃', color: '#34d399',
-    scale: 0.92, speedMult: 1.06, damageMult: 0.98, weightMult: 0.92,
+    scale: 0.92, speedMult: 1.06, damageMult: 0.98, weightMult: 0.92, extraJumps: 3,
     trait: '🐉 RuriDragon 龍之火炎吐息・角閃電與毒霧領域！',
     guide: {
       summary: '《瑠璃龍》覺醒龍族血統的女子高中生！同時擁有火炎吐息、毒霧領域與龍角放電。',
@@ -483,7 +483,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   gojo: {
     id: 'gojo', name: 'GOJO 五條悟', color: '#818cf8',
-    scale: 1.12, speedMult: 0.96, damageMult: 1.18, weightMult: 1.12,
+    scale: 1.12, speedMult: 0.96, damageMult: 1.18, weightMult: 1.12, extraJumps: 3,
     trait: '♾️ 咒術迴戰・術式反轉「赫」、順轉「蒼」與虛式「茈」！',
     guide: {
       summary: '《咒術迴戰》現代最強咒術師！兼具爆裂「赫」、瞬移突襲與超高擊飛虛式「茈」。',
@@ -685,7 +685,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   seija: {
     id: 'seija', name: 'SEIJA 鬼人正邪', color: '#e11d48',
-    scale: 0.94, speedMult: 1.08, damageMult: 1.02, weightMult: 0.94,
+    scale: 0.94, speedMult: 1.08, damageMult: 1.02, weightMult: 0.94, extraJumps: 3,
     trait: '🔄 東方輝針城・天邪鬼逆轉彈幕！反轉箭矢、瞬移背刺與逆轉結界！',
     guide: {
       summary: '《東方輝針城》的反叛天邪鬼！擅長用可操控的逆轉箭矢與背刺突襲打亂對手節奏。',
@@ -700,7 +700,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   youmu: {
     id: 'youmu', name: 'YOUMU 魂魄妖夢', color: '#34d399',
-    scale: 0.96, speedMult: 1.16, damageMult: 1.04, weightMult: 0.94, extraJumps: 2,
+    scale: 0.96, speedMult: 1.16, damageMult: 1.04, weightMult: 0.94, extraJumps: 3,
     trait: '⚔️ 東方妖妖夢・樓觀劍×白樓劍二刀流！超高速居合與人鬼未來永劫斬！',
     guide: {
       summary: '《東方妖妖夢》白玉樓的半人半靈庭師！擁有極快跑速與樓觀劍蓄力斬擊。',
@@ -721,7 +721,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   blinky: {
     id: 'blinky', name: 'BLINKY 紅幽靈', color: '#ef4444',
-    scale: 0.94, speedMult: 1.12, damageMult: 0.98, weightMult: 0.92,
+    scale: 0.94, speedMult: 1.12, damageMult: 0.98, weightMult: 0.92, extraJumps: 4,
     trait: '👻 Pac-Man・紅幽靈追擊瞬移與四色幽靈圍剿大陣！',
     loadout: { attack: 'blinky.a1', ...tilts('blinky'), skill1: 'blinky.s1', 'skill1:side': 'blinky.side', 'skill1:up': 'blinky.up', 'skill1:down': 'blinky.down', skill2: 'blinky.s2', ...smashes('blinky'), ult: 'blinky.ult' },
   },
@@ -739,7 +739,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   chuck: {
     id: 'chuck', name: 'CHUCK 飛鏢黃', color: '#facc15',
-    scale: 0.86, speedMult: 1.24, damageMult: 0.92, weightMult: 0.84, extraJumps: 3,
+    scale: 0.86, speedMult: 1.24, damageMult: 0.92, weightMult: 0.84, extraJumps: 5,
     trait: '⚡ Angry Birds・全場最速三角加速鳥！點擊即達音速貫穿！',
     loadout: { attack: 'chuck.a1', ...tilts('chuck'), skill1: 'chuck.s1', 'skill1:side': 'chuck.side', 'skill1:up': 'chuck.up', 'skill1:down': 'chuck.down', skill2: 'chuck.s2', ...smashes('chuck'), ult: 'chuck.ult' },
   },
@@ -751,7 +751,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   firefly: {
     id: 'firefly', name: 'FIREFLY 流螢・薩姆', color: '#f97316',
-    scale: 1.08, speedMult: 1.04, damageMult: 1.12, weightMult: 1.08, extraJumps: 2,
+    scale: 1.08, speedMult: 1.04, damageMult: 1.12, weightMult: 1.08, extraJumps: 4,
     trait: '🔥 星穹鐵道・裝甲「薩姆」焦土作戰與完全燃燒二刀流！',
     loadout: { attack: 'firefly.a1', ...tilts('firefly'), skill1: 'firefly.s1', 'skill1:side': 'firefly.side', 'skill1:up': 'firefly.up', 'skill1:down': 'firefly.down', skill2: 'firefly.s2', ...smashes('firefly'), ult: 'firefly.ult' },
   },
@@ -763,7 +763,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   jinhsi: {
     id: 'jinhsi', name: 'JINHSI 今汐', color: '#fde047',
-    scale: 0.96, speedMult: 1.04, damageMult: 1.1, weightMult: 0.96, extraJumps: 2,
+    scale: 0.96, speedMult: 1.04, damageMult: 1.1, weightMult: 0.96, extraJumps: 4,
     trait: '🐉 鳴潮・今州令尹與歲主「角」共鳴！浮空龍息與韶光天降！',
     loadout: { attack: 'jinhsi.a1', ...tilts('jinhsi'), skill1: 'jinhsi.s1', 'skill1:side': 'jinhsi.side', 'skill1:up': 'jinhsi.up', 'skill1:down': 'jinhsi.down', skill2: 'jinhsi.s2', ...smashes('jinhsi'), ult: 'jinhsi.ult' },
   },
