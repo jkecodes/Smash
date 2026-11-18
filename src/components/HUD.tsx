@@ -5,6 +5,7 @@ import { clearEntities } from '../game/runtime'
 import { resetSimStage } from '../game/sim'
 import { getSkill } from '../game/skills'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
+import { TIER_COLORS, getSteveInv } from '../game/skills/steveBlocks'
 import { STAGES, STAGE_IDS, type StageForm, type StageId } from '../game/stages'
 import { useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
@@ -62,6 +63,7 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
   if (!u) return null
   const isTetro = charId === 'tetro'
   const tb = isTetro ? getTetroBoard(id) : null
+  const steveInv = charId === 'steve' ? getSteveInv(id) : null
   const readyLines = isTetro ? getReadyLines(id) : 0
   const clearBanner = tb?.lastClear && performance.now() < tb.lastClear.until ? tb.lastClear : null
   const pColor = PLAYER_COLORS[id]
@@ -135,6 +137,14 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
             <span className="text-white/40">→</span>
             <span className="font-bold" style={{ color: TETROMINOES[tb.next].color }}>{tb.next}</span>
           </div>
+        </div>
+      )}
+      {steveInv && (
+        <div className="mt-1 flex items-center justify-between rounded bg-white/10 px-1.5 py-0.5 text-[10px]">
+          <span className="font-bold text-emerald-300">⛏️ 方塊：{steveInv.count}/16</span>
+          <span className="font-bold" style={{ color: TIER_COLORS[steveInv.tier].top }}>
+            {TIER_COLORS[steveInv.tier].label}
+          </span>
         </div>
       )}
       {!compact && (

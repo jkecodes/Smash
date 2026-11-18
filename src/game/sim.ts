@@ -13,6 +13,7 @@ import { debugKeys, readInput, rumble, type InputFrame } from './input'
 import { addFx, addProjectile, addZone, removeFx, removeProjectile, removeZone, runtime } from './runtime'
 import { getSkill } from './skills'
 import { resetTetroBoards } from './skills/tetroSkills'
+import { getSteveBlocks, resetSteveBlocks, stepSteveBlocks } from './skills/steveBlocks'
 import { getActiveFighterIds, useGameStore } from './store'
 import type {
   ActiveSkill, FighterId, FighterState, FsmState, HitSource, HitboxDef, SkillContext, SkillDef, SkillSlot, UiFighter, Vec3,
@@ -101,6 +102,19 @@ function updatePlatformCollision(f: FighterState, rb: any, dt: number) {
         }
       }
     })
+    // Steve 放置的方塊頂面碰撞（單向層板）
+    const v = rb.linvel()
+    if (v.y <= 0.5) {
+      for (const b of getSteveBlocks()) {
+        const topY = b.y + 0.5
+        if (Math.abs(f.pos[0] - b.x) <= 0.68 && feet >= topY - 0.35 && feet <= topY + 0.12) {
+          rb.setTranslation({ x: f.pos[0], y: topY + HALF, z: 0 }, true)
+          rb.setLinvel({ x: v.x, y: 0, z: 0 }, true)
+          f.pos[1] = topY + HALF
+          break
+        }
+      }
+    }
   }
   lastGroups.set(f.id, groups)
   const mask = interactionGroups(1, groups)
@@ -118,6 +132,13 @@ function checkGround(f: FighterState): boolean {
     const ray = new ph.rapier.Ray({ x: t.x + ox, y: t.y, z: t.z }, { x: 0, y: -1, z: 0 })
     const hit = ph.world.castRay(ray, HALF + 0.1, true, undefined, mask, undefined, rb)
     if (hit) return true
+  }
+  if (f.dropMs <= 0) {
+    const feet = t.y - HALF
+    for (const b of getSteveBlocks()) {
+      const topY = b.y + 0.5
+      if (Math.abs(t.x - b.x) <= 0.68 && feet >= topY - 0.35 && feet <= topY + 0.14) return true
+    }
   }
   return false
 }
@@ -141,6 +162,7 @@ export function resetSimStage() {
   ledgeOwner['-1'] = null
   ledgeOwner['1'] = null
   resetTetroBoards()
+  resetSteveBlocks()
   resetGimmicks()
 }
 
@@ -973,6 +995,7 @@ export function stepSimulation(rawDt: number) {
   updateBall(dt)
   updateZones(dt)
   stepGimmicks(dt)
+  stepSteveBlocks(dt)
   publishUi(dt)
   broadcastStateIfHost()
 }

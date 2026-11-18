@@ -1,7 +1,8 @@
 import { registerSkill } from './registry'
 import { registerSmashes, registerTilts } from './directionalSkills'
-import { STAGES } from '../stages'
+import { STAGES, resolveStage } from '../stages'
 import { useGameStore } from '../store'
+import { mineSteveStep, tryPlaceSteveBlock } from './steveBlocks'
 import type { SkillContext, SkillDef, Vec3 } from '../types'
 
 const reg = (d: SkillDef) => registerSkill(d)
@@ -1720,9 +1721,35 @@ reg({
 })
 registerTilts('steve', { color: STV, names: ['石鎬橫揮', '鑽石斧上劈', '方塊下挖掃'] })
 reg({
-  id: 'steve.bow', name: '附魔弓箭', energyCost: 0, cooldownMs: 1050, startupMs: 140, activeMs: 40, recoveryMs: 210,
-  projectile: { speed: 23, radius: 0.34, lifetimeMs: 1100, pierce: false, offset: [0, 0.18, 0.9], color: '#a855f7' },
-  damage: 9.5, knockback: { dir: [0, 0.38, 1], base: 11, scaling: 11.5 },
+  id: 'steve.bow', name: '採礦 / 造方塊', energyCost: 0, cooldownMs: 260, startupMs: 40, activeMs: 50, recoveryMs: 80,
+  charge: { maxMs: 2600, damageMult: [1, 1], knockbackMult: [1, 1] },
+  damage: 0, knockback: { dir: [0, 0, 0], base: 0, scaling: 0 },
+  hooks: {
+    onStart(c) {
+      if (!c.caster.grounded && c.caster.skill) {
+        c.caster.skill.released = true
+      }
+      c.scratch.mineMs = 0
+    },
+    onTick(c) {
+      if (c.phase === 'startup' && !c.caster.skill?.released && c.caster.grounded) {
+        c.scratch.mineMs = (c.scratch.mineMs ?? 0) + c.dt * 1000
+        mineSteveStep(c.caster.id, c.dt * 1000, c.caster.pos)
+        c.setVelocity(0, null, 0)
+      }
+    },
+    onActive(c) {
+      // 若剛才已在地面持續挖礦超過 240ms，則不額外消耗方塊放置
+      if ((c.scratch.mineMs ?? 0) >= 240) return
+      const s = useGameStore.getState()
+      const stage = resolveStage(s.stageId, s.stageForm)
+      const px = c.caster.grounded ? c.caster.pos[0] + c.forward[0] * 1.15 : c.caster.pos[0]
+      const py = c.caster.grounded ? c.caster.pos[1] + 0.95 : c.caster.pos[1]
+      if (tryPlaceSteveBlock(c.caster.id, px, py, stage.half.x) && !c.caster.grounded) {
+        c.setVelocity(c.caster.vel[0], 4.5, 0)
+      }
+    },
+  },
 })
 reg(dashMove('steve.minecart', '紅石礦車衝撞', '#94a3b8', { speed: 24, dmg: 9, base: 11.5, scaling: 12.5, cd: 1650 }))
 reg(upRise('steve.elytra', '鞘翅煙火火箭！', '#f43f5e', { dmg: 8, base: 11, scaling: 12.5, rise: 19.2 }))

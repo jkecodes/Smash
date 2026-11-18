@@ -8,6 +8,7 @@ import { CHARACTERS } from '../game/characters'
 import { PLATFORM_THICKNESS } from '../game/constants'
 import { getPlatformPos, resolveStage, type PlatformDef, type StageTheme } from '../game/stages'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
+import { TIER_COLORS, getSteveBlocks } from '../game/skills/steveBlocks'
 import { StageDecor, StageParticles, useStageSurfaceTexture } from './StageArt'
 import { StageGimmickView } from './StageGimmicks'
 import { runtime } from '../game/runtime'
@@ -67,6 +68,32 @@ function PlatformView({ p, i, h, theme }: { p: PlatformDef; i: number; h: { x: n
   )
 }
 
+function SteveBlocksView() {
+  useGameStore((s) => s.ui)
+  const blocks = getSteveBlocks()
+  const blinkOff = Math.floor(performance.now() / 110) % 2 === 0
+  return (
+    <>
+      {blocks.map((b) => {
+        if (b.ttlMs < 1500 && blinkOff) return null
+        const col = TIER_COLORS[b.tier]
+        return (
+          <group key={b.id} position={[b.x, b.y, 0]}>
+            <mesh castShadow receiveShadow>
+              <boxGeometry args={[1, 1, 1.4]} />
+              <meshStandardMaterial color={col.side} roughness={0.7} />
+            </mesh>
+            <mesh position={[0, 0.42, 0]}>
+              <boxGeometry args={[1.02, 0.18, 1.42]} />
+              <meshStandardMaterial color={col.top} roughness={0.5} />
+            </mesh>
+          </group>
+        )
+      })}
+    </>
+  )
+}
+
 /** 場地：動態載入懸空主平台與穿透式層板 */
 export function Arena() {
   const stageId = useGameStore((s) => s.stageId)
@@ -115,6 +142,7 @@ export function Arena() {
       ))}
       <StageDecor stage={stage} />
       <StageGimmickView stage={stage} />
+      <SteveBlocksView />
       <StageParticles stage={stage} />
     </group>
   )
