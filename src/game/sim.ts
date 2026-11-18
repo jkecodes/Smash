@@ -71,13 +71,13 @@ function queryBall(center: Vec3, r: number): FighterId[] {
 
 /** 推進動態移動層板的剛體位置 */
 function stepPlatforms(dt: number) {
-  runtime.stageTime += dt
+  if (useNetStore.getState().role !== 'guest') runtime.stageTime += dt
   getStage().platforms.forEach((p, i) => {
     if (!p.move) return
     const pb = runtime.platformBodies[i]
     if (!pb) return
     const pos = getPlatformPos(p, runtime.stageTime)
-    pb.setTranslation({ x: pos.x, y: pos.y - PLATFORM_THICKNESS / 2, z: 0 }, true)
+    pb.setNextKinematicTranslation({ x: pos.x, y: pos.y - PLATFORM_THICKNESS / 2, z: 0 })
   })
 }
 

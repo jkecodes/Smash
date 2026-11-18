@@ -29,7 +29,7 @@ function PlatformView({ p, i, h, theme }: { p: PlatformDef; i: number; h: { x: n
     <group>
       <RigidBody
         ref={(rb: RapierRigidBody | null) => { runtime.platformBodies[i] = rb }}
-        type="fixed"
+        type={p.move ? 'kinematicPosition' : 'fixed'}
         position={[p.x, p.y - PLATFORM_THICKNESS / 2, 0]}
         colliders={false}
         friction={0}
