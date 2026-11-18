@@ -888,6 +888,13 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         ? activePicker
         : 'p1'
   const currentStage = STAGES[stageId] ?? STAGES.reimu
+  const charBtnRefs = useRef<Partial<Record<CharacterId | 'random', HTMLButtonElement>>>({})
+
+  useEffect(() => {
+    if (step !== 'char') return
+    const key: CharacterId | 'random' = randomSlots[safePicker] ? 'random' : selection[safePicker]
+    charBtnRefs.current[key]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [step, safePicker, selection, randomSlots])
 
   usePadMenu(
     wizard === null && !showHelp && !guideOpen,
@@ -1041,6 +1048,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     return (
       <button
         key={item}
+        ref={(el) => { if (el) charBtnRefs.current[item] = el }}
         type="button"
         onClick={() => pickChar(safePicker, item)}
         onContextMenu={(e) => { e.preventDefault(); if (netRole === 'offline') pickChar('p2', item); else pickChar(safePicker, item) }}
