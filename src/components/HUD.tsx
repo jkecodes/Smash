@@ -1764,6 +1764,7 @@ export function HUD() {
   const ultCutin = useGameStore((s) => s.ultCutin)
   const fatalFlash = useGameStore((s) => s.fatalFlash)
   const countdown = useGameStore((s) => s.countdown)
+  const gameFinish = useGameStore((s) => s.gameFinish)
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
 
@@ -1902,6 +1903,16 @@ export function HUD() {
             style={{ WebkitTextStroke: '3px #000' }}
           >
             {countdown}
+          </div>
+        </div>
+      )}
+      {phase === 'playing' && gameFinish && (
+        <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center bg-black/20">
+          <div
+            className="text-7xl sm:text-9xl font-black italic tracking-tight text-white drop-shadow-[0_10px_28px_rgba(0,0,0,0.95)] animate-pulse"
+            style={{ WebkitTextStroke: '4px #000', transform: 'skewX(-10deg) scale(1.06)' }}
+          >
+            GAME<span className="text-yellow-300">!!!</span>
           </div>
         </div>
       )}

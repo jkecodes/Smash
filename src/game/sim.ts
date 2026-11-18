@@ -769,10 +769,13 @@ function ko(f: FighterState) {
   f.respawnMs = 1300
   rb.setEnabled(false)
   const aliveIds = getActiveFighterIds().filter((id) => fs[id].stocks > 0)
-  if (aliveIds.length <= 1) {
+  if (aliveIds.length <= 1 && !store().gameFinish) {
+    const winId = aliveIds[0] ?? killerId ?? f.id
     publishUi(0, true)
-    store().endMatch(aliveIds[0] ?? killerId ?? f.id)
-    broadcastStateIfHost(true)
+    store().triggerGameFinish(winId)
+    broadcastNetEvent({ kind: 'gameFinish', winner: winId })
+    sfx('perfect')
+    runtime.shake = 1.4
   }
 }
 
@@ -1097,7 +1100,15 @@ export function stepSimulation(rawDt: number) {
   const s = store()
   if (s.paused) return // 暫停：整個模擬凍結
   if (s.ultCutin && performance.now() < s.ultCutin.until) return // 大招特寫動畫期間凍結全場動作
-  const dt = Math.min(rawDt, 1 / 30)
+  let dt = Math.min(rawDt, 1 / 30)
+  if (s.gameFinish) {
+    if (useNetStore.getState().role !== 'guest' && performance.now() >= s.gameFinish.until) {
+      s.endMatch(s.gameFinish.winner)
+      broadcastStateIfHost(true)
+      return
+    }
+    dt *= 0.22 // 結束瞬間慢動作演出
+  }
   runtime.hitstopMs = Math.max(0, runtime.hitstopMs - dt * 1000)
   stepPlatforms(dt)
   if (debugKeys.toggle) { debugKeys.toggle = false; store().toggleDebug() }

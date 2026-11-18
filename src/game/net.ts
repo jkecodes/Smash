@@ -170,6 +170,7 @@ function connectWs(onOpen: () => void) {
     if (msg.type === 'event' && ns.role === 'guest') {
       if (msg.kind === 'ultCutin') gs.triggerUltCutin(msg.data)
       else if (msg.kind === 'fatalFlash') gs.triggerFatalFlash(msg.x, msg.y)
+      else if (msg.kind === 'gameFinish') gs.triggerGameFinish(msg.winner)
       return
     }
   }
@@ -364,7 +365,7 @@ export function broadcastStateIfHost(force = false) {
   })
 }
 
-export function broadcastNetEvent(ev: { kind: 'ultCutin'; data: any } | { kind: 'fatalFlash'; x: number; y: number }) {
+export function broadcastNetEvent(ev: { kind: 'ultCutin'; data: any } | { kind: 'fatalFlash'; x: number; y: number } | { kind: 'gameFinish'; winner: FighterId }) {
   if (useNetStore.getState().role !== 'host') return
   sendRaw({ type: 'event', ...ev })
 }

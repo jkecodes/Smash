@@ -88,8 +88,10 @@ interface GameStore {
   ultCutin: { charId: CharacterId; name: string; skillName: string; color: string; until: number } | null
   fatalFlash: { until: number; x: number; y: number } | null
   countdown: '3' | '2' | '1' | 'SMASH!!!' | null
+  gameFinish: { winner: FighterId; until: number } | null
   triggerUltCutin(data: { charId: CharacterId; name: string; skillName: string; color: string }): void
   triggerFatalFlash(x: number, y: number): void
+  triggerGameFinish(winner: FighterId): void
   select(id: FighterId, c: CharacterId, isRandom?: boolean): void
   startMatch(): void
   endMatch(w: FighterId): void
@@ -129,6 +131,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ultCutin: null,
   fatalFlash: null,
   countdown: null,
+  gameFinish: null,
   triggerUltCutin: (data) => {
     const until = performance.now() + 950
     set({ ultCutin: { ...data, until } })
@@ -143,6 +146,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if ((get().fatalFlash?.until ?? 0) <= performance.now()) set({ fatalFlash: null })
     }, 440)
   },
+  triggerGameFinish: (winner) => set({ gameFinish: { winner, until: performance.now() + 1450 }, countdown: null }),
   select: (id, c, isRandom = false) => set((s) => ({
     selection: { ...s.selection, [id]: c },
     randomSlots: { ...s.randomSlots, [id]: isRandom },
@@ -162,7 +166,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     ;(useGameStore as any)._matchSeq = matchSeq
     set({
       phase: 'playing', winner: null, paused: false,
-      ultCutin: null, fatalFlash: null, countdown: '3',
+      ultCutin: null, fatalFlash: null, countdown: '3', gameFinish: null,
       stageId: nextStage,
       selection: nextSel,
       fighters: buildFighters(nextSel, stockCount),
@@ -174,8 +178,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     setTimeout(() => { if ((useGameStore as any)._matchSeq === matchSeq && get().phase === 'playing') { set({ countdown: 'SMASH!!!' }); sfx('perfect') } }, 2100)
     setTimeout(() => { if ((useGameStore as any)._matchSeq === matchSeq && get().phase === 'playing') { set({ countdown: null }) } }, 2750)
   },
-  endMatch: (w) => set({ phase: 'ended', winner: w, paused: false, ultCutin: null, fatalFlash: null, countdown: null }),
-  toMenu: () => set({ phase: 'menu', winner: null, paused: false, ultCutin: null, fatalFlash: null, countdown: null }),
+  endMatch: (w) => set({ phase: 'ended', winner: w, paused: false, ultCutin: null, fatalFlash: null, countdown: null, gameFinish: null }),
+  toMenu: () => set({ phase: 'menu', winner: null, paused: false, ultCutin: null, fatalFlash: null, countdown: null, gameFinish: null }),
   publishUi: (ui) => set({ ui }),
   toggleDebug: () => set((s) => ({ showDebug: !s.showDebug })),
 }))
