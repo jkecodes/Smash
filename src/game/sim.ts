@@ -1200,8 +1200,22 @@ function updateProjectiles(dt: number) {
       queueHit(att, tgt, p.source, p.pos)
       if (!p.pierce) { consumed = true; break }
     }
-    // 落地（碰到平台頂面）
+    // 碰撞場地主體與立體建築牆面（solids）
     const stage = getStage()
+    if (!consumed && !p.pierce) {
+      const hitSolid = stage.solids?.some((s) =>
+        Math.abs(p.pos[0] - s.x) <= s.w / 2 + p.radius * 0.6 &&
+        Math.abs(p.pos[1] - s.y) <= s.h / 2 + p.radius * 0.6,
+      )
+      const hitMainWall =
+        Math.abs(p.pos[0]) <= stage.half.x + p.radius * 0.4 &&
+        p.pos[1] <= p.radius * 0.6 &&
+        p.pos[1] >= -stage.half.y * 2 - 0.8
+      if (hitSolid || hitMainWall) {
+        consumed = true
+        if (p.explodeRadius > 0) exploded = true
+      }
+    }
     if (!consumed && p.gravity !== 0 && p.vel[1] < 0 && p.pos[1] <= p.radius && Math.abs(p.pos[0]) <= stage.half.x) { consumed = true; exploded = true }
     if (!consumed && outOfRange) { consumed = true; if (p.explodeRadius > 0) exploded = true }
     if (!consumed && p.ttlMs <= 0 && p.explodeRadius > 0) { consumed = true; exploded = true }
