@@ -35,7 +35,7 @@ export interface PartnerPortrait {
   blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; witchHat?: boolean; glasses?: boolean
 }
 export interface PartnerPreset {
-  body: string; hair: string; accent: string
+  body: string; hair: string; accent: string; bladeColor?: string
   prop?: 'katana' | 'spear' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat' | 'mic' | 'needle' | 'book'
   style?: 'sword' | 'spear' | 'martial' | 'gun' | 'idol' | 'mage'
   shortHair?: boolean; twintails?: boolean; hornColor?: string
@@ -383,7 +383,7 @@ export const PARTNERS: PartnerSpec[] = [
     scale: 1.0, speedMult: 1.14, damageMult: 1.14, weightMult: 0.98,
     trait: '🪶 神樂缽・妖刀「飛宗」盲劍客！居合白契流、鴉羽瞬移斬與「雀」覺醒。',
     portrait: { bg: '#1c1917', hair: '#18181b', outfit: '#0f172a', accent: '#f59e0b', eye: '#fbbf24', shortHair: true, scar: true, blindfold: true },
-    preset: { body: '#0f172a', hair: '#18181b', accent: '#f59e0b', prop: 'katana', style: 'sword', shortHair: true },
+    preset: { body: '#0f172a', hair: '#18181b', accent: '#f59e0b', bladeColor: '#09090b', prop: 'katana', style: 'sword', shortHair: true },
     kit: {
       a1: '居合白契流・抜刀', a2: '飛宗連斬', tilts: ['居合橫斬', '飛宗上挑', '逆袈裟下斬'],
       s1: { name: '飛宗「梟」黑羽斬波', projColor: '#f59e0b', pierce: true, speed: 24 },

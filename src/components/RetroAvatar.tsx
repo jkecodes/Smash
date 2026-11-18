@@ -18,7 +18,7 @@ const RETRO_IDS = new Set<CharacterId>([
 ])
 
 type AnimePreset = {
-  body: string; hair: string; accent: string; head?: string
+  body: string; hair: string; accent: string; head?: string; bladeColor?: string
   prop?: 'katana' | 'spear' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat' | 'mic' | 'needle' | 'book'
   style?: 'sword' | 'spear' | 'martial' | 'gun' | 'idol' | 'mage'
   shortHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; blindfold?: boolean; hornColor?: string; dualSword?: boolean
@@ -1378,7 +1378,16 @@ export function RetroAvatar({ id, charId, hideProps = false }: { id: FighterId; 
               <mesh position={[0, -0.12, 0.06]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color={pr.body} /></mesh>
               {!hideProps && pr.prop === 'katana' && (
                 <group position={[0, -0.04, 0.36]} rotation={[0.95, 0, 0]}>
-                  <mesh position={[0, 0.26, 0]}><boxGeometry args={[0.04, 0.68, 0.07]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.6} /></mesh>
+                  <mesh position={[0, 0.26, 0]}>
+                    <boxGeometry args={[0.04, 0.68, 0.07]} />
+                    <meshStandardMaterial
+                      color={pr.bladeColor ?? pr.accent}
+                      emissive={pr.bladeColor ?? pr.accent}
+                      emissiveIntensity={pr.bladeColor ? 0.12 : 0.6}
+                      metalness={pr.bladeColor ? 0.85 : 0.3}
+                      roughness={pr.bladeColor ? 0.2 : 0.4}
+                    />
+                  </mesh>
                   <mesh position={[0, -0.08, 0]}><boxGeometry args={[0.14, 0.04, 0.14]} /><meshStandardMaterial color="#facc15" /></mesh>
                 </group>
               )}
