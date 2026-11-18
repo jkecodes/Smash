@@ -1013,9 +1013,39 @@ function LoongDragonMesh({ scale = 1 }: { scale?: number }) {
 function SummonView({ s }: { s: Summon }) {
   const g = useRef<THREE.Group>(null)
   const spin = useRef<THREE.Group>(null)
+  const lastPct = useRef(-1)
+  const pctTex = useMemo(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 160
+    canvas.height = 64
+    const tex = new THREE.CanvasTexture(canvas)
+    return { canvas, tex }
+  }, [])
   useFrame((_, dt) => {
+    const pct = Math.round(s.selfDamage)
+    if (pct !== lastPct.current) {
+      lastPct.current = pct
+      const ctx = pctTex.canvas.getContext('2d')
+      if (ctx) {
+        ctx.clearRect(0, 0, 160, 64)
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.78)'
+        ctx.beginPath()
+        ctx.roundRect(14, 10, 132, 44, 14)
+        ctx.fill()
+        ctx.strokeStyle = s.color
+        ctx.lineWidth = 3
+        ctx.stroke()
+        ctx.font = '900 28px system-ui, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillStyle = pct >= 140 ? '#ef4444' : pct >= 90 ? '#fb923c' : pct >= 45 ? '#fde047' : '#ffffff'
+        ctx.fillText(`${pct}%`, 80, 33)
+        pctTex.tex.needsUpdate = true
+      }
+    }
     if (g.current) {
-      g.current.position.set(s.pos[0], s.pos[1], s.pos[2])
+      const jitter = s.flashMs > 0 ? (Math.random() - 0.5) * 0.14 : 0
+      g.current.position.set(s.pos[0] + jitter, s.pos[1] + jitter, s.pos[2])
       const fade = Math.min(1, s.ttlMs / 350, (s.durationMs - s.ttlMs) / 180 + 0.05)
       const pulse = 0.94 + 0.08 * Math.sin(performance.now() / 130 + s.id)
       g.current.scale.setScalar(fade * pulse)
@@ -1023,15 +1053,18 @@ function SummonView({ s }: { s: Summon }) {
     if (spin.current) {
       if (s.kind === 'loong') {
         const dirX = Math.abs(s.vel[0]) > 0.2 ? Math.sign(s.vel[0]) : 1
-        spin.current.rotation.set(0, dirX < 0 ? Math.PI : 0, Math.sin(performance.now() / 180) * 0.14)
+        spin.current.rotation.set(0, dirX < 0 ? Math.PI : 0, s.hitstunMs > 0 ? performance.now() / 80 : Math.sin(performance.now() / 180) * 0.14)
       } else {
-        spin.current.rotation.y += dt * 3.8
-        spin.current.rotation.z += dt * 2.1
+        spin.current.rotation.y += dt * (s.hitstunMs > 0 ? 12 : 3.8)
+        spin.current.rotation.z += dt * (s.hitstunMs > 0 ? 9 : 2.1)
       }
     }
   })
   return (
     <group ref={g} position={s.pos}>
+      <sprite position={[0, s.radius + 0.72, 0]} scale={[1.45, 0.58, 1]}>
+        <spriteMaterial map={pctTex.tex} transparent depthTest={false} />
+      </sprite>
       <group ref={spin}>
         {s.kind === 'drone' ? (
           <>

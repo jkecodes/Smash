@@ -347,6 +347,10 @@ export interface Summon {
   fireCdMs: number
   fireIntervalMs: number
   damage: number
+  /** 召喚物自身累積的 % 傷害（越高被打飛越遠） */
+  selfDamage: number
+  hitstunMs: number
+  flashMs: number
   kbBase: number
   kbScaling: number
   speed: number

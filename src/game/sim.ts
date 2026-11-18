@@ -358,6 +358,9 @@ function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
         fireCdMs: 350,
         fireIntervalMs: opts.fireIntervalMs ?? (behavior === 'shoot' ? 950 : 650),
         damage,
+        selfDamage: 0,
+        hitstunMs: 0,
+        flashMs: 0,
         kbBase,
         kbScaling,
         speed: opts.speed ?? (behavior === 'chase' ? 8.2 : 11),
@@ -552,6 +555,7 @@ function runHitbox(f: FighterState, sk: HitSource, hb: HitboxDef) {
       queueHit(f, t, sk, center)
     }
     hitBallIfOverlap(f, sk, center, scaledR)
+    hitSummonsIfOverlap(f, sk, center, scaledR)
   }
 }
 
@@ -606,6 +610,25 @@ function hitBallIfOverlap(att: FighterState, src: HitSource, center: Vec3, r: nu
     ballTimer = 6 + Math.random() * 4
   }
   return true
+}
+function hitSummonsIfOverlap(att: FighterState, src: HitSource, center: Vec3, r: number): boolean {
+  let hitAny = false
+  for (const s of runtime.summons) {
+    if (s.owner === att.id || src.hitSet.has(`sum_${s.id}`)) continue
+    if (Math.hypot(center[0] - s.pos[0], center[1] - s.pos[1]) > r + s.radius) continue
+    src.hitSet.add(`sum_${s.id}`)
+    hitAny = true
+    const dmg = Math.max(1, src.def.damage * src.dmgMult * (CHARACTERS[att.character]?.damageMult ?? 1))
+    s.selfDamage = Math.min(MAX_DAMAGE, s.selfDamage + dmg)
+    const kb = (src.def.knockback.base + src.def.knockback.scaling * (s.selfDamage / 100)) * src.kbMult
+    const dirX = Math.sign(s.pos[0] - att.pos[0]) || att.facing[0]
+    s.vel = [dirX * Math.max(4, kb * 0.9), Math.max(3.5, kb * 0.55), 0]
+    s.hitstunMs = Math.min(950, 200 + kb * 18)
+    s.flashMs = 160
+    addFx({ kind: 'burst', pos: [...s.pos], color: '#ffffff', ttl: 240, count: 10, speed: 5, size: 0.16 })
+    sfx('hit')
+  }
+  return hitAny
 }
 function updateBall(dt: number) {
   const b = runtime.ball
@@ -1305,6 +1328,7 @@ function explodeProjectile(p: import('./types').Projectile) {
     queueHit(att, tgt, p.source, p.pos)
   }
   hitBallIfOverlap(att, p.source, p.pos, p.explodeRadius)
+  hitSummonsIfOverlap(att, p.source, p.pos, p.explodeRadius)
   addFx({ kind: 'ring', pos: [...p.pos], color: p.color, ttl: 380, radius: p.explodeRadius })
   addFx({ kind: 'burst', pos: [...p.pos], color: p.color, ttl: 500, count: 26, speed: 8, size: 0.22 })
   runtime.shake = Math.max(runtime.shake, 0.25)
@@ -1343,6 +1367,7 @@ function updateProjectiles(dt: number) {
     let consumed = false
     let exploded = false
     if (hitBallIfOverlap(store().fighters[p.owner], p.source, p.pos, p.radius) && !p.pierce) consumed = true
+    if (!consumed && hitSummonsIfOverlap(store().fighters[p.owner], p.source, p.pos, p.radius) && !p.pierce) consumed = true
     for (const id of consumed ? [] : queryBall(p.pos, p.radius)) {
       if (id === p.owner || p.source.hitSet.has(id)) continue
       const tgt = store().fighters[id]
@@ -1423,9 +1448,26 @@ function updateSummons(dt: number) {
   for (const s of [...runtime.summons]) {
     const owner = fs[s.owner]
     s.ttlMs -= dtMs
+    s.flashMs = Math.max(0, s.flashMs - dtMs)
     if (!owner?.alive || s.ttlMs <= 0) {
       addFx({ kind: 'burst', pos: [...s.pos], color: s.color, ttl: 260, count: 10, speed: 4.5, size: 0.14 })
       removeSummon(s.id)
+      continue
+    }
+
+    if (s.hitstunMs > 0) {
+      s.hitstunMs = Math.max(0, s.hitstunMs - dtMs)
+      s.vel[1] -= 18 * dt
+      s.vel[0] *= Math.max(0, 1 - 1.1 * dt)
+      s.pos[0] += s.vel[0] * dt
+      s.pos[1] += s.vel[1] * dt
+      const blast = getStage().blast ?? BLAST
+      if (Math.abs(s.pos[0]) > blast.x || s.pos[1] < blast.minY || s.pos[1] > blast.maxY) {
+        addFx({ kind: 'ring', pos: [...s.pos], color: '#ef4444', ttl: 380, radius: 2.2, plane: 'vertical' })
+        addFx({ kind: 'burst', pos: [...s.pos], color: s.color, ttl: 340, count: 18, speed: 7, size: 0.2 })
+        sfx('ko')
+        removeSummon(s.id)
+      }
       continue
     }
 
