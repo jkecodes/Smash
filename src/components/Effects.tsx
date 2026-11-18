@@ -347,6 +347,24 @@ function SummonFx({ it }: { it: FxItem }) {
           <mesh position={[0, -0.55, 0]}><cylinderGeometry args={[0.75, 0.9, 0.6, 12]} /><meshStandardMaterial color="#ffffff" /></mesh>
         </group>
       )}
+      {it.model === 'loong' && (
+        <group ref={sub}>
+          {/* 鳴潮 今汐・歲主「角」3D 白金神龍：龍首＋雙角＋金鬚＋蜿蜒龍身＋龍珠 */}
+          <mesh position={[1.15, 0.35, 0]}><boxGeometry args={[0.95, 0.55, 0.6]} /><meshStandardMaterial color="#f8fafc" emissive="#fde047" emissiveIntensity={0.45} /></mesh>
+          <mesh position={[1.7, 0.3, 0]}><boxGeometry args={[0.45, 0.32, 0.44]} /><meshStandardMaterial color="#fef08a" emissive="#eab308" emissiveIntensity={0.5} /></mesh>
+          <mesh position={[1.35, 0.48, 0.32]}><sphereGeometry args={[0.09, 8, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+          <mesh position={[1.35, 0.48, -0.32]}><sphereGeometry args={[0.09, 8, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+          <mesh position={[0.95, 0.92, 0.22]} rotation={[0, 0, 0.35]}><coneGeometry args={[0.1, 0.75, 5]} /><meshStandardMaterial color="#fde047" emissive="#eab308" emissiveIntensity={0.6} /></mesh>
+          <mesh position={[0.95, 0.92, -0.22]} rotation={[0, 0, 0.35]}><coneGeometry args={[0.1, 0.75, 5]} /><meshStandardMaterial color="#fde047" emissive="#eab308" emissiveIntensity={0.6} /></mesh>
+          {[0.4, -0.25, -0.9, -1.55, -2.15].map((sx, idx) => (
+            <mesh key={idx} position={[sx, Math.sin(idx * 1.1) * 0.32, 0]}>
+              <sphereGeometry args={[0.42 - idx * 0.05, 10, 10]} />
+              <meshStandardMaterial color={idx % 2 === 0 ? '#f8fafc' : '#fef08a'} emissive="#eab308" emissiveIntensity={0.35} />
+            </mesh>
+          ))}
+          <mesh position={[2.25, 0.45, 0]}><sphereGeometry args={[0.24, 12, 12]} /><meshBasicMaterial color="#fde047" /></mesh>
+        </group>
+      )}
       {it.model === 'blueEyes' && (
         <group ref={sub}>
           <mesh position={[0.5, 0.2, 0]}><boxGeometry args={[1.4, 0.85, 0.9]} /><meshStandardMaterial color="#e0f2fe" emissive="#38bdf8" emissiveIntensity={0.55} /></mesh>

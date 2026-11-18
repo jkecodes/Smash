@@ -161,6 +161,7 @@ const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
   gojo: 'hollow',
   stelle: 'train',
   hutao: 'ghost',
+  jinhsi: 'loong',
 }
 
 const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover', 'youmu', 'firefly', 'ellen', 'erika', 'creeper', ...partnerHas('charge')])
@@ -363,7 +364,10 @@ function registerKit(k: KitSpec) {
             const tx = tgt ? tgt.pos[0] : clampStageX(c.caster.pos[0] + c.forward[0] * 5)
             c.fx({ kind: 'ring', pos: [tx, 11.5, 0], color: k.s1.projColor, ttl: 260, radius: 1.4 })
             c.spawnProjectile({ pos: [tx, 12, 0], vel: [0, -21, 0], radius: p === 'doh' ? 0.72 : 0.56, ttlMs: 1400, color: k.s1.projColor, gravity: -12, explodeRadius: 2.5 })
-            if (p === 'jinhsi') c.fx({ kind: 'pillar', pos: [tx, 0, 0], color: '#fde047', ttl: 320, radius: 1.1 })
+            if (p === 'jinhsi') {
+              c.fx({ kind: 'pillar', pos: [tx, 0, 0], color: '#fde047', ttl: 320, radius: 1.1 })
+              c.fx({ kind: 'summon', model: 'loong', pos: [tx, 5.5, 0], color: '#fde047', ttl: 750, size: 0.95, dir: c.forward[0] })
+            }
           } else if (p === 'blackbomber') {
             // 原地放置定時炸彈
             c.spawnProjectile({ pos: at(c, 0.1, 0.8), vel: [c.forward[0] * 3, 2.5, 0], radius: 0.52, ttlMs: 950, color: '#ec4899', gravity: -18, explodeRadius: 3.1 })
