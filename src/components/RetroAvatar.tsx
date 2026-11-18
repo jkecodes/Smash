@@ -17,24 +17,24 @@ const RETRO_IDS = new Set<CharacterId>([
 type AnimePreset = {
   body: string; hair: string; accent: string; head?: string
   prop?: 'katana' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat'
-  shortHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean
+  shortHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; blindfold?: boolean; hornColor?: string
 }
 const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   chihiro: { body: '#18181b', hair: '#09090b', accent: '#ef4444', prop: 'katana', shortHair: true, scar: true },
-  ichi: { body: '#1e3a8a', hair: '#111827', accent: '#38bdf8', prop: 'hat' },
-  ruri: { body: '#f8fafc', hair: '#1e293b', accent: '#34d399', prop: 'horns' },
-  nona: { body: '#4a044e', hair: '#fbcfe8', accent: '#e879f9', prop: 'orb' },
-  gojo: { body: '#111827', hair: '#f8fafc', accent: '#818cf8', prop: 'orb' },
-  deku: { body: '#14532d', hair: '#15803d', accent: '#4ade80', prop: 'orb' },
-  yodaka: { body: '#0f172a', hair: '#334155', accent: '#38bdf8', prop: 'katana' },
+  ichi: { body: '#1e3a8a', hair: '#111827', accent: '#38bdf8', prop: 'hat', shortHair: true },
+  ruri: { body: '#f8fafc', hair: '#6b4423', accent: '#d97706', prop: 'horns', hornColor: '#d97706' },
+  nona: { body: '#4a044e', hair: '#e9d5ff', accent: '#e879f9', prop: 'orb' },
+  gojo: { body: '#111827', hair: '#f8fafc', accent: '#818cf8', prop: 'orb', shortHair: true, blindfold: true },
+  deku: { body: '#14532d', hair: '#15803d', accent: '#4ade80', prop: 'orb', shortHair: true },
+  yodaka: { body: '#0f172a', hair: '#334155', accent: '#38bdf8', prop: 'katana', shortHair: true },
   saki: { body: '#be123c', hair: '#fb7185', accent: '#fde047', prop: 'orb' },
   spe: { body: '#ffffff', hair: '#78350f', accent: '#c084fc', prop: 'ears' },
   kaoruko: { body: '#831843', hair: '#1e1b2e', accent: '#f9a8d4', prop: 'orb' },
   stelle: { body: '#1e293b', hair: '#94a3b8', accent: '#facc15', prop: 'bat' },
   lumine: { body: '#f8fafc', hair: '#fde047', accent: '#5eead4', prop: 'katana' },
   miyabi: { body: '#0f172a', hair: '#18181b', accent: '#22d3ee', prop: 'ears' },
-  rover: { body: '#1e293b', hair: '#09090b', accent: '#facc15', prop: 'katana' },
-  rapi: { body: '#27272a', hair: '#f97316', accent: '#ef4444', prop: 'rifle' },
+  rover: { body: '#1e293b', hair: '#09090b', accent: '#facc15', prop: 'katana', shortHair: true },
+  rapi: { body: '#27272a', hair: '#9a3412', accent: '#ef4444', prop: 'rifle' },
   akira: { body: '#1e3a8a', hair: '#f472b6', accent: '#fbcfe8', prop: 'orb' },
   kotone: { body: '#f59e0b', hair: '#facc15', accent: '#fef08a', prop: 'orb', twintails: true },
   hutao: { body: '#18181b', hair: '#3f2318', accent: '#ef4444', prop: 'katana', twintails: true, huTaoHat: true },
@@ -940,10 +940,13 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
                 <mesh position={[-0.1, 0.1, 0.17]}><sphereGeometry args={[0.055, 8, 8]} /><meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.4} /></mesh>
               </group>
             )}
+            {pr.blindfold && (
+              <mesh position={[0, 0.36, 0.14]}><boxGeometry args={[0.36, 0.09, 0.18]} /><meshStandardMaterial color="#111827" /></mesh>
+            )}
             {pr.prop === 'horns' && (
               <>
-                <mesh position={[0.12, 0.6, 0.04]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.05, 0.22, 6]} /><meshStandardMaterial color="#34d399" /></mesh>
-                <mesh position={[-0.12, 0.6, 0.04]} rotation={[0, 0, 0.25]}><coneGeometry args={[0.05, 0.22, 6]} /><meshStandardMaterial color="#34d399" /></mesh>
+                <mesh position={[0.12, 0.6, 0.04]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.05, 0.22, 6]} /><meshStandardMaterial color={pr.hornColor ?? '#d97706'} /></mesh>
+                <mesh position={[-0.12, 0.6, 0.04]} rotation={[0, 0, 0.25]}><coneGeometry args={[0.05, 0.22, 6]} /><meshStandardMaterial color={pr.hornColor ?? '#d97706'} /></mesh>
               </>
             )}
             {pr.prop === 'ears' && (

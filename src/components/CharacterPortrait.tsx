@@ -44,23 +44,23 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   hutao: 'HU TAO',
 }
 
-const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean }>> = {
+const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; witchHat?: boolean }>> = {
   chihiro: { bg: '#4c0519', hair: '#09090b', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', shortHair: true, scar: true },
-  ichi: { bg: '#0c4a6e', hair: '#111827', outfit: '#1e3a8a', accent: '#38bdf8', eye: '#38bdf8' },
-  ruri: { bg: '#064e3b', hair: '#1e293b', outfit: '#f8fafc', accent: '#34d399', eye: '#f97316', horns: true },
-  nona: { bg: '#4a044e', hair: '#fbcfe8', outfit: '#3b0764', accent: '#e879f9', eye: '#a855f7' },
-  gojo: { bg: '#1e1b4b', hair: '#f8fafc', outfit: '#111827', accent: '#818cf8', eye: '#38bdf8', blindfold: true },
-  deku: { bg: '#052e16', hair: '#15803d', outfit: '#14532d', accent: '#4ade80', eye: '#22c55e' },
-  yodaka: { bg: '#0f172a', hair: '#334155', outfit: '#09090b', accent: '#38bdf8', eye: '#94a3b8' },
+  ichi: { bg: '#0c4a6e', hair: '#111827', outfit: '#1e3a8a', accent: '#38bdf8', eye: '#38bdf8', shortHair: true, witchHat: true },
+  ruri: { bg: '#064e3b', hair: '#6b4423', outfit: '#f8fafc', accent: '#d97706', eye: '#f97316', horns: true, bobHair: true },
+  nona: { bg: '#4a044e', hair: '#e9d5ff', outfit: '#3b0764', accent: '#e879f9', eye: '#a855f7', bobHair: true },
+  gojo: { bg: '#1e1b4b', hair: '#f8fafc', outfit: '#111827', accent: '#818cf8', eye: '#38bdf8', blindfold: true, shortHair: true },
+  deku: { bg: '#052e16', hair: '#15803d', outfit: '#14532d', accent: '#4ade80', eye: '#22c55e', shortHair: true },
+  yodaka: { bg: '#0f172a', hair: '#334155', outfit: '#09090b', accent: '#38bdf8', eye: '#94a3b8', shortHair: true },
   saki: { bg: '#881337', hair: '#fb7185', outfit: '#be123c', accent: '#fde047', eye: '#f43f5e' },
   spe: { bg: '#3b0764', hair: '#78350f', outfit: '#f8fafc', accent: '#c084fc', eye: '#a855f7', ears: true },
   kaoruko: { bg: '#500724', hair: '#1e1b2e', outfit: '#831843', accent: '#f9a8d4', eye: '#ec4899' },
   stelle: { bg: '#0f172a', hair: '#94a3b8', outfit: '#1e293b', accent: '#facc15', eye: '#eab308' },
-  lumine: { bg: '#134e4a', hair: '#fde047', outfit: '#f8fafc', accent: '#5eead4', eye: '#facc15' },
+  lumine: { bg: '#134e4a', hair: '#fde047', outfit: '#f8fafc', accent: '#5eead4', eye: '#facc15', bobHair: true },
   miyabi: { bg: '#083344', hair: '#18181b', outfit: '#0f172a', accent: '#22d3ee', eye: '#ef4444', ears: true },
-  rover: { bg: '#1e293b', hair: '#09090b', outfit: '#334155', accent: '#facc15', eye: '#eab308' },
-  rapi: { bg: '#450a0a', hair: '#f97316', outfit: '#27272a', accent: '#ef4444', eye: '#ef4444' },
-  akira: { bg: '#500724', hair: '#f472b6', outfit: '#1e3a8a', accent: '#fbcfe8', eye: '#ec4899' },
+  rover: { bg: '#1e293b', hair: '#09090b', outfit: '#334155', accent: '#facc15', eye: '#eab308', shortHair: true },
+  rapi: { bg: '#450a0a', hair: '#9a3412', outfit: '#27272a', accent: '#ef4444', eye: '#ef4444' },
+  akira: { bg: '#500724', hair: '#f472b6', outfit: '#1e3a8a', accent: '#fbcfe8', eye: '#ec4899', bobHair: true },
   kotone: { bg: '#713f12', hair: '#facc15', outfit: '#f59e0b', accent: '#fef08a', eye: '#38bdf8', twintails: true },
   hutao: { bg: '#450a0a', hair: '#3f2318', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', twintails: true, huTaoHat: true },
 }
@@ -544,6 +544,8 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
             <circle cx="60" cy="60" r="46" fill={p.accent} opacity="0.18" />
             {p.shortHair ? (
               <path d="M32,56 L26,38 L38,24 L52,16 L64,22 L76,16 L86,28 L94,40 L88,56 Z" fill={p.hair} />
+            ) : p.bobHair ? (
+              <path d="M30,44 C30,18 90,18 90,44 L92,78 L28,78 Z" fill={p.hair} />
             ) : (
               <path d="M28,44 C28,18 92,18 92,44 L96,104 L24,104 Z" fill={p.hair} />
             )}
@@ -577,6 +579,12 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
                 <path d="M38,35 C40,14 80,14 82,35 Z" fill="#27272a" />
                 <circle cx="48" cy="28" r="5" fill="#ef4444" />
                 <circle cx="48" cy="28" r="2" fill="#fde047" />
+              </>
+            )}
+            {p.witchHat && (
+              <>
+                <ellipse cx="60" cy="36" rx="38" ry="8" fill="#1e3a8a" stroke="#38bdf8" strokeWidth="1.6" />
+                <polygon points="40,35 60,6 80,35" fill="#1e3a8a" />
               </>
             )}
             {p.blindfold ? (
