@@ -899,3 +899,443 @@ reg({
     onEnd(c) { c.setGravityScale(1) },
   },
 })
+
+// ================================================================ 11. RYU 隆 (Street Fighter)
+const RYU = '#38bdf8'
+reg({
+  id: 'ryu.a1', name: '正拳直擊', energyCost: 0, chain: 'ryu.a2',
+  startupMs: 55, activeMs: 85, recoveryMs: 135,
+  hitbox: { offset: [0, 0.12, 0.9], radius: 0.88 }, damage: 3.5,
+  knockback: { dir: [0, 0.2, 1], base: 5.5, scaling: 5.5 },
+  hooks: { onActive(c) { slash(c, '#ffffff', { r: 1.25 }) } },
+})
+reg({
+  id: 'ryu.a2', name: '鳩尾碎重拳', energyCost: 0,
+  startupMs: 75, activeMs: 110, recoveryMs: 210,
+  hitbox: { offset: [0, 0.1, 1.05], radius: 1.0 }, damage: 6.5,
+  knockback: { dir: [0, 0.45, 1], base: 9.5, scaling: 10 },
+  hooks: {
+    onActive(c) {
+      c.setLocalVelocity(0, null, 3.5)
+      slash(c, RYU, { r: 1.55, flip: true })
+      c.fx({ kind: 'burst', pos: at(c, 0.1, 1.05), color: RYU, ttl: 260, count: 10, speed: 5, size: 0.13 })
+    },
+  },
+})
+registerTilts('ryu', { color: RYU, names: ['鎖骨割橫劈', '對空上勾拳', '下段足刀掃腿'] })
+reg({
+  id: 'ryu.hadoken', name: '波動拳', energyCost: 0, cooldownMs: 900, startupMs: 135, activeMs: 70, recoveryMs: 220,
+  projectile: { speed: 17.5, radius: 0.48, lifetimeMs: 1250, pierce: false, offset: [0, 0.12, 0.9], color: RYU },
+  damage: 9.5, knockback: { dir: [0, 0.38, 1], base: 10, scaling: 11 },
+  hooks: {
+    onActive(c) {
+      c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color: '#bae6fd', ttl: 240, radius: 1.2, plane: 'vertical' })
+    },
+  },
+})
+reg({
+  id: 'ryu.tatsumaki', name: '龍卷旋風腳', energyCost: 0, cooldownMs: 1500, startupMs: 110, activeMs: 360, recoveryMs: 240,
+  hitbox: { offset: [0, 0.08, 0.4], radius: 1.25, manual: true }, damage: 3.4,
+  knockback: { dir: [0, 0.42, 1], base: 9, scaling: 9 },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.3) },
+    onTick(c) {
+      if (c.phase !== 'active') return
+      c.setLocalVelocity(0, 1.2, 11.5)
+      trail(c, 45, RYU, 200)
+      c.scratch.tk = (c.scratch.tk ?? 0) - c.dt * 1000
+      if (c.scratch.tk <= 0) {
+        c.scratch.tk = 115
+        c.strike()
+        c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#bae6fd', ttl: 200, radius: 1.45 })
+      }
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})
+reg({
+  id: 'ryu.shoryuken', name: '昇龍拳', energyCost: 0, cooldownMs: 1400, startupMs: 75, activeMs: 280, recoveryMs: 340,
+  hitbox: { offset: [0, 0.45, 0.75], radius: 1.2 }, damage: 13,
+  knockback: { dir: [0, 0.92, 0.4], base: 14.5, scaling: 16 },
+  hooks: {
+    onStart(c) { c.setInvulnerable(220) },
+    onActive(c) {
+      c.setVelocity(c.forward[0] * 4.5, 17.5, 0)
+      c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: '#f97316', ttl: 340, radius: 1.2 })
+      c.fx({ kind: 'burst', pos: at(c, 0.4, 0.6), color: '#fde047', ttl: 320, count: 16, speed: 7, size: 0.16 })
+      c.shake(0.3)
+    },
+    onTick(c) { if (c.phase === 'active') trail(c, 35, '#fb923c', 220) },
+  },
+})
+reg({
+  id: 'ryu.focus', name: '氣合崩拳', energyCost: 0, cooldownMs: 2100, startupMs: 180, activeMs: 130, recoveryMs: 290,
+  hitbox: { offset: [0, 0.1, 0.95], radius: 1.4 }, damage: 11.5,
+  knockback: { dir: [0, 0.25, 1], base: 11, scaling: 12, hitstunMs: 900 },
+  hooks: {
+    onStart(c) { c.setInvulnerable(200) },
+    onActive(c) {
+      const p = at(c, 0, 0.9)
+      c.fx({ kind: 'ring', pos: p, color: '#111827', ttl: 360, radius: 2.0, plane: 'vertical' })
+      c.fx({ kind: 'burst', pos: p, color: '#ffffff', ttl: 340, count: 18, speed: 6, size: 0.16 })
+      c.shake(0.32)
+    },
+  },
+})
+reg({
+  id: 'ryu.shakunetsu', name: '灼熱波動拳', energyCost: 22, cooldownMs: 2400, startupMs: 200, activeMs: 80, recoveryMs: 260,
+  damage: 14, knockback: { dir: [0, 0.55, 1], base: 15, scaling: 16 },
+  hooks: {
+    onActive(c) {
+      c.spawnProjectile({ pos: at(c, 0.12, 0.9), vel: [c.forward[0] * 18, 0, 0], radius: 0.58, ttlMs: 1400, color: '#f97316', explodeRadius: 2.1 })
+      c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color: '#ef4444', ttl: 260, radius: 1.4, plane: 'vertical' })
+    },
+  },
+})
+registerSmashes('ryu', { color: '#ef4444', names: ['殺意正拳突', '真・鐵山昇龍', '裂地破軍腳'] })
+reg({
+  id: 'ryu.shinku', name: '真空波動拳 → 真・昇龍', energyCost: 0, requiresUlt: true,
+  startupMs: 520, activeMs: 1100, recoveryMs: 420,
+  damage: 5.5, knockback: { dir: [0, 0.65, 1], base: 17, scaling: 16 },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.2); c.setVelocity(0, 2, 0) },
+    onTick(c) {
+      if (c.phase === 'recovery') return
+      c.setInvulnerable(140)
+      if (c.phase === 'active') {
+        c.scratch.shk = (c.scratch.shk ?? 0) - c.dt * 1000
+        if (c.scratch.shk <= 0) {
+          c.scratch.shk = 190
+          c.fx({ kind: 'beam', pos: at(c, 0.15, 0.8), yaw: yawOf(c), length: 24, radius: 1.4, color: RYU, ttl: 240 })
+          c.spawnProjectile({ pos: at(c, 0.15, 0.9), vel: [c.forward[0] * 26, 0, 0], radius: 0.85, ttlMs: 1000, color: '#bae6fd', pierce: true })
+          c.shake(0.35)
+        }
+      }
+    },
+    onEnd(c) {
+      c.setGravityScale(1)
+      c.setVelocity(c.forward[0] * 4, 15, 0)
+      c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: '#f97316', ttl: 420, radius: 1.8 })
+    },
+  },
+})
+
+// ================================================================ 12. CHUN-LI 春麗 (Street Fighter)
+const CHN = '#60a5fa'
+reg({
+  id: 'chunli.a1', name: '鶴形掌擊', energyCost: 0, chain: 'chunli.a2',
+  startupMs: 50, activeMs: 80, recoveryMs: 120,
+  hitbox: { offset: [0, 0.12, 0.88], radius: 0.85 }, damage: 3,
+  knockback: { dir: [0, 0.2, 1], base: 5, scaling: 5 },
+  hooks: { onActive(c) { slash(c, '#ffffff', { r: 1.2 }) } },
+})
+reg({
+  id: 'chunli.a2', name: '穿雲雙踢', energyCost: 0,
+  startupMs: 65, activeMs: 105, recoveryMs: 190,
+  hitbox: { offset: [0, 0.15, 1.05], radius: 1.0 }, damage: 6,
+  knockback: { dir: [0, 0.5, 1], base: 9, scaling: 9.5 },
+  hooks: {
+    onActive(c) {
+      c.setLocalVelocity(0, null, 3.8)
+      slash(c, CHN, { r: 1.5, flip: true })
+    },
+  },
+})
+registerTilts('chunli', { color: CHN, names: ['鳳扇華橫踢', '天龍穿弓腿', '翡翠掃堂腿'] })
+reg({
+  id: 'chunli.hyakuretsu', name: '百裂腳', energyCost: 0, cooldownMs: 1200, startupMs: 90, activeMs: 440, recoveryMs: 220,
+  hitbox: { offset: [0, 0.12, 1.05], radius: 1.25, manual: true }, damage: 2.3,
+  knockback: { dir: [0, 0.35, 1], base: 7.5, scaling: 8.5 },
+  hooks: {
+    onTick(c) {
+      if (c.phase !== 'active') return
+      c.scratch.hk = (c.scratch.hk ?? 0) - c.dt * 1000
+      if (c.scratch.hk <= 0) {
+        c.scratch.hk = 75
+        c.strike()
+        slash(c, Math.random() > 0.4 ? CHN : '#ffffff', { d: 1.05, y: -0.15 + Math.random() * 0.55, r: 1.35, tilt: (Math.random() - 0.5) * 0.8 })
+      }
+    },
+  },
+})
+reg({
+  id: 'chunli.sbk', name: '迴旋鶴腳蹴', energyCost: 0, cooldownMs: 1500, startupMs: 120, activeMs: 400, recoveryMs: 240,
+  hitbox: { offset: [0, 0, 0.3], radius: 1.4, manual: true }, damage: 3.6,
+  knockback: { dir: [0, 0.5, 1], base: 9.5, scaling: 10 },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.22) },
+    onTick(c) {
+      if (c.phase !== 'active') return
+      c.setLocalVelocity(0, 0.6, 12.5)
+      trail(c, 45, CHN, 200)
+      c.scratch.sbk = (c.scratch.sbk ?? 0) - c.dt * 1000
+      if (c.scratch.sbk <= 0) {
+        c.scratch.sbk = 105
+        c.strike()
+        c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fef08a', ttl: 200, radius: 1.6 })
+      }
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})
+reg({
+  id: 'chunli.tensho', name: '天昇腳', energyCost: 0, cooldownMs: 1400, startupMs: 80, activeMs: 320, recoveryMs: 320,
+  hitbox: { offset: [0, 0.4, 0.65], radius: 1.25 }, damage: 11,
+  knockback: { dir: [0, 0.92, 0.4], base: 14, scaling: 15 },
+  hooks: {
+    onActive(c) {
+      c.setVelocity(c.forward[0] * 3.5, 17.8, 0)
+      c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: CHN, ttl: 340, radius: 1.15 })
+      c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#ffffff', ttl: 300, count: 14, speed: 6, size: 0.14 })
+    },
+  },
+})
+reg({
+  id: 'chunli.hazanshu', name: '霸山蹴', energyCost: 0, cooldownMs: 1800, startupMs: 160, activeMs: 180, recoveryMs: 260,
+  hitbox: { offset: [0, -0.1, 0.9], radius: 1.55 }, damage: 11,
+  knockback: { dir: [0, 0.6, 1], base: 13, scaling: 13 },
+  hooks: {
+    onStart(c) { c.setVelocity(c.forward[0] * 6, 8, 0) },
+    onActive(c) {
+      c.setVelocity(c.forward[0] * 4, -14, 0)
+      c.fx({ kind: 'ring', pos: at(c, -0.2, 0.9), color: '#fde047', ttl: 320, radius: 1.8 })
+      c.shake(0.32)
+    },
+  },
+})
+reg({
+  id: 'chunli.kikoken', name: '氣功拳', energyCost: 16, cooldownMs: 1800, startupMs: 140, activeMs: 70, recoveryMs: 220,
+  projectile: { speed: 15.5, radius: 0.5, lifetimeMs: 1100, pierce: false, offset: [0, 0.12, 0.9], color: '#fde047' },
+  damage: 11, knockback: { dir: [0, 0.45, 1], base: 12, scaling: 12 },
+  hooks: { onActive(c) { c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color: CHN, ttl: 240, radius: 1.2, plane: 'vertical' }) } },
+})
+registerSmashes('chunli', { color: CHN, names: ['發勁雙掌破', '天穹鶴翼腳', '雙龍旋風掃'] })
+reg({
+  id: 'chunli.kikosho', name: '奧義「氣功掌」', energyCost: 0, requiresUlt: true,
+  startupMs: 520, activeMs: 1350, recoveryMs: 400,
+  hitbox: { offset: [0, 0.15, 0.2], radius: 4.4, manual: true }, damage: 6.5,
+  knockback: { dir: [0, 0.78, 1], base: 19, scaling: 17, radial: true },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.1); c.setVelocity(0, 1.5, 0) },
+    onTick(c) {
+      if (c.phase === 'recovery') return
+      c.setInvulnerable(140)
+      if (c.phase === 'active') {
+        c.scratch.kk = (c.scratch.kk ?? 0) - c.dt * 1000
+        if (c.scratch.kk <= 0) {
+          c.scratch.kk = 240
+          c.strike()
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: CHN, ttl: 340, radius: 4.4, plane: 'vertical' })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fde047', ttl: 320, radius: 4.2 })
+          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#ffffff', ttl: 340, count: 22, speed: 9, size: 0.18 })
+          c.shake(0.55)
+        }
+      }
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})
+
+// ================================================================ 13. YUGI 武藤遊戲 (Yu-Gi-Oh!)
+const YUG = '#a855f7'
+reg({
+  id: 'yugi.a1', name: '決鬥盤抽卡斬', energyCost: 0, chain: 'yugi.a2',
+  startupMs: 65, activeMs: 85, recoveryMs: 145,
+  hitbox: { offset: [0, 0.15, 0.95], radius: 0.9 }, damage: 3.5,
+  knockback: { dir: [0, 0.25, 1], base: 6, scaling: 5.5 },
+  hooks: { onActive(c) { slash(c, '#fde047', { r: 1.35 }) } },
+})
+reg({
+  id: 'yugi.a2', name: '黑魔導杖破擊', energyCost: 0,
+  startupMs: 85, activeMs: 110, recoveryMs: 215,
+  hitbox: { offset: [0, 0.15, 1.15], radius: 1.05 }, damage: 6.5,
+  knockback: { dir: [0, 0.5, 1], base: 10.5, scaling: 11 },
+  hooks: {
+    onActive(c) {
+      slash(c, YUG, { d: 1.0, r: 1.7, flip: true })
+      c.fx({ kind: 'burst', pos: at(c, 0.15, 1.1), color: '#fde047', ttl: 280, count: 12, speed: 5, size: 0.14 })
+    },
+  },
+})
+registerTilts('yugi', { color: YUG, names: ['黑魔導女孩魔杖擊', '精靈劍士上斬', '栗子球爆雷下掃'] })
+reg({
+  id: 'yugi.darkMagic', name: '黑・魔・導', energyCost: 0, cooldownMs: 1150, startupMs: 165, activeMs: 70, recoveryMs: 230,
+  projectile: { speed: 18.5, radius: 0.54, lifetimeMs: 1350, pierce: true, offset: [0, 0.15, 0.95], color: YUG },
+  damage: 11, knockback: { dir: [0, 0.45, 1], base: 12, scaling: 12.5 },
+  hooks: {
+    onActive(c) {
+      c.fx({ kind: 'ring', pos: at(c, 0.15, 0.95), color: '#fde047', ttl: 260, radius: 1.4, plane: 'vertical' })
+    },
+  },
+})
+reg({
+  id: 'yugi.gaia', name: '暗黑騎士蓋亞・螺旋槍殺', energyCost: 0, cooldownMs: 1700, startupMs: 130, activeMs: 320, recoveryMs: 240,
+  hitbox: { offset: [0, 0.1, 0.75], radius: 1.2 }, damage: 11.5,
+  knockback: { dir: [0, 0.4, 1], base: 14, scaling: 13.5 },
+  hooks: {
+    onActive(c) { c.setLocalVelocity(0, 1.5, 15.5) },
+    onTick(c) { if (c.phase === 'active') trail(c, 35, YUG, 240) },
+  },
+})
+reg({
+  id: 'yugi.swords', name: '光之護封劍・傳送', energyCost: 0, cooldownMs: 1500, startupMs: 130, activeMs: 120, recoveryMs: 280,
+  hitbox: { offset: [0, 0.1, 0], radius: 1.9 }, damage: 7,
+  knockback: { dir: [0, 0.85, 0.5], base: 12, scaling: 11, radial: true },
+  hooks: {
+    onStart(c) { c.setInvulnerable(240) },
+    onActive(c) {
+      const ny = c.caster.pos[1] + 4.8
+      c.teleport([c.caster.pos[0], ny, 0])
+      c.setVelocity(c.forward[0] * 3, 10.5, 0)
+      c.fx({ kind: 'pillar', pos: [c.caster.pos[0], ny - 1, 0], color: '#fde047', ttl: 420, radius: 1.5 })
+      c.fx({ kind: 'ring', pos: [c.caster.pos[0], ny, 0], color: '#ffffff', ttl: 340, radius: 1.9 })
+    },
+  },
+})
+reg({
+  id: 'yugi.mirrorForce', name: '神聖彗星－反射力量－', energyCost: 0, cooldownMs: 2400, startupMs: 90, activeMs: 160, recoveryMs: 300,
+  hitbox: { offset: [0, 0.1, 0], radius: 2.9 }, damage: 10.5,
+  knockback: { dir: [0, 0.65, 1], base: 14.5, scaling: 15, radial: true },
+  hooks: {
+    onStart(c) { c.setInvulnerable(280) },
+    onActive(c) {
+      const p: Vec3 = [...c.caster.pos]
+      c.fx({ kind: 'ring', pos: p, color: '#fde047', ttl: 420, radius: 2.9, plane: 'vertical' })
+      c.fx({ kind: 'ring', pos: p, color: '#ffffff', ttl: 380, radius: 2.9 })
+      for (const s of [-1, 1]) {
+        c.spawnProjectile({ pos: p, vel: [s * 17, 2.5, 0], radius: 0.4, ttlMs: 950, color: '#fde047' })
+      }
+      c.shake(0.38)
+    },
+  },
+})
+reg({
+  id: 'yugi.slifer', name: '歐西里斯天空龍・召雷彈', energyCost: 24, cooldownMs: 2600, startupMs: 210, activeMs: 80, recoveryMs: 260,
+  damage: 15.5, knockback: { dir: [0, 0.62, 1], base: 16, scaling: 16.5 },
+  hooks: {
+    onActive(c) {
+      c.spawnProjectile({ pos: at(c, 0.25, 0.9), vel: [c.forward[0] * 19, -0.5, 0], radius: 0.6, ttlMs: 1400, color: '#ef4444', explodeRadius: 2.4 })
+      c.fx({ kind: 'burst', pos: at(c, 0.25, 0.9), color: '#fde047', ttl: 340, count: 16, speed: 6, size: 0.16 })
+      c.shake(0.35)
+    },
+  },
+})
+registerSmashes('yugi', { color: '#fde047', names: ['混沌黑魔導斬', '超魔導劍士破', '魔法筒次元震'] })
+reg({
+  id: 'yugi.exodia', name: '艾克佐迪亞・黑暗大法師潰滅！', energyCost: 0, requiresUlt: true,
+  startupMs: 650, activeMs: 700, recoveryMs: 480,
+  hitbox: { offset: [0, 0.2, 0.8], radius: 2.4, length: 28 }, damage: 24,
+  knockback: { dir: [0, 0.55, 1], base: 27, scaling: 19, hitstunMs: 1400 },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.15); c.setVelocity(0, 3, 0) },
+    onTick(c) {
+      if (c.phase === 'recovery') return
+      c.setInvulnerable(140)
+      if (c.phase === 'startup') {
+        c.scratch.ex = (c.scratch.ex ?? 0) - c.dt * 1000
+        if (c.scratch.ex <= 0) {
+          c.scratch.ex = 120
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fde047', ttl: 260, radius: 1.0 + (c.phaseMs / 650) * 2.5, plane: 'vertical' })
+        }
+      }
+    },
+    onActive(c) {
+      c.fx({ kind: 'beam', pos: at(c, 0.2, 0.8), yaw: yawOf(c), length: 28, radius: 2.3, color: '#fde047', ttl: 650 })
+      c.fx({ kind: 'pillar', pos: at(c, -2, 4), color: '#facc15', ttl: 700, radius: 2.8 })
+      c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#fde047', ttl: 750, count: 60, speed: 12, size: 0.24 })
+      c.shake(1.35)
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})
+
+// ================================================================ 14. KAIBA 海馬瀨人 (Yu-Gi-Oh!)
+const KIB = '#38bdf8'
+reg({
+  id: 'kaiba.a1', name: '決鬥卡片飛刃', energyCost: 0, chain: 'kaiba.a2',
+  startupMs: 55, activeMs: 75, recoveryMs: 130,
+  projectile: { speed: 22, radius: 0.3, lifetimeMs: 700, pierce: false, offset: [0, 0.15, 0.9], color: '#e0f2fe' },
+  damage: 3.5, knockback: { dir: [0, 0.25, 1], base: 6, scaling: 5.5 },
+})
+reg({
+  id: 'kaiba.a2', name: '青眼龍爪重劈', energyCost: 0,
+  startupMs: 80, activeMs: 105, recoveryMs: 210,
+  hitbox: { offset: [0, 0.15, 1.15], radius: 1.05 }, damage: 6.5,
+  knockback: { dir: [0, 0.5, 1], base: 10.5, scaling: 10.5 },
+  hooks: { onActive(c) { slash(c, KIB, { d: 1.0, r: 1.65, flip: true }) } },
+})
+registerTilts('kaiba', { color: KIB, names: ['X-加農炮橫擊', '海馬人昇龍拳', '血腥魔獸下劈'] })
+reg({
+  id: 'kaiba.burstStream', name: '毀滅的噴射白光', energyCost: 0, cooldownMs: 1200, startupMs: 165, activeMs: 70, recoveryMs: 230,
+  projectile: { speed: 21, radius: 0.52, lifetimeMs: 1250, pierce: true, offset: [0, 0.15, 0.95], color: '#e0f2fe' },
+  damage: 11.5, knockback: { dir: [0, 0.42, 1], base: 12.5, scaling: 13 },
+  hooks: {
+    onActive(c) {
+      c.fx({ kind: 'beam', pos: at(c, 0.15, 0.95), yaw: yawOf(c), length: 12, radius: 0.5, color: KIB, ttl: 240 })
+      c.shake(0.25)
+    },
+  },
+})
+reg({
+  id: 'kaiba.wingDash', name: '青眼白龍・龍翼突進', energyCost: 0, cooldownMs: 1600, startupMs: 110, activeMs: 290, recoveryMs: 230,
+  hitbox: { offset: [0, 0.1, 0.7], radius: 1.25 }, damage: 10.5,
+  knockback: { dir: [0, 0.45, 1], base: 13.5, scaling: 13 },
+  hooks: {
+    onActive(c) { c.setLocalVelocity(0, 1.8, 16) },
+    onTick(c) { if (c.phase === 'active') trail(c, 32, '#e0f2fe', 240) },
+  },
+})
+reg({
+  id: 'kaiba.blueEyesJet', name: '青眼噴射機・升空', energyCost: 0, cooldownMs: 1500, startupMs: 95, activeMs: 320, recoveryMs: 300,
+  hitbox: { offset: [0, 0.35, 0.55], radius: 1.3 }, damage: 9.5,
+  knockback: { dir: [0, 0.9, 0.4], base: 13, scaling: 14 },
+  hooks: {
+    onActive(c) {
+      c.setVelocity(c.forward[0] * 4.5, 18.2, 0)
+      c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: '#e0f2fe', ttl: 340, radius: 1.3 })
+      c.fx({ kind: 'burst', pos: [...c.caster.pos], color: KIB, ttl: 320, count: 16, speed: 6, size: 0.15 })
+    },
+  },
+})
+reg({
+  id: 'kaiba.crushCard', name: '死之卡組破壞病毒', energyCost: 0, cooldownMs: 2600, startupMs: 160, activeMs: 100, recoveryMs: 260,
+  hitbox: { offset: [0, 0, 0], radius: 2.3 }, damage: 6.5,
+  knockback: { dir: [0, 0.55, 1], base: 10.5, scaling: 10, radial: true },
+  hooks: {
+    onActive(c) {
+      const p: Vec3 = [c.caster.pos[0], Math.max(0, c.caster.pos[1] - 0.3), 0]
+      c.spawnZone(p, { radius: 3.1, durationMs: 3400, slowFactor: 0.55, color: '#9333ea', damagePerSec: 7.5 })
+      c.fx({ kind: 'ring', pos: p, color: '#9333ea', ttl: 460, radius: 3.1 })
+    },
+  },
+})
+reg({
+  id: 'kaiba.enemyController', name: '敵人控制器 A-B-A-B', energyCost: 20, cooldownMs: 2200, startupMs: 150, activeMs: 70, recoveryMs: 240,
+  damage: 11, knockback: { dir: [0, 0.72, 1], base: 13, scaling: 14, hitstunMs: 950 },
+  hooks: {
+    onActive(c) {
+      c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 21, 0, 0], radius: 0.5, ttlMs: 1200, color: '#22d3ee', explodeRadius: 2.2 })
+      c.fx({ kind: 'ring', pos: at(c, 0.2, 0.9), color: '#e0f2fe', ttl: 260, radius: 1.3, plane: 'vertical' })
+    },
+  },
+})
+registerSmashes('kaiba', { color: '#67e8f9', names: ['歐貝利斯克神拳', '亞白龍強襲咆哮', '粉碎卡片暴風'] })
+reg({
+  id: 'kaiba.ultimateDragon', name: '青眼究極龍・究極爆風彈！', energyCost: 0, requiresUlt: true,
+  startupMs: 580, activeMs: 900, recoveryMs: 450,
+  hitbox: { offset: [0, 0.2, 1.0], radius: 2.3, length: 26 }, damage: 22,
+  knockback: { dir: [0, 0.5, 1], base: 27, scaling: 18, hitstunMs: 1350 },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.15); c.setVelocity(0, 4, 0) },
+    onTick(c) { if (c.phase !== 'recovery') c.setInvulnerable(140) },
+    onActive(c) {
+      for (const vy of [-3.5, 0, 3.5]) {
+        c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 25, vy, 0], radius: 0.8, ttlMs: 1250, color: '#e0f2fe', explodeRadius: 2.5 })
+      }
+      c.fx({ kind: 'beam', pos: at(c, 0.2, 0.9), yaw: yawOf(c), length: 26, radius: 2.1, color: '#e0f2fe', ttl: 550 })
+      c.fx({ kind: 'burst', pos: [...c.caster.pos], color: KIB, ttl: 700, count: 60, speed: 12, size: 0.24 })
+      c.shake(1.3)
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})

@@ -13,6 +13,10 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   pong: 'PONG',
   reimu: 'REIMU',
   marisa: 'MARISA',
+  ryu: 'RYU',
+  chunli: 'CHUN-LI',
+  yugi: 'YUGI',
+  kaiba: 'KAIBA',
 }
 
 export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'random'; className?: string }) {
@@ -294,6 +298,100 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M36,86 L84,86 L92,120 L28,120 Z" fill="#18181b" />
           <path d="M46,86 L74,86 L76,120 L44,120 Z" fill="#f8fafc" />
           <polygon points="94,72 97,80 105,80 99,85 101,93 94,88 87,93 89,85 83,80 91,80" fill="#fde047" />
+        </>
+      )}
+
+      {id === 'ryu' && (
+        <>
+          <defs>
+            <radialGradient id={`bg-${uid}`} cx="50%" cy="45%" r="70%">
+              <stop offset="0%" stopColor="#0284c7" />
+              <stop offset="60%" stopColor="#7f1d1d" />
+              <stop offset="100%" stopColor="#090d16" />
+            </radialGradient>
+          </defs>
+          <rect width="120" height="120" fill={`url(#bg-${uid})`} />
+          <path d="M26,48 Q60,20 94,48 L92,34 Q60,12 28,34 Z" fill="#451a03" />
+          <circle cx="60" cy="56" r="24" fill="#fed7aa" stroke="#7c2d12" strokeWidth="2" />
+          {/* 經典紅頭帶 */}
+          <rect x="33" y="34" width="54" height="10" rx="3" fill="#ef4444" stroke="#7f1d1d" strokeWidth="1.5" />
+          <polygon points="86,38 112,28 106,46" fill="#dc2626" />
+          <rect x="44" y="52" width="10" height="4" fill="#1e293b" />
+          <rect x="66" y="52" width="10" height="4" fill="#1e293b" />
+          {/* 道服領口＋波動拳藍光 */}
+          <path d="M28,82 L92,82 L98,120 L22,120 Z" fill="#f8fafc" />
+          <path d="M44,82 L60,104 L76,82 Z" fill="#fed7aa" />
+          <circle cx="94" cy="92" r="14" fill="#38bdf8" stroke="#bae6fd" strokeWidth="3" />
+        </>
+      )}
+
+      {id === 'chunli' && (
+        <>
+          <defs>
+            <radialGradient id={`bg-${uid}`} cx="50%" cy="45%" r="70%">
+              <stop offset="0%" stopColor="#2563eb" />
+              <stop offset="65%" stopColor="#1e1b4b" />
+              <stop offset="100%" stopColor="#090d16" />
+            </radialGradient>
+          </defs>
+          <rect width="120" height="120" fill={`url(#bg-${uid})`} />
+          {/* 雙丸子包頭 */}
+          <circle cx="30" cy="36" r="14" fill="#f8fafc" stroke="#1e293b" strokeWidth="2" />
+          <circle cx="90" cy="36" r="14" fill="#f8fafc" stroke="#1e293b" strokeWidth="2" />
+          <circle cx="60" cy="54" r="22" fill="#fde8d7" stroke="#9a3412" strokeWidth="1.5" />
+          <path d="M38,48 Q60,26 82,48 L78,34 Q60,22 42,34 Z" fill="#27170e" />
+          <circle cx="51" cy="54" r="3.5" fill="#1e293b" />
+          <circle cx="69" cy="54" r="3.5" fill="#1e293b" />
+          {/* 皇家藍金邊旗袍 */}
+          <path d="M32,78 L88,78 L96,120 L24,120 Z" fill="#2563eb" stroke="#facc15" strokeWidth="3" />
+          <path d="M48,78 L60,94 L72,78" fill="none" stroke="#facc15" strokeWidth="2.5" />
+        </>
+      )}
+
+      {id === 'yugi' && (
+        <>
+          <defs>
+            <radialGradient id={`bg-${uid}`} cx="50%" cy="45%" r="70%">
+              <stop offset="0%" stopColor="#7e22ce" />
+              <stop offset="65%" stopColor="#1e1b4b" />
+              <stop offset="100%" stopColor="#090d16" />
+            </radialGradient>
+          </defs>
+          <rect width="120" height="120" fill={`url(#bg-${uid})`} />
+          {/* 傳奇三色刺刺海星頭 */}
+          <polygon points="60,8 42,40 78,40" fill="#111827" stroke="#db2777" strokeWidth="2" />
+          <polygon points="20,24 44,48 34,62" fill="#db2777" />
+          <polygon points="100,24 76,48 86,62" fill="#db2777" />
+          <ellipse cx="60" cy="56" rx="20" ry="20" fill="#fde8d7" />
+          <polygon points="40,42 52,58 46,36" fill="#facc15" />
+          <polygon points="80,42 68,58 74,36" fill="#facc15" />
+          <ellipse cx="52" cy="55" rx="3.5" ry="4.5" fill="#6d28d9" />
+          <ellipse cx="68" cy="55" rx="3.5" ry="4.5" fill="#6d28d9" />
+          {/* 紫衣 ＋ 胸前黃金千年積木 */}
+          <path d="M30,78 L90,78 L98,120 L22,120 Z" fill="#312e81" />
+          <polygon points="48,86 72,86 60,112" fill="#facc15" stroke="#854d0e" strokeWidth="2" />
+          <circle cx="60" cy="96" r="4" fill="#78350f" />
+        </>
+      )}
+
+      {id === 'kaiba' && (
+        <>
+          <defs>
+            <radialGradient id={`bg-${uid}`} cx="50%" cy="45%" r="70%">
+              <stop offset="0%" stopColor="#0284c7" />
+              <stop offset="65%" stopColor="#0f172a" />
+              <stop offset="100%" stopColor="#020617" />
+            </radialGradient>
+          </defs>
+          <rect width="120" height="120" fill={`url(#bg-${uid})`} />
+          <polygon points="36,36 60,14 84,36" fill="#78350f" />
+          <ellipse cx="60" cy="56" rx="20" ry="21" fill="#fde8d7" />
+          <rect x="44" y="50" width="12" height="5" fill="#0284c7" />
+          <rect x="64" y="50" width="12" height="5" fill="#0284c7" />
+          {/* 白色高領社長服 ＋ 青眼能量光 */}
+          <path d="M24,78 L96,78 L104,120 L16,120 Z" fill="#f8fafc" stroke="#38bdf8" strokeWidth="2.5" />
+          <path d="M46,78 L60,104 L74,78 Z" fill="#1e293b" />
+          <rect x="86" y="70" width="22" height="32" rx="2" fill="#67e8f9" stroke="#e0f2fe" strokeWidth="2" />
         </>
       )}
 

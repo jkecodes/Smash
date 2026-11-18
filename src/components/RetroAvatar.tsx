@@ -7,6 +7,7 @@ import type { CharacterId, FighterId } from '../game/types'
 const RETRO_IDS = new Set<CharacterId>([
   'pacman', 'mario', 'invader', 'bomber', 'snake',
   'frogger', 'kong', 'pong', 'reimu', 'marisa',
+  'ryu', 'chunli', 'yugi', 'kaiba',
 ])
 
 export function isRetroAvatar(c: CharacterId): boolean {
@@ -126,6 +127,14 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
         animA.current.scale.setScalar(attacking ? 1.3 : 1 + Math.sin(t * 6) * 0.08)
       }
       if (animB.current) animB.current.rotation.x = Math.sin(t * 4) * 0.08
+    } else if (charId === 'ryu' || charId === 'chunli') {
+      const kick = running ? Math.sin(t * 15) * 0.65 : attacking ? -0.95 : Math.sin(t * 4) * 0.12
+      if (animA.current) animA.current.rotation.x = kick
+      if (animB.current) animB.current.rotation.x = -kick
+      if (charId === 'ryu' && animC.current) animC.current.scale.setScalar(attacking ? 1.45 : 0.8 + Math.sin(t * 6) * 0.15)
+    } else if (charId === 'yugi' || charId === 'kaiba') {
+      if (animA.current) animA.current.rotation.y = t * (attacking ? 7 : 2.2)
+      if (animB.current) animB.current.rotation.x = running ? 0.35 + Math.sin(t * 10) * 0.15 : Math.sin(t * 3) * 0.08
     }
   })
 
@@ -669,6 +678,97 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
               <cylinderGeometry args={[0.12, 0.12, 0.06, 8]} />
               <meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={0.9} />
             </mesh>
+          </group>
+        </group>
+      )}
+
+      {charId === 'ryu' && (
+        <group>
+          {/* 白無袖道服 ＋ 黑帶垂尾 */}
+          <mesh position={[0, -0.05, 0]} castShadow><boxGeometry args={[0.42, 0.5, 0.32]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[0, -0.14, 0]}><boxGeometry args={[0.45, 0.09, 0.35]} /><meshStandardMaterial color="#111827" /></mesh>
+          <mesh position={[0, -0.38, 0.1]} castShadow><boxGeometry args={[0.16, 0.28, 0.18]} /><meshStandardMaterial color="#f1f5f9" /></mesh>
+          <mesh position={[0, -0.38, -0.1]} castShadow><boxGeometry args={[0.16, 0.28, 0.18]} /><meshStandardMaterial color="#f1f5f9" /></mesh>
+          {/* 頭＋棕刺頭＋紅頭帶垂尾 */}
+          <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.21, 14, 14]} /><meshStandardMaterial color="#fed7aa" /></mesh>
+          <mesh position={[0, 0.44, -0.02]} castShadow><boxGeometry args={[0.32, 0.18, 0.34]} /><meshStandardMaterial color="#451a03" /></mesh>
+          <mesh position={[0, 0.4, 0.02]}><cylinderGeometry args={[0.22, 0.22, 0.07, 14]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          <mesh position={[0, 0.32, -0.28]} rotation={[0.5, 0, 0]}><boxGeometry args={[0.08, 0.28, 0.04]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          {/* 紅護拳雙臂 ＋ 波動能量核 */}
+          <group ref={animA} position={[0.28, 0.1, 0.08]}>
+            <mesh position={[0, -0.1, 0.12]} castShadow><boxGeometry args={[0.14, 0.24, 0.2]} /><meshStandardMaterial color="#fed7aa" /></mesh>
+            <mesh position={[0, -0.1, 0.26]} castShadow><boxGeometry args={[0.15, 0.15, 0.15]} /><meshStandardMaterial color="#dc2626" /></mesh>
+            <group ref={animC} position={[0, -0.08, 0.4]}>
+              <mesh><sphereGeometry args={[0.1, 10, 10]} /><meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={0.8} /></mesh>
+            </group>
+          </group>
+          <group ref={animB} position={[-0.28, 0.1, 0.08]}>
+            <mesh position={[0, -0.1, 0.1]} castShadow><boxGeometry args={[0.14, 0.24, 0.2]} /><meshStandardMaterial color="#fed7aa" /></mesh>
+            <mesh position={[0, -0.1, 0.24]} castShadow><boxGeometry args={[0.15, 0.15, 0.15]} /><meshStandardMaterial color="#dc2626" /></mesh>
+          </group>
+        </group>
+      )}
+
+      {charId === 'chunli' && (
+        <group>
+          {/* 皇家藍金邊旗袍 */}
+          <mesh position={[0, -0.1, 0]} castShadow><cylinderGeometry args={[0.18, 0.34, 0.56, 12]} /><meshStandardMaterial color="#2563eb" /></mesh>
+          <mesh position={[0, -0.35, 0]}><cylinderGeometry args={[0.35, 0.36, 0.07, 12]} /><meshStandardMaterial color="#facc15" /></mesh>
+          {/* 雙丸子頭＋白髮飾＋白長靴 */}
+          <mesh position={[0, 0.32, 0.02]} castShadow><sphereGeometry args={[0.19, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh position={[0, 0.36, -0.03]}><sphereGeometry args={[0.2, 12, 12]} /><meshStandardMaterial color="#27170e" /></mesh>
+          <mesh position={[0.2, 0.44, -0.02]} castShadow><sphereGeometry args={[0.11, 10, 10]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[-0.2, 0.44, -0.02]} castShadow><sphereGeometry args={[0.11, 10, 10]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <group ref={animA} position={[0.12, -0.32, 0.06]}>
+            <mesh position={[0, -0.12, 0.08]} castShadow><boxGeometry args={[0.14, 0.28, 0.18]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          </group>
+          <group ref={animB} position={[-0.12, -0.32, -0.04]}>
+            <mesh position={[0, -0.12, 0.08]} castShadow><boxGeometry args={[0.14, 0.28, 0.18]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          </group>
+        </group>
+      )}
+
+      {charId === 'yugi' && (
+        <group>
+          {/* 紫色決鬥戰衣 ＋ 披肩外套 */}
+          <mesh position={[0, -0.1, 0]} castShadow><boxGeometry args={[0.34, 0.54, 0.26]} /><meshStandardMaterial color="#1e1b4b" /></mesh>
+          <group ref={animB} position={[0, 0.08, -0.18]}>
+            <mesh position={[0, -0.22, -0.08]} rotation={[0.2, 0, 0]} castShadow><boxGeometry args={[0.42, 0.54, 0.08]} /><meshStandardMaterial color="#312e81" /></mesh>
+          </group>
+          {/* 胸前黃金千年積木 */}
+          <mesh position={[0, 0.05, 0.16]} rotation={[Math.PI, 0, 0]} castShadow>
+            <coneGeometry args={[0.12, 0.2, 4]} />
+            <meshStandardMaterial color="#facc15" emissive="#ca8a04" emissiveIntensity={0.6} />
+          </mesh>
+          {/* 三色刺刺海星頭 */}
+          <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.19, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh position={[0, 0.42, -0.04]} castShadow><coneGeometry args={[0.28, 0.45, 5]} /><meshStandardMaterial color="#111827" /></mesh>
+          <mesh position={[0.14, 0.38, 0.14]} rotation={[0.4, 0, -0.4]}><coneGeometry args={[0.08, 0.26, 4]} /><meshStandardMaterial color="#facc15" /></mesh>
+          <mesh position={[-0.14, 0.38, 0.14]} rotation={[0.4, 0, 0.4]}><coneGeometry args={[0.08, 0.26, 4]} /><meshStandardMaterial color="#facc15" /></mesh>
+          {/* 決鬥盤與發光魔法卡片繞行 */}
+          <mesh position={[0.24, 0.04, 0.28]}><boxGeometry args={[0.12, 0.06, 0.34]} /><meshStandardMaterial color="#94a3b8" /></mesh>
+          <group ref={animA} position={[0, 0.12, 0]}>
+            <mesh position={[0, 0, 0.56]}><boxGeometry args={[0.04, 0.22, 0.16]} /><meshStandardMaterial color="#a855f7" emissive="#c084fc" emissiveIntensity={0.9} /></mesh>
+            <mesh position={[0, 0, -0.56]}><boxGeometry args={[0.04, 0.22, 0.16]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={0.8} /></mesh>
+          </group>
+        </group>
+      )}
+
+      {charId === 'kaiba' && (
+        <group>
+          {/* 白銀社長長大衣 */}
+          <mesh position={[0, -0.1, 0]} castShadow><cylinderGeometry args={[0.19, 0.32, 0.58, 10]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[0, 0.02, 0.12]}><boxGeometry args={[0.24, 0.34, 0.1]} /><meshStandardMaterial color="#1e293b" /></mesh>
+          <group ref={animB} position={[0, 0.06, -0.18]}>
+            <mesh position={[0, -0.24, -0.1]} rotation={[0.25, 0, 0]} castShadow><boxGeometry args={[0.46, 0.58, 0.07]} /><meshStandardMaterial color="#e2e8f0" /></mesh>
+          </group>
+          {/* 棕刺髮頭 ＋ 高領 */}
+          <mesh position={[0, 0.36, 0.02]} castShadow><sphereGeometry args={[0.19, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh position={[0, 0.48, -0.02]} castShadow><coneGeometry args={[0.24, 0.32, 6]} /><meshStandardMaterial color="#78350f" /></mesh>
+          {/* 青眼白龍光環決鬥盤 */}
+          <mesh position={[0.26, 0.04, 0.3]}><boxGeometry args={[0.14, 0.07, 0.4]} /><meshStandardMaterial color="#38bdf8" emissive="#0284c7" emissiveIntensity={0.6} /></mesh>
+          <group ref={animA} position={[0, 0.15, 0]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.56, 0.03, 8, 24]} /><meshStandardMaterial color="#67e8f9" emissive="#38bdf8" emissiveIntensity={0.9} /></mesh>
           </group>
         </group>
       )}

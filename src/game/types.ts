@@ -18,6 +18,7 @@ export type CharacterId =
   | 'pacman' | 'mario' | 'invader' | 'bomber'
   | 'snake' | 'frogger' | 'kong' | 'pong'
   | 'reimu' | 'marisa'
+  | 'ryu' | 'chunli' | 'yugi' | 'kaiba'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'
   | 'ATTACK_STARTUP' | 'ATTACK_ACTIVE' | 'ATTACK_RECOVERY'

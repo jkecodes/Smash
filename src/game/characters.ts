@@ -215,5 +215,77 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
       skill2: 'marisa.miniSpark', ...smashes('marisa'), ult: 'marisa.masterSpark',
     },
   },
+  ryu: {
+    id: 'ryu', name: 'RYU 隆', color: '#38bdf8',
+    trait: '🥋 波動拳牽制・無敵昇龍拳・龍卷旋風腳＆真空波動拳',
+    guide: {
+      summary: '《Street Fighter 快打旋風》經典波動格鬥家！地面波動拳壓制、龍卷旋風腳突進，加上起手自帶無敵的強對空「昇龍拳」。',
+      steps: [
+        '中距離以【特招 K】波動拳或【技能2 L】灼熱波動拳逼迫對手跳躍。',
+        '對手跳起來進攻時，直接按【上+K】昇龍拳無敵反打並將人轟飛！',
+        '地面可用【左右+K】龍卷旋風腳長距離連續踢擊，或用【下+K】氣合崩拳硬扛反擊。',
+      ],
+      combo: 'J → J (正拳→鳩尾碎) → 左右+K (龍卷旋風腳) / 上+K (昇龍拳收頭)',
+    },
+    loadout: {
+      attack: 'ryu.a1', ...tilts('ryu'),
+      skill1: 'ryu.hadoken', 'skill1:side': 'ryu.tatsumaki', 'skill1:up': 'ryu.shoryuken', 'skill1:down': 'ryu.focus',
+      skill2: 'ryu.shakunetsu', ...smashes('ryu'), ult: 'ryu.shinku',
+    },
+  },
+  chunli: {
+    id: 'chunli', name: 'CHUN-LI 春麗', color: '#60a5fa',
+    trait: '🦵 超高速百裂腳・迴旋鶴腳蹴・氣功拳與奧義氣功掌',
+    guide: {
+      summary: '《Street Fighter》迅捷腿技大師！高機動連踢壓制極強，百裂腳高速累積損傷%，迴旋鶴腳蹴兼具突進與回場能力。',
+      steps: [
+        '貼身近戰連打【普攻 J】接【特招 K】百裂腳，瞬間狂刷多段連擊！',
+        '橫向追擊或懸崖回場使用【左右+K】迴旋鶴腳蹴，空中亦可長時間水平滑行。',
+        '高空俯衝用【下+K】霸山蹴砸地破招，遠距離則用【技能2 L】氣功拳牽制。',
+      ],
+      combo: 'J → K (百裂腳連刷) → 上+K (天昇腳沖天擊墜)',
+    },
+    loadout: {
+      attack: 'chunli.a1', ...tilts('chunli'),
+      skill1: 'chunli.hyakuretsu', 'skill1:side': 'chunli.sbk', 'skill1:up': 'chunli.tensho', 'skill1:down': 'chunli.hazanshu',
+      skill2: 'chunli.kikoken', ...smashes('chunli'), ult: 'chunli.kikosho',
+    },
+  },
+  yugi: {
+    id: 'yugi', name: 'YUGI 武藤遊戲', color: '#a855f7',
+    trait: '🃏 黑魔導貫穿炮・神聖彗星反擊・艾克佐迪亞封印！',
+    guide: {
+      summary: '《遊戲王》初代決鬥王！兼具魔導遠射、防反陷阱「反射力量」與天空龍召雷轟炸，打破大招球即可召喚艾克佐迪亞毀滅全場！',
+      steps: [
+        '中遠距離用【特招 K】黑・魔・導貫穿光束與【技能2 L】歐西里斯召雷彈控場轟炸。',
+        '對手貼身強攻時按【下+K】發動「神聖彗星－反射力量－」，無敵彈飛周遭敵人！',
+        '落出場外時用【上+K】光之護封劍直接向上瞬移回場，並用【左右+K】蓋亞槍殺突襲。',
+      ],
+      combo: '下+K (反射力量彈開) → K (黑魔導補刀) → L (天空龍召雷爆破)',
+    },
+    loadout: {
+      attack: 'yugi.a1', ...tilts('yugi'),
+      skill1: 'yugi.darkMagic', 'skill1:side': 'yugi.gaia', 'skill1:up': 'yugi.swords', 'skill1:down': 'yugi.mirrorForce',
+      skill2: 'yugi.slifer', ...smashes('yugi'), ult: 'yugi.exodia',
+    },
+  },
+  kaiba: {
+    id: 'kaiba', name: 'KAIBA 海馬瀨人', color: '#67e8f9',
+    trait: '🐉 毀滅的噴射白光・死之卡組病毒區・青眼究極龍！',
+    guide: {
+      summary: '《遊戲王》海馬娛樂集團社長！普攻就能射出卡片飛刃，搭配青眼白龍的貫穿噴射白光與死之卡組破壞病毒領域持續消耗敵人。',
+      steps: [
+        '平時用【普攻 J】卡片飛刃與【特招 K】毀滅的噴射白光從遠處壓制敵人。',
+        '占領場地中央時按【下+K】啟動「死之卡組破壞病毒」，留下減速兼持續扣血的暗紫力場！',
+        '中距離抓住對手破綻按【技能2 L】敵人控制器造成長硬直，再用【左右+K】青眼龍翼突進撞飛！',
+      ],
+      combo: '下+K (破壞病毒緩速扣血) → L (敵人控制器控制) → 左右+K / K (噴射白光)',
+    },
+    loadout: {
+      attack: 'kaiba.a1', ...tilts('kaiba'),
+      skill1: 'kaiba.burstStream', 'skill1:side': 'kaiba.wingDash', 'skill1:up': 'kaiba.blueEyesJet', 'skill1:down': 'kaiba.crushCard',
+      skill2: 'kaiba.enemyController', ...smashes('kaiba'), ult: 'kaiba.ultimateDragon',
+    },
+  },
 }
 export const CHARACTER_IDS = Object.keys(CHARACTERS) as CharacterId[]

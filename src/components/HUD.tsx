@@ -272,7 +272,7 @@ function StagePicker() {
 
   return (
     <div className="flex flex-col items-center gap-1.5 max-w-5xl w-full px-3">
-      <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 w-full">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 w-full">
         {STAGE_IDS.map((id) => {
           const st = STAGES[id]
           const active = stageId === id
@@ -569,9 +569,9 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     sfx('ui')
   }
 
-  // 11 角色 + 隨機 = 12 格 -> 6x2 整齊格陣
-  const row1: (CharacterId | 'random')[] = CHARACTER_IDS.slice(0, 6)
-  const row2: (CharacterId | 'random')[] = [...CHARACTER_IDS.slice(6), 'random']
+  // 15 角色 + 隨機 = 16 格 -> 8x2 整齊格陣
+  const row1: (CharacterId | 'random')[] = CHARACTER_IDS.slice(0, 8)
+  const row2: (CharacterId | 'random')[] = [...CHARACTER_IDS.slice(8), 'random']
 
   const renderCell = (item: CharacterId | 'random') => {
     const isRand = item === 'random'
@@ -587,7 +587,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         onContextMenu={(e) => { e.preventDefault(); pickChar('p2', item) }}
         title={isRand ? '點擊隨機選擇角色' : `${CHARACTERS[item].name}（左鍵指派給 ${safePicker.toUpperCase()}／右鍵直選 P2）`}
         style={firstOwner ? { boxShadow: `inset 0 0 0 2.5px ${PLAYER_COLORS[firstOwner]}` } : undefined}
-        className="relative w-20 h-16 sm:w-24 sm:h-20 overflow-hidden bg-black border border-black group cursor-pointer focus:outline-none"
+        className="relative w-14 h-14 sm:w-[4.6rem] sm:h-[4.3rem] overflow-hidden bg-black border border-black group cursor-pointer focus:outline-none"
       >
         <CharacterPortrait id={item} className="w-full h-full object-cover transition-transform duration-150 group-hover:scale-110" />
         {owners.length > 0 && (

@@ -155,7 +155,7 @@ export function useStageSurfaceTexture(stageId: StageId): THREE.CanvasTexture {
         }
         g.fillStyle = '#facc15'
         g.fillRect(0, 0, w, 12); g.fillRect(0, h - 12, w, 12)
-      } else {
+      } else if (stageId === 'pong') {
         // pong：極簡向量黑白球場＋中線
         g.fillStyle = '#090d16'
         g.fillRect(0, 0, w, h)
@@ -164,6 +164,55 @@ export function useStageSurfaceTexture(stageId: StageId): THREE.CanvasTexture {
         for (let y = 16; y < h - 16; y += 28) g.fillRect(w / 2 - 4, y, 8, 16)
         g.fillStyle = '#38bdf8'
         g.fillRect(0, 0, 12, h); g.fillRect(w - 12, 0, 12, h)
+      } else if (stageId === 'ryu') {
+        // 朱雀城木造道場地板＋紅日徽
+        g.fillStyle = '#78350f'
+        g.fillRect(0, 0, w, h)
+        g.strokeStyle = 'rgba(28, 12, 5, 0.5)'
+        g.lineWidth = 2
+        for (let y = 0; y <= h; y += 32) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke() }
+        for (let x = 0; x <= w; x += 96) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke() }
+        g.fillStyle = 'rgba(220, 38, 38, 0.45)'
+        g.beginPath(); g.arc(w / 2, h / 2, 48, 0, Math.PI * 2); g.fill()
+      } else if (stageId === 'chunli') {
+        // 香港夜市磚紋＋金龍邊框
+        g.fillStyle = '#1e293b'
+        g.fillRect(0, 0, w, h)
+        for (let r = 0; r < 4; r++) {
+          for (let c = 0; c < 8; c++) {
+            g.fillStyle = (r + c) % 2 === 0 ? '#1e3a8a' : '#0f172a'
+            g.fillRect(c * 64 + 2, r * 64 + 2, 60, 60)
+          }
+        }
+        g.strokeStyle = '#facc15'
+        g.lineWidth = 5
+        g.strokeRect(8, 8, w - 16, h - 16)
+      } else if (stageId === 'yugi') {
+        // 決鬥盤魔法・陷阱格線＋黃金千年眼
+        g.fillStyle = '#2e1065'
+        g.fillRect(0, 0, w, h)
+        g.strokeStyle = '#fde047'
+        g.lineWidth = 3
+        for (let i = 0; i < 5; i++) {
+          g.strokeRect(36 + i * 92, 34, 72, 84)
+          g.strokeRect(36 + i * 92, 138, 72, 84)
+        }
+        g.beginPath(); g.ellipse(w / 2, h / 2, 40, 24, 0, 0, Math.PI * 2); g.stroke()
+        g.fillStyle = '#fde047'
+        g.beginPath(); g.arc(w / 2, h / 2, 10, 0, Math.PI * 2); g.fill()
+      } else {
+        // kaiba：海馬企業六角全息決鬥台
+        g.fillStyle = '#0f172a'
+        g.fillRect(0, 0, w, h)
+        g.strokeStyle = 'rgba(56, 189, 248, 0.45)'
+        g.lineWidth = 2
+        for (let x = 0; x <= w; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke() }
+        for (let y = 0; y <= h; y += 64) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke() }
+        g.strokeStyle = '#67e8f9'
+        g.lineWidth = 4
+        g.beginPath(); g.arc(w / 2, h / 2, 64, 0, Math.PI * 2); g.stroke()
+        g.fillStyle = '#38bdf8'
+        g.fillRect(0, 0, 14, h); g.fillRect(w - 14, 0, 14, h)
       }
     })
   }, [stageId])
@@ -514,6 +563,99 @@ function PongDecor({ stage }: { stage: StageDef }) {
   )
 }
 
+/** 12. 隆主場：朱雀城道場（夕陽紅日 ＋ 天守閣層簷 ＋ 木燈籠） */
+function RyuDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.75, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#451a03" /></mesh>
+      <mesh position={[0, 7.5, -24]}><circleGeometry args={[6.2, 32]} /><meshBasicMaterial color="#dc2626" transparent opacity={0.45} /></mesh>
+      <group position={[0, 1.5, -11]}>
+        <mesh><boxGeometry args={[12, 5.5, 2.5]} /><meshStandardMaterial color="#27170e" /></mesh>
+        <mesh position={[0, 3.6, 0]}><boxGeometry args={[15.5, 1.1, 3.2]} /><meshStandardMaterial color="#1f2937" /></mesh>
+        <mesh position={[0, 5.2, 0]}><boxGeometry args={[11, 1.0, 2.6]} /><meshStandardMaterial color="#991b1b" /></mesh>
+      </group>
+    </>
+  )
+}
+
+/** 13. 春麗主場：香港霓虹街市（懸掛紅燈籠 ＋ 閃亮霓虹招牌樓房） */
+function ChunliDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  const lanterns = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    lanterns.current?.children.forEach((l, i) => { l.rotation.z = Math.sin(clock.elapsedTime * 2 + i) * 0.12 })
+  })
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.75, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#1e293b" /></mesh>
+      <group ref={lanterns} position={[0, 7.5, -9]}>
+        {[-7.5, -2.5, 2.5, 7.5].map((lx, i) => (
+          <group key={i} position={[lx, 0, 0]}>
+            <mesh><sphereGeometry args={[0.85, 12, 12]} /><meshBasicMaterial color="#ef4444" /></mesh>
+            <mesh position={[0, -1.2, 0]}><boxGeometry args={[0.25, 0.8, 0.25]} /><meshBasicMaterial color="#fde047" /></mesh>
+          </group>
+        ))}
+      </group>
+      {[[-11, '#38bdf8'], [11, '#ec4899']].map(([x, col], i) => (
+        <mesh key={i} position={[x as number, 3.5, -13]}>
+          <boxGeometry args={[3.2, 7.5, 1.2]} />
+          <meshStandardMaterial color="#0f172a" emissive={col as string} emissiveIntensity={0.45} />
+        </mesh>
+      ))}
+    </>
+  )
+}
+
+/** 14. 武藤遊戲主場：決鬥者王國擂台（懸浮巨型千年積木金字塔 ＋ 魔導法陣） */
+function YugiDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  const puzzle = useRef<THREE.Mesh>(null)
+  useFrame(({ clock }, dt) => {
+    if (puzzle.current) {
+      puzzle.current.rotation.y += dt * 0.7
+      puzzle.current.position.y = 7.2 + Math.sin(clock.elapsedTime * 1.6) * 0.45
+    }
+  })
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.75, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#2e1065" /></mesh>
+      <mesh ref={puzzle} position={[0, 7.2, -14]} rotation={[Math.PI, 0, 0]}>
+        <coneGeometry args={[3.2, 4.4, 4]} />
+        <meshStandardMaterial color="#facc15" emissive="#ca8a04" emissiveIntensity={0.5} metalness={0.6} roughness={0.25} />
+      </mesh>
+      {[-9, 9].map((cx, i) => (
+        <mesh key={i} position={[cx, 3.5, -11]} rotation={[0, i === 0 ? 0.25 : -0.25, 0]}>
+          <boxGeometry args={[2.6, 3.8, 0.2]} />
+          <meshStandardMaterial color="#4c1d95" emissive="#a855f7" emissiveIntensity={0.45} />
+        </mesh>
+      ))}
+    </>
+  )
+}
+
+/** 15. 海馬瀨人主場：海馬巨蛋決鬥塔（巨型全息 KC 雙塔 ＋ 盤旋光環） */
+function KaibaDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  const halo = useRef<THREE.Mesh>(null)
+  useFrame((_, dt) => { if (halo.current) halo.current.rotation.z -= dt * 0.5 })
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.8, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#0f172a" metalness={0.55} /></mesh>
+      {[-12, 12].map((kx, i) => (
+        <mesh key={i} position={[kx, 3.5, -15]}>
+          <boxGeometry args={[3.0, 14, 2.4]} />
+          <meshStandardMaterial color="#0c4a6e" emissive="#38bdf8" emissiveIntensity={0.45} />
+        </mesh>
+      ))}
+      <mesh ref={halo} position={[0, 6.5, -16]}>
+        <torusGeometry args={[5.4, 0.16, 12, 48]} />
+        <meshBasicMaterial color="#67e8f9" transparent opacity={0.55} />
+      </mesh>
+    </>
+  )
+}
+
 /** 各場地獨特風格、3D 紋理立體底座與遠景建築 */
 export function StageDecor({ stage }: { stage: StageDef }) {
   const { theme } = stage
@@ -530,6 +672,10 @@ export function StageDecor({ stage }: { stage: StageDef }) {
       {stage.id === 'frogger' && <FroggerDecor stage={stage} />}
       {stage.id === 'kong' && <KongDecor stage={stage} />}
       {stage.id === 'pong' && <PongDecor stage={stage} />}
+      {stage.id === 'ryu' && <RyuDecor stage={stage} />}
+      {stage.id === 'chunli' && <ChunliDecor stage={stage} />}
+      {stage.id === 'yugi' && <YugiDecor stage={stage} />}
+      {stage.id === 'kaiba' && <KaibaDecor stage={stage} />}
       <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
     </>
   )
