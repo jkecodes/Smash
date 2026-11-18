@@ -21,7 +21,7 @@ export type CharacterId =
   | 'ryu' | 'chunli' | 'yugi' | 'kaiba'
   | 'omnom' | 'tom' | 'ben' | 'crossy' | 'red' | 'steve' | 'arisa'
   | 'chihiro' | 'ichi' | 'ruri' | 'nona' | 'gojo' | 'deku' | 'yodaka' | 'saki' | 'spe' | 'kaoruko'
-  | 'stelle' | 'lumine' | 'miyabi' | 'rover' | 'rapi'
+  | 'stelle' | 'lumine' | 'miyabi' | 'rover' | 'rapi' | 'akira'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'
   | 'ATTACK_STARTUP' | 'ATTACK_ACTIVE' | 'ATTACK_RECOVERY'

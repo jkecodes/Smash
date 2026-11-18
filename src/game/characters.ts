@@ -623,5 +623,19 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     },
     loadout: { attack: 'rapi.a1', ...tilts('rapi'), skill1: 'rapi.s1', 'skill1:side': 'rapi.side', 'skill1:up': 'rapi.up', 'skill1:down': 'rapi.down', skill2: 'rapi.s2', ...smashes('rapi'), ult: 'rapi.ult' },
   },
+  akira: {
+    id: 'akira', name: 'AKIRA 百瀨晶', color: '#f472b6',
+    trait: '💌 百瀨同學的初戀破綻百出・作戰筆記飛射與笨拙心動結界！',
+    guide: {
+      summary: '《百瀨同學的初戀破綻百出。》純情不器用女主角百瀨晶！看似冷靜卻總是狀況百出，用滿天飛舞的作戰筆記與心動結界贏得勝利。',
+      steps: [
+        '中距離拋出【特招 K】初戀作戰筆記飛射製造粉紅心動爆風！',
+        '站穩場地中央按【技能2 L】展開初戀心動粉紅結界緩速並持續消耗對手。',
+        '看準破綻使用【左右+K】「計畫通」全力衝刺撞飛，或大招降下「完璧的結婚作戰！」粉紅筆記雨！',
+      ],
+      combo: 'L (心動結界緩速) → K (作戰筆記爆彈) → 左右+K (計畫通衝刺)',
+    },
+    loadout: { attack: 'akira.a1', ...tilts('akira'), skill1: 'akira.s1', 'skill1:side': 'akira.side', 'skill1:up': 'akira.up', 'skill1:down': 'akira.down', skill2: 'akira.s2', ...smashes('akira'), ult: 'akira.ult' },
+  },
 }
 export const CHARACTER_IDS = Object.keys(CHARACTERS) as CharacterId[]

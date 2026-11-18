@@ -861,6 +861,11 @@ export const STAGES: Record<StageId, StageDef> = {
     platforms: [{ x: -5.2, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 5.2, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 4.6, w: 3.4, color: '#1e293b', edgeColor: '#f97316', move: { ampX: 3.6, speed: 1.1 } }],
     theme: { name: '地面奪回戰壕', subtitle: 'Surface Outpost', tag: '拉毗主場・3掩體＋補給', desc: '《NIKKE》妮姬地面奪回戰線！下層三座防禦掩體與高空巡弋補給台。', bg: '#170a0a', fog: '#170a0a', ambientColor: '#fca5a5', ambientIntensity: 0.82, dirLightColor: '#fee2e2', dirLightIntensity: 1.8, dirLightPos: [0, 22, 12], mainColor: '#27272a', surfaceColor: '#3f3f46', edgeColor: '#ef4444', gridColor1: '#991b1b', gridColor2: '#18181b', platColor: '#450a0a', platEdgeColor: '#ef4444', accentColor: '#ef4444' },
   },
+  akira: {
+    id: 'akira', half: { x: 9.5, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.5, spawnX: { p1: -4, p2: 4 },
+    platforms: [{ x: -4.8, y: 2.2, w: 3.6, color: '#831843', edgeColor: '#f472b6' }, { x: 4.8, y: 2.2, w: 3.6, color: '#831843', edgeColor: '#f472b6' }, { x: 0, y: 4.4, w: 3.4, color: '#1e3a8a', edgeColor: '#fbcfe8' }],
+    theme: { name: '鄉間通學小路', subtitle: 'Countryside School', tag: '百瀨晶主場・初戀櫻花台', desc: '《百瀨同學的初戀破綻百出。》純樸鄉間小路與重逢的青空校門口！', bg: '#1b111a', fog: '#1b111a', ambientColor: '#fbcfe8', ambientIntensity: 0.88, dirLightColor: '#fff1f2', dirLightIntensity: 1.82, dirLightPos: [8, 22, 12], mainColor: '#334155', surfaceColor: '#475569', edgeColor: '#f472b6', gridColor1: '#be185d', gridColor2: '#1e293b', platColor: '#831843', platEdgeColor: '#f472b6', accentColor: '#f472b6' },
+  },
 }
 
 export const STAGE_IDS = Object.keys(STAGES) as StageId[]

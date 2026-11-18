@@ -329,6 +329,15 @@ const KITS: KitSpec[] = [
     smashes: ['Red Hood 核心穿射', '對空爆裂榴彈', '地雷陣引爆'],
     ult: { name: '爆裂階段 III「Red Hood 全彈發射」！', kind: 'beam', color: '#ef4444' },
   },
+  {
+    p: 'akira', color: '#f472b6', a1: '作戰筆記輕拍', a2: '慌張書包揮擊',
+    tilts: ['害羞小手推', '緊張舉手頂', '跌倒絆腳掃'],
+    s1: { name: '初戀作戰筆記飛射', projColor: '#f472b6', explode: 1.9, speed: 17 },
+    side: '「計畫通」全力衝刺', up: '緊張跳躍失誤升空', down: '笨拙滑倒震地',
+    s2: { name: '初戀心動粉紅結界', kind: 'zone', color: '#f472b6' },
+    smashes: ['超直球告白撞', '破綻百出上鉤', '書包全壘打震'],
+    ult: { name: '「完璧的結婚作戰！」初戀粉紅雨！', kind: 'rain', color: '#f472b6' },
+  },
 ]
 
 for (const k of KITS) registerKit(k)

@@ -335,7 +335,7 @@ function ProjectileView({ p }: { p: Projectile }) {
             <mesh><sphereGeometry args={[r * 1.15, 14, 14]} /><meshBasicMaterial color={p.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>
             <mesh rotation={[Math.PI / 4, 0, 0]}><torusGeometry args={[r * 1.1, r * 0.1, 8, 20]} /><meshBasicMaterial color={p.color} blending={ADD} /></mesh>
           </>
-        ) : charId === 'spe' || charId === 'kaoruko' || charId === 'rapi' ? (
+        ) : charId === 'spe' || charId === 'kaoruko' || charId === 'rapi' || charId === 'akira' ? (
           <>
             <mesh><boxGeometry args={[r * 1.8, r * 0.9, r * 0.9]} /><meshStandardMaterial color={p.color} emissive={p.color} emissiveIntensity={0.6} /></mesh>
             <mesh><sphereGeometry args={[r * 1.05, 12, 12]} /><meshBasicMaterial color="#ffffff" transparent opacity={0.35} blending={ADD} depthWrite={false} /></mesh>

@@ -10,7 +10,7 @@ const RETRO_IDS = new Set<CharacterId>([
   'ryu', 'chunli', 'yugi', 'kaiba',
   'omnom', 'tom', 'ben', 'crossy', 'red', 'steve', 'arisa',
   'chihiro', 'ichi', 'ruri', 'nona', 'gojo', 'deku', 'yodaka', 'saki', 'spe', 'kaoruko',
-  'stelle', 'lumine', 'miyabi', 'rover', 'rapi',
+  'stelle', 'lumine', 'miyabi', 'rover', 'rapi', 'akira',
 ])
 
 type AnimePreset = { body: string; hair: string; accent: string; head?: string; prop?: 'katana' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat' }
@@ -30,6 +30,7 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   miyabi: { body: '#0f172a', hair: '#18181b', accent: '#22d3ee', prop: 'ears' },
   rover: { body: '#1e293b', hair: '#09090b', accent: '#facc15', prop: 'katana' },
   rapi: { body: '#27272a', hair: '#f97316', accent: '#ef4444', prop: 'rifle' },
+  akira: { body: '#1e3a8a', hair: '#1e293b', accent: '#f472b6', prop: 'orb' },
 }
 
 export function isRetroAvatar(c: CharacterId): boolean {

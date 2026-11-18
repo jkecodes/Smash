@@ -39,6 +39,7 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   miyabi: 'MIYABI',
   rover: 'ROVER',
   rapi: 'RAPI',
+  akira: 'AKIRA',
 }
 
 const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean }>> = {
@@ -57,6 +58,7 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   miyabi: { bg: '#083344', hair: '#18181b', outfit: '#0f172a', accent: '#22d3ee', eye: '#ef4444', ears: true },
   rover: { bg: '#1e293b', hair: '#09090b', outfit: '#334155', accent: '#facc15', eye: '#eab308' },
   rapi: { bg: '#450a0a', hair: '#f97316', outfit: '#27272a', accent: '#ef4444', eye: '#ef4444' },
+  akira: { bg: '#500724', hair: '#1e293b', outfit: '#1e3a8a', accent: '#f472b6', eye: '#ec4899' },
 }
 
 export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'random'; className?: string }) {
