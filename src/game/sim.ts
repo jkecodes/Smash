@@ -896,8 +896,9 @@ function updateFighter(f: FighterState, dt: number) {
     startDodge(f, 'air', m > 0.4 ? inp.moveX / Math.max(1, m) : 0, m > 0.4 ? (Math.abs(inp.moveY) > 0.5 ? Math.sign(inp.moveY) : 0) : 0)
     return
   }
-  // 持有大招資格時，按「特招」直接開大招（同大亂鬥 Final Smash）
-  if (inp.pressed.skill1 && f.ultReady && tryStartSkill(f, 'ult', inp)) return
+  // 持有大招資格時，按「特招」且不推方向（Neutral B）直接開大招（同大亂鬥 Final Smash）
+  const neutralDir = Math.abs(inp.moveX) < 0.35 && Math.abs(inp.moveY) < 0.35
+  if (inp.pressed.skill1 && f.ultReady && neutralDir && tryStartSkill(f, 'ult', inp)) return
   // 普攻 + 特招 同按 = 蓄力重擊
   if (((inp.pressed.attack && inp.held.skill1) || (inp.pressed.skill1 && inp.held.attack)) && tryStartSkill(f, 'smash', inp)) return
   // 小跳攻擊（同大亂鬥 跳躍 + 普攻 同時按）：立即以 72% 跳躍高度起跳並接空中普攻
