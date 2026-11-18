@@ -56,7 +56,7 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
   vaus: { body: '#1e293b', hair: '#38bdf8', accent: '#ef4444', prop: 'orb', style: 'gun', shortHair: true },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara'].includes(p.id))
       .map((p) => [p.id, p.preset]),
   ) as Record<string, AnimePreset>),
 }
@@ -987,6 +987,34 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
             <mesh rotation={[0, 0, 0]}><torusGeometry args={[0.28, 0.03, 8, 16, Math.PI]} /><meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.8} /></mesh>
           </group>
           <group ref={animB} position={[-0.24, 0.08, 0]}><mesh position={[0, -0.12, 0]}><boxGeometry args={[0.1, 0.26, 0.1]} /><meshStandardMaterial color="#fde8d7" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'descara' && (
+        <group>
+          {/* 魔男的伊奇 笛絲卡菈絲：深褐膚色＋三段泡泡黑馬尾＋白衣金領＋細劍 */}
+          <mesh position={[0, -0.16, 0]} castShadow><cylinderGeometry args={[0.19, 0.3, 0.54, 12]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[0, 0.08, 0.11]}><boxGeometry args={[0.24, 0.28, 0.1]} /><meshStandardMaterial color="#eab308" /></mesh>
+          <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.2, 14, 14]} /><meshStandardMaterial color="#7c4a32" /></mesh>
+          <mesh position={[0, 0.38, -0.04]}><sphereGeometry args={[0.22, 14, 12]} /><meshStandardMaterial color="#09090b" /></mesh>
+          {/* 金色發光雙眼 */}
+          <mesh position={[-0.07, 0.35, 0.19]}><sphereGeometry args={[0.036, 8, 8]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={1} /></mesh>
+          <mesh position={[0.07, 0.35, 0.19]}><sphereGeometry args={[0.036, 8, 8]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={1} /></mesh>
+          {/* 背後三段式泡泡黑馬尾＋金髮環 */}
+          <mesh position={[0, 0.3, -0.28]}><sphereGeometry args={[0.15, 10, 10]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[0, 0.1, -0.34]}><sphereGeometry args={[0.13, 10, 10]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[0, -0.1, -0.36]}><sphereGeometry args={[0.11, 10, 10]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[0, 0.2, -0.31]}><torusGeometry args={[0.09, 0.02, 6, 12]} /><meshStandardMaterial color="#fde047" /></mesh>
+          <mesh position={[0, 0, -0.35]}><torusGeometry args={[0.08, 0.02, 6, 12]} /><meshStandardMaterial color="#fde047" /></mesh>
+          {/* 右手黑手套＋細劍（Rapier） */}
+          <group ref={animA} position={[0.25, 0.06, 0]}>
+            <mesh position={[0, -0.12, 0.06]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color="#18181b" /></mesh>
+            <group position={[0, -0.04, 0.42]} rotation={[1.05, 0, 0]}>
+              <mesh position={[0, 0.32, 0]}><cylinderGeometry args={[0.015, 0.025, 0.85, 6]} /><meshStandardMaterial color="#f8fafc" emissive="#fde047" emissiveIntensity={0.45} /></mesh>
+              <mesh position={[0, -0.1, 0]}><torusGeometry args={[0.08, 0.02, 6, 12]} /><meshStandardMaterial color="#eab308" /></mesh>
+            </group>
+          </group>
+          <group ref={animB} position={[-0.25, 0.06, 0]}><mesh position={[0, -0.12, 0.04]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color="#18181b" /></mesh></group>
         </group>
       )}
 

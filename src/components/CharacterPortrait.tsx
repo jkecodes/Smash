@@ -93,7 +93,7 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
   vaus: { bg: '#020617', hair: '#38bdf8', outfit: '#1e293b', accent: '#ef4444', eye: '#38bdf8', shortHair: true },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara'].includes(p.id))
       .map((p) => [p.id, p.portrait]),
   ) as Partial<Record<CharacterId, any>>),
 }
@@ -582,6 +582,36 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M36,48 L56,55 M84,48 L64,55" stroke="#451a03" strokeWidth="5" strokeLinecap="round" />
           <polygon points="60,62 48,74 72,74" fill="#f97316" />
           <polygon points="51,74 69,74 60,82" fill="#ea580c" />
+        </>
+      )}
+      {id === 'descara' && (
+        <>
+          <rect width="120" height="120" fill="#eab308" />
+          <circle cx="60" cy="60" r="52" fill="#facc15" opacity="0.4" />
+          {/* 背後三段式黑髮泡泡馬尾 ＋ 金髮環 */}
+          <circle cx="96" cy="48" r="14" fill="#09090b" />
+          <circle cx="98" cy="70" r="13" fill="#09090b" />
+          <circle cx="98" cy="92" r="12" fill="#09090b" />
+          <rect x="86" y="57" width="20" height="4" rx="2" fill="#fde047" />
+          <rect x="87" y="79" width="20" height="4" rx="2" fill="#fde047" />
+          {/* 主髮與深褐膚色臉部 */}
+          <circle cx="58" cy="52" r="24" fill="#09090b" />
+          <ellipse cx="56" cy="58" rx="21" ry="22" fill="#7c4a32" />
+          {/* 捲曲黑劉海 ＋ 側邊細辮與金飾尖端 */}
+          <path d="M34,50 Q40,36 48,44 Q56,34 64,44 Q72,36 78,48 L76,34 Q56,22 36,34 Z" fill="#09090b" />
+          <path d="M74,56 L76,82" stroke="#09090b" strokeWidth="4" strokeLinecap="round" />
+          <polygon points="73,82 79,82 76,90" fill="#eab308" />
+          {/* 發光金眸 */}
+          <ellipse cx="47" cy="58" rx="4.5" ry="5.5" fill="#fde047" />
+          <ellipse cx="65" cy="58" rx="4.5" ry="5.5" fill="#fde047" />
+          <circle cx="47" cy="58" r="2" fill="#f59e0b" />
+          <circle cx="65" cy="58" r="2" fill="#f59e0b" />
+          {/* 白衣金領高領制服 ＋ 細劍 */}
+          <path d="M26,84 L86,84 L94,120 L18,120 Z" fill="#f8fafc" />
+          <polygon points="44,82 56,110 68,82" fill="#eab308" />
+          <rect x="46" y="76" width="20" height="10" rx="2" fill="#fde047" />
+          <line x1="16" y1="24" x2="42" y2="108" stroke="#e2e8f0" strokeWidth="3.5" strokeLinecap="round" />
+          <ellipse cx="42" cy="108" rx="8" ry="4" fill="none" stroke="#eab308" strokeWidth="2.5" />
         </>
       )}
       {id === 'mino' && (
