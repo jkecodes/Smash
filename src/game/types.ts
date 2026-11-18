@@ -218,7 +218,7 @@ export interface SkillContext {
 }
 
 export type FxKind = 'slash' | 'ring' | 'burst' | 'afterimage' | 'beam' | 'pillar' | 'slingshot' | 'summon'
-export type SummonModel = 'ufo' | 'goldfish' | 'blueEyes' | 'ghost' | 'train' | 'eagle' | 'needle' | 'hollow'
+export type SummonModel = 'ufo' | 'goldfish' | 'blueEyes' | 'ghost' | 'train' | 'eagle' | 'needle' | 'hollow' | 'iceShark'
 export interface FxSpec {
   kind: FxKind
   pos: Vec3

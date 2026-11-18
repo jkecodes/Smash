@@ -429,15 +429,15 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   ichi: {
     id: 'ichi', name: 'ICHI 伊奇', color: '#38bdf8',
-    trait: '🐺 魔男伊奇・反世界魔法「ウロロ」＋狩獵魔刀！',
+    trait: '🐺 魔男伊奇・已收服魔法（雷狐・冰鯊・ウロロ）全解放！',
     guide: {
-      summary: '《魔男伊奇》首位男性魔女！以狩獵陷阱結界控場，再發射冰狼爆裂魔法收頭。',
+      summary: '《魔男伊奇》首位男性魔女！自由驅使他獵捕收服的雷狐、冰鯊、蛛絲、菌菇與反世界「ウロロ」魔法。',
       steps: [
-        '先在平台中間放【技能2 L】狩獵魔法結界陣緩速並消耗對手。',
-        '再用【特招 K】冰狼魔法射彈轟炸，並以【左右+K】反世界疾風突刺追擊。',
-        '空中用【下+K】ウロロ重力壓制將人砸出場外！',
+        '中距離施放【特招 K】雷狐之魔法「電光雷鳴」高速貫穿敵人！',
+        '貼身或控場時開【技能2 L】召喚「ウロロ」與冰鯊 3D 魔法陣緩速扣血。',
+        '搭配【左右+K】冰鯊冰牙突襲與【下+K】巨菇壓頂連段收頭！',
       ],
-      combo: 'L (狩獵結界) → K (冰狼射彈) → 左右+K (疾風突刺)',
+      combo: 'L (召喚ウロロ領域) → K (雷狐電光) → 左右+K (冰鯊冰牙突襲)',
     },
     loadout: { attack: 'ichi.a1', ...tilts('ichi'), skill1: 'ichi.s1', 'skill1:side': 'ichi.side', 'skill1:up': 'ichi.up', 'skill1:down': 'ichi.down', skill2: 'ichi.s2', ...smashes('ichi'), ult: 'ichi.ult' },
   },

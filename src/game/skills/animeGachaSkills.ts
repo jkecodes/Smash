@@ -83,6 +83,7 @@ interface KitSpec {
 
 const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
   chihiro: 'goldfish',
+  ichi: 'iceShark',
   nona: 'needle',
   gojo: 'hollow',
   stelle: 'train',
@@ -134,6 +135,8 @@ function registerKit(k: KitSpec) {
       damage: 0, knockback: { dir: [0, 0, 0], base: 0, scaling: 0 },
       hooks: {
         onActive(c) {
+          const model = KIT_SUMMONS[p]
+          if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.4, 1.0), color: k.s2.color, ttl: 950, size: 1.0, dir: c.forward[0] })
           const pos: Vec3 = [c.caster.pos[0], Math.max(0, c.caster.pos[1] - 0.35), 0]
           c.spawnZone(pos, { radius: 3.1, durationMs: 3400, slowFactor: 0.52, color: k.s2.color, damagePerSec: 6.5 })
           c.fx({ kind: 'ring', pos, color: k.s2.color, ttl: 420, radius: 3.1 })
@@ -217,12 +220,12 @@ const KITS: KitSpec[] = [
   },
   {
     p: 'ichi', color: '#38bdf8', a1: '魔男獵刀斬', a2: '野性雙連劈',
-    tilts: ['獵刀橫揮', '反魔法挑擊', '陷阱下掃'],
-    s1: { name: '冰狼魔法射彈', projColor: '#38bdf8', explode: 1.9, speed: 17 },
-    side: '反世界疾風突刺', up: '狩獵躍空斬', down: 'ウロロ重力壓制',
-    s2: { name: '狩獵魔法結界陣', kind: 'zone', color: '#38bdf8' },
-    smashes: ['魔男真紅斬', '凍結狼牙衝', '大狩獵震地'],
-    ult: { name: '反世界魔法「ウロロ」絕對狩獵！', kind: 'burst', color: '#60a5fa' },
+    tilts: ['獵刀橫揮', '雷狐電弧挑擊', '冰晶下掃'],
+    s1: { name: '雷狐之魔法「電光雷鳴」', projColor: '#facc15', pierce: true, speed: 23 },
+    side: '冰鯊之魔法「冰牙突襲」', up: '蛛絲之魔法「獵場飛躍」', down: '菌菇之魔法「巨菇壓頂」',
+    s2: { name: '反世界魔法「ウロロ」召喚陣', kind: 'zone', color: '#38bdf8' },
+    smashes: ['魔男真紅斬', '凍結鯊牙衝', '大狩獵震地'],
+    ult: { name: '全收服魔法解放「雷狐×冰鯊×ウロロ」！', kind: 'burst', color: '#60a5fa' },
   },
   {
     p: 'ruri', color: '#34d399', a1: '龍角衝撞', a2: '小龍炎爪擊',

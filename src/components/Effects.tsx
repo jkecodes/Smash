@@ -365,6 +365,13 @@ function SummonFx({ it }: { it: FxItem }) {
           <mesh rotation={[0.8, 0.4, 0]}><torusGeometry args={[1.9, 0.1, 10, 24]} /><meshBasicMaterial color="#ef4444" /></mesh>
         </group>
       )}
+      {it.model === 'iceShark' && (
+        <group ref={sub}>
+          <mesh scale={[1.6, 0.85, 0.75]}><coneGeometry args={[0.75, 1.8, 8]} /><meshStandardMaterial color="#38bdf8" emissive="#0284c7" emissiveIntensity={0.65} /></mesh>
+          <mesh position={[-0.2, 0.75, 0]} rotation={[0, 0, -0.4]}><boxGeometry args={[0.5, 0.75, 0.12]} /><meshStandardMaterial color="#bae6fd" emissive="#38bdf8" emissiveIntensity={0.6} /></mesh>
+          <mesh position={[-1.0, 0.15, 0]} rotation={[0, 0, 0.45]}><boxGeometry args={[0.65, 0.55, 0.1]} /><meshBasicMaterial color="#facc15" /></mesh>
+        </group>
+      )}
     </group>
   )
 }
