@@ -114,6 +114,14 @@ export interface CharacterDef {
   trait?: string
   /** 角色詳細遊玩教學 */
   guide?: { summary: string; steps: string[]; combo: string }
+  /** 角色體型縮放倍率（預設 1.0；大隻角色 > 1.0，小隻角色 < 1.0） */
+  scale?: number
+  /** 移動與跳躍速度倍率（大隻角色較遲鈍 < 1.0，輕巧角色 > 1.0） */
+  speedMult?: number
+  /** 傷害輸出倍率（大隻角色傷害更高 > 1.0） */
+  damageMult?: number
+  /** 重量倍率（影響抗擊飛能力，大隻角色 > 1.0） */
+  weightMult?: number
   /** 鍵為 'skill1'，或帶方向的 'skill1:up' / 'skill1:down'（按住搖桿方向 + 該鍵時優先使用） */
   loadout: Partial<Record<string, string>>
   /** 模型動畫片段名稱覆寫（狀態 → clip 名稱） */

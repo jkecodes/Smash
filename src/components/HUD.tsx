@@ -60,8 +60,8 @@ function PadSlotIcon({ kind, slot }: { kind: 'xbox' | 'ps' | 'nintendo' | 'gener
 
 function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact?: boolean }) {
   const charId = useGameStore((s) => s.selection[id])
-  const padInfo = describePad(id)
   if (!u) return null
+  const charName = CHARACTERS[charId]?.name ?? charId.toUpperCase()
   const isTetro = charId === 'tetro'
   const tb = isTetro ? getTetroBoard(id) : null
   const steveInv = charId === 'steve' ? getSteveInv(id) : null
@@ -88,7 +88,7 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
           {clearBanner.text}
         </div>
       )}
-      <div className="flex items-baseline justify-between gap-1">
+      <div className="flex items-baseline justify-between gap-1.5">
         <div className="flex items-center gap-1.5 min-w-0">
           {id === (useNetStore.getState().mySlot ?? 'p1') && useProfileStore.getState().avatarDataUrl && (
             <img src={useProfileStore.getState().avatarDataUrl!} alt="" className="h-4 w-4 rounded-full object-cover border border-white/40 shrink-0" />
@@ -97,6 +97,9 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
             {id.toUpperCase()} · {id === (useNetStore.getState().mySlot ?? 'p1') ? useProfileStore.getState().nickname : u.name}
           </span>
         </div>
+        <span className={`shrink-0 truncate font-bold text-white/75 ${compact ? 'max-w-[74px] text-[9px]' : 'max-w-[115px] text-[11px]'}`} title={charName}>
+          {charName}
+        </span>
       </div>
       <div className="mt-1 flex items-end justify-between gap-2">
         <div className="flex items-end gap-2">
@@ -159,25 +162,6 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/50">
             <div className="h-full transition-all duration-100" style={{ width: `${mech.gauge}%`, backgroundColor: mech.color }} />
           </div>
-        </div>
-      )}
-      {!compact && (
-        <div className="mt-2 flex gap-1.5">
-          {u.slots.map((s) => {
-            const noEnergy = u.energy < s.cost
-            const k = SLOT_KEYS[id]?.[s.slot]
-            return (
-              <div key={s.slot} className={`relative flex-1 overflow-hidden rounded px-1 py-1 text-center ${s.slot === 'ult' && !s.locked ? 'bg-yellow-400/40 ring-1 ring-yellow-300' : 'bg-white/10'} ${noEnergy || s.locked ? 'opacity-40' : ''}`}>
-                <div className="text-[10px] leading-tight">{s.name}</div>
-                <div className="mt-0.5 flex items-center justify-center gap-1 font-mono text-[10px] text-white/70">
-                  {padInfo ? <PadSlotIcon kind={padInfo.kind} slot={s.slot} /> : (k ? <span>[{k}]</span> : null)}
-                  {s.cost ? <span>{s.cost}</span> : null}
-                  {s.locked ? <span className="text-[9px]">需大招球</span> : null}
-                </div>
-                <div className="absolute inset-x-0 bottom-0 bg-black/60" style={{ height: `${s.cd * 100}%` }} />
-              </div>
-            )
-          })}
         </div>
       )}
       {u.charge > 0 && (
@@ -1413,11 +1397,43 @@ function AudioControl() {
 }
 
 function ProfileModal({ onClose }: { onClose: () => void }) {
-  const { nickname, avatarDataUrl, wins, losses, totalKos, setNickname, setAvatar, resetStats } = useProfileStore()
+  const { uid, username, nickname, avatarDataUrl, wins, losses, totalKos, register, login, logout, setNickname, setAvatar, resetStats } = useProfileStore()
   const [nameInput, setNameInput] = useState(nickname)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
+  const [authUser, setAuthUser] = useState('')
+  const [authPass, setAuthPass] = useState('')
+  const [authNick, setAuthNick] = useState('')
+  const [authErr, setAuthErr] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const total = wins + losses
   const winRate = total > 0 ? Math.round((wins / total) * 100) : 0
+
+  useEffect(() => {
+    setNameInput(nickname)
+  }, [nickname])
+
+  const handleCopyUid = () => {
+    navigator.clipboard?.writeText(uid).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1400)
+  }
+
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthErr(null)
+    const res = authMode === 'login'
+      ? login(authUser, authPass)
+      : register(authUser, authPass, authNick)
+    if (!res.ok) {
+      setAuthErr(res.error)
+      return
+    }
+    sfx('ui')
+    setAuthUser('')
+    setAuthPass('')
+    setAuthNick('')
+  }
 
   const handleUpload = async (file: File | null) => {
     if (!file) return
@@ -1433,11 +1449,98 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="pointer-events-auto absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl border border-white/20 bg-[#141929] p-5 text-white shadow-2xl space-y-4" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md max-h-[92vh] overflow-y-auto rounded-2xl border border-white/20 bg-[#141929] p-5 text-white shadow-2xl space-y-4" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
-          <span className="text-base font-black tracking-wider">👤 玩家檔案與戰績紀錄</span>
+          <span className="text-base font-black tracking-wider">👤 玩家帳號與戰績紀錄</span>
           <button type="button" onClick={onClose} className="rounded-lg bg-white/10 px-3 py-1 text-xs hover:bg-white/20">✕ 關閉</button>
         </div>
+
+        {/* UID 顯示列 */}
+        <div className="flex items-center justify-between rounded-xl border border-cyan-400/25 bg-cyan-950/30 px-3 py-2">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="rounded bg-cyan-400/20 px-1.5 py-0.5 font-mono font-black text-cyan-300">UID</span>
+            <span className="font-mono text-sm font-black tracking-wider text-white">{uid}</span>
+            {username ? (
+              <span className="text-[11px] text-emerald-300">· 帳號：{username}</span>
+            ) : (
+              <span className="text-[11px] text-amber-300">· 訪客模式</span>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleCopyUid}
+              className="rounded bg-white/10 px-2 py-0.5 text-[10px] font-bold hover:bg-white/20"
+            >
+              {copied ? '✓ 已複製' : '複製 UID'}
+            </button>
+            {username && (
+              <button
+                type="button"
+                onClick={() => { sfx('ui'); logout() }}
+                className="rounded bg-rose-500/25 px-2 py-0.5 text-[10px] font-bold text-rose-200 hover:bg-rose-500/40"
+              >
+                登出
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* 訪客時顯示登入 / 註冊表單 */}
+        {!username && (
+          <form onSubmit={handleAuthSubmit} className="rounded-xl border border-white/15 bg-white/5 p-3 space-y-2.5">
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => { setAuthMode('login'); setAuthErr(null) }}
+                className={`flex-1 rounded-lg py-1 text-xs font-black transition ${authMode === 'login' ? 'bg-yellow-300 text-black' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}
+              >
+                登入帳號
+              </button>
+              <button
+                type="button"
+                onClick={() => { setAuthMode('register'); setAuthErr(null) }}
+                className={`flex-1 rounded-lg py-1 text-xs font-black transition ${authMode === 'register' ? 'bg-cyan-400 text-black' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}
+              >
+                註冊新帳號 (取得 UID)
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                placeholder="帳號 (3~16位英數字)"
+                value={authUser}
+                onChange={(e) => setAuthUser(e.target.value)}
+                maxLength={16}
+                className="rounded-lg border border-white/20 bg-black/40 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-yellow-300 focus:outline-none"
+              />
+              <input
+                type="password"
+                placeholder="密碼 (至少4位)"
+                value={authPass}
+                onChange={(e) => setAuthPass(e.target.value)}
+                className="rounded-lg border border-white/20 bg-black/40 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-yellow-300 focus:outline-none"
+              />
+            </div>
+            {authMode === 'register' && (
+              <input
+                type="text"
+                placeholder="玩家暱稱（選填，預設同帳號）"
+                value={authNick}
+                onChange={(e) => setAuthNick(e.target.value)}
+                maxLength={16}
+                className="w-full rounded-lg border border-white/20 bg-black/40 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-cyan-300 focus:outline-none"
+              />
+            )}
+            {authErr && <div className="text-xs font-bold text-rose-400">{authErr}</div>}
+            <button
+              type="submit"
+              className={`w-full rounded-lg py-1.5 text-xs font-black text-black transition ${authMode === 'login' ? 'bg-yellow-300 hover:bg-yellow-200' : 'bg-cyan-400 hover:bg-cyan-300'}`}
+            >
+              {authMode === 'login' ? '🔐 登入帳號' : '✨ 註冊並配發專屬 8 位數 UID'}
+            </button>
+          </form>
+        )}
 
         <div className="flex items-center gap-4">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 border-yellow-300/80 bg-slate-900 flex items-center justify-center shadow-lg">
@@ -1591,7 +1694,12 @@ export function HUD() {
             )}
           </div>
           <div className="text-left leading-tight">
-            <div className="font-black text-white">{profile.nickname}</div>
+            <div className="flex items-center gap-1.5 font-black text-white">
+              <span>{profile.nickname}</span>
+              <span className="rounded bg-cyan-400/20 px-1 py-0.2 font-mono text-[9px] font-bold text-cyan-300">
+                UID:{profile.uid}
+              </span>
+            </div>
             <div className="text-[10px] font-bold text-yellow-300">
               🏆 {profile.wins}勝 {profile.losses}敗
             </div>

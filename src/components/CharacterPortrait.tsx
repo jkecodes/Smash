@@ -47,7 +47,7 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
 const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; witchHat?: boolean }>> = {
   chihiro: { bg: '#4c0519', hair: '#09090b', outfit: '#18181b', accent: '#ef4444', eye: '#ef4444', shortHair: true, scar: true },
   ichi: { bg: '#0c4a6e', hair: '#111827', outfit: '#1e3a8a', accent: '#38bdf8', eye: '#38bdf8', shortHair: true, witchHat: true },
-  ruri: { bg: '#064e3b', hair: '#7c3aed', outfit: '#f8fafc', accent: '#d97706', eye: '#ef4444', horns: true, bobHair: true },
+  ruri: { bg: '#064e3b', hair: '#7c3aed', outfit: '#111827', accent: '#f8fafc', eye: '#ef4444', horns: true, bobHair: true },
   nona: { bg: '#4a044e', hair: '#e9d5ff', outfit: '#3b0764', accent: '#e879f9', eye: '#a855f7', bobHair: true },
   gojo: { bg: '#1e1b4b', hair: '#f8fafc', outfit: '#111827', accent: '#818cf8', eye: '#38bdf8', blindfold: true, shortHair: true },
   deku: { bg: '#052e16', hair: '#15803d', outfit: '#14532d', accent: '#4ade80', eye: '#22c55e', shortHair: true },

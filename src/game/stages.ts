@@ -63,6 +63,15 @@ export interface StageGimmickDef {
   mode?: 'up' | 'radial' | 'patrol' | 'bomb' | 'pull' | 'heal' | 'energy'
 }
 
+export interface SolidBlockDef {
+  x: number
+  y: number
+  w: number
+  h: number
+  color?: string
+  edgeColor?: string
+}
+
 export interface StageDef {
   id: StageId
   half: { x: number; y: number; z: number }
@@ -70,6 +79,10 @@ export interface StageDef {
   ledgeX: number
   spawnX: { p1: number; p2: number }
   platforms: PlatformDef[]
+  /** 實心方塊地形（不可從下方穿過，可站立與阻擋側面） */
+  solids?: SolidBlockDef[]
+  /** 平地延伸型舞台（無懸崖邊緣，地面左右延伸至邊界外） */
+  walkOff?: boolean
   theme: StageTheme
   gimmick?: StageGimmickDef
 }
@@ -210,10 +223,14 @@ export const STAGES: Record<StageId, StageDef> = {
   },
   mario: {
     id: 'mario',
-    half: { x: 9.5, y: 0.5, z: 2.5 },
+    half: { x: 10.5, y: 0.5, z: 2.5 },
     blast: { x: 25, minY: -14, maxY: 26 },
-    ledgeX: 9.5,
+    ledgeX: 10.5,
     spawnX: { p1: -4.2, p2: 4.2 },
+    solids: [
+      { x: -7.2, y: 0, w: 1.6, h: 1.8, color: '#16a34a', edgeColor: '#4ade80' },
+      { x: 7.2, y: 0, w: 1.6, h: 1.8, color: '#16a34a', edgeColor: '#4ade80' },
+    ],
     platforms: [
       { x: -4.8, y: 2.2, w: 3.6, color: '#9a3412', edgeColor: '#fb923c' },
       { x: 4.8, y: 2.2, w: 3.6, color: '#9a3412', edgeColor: '#fb923c' },
@@ -408,10 +425,14 @@ export const STAGES: Record<StageId, StageDef> = {
   },
   pong: {
     id: 'pong',
-    half: { x: 10.5, y: 0.5, z: 2.5 },
+    half: { x: 11.5, y: 0.5, z: 2.5 },
     blast: { x: 26, minY: -14, maxY: 26 },
-    ledgeX: 10.5,
+    ledgeX: 11.5,
     spawnX: { p1: -5, p2: 5 },
+    solids: [
+      { x: -10.5, y: 0, w: 1.4, h: 2.8, color: '#e2e8f0', edgeColor: '#38bdf8' },
+      { x: 10.5, y: 0, w: 1.4, h: 2.8, color: '#e2e8f0', edgeColor: '#38bdf8' },
+    ],
     platforms: [
       { x: -6.8, y: 2.8, w: 2.2, color: '#e2e8f0', edgeColor: '#38bdf8', move: { ampY: 1.5, speed: 1.7, phase: 0 } },
       { x: 6.8, y: 2.8, w: 2.2, color: '#e2e8f0', edgeColor: '#38bdf8', move: { ampY: 1.5, speed: 1.7, phase: Math.PI } },
@@ -440,9 +461,10 @@ export const STAGES: Record<StageId, StageDef> = {
   },
   ryu: {
     id: 'ryu',
-    half: { x: 9.5, y: 0.5, z: 2.5 },
+    half: { x: 28, y: 0.5, z: 2.5 },
     blast: { x: 25, minY: -14, maxY: 26 },
-    ledgeX: 9.5,
+    ledgeX: 28,
+    walkOff: true,
     spawnX: { p1: -4.2, p2: 4.2 },
     platforms: [
       { x: -5.0, y: 2.2, w: 3.6, color: '#78350f', edgeColor: '#fb923c' },
@@ -473,9 +495,10 @@ export const STAGES: Record<StageId, StageDef> = {
   },
   chunli: {
     id: 'chunli',
-    half: { x: 9.8, y: 0.5, z: 2.5 },
+    half: { x: 28, y: 0.5, z: 2.5 },
     blast: { x: 25, minY: -14, maxY: 26 },
-    ledgeX: 9.8,
+    ledgeX: 28,
+    walkOff: true,
     spawnX: { p1: -4.2, p2: 4.2 },
     platforms: [
       { x: -5.2, y: 2.1, w: 3.4, color: '#1e3a8a', edgeColor: '#60a5fa' },
@@ -844,7 +867,8 @@ export const STAGES: Record<StageId, StageDef> = {
     theme: { name: '初星學園 LIVE 舞台', subtitle: 'Hatsuboshi Stage', tag: '咲季主場・雙側音響升降台', desc: '《学マス》寬廣主舞台搭配兩側邊緣隨節拍交替升降的音響高台！', bg: '#1e0b18', fog: '#1e0b18', ambientColor: '#fda4af', ambientIntensity: 0.88, dirLightColor: '#fff1f2', dirLightIntensity: 1.85, dirLightPos: [0, 22, 12], mainColor: '#4c0519', surfaceColor: '#881337', edgeColor: '#f43f5e', gridColor1: '#9f1239', gridColor2: '#2e0512', platColor: '#881337', platEdgeColor: '#fb7185', accentColor: '#f43f5e' },
   },
   spe: {
-    id: 'spe', half: { x: 11.5, y: 0.5, z: 2.5 }, blast: { x: 27, minY: -14, maxY: 26 }, ledgeX: 11.5, spawnX: { p1: -5.5, p2: 5.5 },
+    id: 'spe', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 26, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -5.5, p2: 5.5 },
+    solids: [{ x: -5.5, y: 0, w: 1.0, h: 1.1, color: '#581c87', edgeColor: '#c084fc' }, { x: 5.5, y: 0, w: 1.0, h: 1.1, color: '#581c87', edgeColor: '#c084fc' }],
     platforms: [{ x: -3.5, y: 1.5, w: 1.8, color: '#581c87', edgeColor: '#c084fc' }, { x: 3.5, y: 1.5, w: 1.8, color: '#581c87', edgeColor: '#c084fc' }],
     theme: { name: '東京競馬場終點線', subtitle: 'Tokyo Racecourse', tag: '特別週主場・超寬直線障礙賽', desc: '《賽馬娘》超寬日本ダービー草地大直道與兩座低矮障礙跳欄！', bg: '#0c2419', fog: '#0c2419', ambientColor: '#bbf7d0', ambientIntensity: 0.9, dirLightColor: '#ffffff', dirLightIntensity: 1.85, dirLightPos: [10, 22, 12], mainColor: '#14532d', surfaceColor: '#16a34a', edgeColor: '#c084fc', gridColor1: '#15803d', gridColor2: '#052e16', platColor: '#581c87', platEdgeColor: '#c084fc', accentColor: '#c084fc' },
   },
@@ -874,7 +898,8 @@ export const STAGES: Record<StageId, StageDef> = {
     theme: { name: '瑝瓏今州城', subtitle: 'Jinzhou Wuthering', tag: '漂泊者主場・中空雙翼飛簷', desc: '《鳴潮》中央完全留空、左右兩翼寬闊平展的瑝瓏古風飛簷雙台！', bg: '#141721', fog: '#141721', ambientColor: '#fef08a', ambientIntensity: 0.85, dirLightColor: '#fffbeb', dirLightIntensity: 1.8, dirLightPos: [8, 22, 12], mainColor: '#1e293b', surfaceColor: '#334155', edgeColor: '#facc15', gridColor1: '#ca8a04', gridColor2: '#0f172a', platColor: '#334155', platEdgeColor: '#facc15', accentColor: '#facc15' },
   },
   rapi: {
-    id: 'rapi', half: { x: 9.8, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 9.8, spawnX: { p1: -4.2, p2: 4.2 },
+    id: 'rapi', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -4.2, p2: 4.2 },
+    solids: [{ x: -6.5, y: 0, w: 2.0, h: 1.2, color: '#27272a', edgeColor: '#ef4444' }, { x: 6.5, y: 0, w: 2.0, h: 1.2, color: '#27272a', edgeColor: '#ef4444' }],
     platforms: [{ x: -5.2, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 5.2, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 4.6, w: 3.4, color: '#1e293b', edgeColor: '#f97316', move: { ampX: 3.6, speed: 1.1 } }],
     theme: { name: '地面奪回戰壕', subtitle: 'Surface Outpost', tag: '拉毗主場・3掩體＋補給', desc: '《NIKKE》妮姬地面奪回戰線！下層三座防禦掩體與高空巡弋補給台。', bg: '#170a0a', fog: '#170a0a', ambientColor: '#fca5a5', ambientIntensity: 0.82, dirLightColor: '#fee2e2', dirLightIntensity: 1.8, dirLightPos: [0, 22, 12], mainColor: '#27272a', surfaceColor: '#3f3f46', edgeColor: '#ef4444', gridColor1: '#991b1b', gridColor2: '#18181b', platColor: '#450a0a', platEdgeColor: '#ef4444', accentColor: '#ef4444' },
   },
@@ -946,9 +971,15 @@ export type StageForm = 'normal' | 'battlefield' | 'omega'
 export function resolveStage(id: StageId, form: StageForm = 'normal'): StageDef {
   const base = STAGES[id] ?? STAGES.reimu
   if (form === 'normal') return { ...base, gimmick: base.gimmick ?? STAGE_GIMMICKS[id] }
-  if (form === 'omega') return { ...base, platforms: [], gimmick: undefined }
+  const stdHalf = base.walkOff ? { x: 9.5, y: 0.5, z: 2.5 } : base.half
+  const stdLedge = base.walkOff ? 9.5 : base.ledgeX
+  if (form === 'omega') return { ...base, half: stdHalf, ledgeX: stdLedge, walkOff: false, solids: undefined, platforms: [], gimmick: undefined }
   return {
     ...base,
+    half: stdHalf,
+    ledgeX: stdLedge,
+    walkOff: false,
+    solids: undefined,
     gimmick: undefined,
     platforms: [
       { x: -4.8, y: 2.3, w: 3.6, color: base.theme.platColor, edgeColor: base.theme.platEdgeColor },

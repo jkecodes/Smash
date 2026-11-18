@@ -169,6 +169,7 @@ export function resetSimStage() {
 }
 
 function tryGrabLedge(f: FighterState, inp: InputFrame): boolean {
+  if (getStage().walkOff) return false
   if (f.grounded || f.ledgeCd > 0 || f.vel[1] > 2) return false
   const ledgeX = getStage().ledgeX
   for (const side of [-1, 1] as const) {
@@ -420,18 +421,20 @@ function enterActive(f: FighterState, sk: ActiveSkill, dt: number) {
 }
 
 function runHitbox(f: FighterState, sk: HitSource, hb: HitboxDef) {
-  const samples = hb.length ? Math.max(1, Math.ceil(hb.length / (hb.radius * 1.2))) : 1
+  const fScale = CHARACTERS[f.character]?.scale ?? 1
+  const scaledR = Math.round(hb.radius * clamp(fScale, 0.85, 1.35) * 20) / 20
+  const samples = hb.length ? Math.max(1, Math.ceil(hb.length / (scaledR * 1.2))) : 1
   for (let i = 0; i < samples; i++) {
-    const local: Vec3 = [hb.offset[0], hb.offset[1], hb.offset[2] + (hb.length ? (hb.length * i) / Math.max(1, samples - 1) : 0)]
+    const local: Vec3 = [hb.offset[0] * fScale, hb.offset[1] * fScale, hb.offset[2] * fScale + (hb.length ? (hb.length * i) / Math.max(1, samples - 1) : 0)]
     const w = facingWorld(f, local)
     const center: Vec3 = [f.pos[0] + w[0], f.pos[1] + w[1], 0]
-    for (const id of queryBall(center, hb.radius)) {
+    for (const id of queryBall(center, scaledR)) {
       if (id === f.id || sk.hitSet.has(id)) continue
       const t = store().fighters[id]
       if (!t.alive) continue
       queueHit(f, t, sk, center)
     }
-    hitBallIfOverlap(f, sk, center, hb.radius)
+    hitBallIfOverlap(f, sk, center, scaledR)
   }
 }
 
@@ -634,7 +637,9 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   if (tgt.invulnMs > 0 || !tgt.alive) return
   src.hitSet.add(tgt.id)
   const def = src.def
-  const dmg = def.damage * src.dmgMult
+  const attChar = CHARACTERS[att.character]
+  const tgtChar = CHARACTERS[tgt.character]
+  const dmg = def.damage * src.dmgMult * (attChar?.damageMult ?? 1)
   const kb = def.knockback
   const trb = runtime.bodies[tgt.id]!
 
@@ -676,7 +681,7 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   tgt.comboCount = 0
   tgt.comboTimerMs = 0
 
-  const speed = (kb.base + kb.scaling * (tgt.damage / 100)) * src.kbMult
+  const speed = ((kb.base + kb.scaling * (tgt.damage / 100)) * src.kbMult) / (tgtChar?.weightMult ?? 1)
   if (tgt.skill) endSkill(tgt) // 受擊打斷施放
   trb.setGravityScale(1, true)
   trb.setLinvel({ x: dir[0] * speed, y: dir[1] * speed, z: 0 }, true)
@@ -895,9 +900,11 @@ function updateFighter(f: FighterState, dt: number) {
   // 普攻 + 特招 同按 = 蓄力重擊
   if (((inp.pressed.attack && inp.held.skill1) || (inp.pressed.skill1 && inp.held.attack)) && tryStartSkill(f, 'smash', inp)) return
   // 小跳攻擊（同大亂鬥 跳躍 + 普攻 同時按）：立即以 72% 跳躍高度起跳並接空中普攻
+  const speedMult = CHARACTERS[f.character]?.speedMult ?? 1
+  const jumpMult = 0.9 + 0.1 * speedMult
   const coyotePre = !f.grounded && (f.coyoteMs ?? 0) > 0
   if ((f.grounded || coyotePre) && (inp.pressed.jump || (f.jumpBufferMs ?? 0) > 0) && inp.pressed.attack) {
-    rb.setLinvel({ x: lv.x, y: JUMP_VEL * 0.72, z: 0 }, true)
+    rb.setLinvel({ x: lv.x, y: JUMP_VEL * 0.72 * jumpMult, z: 0 }, true)
     f.grounded = false
     f.jumpsLeft = MAX_JUMPS - 1
     f.jumpBufferMs = 0
@@ -917,7 +924,7 @@ function updateFighter(f: FighterState, dt: number) {
   const coyote = !f.grounded && (f.coyoteMs ?? 0) > 0
   if (wantJump && (f.jumpsLeft > 0 || coyote)) {
     const groundJump = f.grounded || coyote
-    vy = JUMP_VEL
+    vy = JUMP_VEL * jumpMult
     f.jumpsLeft = groundJump ? MAX_JUMPS - 1 : Math.max(0, f.jumpsLeft - 1)
     f.jumpBufferMs = 0
     f.coyoteMs = 0
@@ -926,7 +933,7 @@ function updateFighter(f: FighterState, dt: number) {
   }
   if (!f.grounded && inp.moveY < -0.5 && vy < 2) vy = Math.max(vy, -22) - 40 * dt // 快速下墜
 
-  const speed = (f.grounded ? RUN_SPEED : AIR_SPEED) * f.slowFactor
+  const speed = (f.grounded ? RUN_SPEED : AIR_SPEED) * f.slowFactor * speedMult
   const target = inp.moveX * speed
   const accel = f.grounded ? GROUND_ACCEL : inp.moveX !== 0 ? AIR_ACCEL : 4
   const vx = lv.x + clamp(target - lv.x, -accel * dt, accel * dt)

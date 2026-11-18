@@ -18,6 +18,7 @@ const smashes = (p: string) => ({
 export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   tetro: {
     id: 'tetro', name: 'TETRO 方塊使', color: '#00f0f0',
+    scale: 1.18, speedMult: 0.86, damageMult: 1.24, weightMult: 1.2,
     trait: '🧩 出招自動堆疊方塊・按特招觸發 1~4 行 TETRIS 雷射轟炸！',
     guide: {
       summary: '邊打架邊自動疊俄羅斯方塊！你完全不用停下來對位，出普攻或位移招會自動幫你填滿左3欄，按特招一鍵消行爆發。',
@@ -73,6 +74,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   invader: {
     id: 'invader', name: 'INVADER 侵略者', color: '#4ade80',
+    scale: 1.24, speedMult: 0.84, damageMult: 1.28, weightMult: 1.22,
     trait: '👾 8-Bit雷射牽制・UFO牽引吸敵光柱・像素傳送與掩體砲台',
     guide: {
       summary: '經典射擊遊戲 BOSS 型遠程砲台。擅長在遠處架設掩體力場並發射高穿透雷射，並用 UFO 牽引光束限制敵人逃脫。',
@@ -127,6 +129,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   frogger: {
     id: 'frogger', name: 'FROGGER 青蛙過河', color: '#84cc16',
+    scale: 0.84, speedMult: 1.16, damageMult: 0.9, weightMult: 0.84,
     trait: '🐸 超長青蛙舌遠程普攻・召喚滾木與高速貨車・全場最高跳躍',
     guide: {
       summary: '手長且制空力最強的跳躍專家！普攻長舌鞭擊攻擊距離驚人，還能召喚經典的滾木與高速公路大貨車橫掃地面。',
@@ -145,6 +148,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   kong: {
     id: 'kong', name: 'DONKEY KONG 大金剛', color: '#a16207',
+    scale: 1.48, speedMult: 0.78, damageMult: 1.42, weightMult: 1.38,
     trait: '🦍 霸體鐵頭功・重磅滾動木桶・全場最強蓄力巨猩重拳',
     guide: {
       summary: '力量型重裝霸主！單發傷害與擊飛力在全角色中名列前茅，【左右+K】鐵頭功自帶無敵霸體，蓄力拳一擊即可秒殺高傷敵人。',
@@ -217,6 +221,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   ryu: {
     id: 'ryu', name: 'RYU 隆', color: '#38bdf8',
+    scale: 1.08, speedMult: 0.94, damageMult: 1.12, weightMult: 1.1,
     trait: '🥋 波動拳牽制・無敵昇龍拳・龍卷旋風腳＆真空波動拳',
     guide: {
       summary: '《Street Fighter 快打旋風》經典波動格鬥家！地面波動拳壓制、龍卷旋風腳突進，加上起手自帶無敵的強對空「昇龍拳」。',
@@ -289,6 +294,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   omnom: {
     id: 'omnom', name: 'OM NOM 奧姆', color: '#4ade80',
+    scale: 0.8, speedMult: 1.16, damageMult: 0.88, weightMult: 0.82,
     trait: '🍬 Cut the Rope 吃糖果小怪獸・蜘蛛絲拉扯控場・泡泡漂浮',
     guide: {
       summary: '《Cut the Rope》可愛綠色小怪獸！擅長用蜘蛛絲把敵人拉近並減速，再拋出糖果爆彈與三星糖果雨轟炸全場。',
@@ -325,6 +331,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   ben: {
     id: 'ben', name: 'BEN 阿班博士', color: '#b45309',
+    scale: 1.2, speedMult: 0.85, damageMult: 1.25, weightMult: 1.22,
     trait: '🧪 Talking Ben 化學毒霧區・隨機爆裂試管・"Yes?"/"No."',
     guide: {
       summary: '《Talking Ben》毒霧陣地學者！拋擲雙色化學試管爆破，並以腐蝕毒氣燒瓶封鎖平台持續累積損傷%。',
@@ -343,6 +350,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   crossy: {
     id: 'crossy', name: 'CHICKEN 過馬路雞', color: '#f8fafc',
+    scale: 0.82, speedMult: 1.18, damageMult: 0.88, weightMult: 0.82,
     trait: '🐔 天天過馬路・召喚超速賽車與火車橫掃・滾動浮木貫穿',
     guide: {
       summary: '《Crossy Road》超高機動車禍召喚師！能開超速賽車突進、丟出貫穿滾木，大招更召喚全車道尖峰時刻撞飛全場！',
@@ -361,6 +369,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   red: {
     id: 'red', name: 'RED 怒鳥紅', color: '#dc2626',
+    scale: 0.86, speedMult: 1.14, damageMult: 0.92, weightMult: 0.86,
     trait: '🐦 Angry Birds 彈弓全力暴衝・炸藥蛋空襲・神鷹 Mighty Eagle',
     guide: {
       summary: '《Angry Birds》高爆發撞擊專家！彈弓高速衝鋒與戰吼震波擊飛極強，空中還能下炸藥蛋反打底下對手。',
@@ -379,6 +388,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   steve: {
     id: 'steve', name: 'STEVE 史蒂夫', color: '#38bdf8',
+    scale: 1.16, speedMult: 0.88, damageMult: 1.22, weightMult: 1.18,
     trait: '⛏️ Minecraft 鑽石劍・附魔弓箭・礦車突進・鐵砧重砸與 TNT',
     guide: {
       summary: '《Minecraft》全能方塊冒險家！擁有極快的附魔弓遠射、紅石礦車突進、高傷破盾鐵砧與大範圍 TNT 爆破。',
@@ -443,6 +453,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   ruri: {
     id: 'ruri', name: 'RURI 青木瑠璃', color: '#34d399',
+    scale: 0.92, speedMult: 1.06, damageMult: 0.98, weightMult: 0.92,
     trait: '🐉 RuriDragon 龍之火炎吐息・角閃電與毒霧領域！',
     guide: {
       summary: '《瑠璃龍》覺醒龍族血統的女子高中生！同時擁有火炎吐息、毒霧領域與龍角放電。',
@@ -471,6 +482,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   gojo: {
     id: 'gojo', name: 'GOJO 五條悟', color: '#818cf8',
+    scale: 1.12, speedMult: 0.96, damageMult: 1.18, weightMult: 1.12,
     trait: '♾️ 咒術迴戰・術式反轉「赫」、順轉「蒼」與虛式「茈」！',
     guide: {
       summary: '《咒術迴戰》現代最強咒術師！兼具爆裂「赫」、瞬移突襲與超高擊飛虛式「茈」。',
@@ -499,6 +511,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   yodaka: {
     id: 'yodaka', name: 'YODAKA 夜鷹', color: '#64748b',
+    scale: 0.95, speedMult: 1.16, damageMult: 1.0, weightMult: 0.94,
     trait: '🥷 忍事 Shinobigoto・超速手裡劍與一擊必殺體術！',
     guide: {
       summary: '《忍事》最強忍者夜鷹！無血統卻擁有全場最快的體術突進與精準手裡劍連射。',
@@ -527,6 +540,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   spe: {
     id: 'spe', name: 'SPECIAL WEEK 特別週', color: '#c084fc',
+    scale: 0.96, speedMult: 1.14, damageMult: 0.96, weightMult: 0.94,
     trait: '🐎 賽馬娘・終盤「末腳」超加速＋日本總大將氣勢！',
     guide: {
       summary: '《賽馬娘 Pretty Derby》特別週！招牌「末腳」衝刺速度驚人，搭配特製紅蘿蔔爆彈橫掃跑道。',
@@ -583,6 +597,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   miyabi: {
     id: 'miyabi', name: 'MIYABI 星見雅', color: '#22d3ee',
+    scale: 0.96, speedMult: 1.15, damageMult: 1.02, weightMult: 0.95,
     trait: '🦊 絕區零・妖刀「無尾」・冰焰妖狐斬波與霜月拔刀！',
     guide: {
       summary: '《絕區零》對空六課課長星見雅！極致迅捷的冰焰居合斬與貫穿妖狐斬波。',
@@ -611,6 +626,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   rapi: {
     id: 'rapi', name: 'RAPI 拉毗', color: '#ef4444',
+    scale: 1.04, speedMult: 0.95, damageMult: 1.12, weightMult: 1.06,
     trait: '🔫 NIKKE 勝利女神・戰術穿甲彈・空投集束雷與 Red Hood！',
     guide: {
       summary: '《NIKKE 勝利女神》反擊部隊隊長拉毗！強大中遠程槍火壓制搭配高爆導彈與 Red Hood 核心爆裂！',
@@ -653,6 +669,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   hutao: {
     id: 'hutao', name: 'HU TAO 胡桃', color: '#ef4444',
+    scale: 0.9, speedMult: 1.12, damageMult: 0.96, weightMult: 0.9,
     trait: '🔥 原神・往生堂堂主・護摩之杖、血梅香突刺與安神秘法！',
     guide: {
       summary: '《原神》璃月往生堂第77代堂主胡桃！極具爆發力的火系長柄武器突刺與鬼火爆炸連段。',

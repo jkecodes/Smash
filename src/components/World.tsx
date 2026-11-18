@@ -134,7 +134,22 @@ export function Arena() {
       {stage.platforms.map((p, i) => (
         <PlatformView key={`plat-${stage.id}-${i}`} p={p} i={i} h={h} theme={theme} />
       ))}
-      {[-1, 1].map((s) => (
+      {(stage.solids ?? []).map((s, i) => (
+        <group key={`solid-${stage.id}-${i}`}>
+          <RigidBody type="fixed" colliders={false} friction={0} collisionGroups={interactionGroups(0, [1])}>
+            <CuboidCollider args={[s.w / 2, s.h / 2, h.z]} position={[s.x, s.y + s.h / 2, 0]} friction={0} />
+          </RigidBody>
+          <mesh position={[s.x, s.y + s.h / 2, 0]} castShadow receiveShadow>
+            <boxGeometry args={[s.w, s.h, h.z * 2]} />
+            <meshStandardMaterial color={s.color ?? theme.mainColor} roughness={0.6} metalness={0.2} />
+          </mesh>
+          <mesh position={[s.x, s.y + s.h + 0.01, h.z]}>
+            <boxGeometry args={[s.w, 0.06, 0.08]} />
+            <meshBasicMaterial color={s.edgeColor ?? theme.edgeColor} />
+          </mesh>
+        </group>
+      ))}
+      {!stage.walkOff && [-1, 1].map((s) => (
         <mesh key={s} position={[s * (h.x + 0.04), -0.06, 0]}>
           <boxGeometry args={[0.12, 0.14, h.z * 2 + 0.02]} />
           <meshBasicMaterial color={theme.edgeColor} />
@@ -174,16 +189,18 @@ function makeMarkTexture(label: string, color: string) {
 }
 function PlayerMarker({ id }: { id: FighterId }) {
   const cpu = useGameStore((s) => s.cpu[id])
+  const charId = useGameStore((s) => s.selection[id])
+  const charScale = CHARACTERS[charId]?.scale ?? 1
   const tag = id.toUpperCase()
   const label = cpu ? `${tag} CPU` : tag
   const tex = useState(() => ({ t: null as THREE.CanvasTexture | null }))[0]
   useEffect(() => { tex.t = makeMarkTexture(label, PLAYER_COLORS[id]); setV((v) => v + 1); return () => tex.t?.dispose() }, [label, id, tex])
   const [, setV] = useState(0)
   const ref = useRef<THREE.Sprite>(null)
-  useFrame(() => { if (ref.current) ref.current.position.y = 2.0 + Math.sin(performance.now() / 300) * 0.06 })
+  useFrame(() => { if (ref.current) ref.current.position.y = 1.9 * charScale + 0.1 + Math.sin(performance.now() / 300) * 0.06 })
   if (!tex.t) return null
   return (
-    <sprite ref={ref} position={[0, 2.0, 0]} scale={[1.5, 0.75, 1]} renderOrder={10}>
+    <sprite ref={ref} position={[0, 1.9 * charScale + 0.1, 0]} scale={[1.5, 0.75, 1]} renderOrder={10}>
       <spriteMaterial map={tex.t} transparent depthTest={false} />
     </sprite>
   )
@@ -320,9 +337,10 @@ function FighterView({ id }: { id: FighterId }) {
     mat.current.opacity = f.invulnMs > 0 && Math.floor(performance.now() / 80) % 2 === 0 ? 0.45 : 1
     mat.current.transparent = true
     const squash = f.fsm === 'ATTACK_STARTUP' ? 0.85 : f.fsm === 'SHIELD' ? 0.88 : 1
-    group.current.scale.set(CHAR_SCALE, CHAR_SCALE * squash, CHAR_SCALE)
+    const cs = CHAR_SCALE * (CHARACTERS[f.character]?.scale ?? 1)
+    group.current.scale.set(cs, cs * squash, cs)
     const jitter = runtime.hitstopMs > 0 && f.fsm === 'HITSTUN' ? (Math.random() - 0.5) * 0.22 : 0
-    group.current.position.set(jitter, (CHAR_SCALE - 1) * 0.5, 0) // 腳底維持貼地，受擊頓幀時震顫
+    group.current.position.set(jitter, (cs - 1) * 0.5, 0) // 腳底維持貼地，受擊頓幀時震顫
     if (aura.current) {
       aura.current.visible = f.ultReady
       aura.current.scale.setScalar(1.35 + 0.12 * Math.sin(performance.now() / 120))
