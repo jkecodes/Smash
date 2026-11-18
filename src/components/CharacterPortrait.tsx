@@ -83,7 +83,6 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   youmu: { bg: '#064e3b', hair: '#e2e8f0', outfit: '#0f766e', accent: '#34d399', eye: '#10b981', bobHair: true },
   luigi: { bg: '#052e16', hair: '#451a03', outfit: '#16a34a', accent: '#2563eb', eye: '#38bdf8', shortHair: true },
   blinky: { bg: '#450a0a', hair: '#ef4444', outfit: '#dc2626', accent: '#ffffff', eye: '#38bdf8', shortHair: true },
-  diddy: { bg: '#451a03', hair: '#78350f', outfit: '#dc2626', accent: '#facc15', eye: '#111827', ears: true, shortHair: true },
   creeper: { bg: '#064e3b', hair: '#22c55e', outfit: '#16a34a', accent: '#111827', eye: '#111827', shortHair: true },
   suzuka: { bg: '#052e16', hair: '#f97316', outfit: '#22c55e', accent: '#ffffff', eye: '#10b981', ears: true },
   firefly: { bg: '#0f172a', hair: '#cbd5e1', outfit: '#0f766e', accent: '#f97316', eye: '#38bdf8', bobHair: true },
@@ -582,6 +581,28 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M36,48 L56,55 M84,48 L64,55" stroke="#451a03" strokeWidth="5" strokeLinecap="round" />
           <polygon points="60,62 48,74 72,74" fill="#f97316" />
           <polygon points="51,74 69,74 60,82" fill="#ea580c" />
+        </>
+      )}
+      {id === 'diddy' && (
+        <>
+          <rect width="120" height="120" fill="#451a03" />
+          {/* 猴耳與棕毛頭 */}
+          <circle cx="30" cy="56" r="11" fill="#fcd39d" stroke="#78350f" strokeWidth="2" />
+          <circle cx="90" cy="56" r="11" fill="#fcd39d" stroke="#78350f" strokeWidth="2" />
+          <circle cx="60" cy="54" r="26" fill="#78350f" />
+          {/* 紅色鴨舌帽＋帽簷 */}
+          <path d="M34,46 C34,20 86,20 86,46 Z" fill="#dc2626" />
+          <ellipse cx="66" cy="44" rx="30" ry="7" fill="#ef4444" />
+          {/* 大白眼與猴嘴吻 */}
+          <ellipse cx="51" cy="54" rx="7" ry="9" fill="#ffffff" />
+          <ellipse cx="69" cy="54" rx="7" ry="9" fill="#ffffff" />
+          <circle cx="52" cy="55" r="3.5" fill="#111827" />
+          <circle cx="68" cy="55" r="3.5" fill="#111827" />
+          <ellipse cx="60" cy="70" rx="22" ry="13" fill="#fcd39d" />
+          <path d="M48,73 Q60,80 72,73" fill="none" stroke="#9a3412" strokeWidth="2.5" strokeLinecap="round" />
+          {/* 紅星背心 */}
+          <path d="M32,86 L88,86 L94,120 L26,120 Z" fill="#dc2626" />
+          <polygon points="60,92 63,100 71,100 65,105 67,113 60,108 53,113 55,105 49,100 57,100" fill="#facc15" />
         </>
       )}
       {id === 'bakugo' && (

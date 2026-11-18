@@ -46,7 +46,6 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   youmu: { body: '#0f766e', hair: '#e2e8f0', accent: '#34d399', prop: 'katana', style: 'sword', shortHair: true, dualSword: true },
   luigi: { body: '#16a34a', hair: '#451a03', accent: '#22c55e', prop: 'orb', style: 'martial', shortHair: true },
   blinky: { body: '#ef4444', hair: '#dc2626', accent: '#38bdf8', prop: 'orb', style: 'mage', shortHair: true },
-  diddy: { body: '#dc2626', hair: '#78350f', accent: '#facc15', prop: 'rifle', style: 'martial', shortHair: true },
   creeper: { body: '#22c55e', hair: '#15803d', accent: '#4ade80', prop: 'orb', style: 'martial', shortHair: true },
   suzuka: { body: '#22c55e', hair: '#f97316', accent: '#ffffff', prop: 'ears', style: 'martial' },
   firefly: { body: '#0f766e', hair: '#cbd5e1', accent: '#f97316', prop: 'katana', style: 'sword' },
@@ -993,6 +992,30 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
             <mesh rotation={[0, 0, 0]}><torusGeometry args={[0.28, 0.03, 8, 16, Math.PI]} /><meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.8} /></mesh>
           </group>
           <group ref={animB} position={[-0.24, 0.08, 0]}><mesh position={[0, -0.12, 0]}><boxGeometry args={[0.1, 0.26, 0.1]} /><meshStandardMaterial color="#fde8d7" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'diddy' && (
+        <group>
+          {/* Diddy Kong 狄狄剛：棕毛猴身＋紅星背心＋大嘴部＋紅鴨舌帽＋長猴尾 */}
+          <mesh position={[0, -0.14, 0]} castShadow><cylinderGeometry args={[0.19, 0.24, 0.44, 12]} /><meshStandardMaterial color="#dc2626" /></mesh>
+          <mesh position={[0, -0.1, 0.16]}><boxGeometry args={[0.14, 0.14, 0.06]} /><meshStandardMaterial color="#facc15" /></mesh>
+          <mesh position={[0, 0.28, 0]} castShadow><sphereGeometry args={[0.21, 14, 14]} /><meshStandardMaterial color="#78350f" /></mesh>
+          {/* 淺膚色猴嘴吻＋大白眼＋雙耳 */}
+          <mesh position={[0, 0.2, 0.16]}><sphereGeometry args={[0.14, 12, 10]} /><meshStandardMaterial color="#fcd39d" /></mesh>
+          <mesh position={[-0.07, 0.31, 0.18]}><sphereGeometry args={[0.055, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[0.07, 0.31, 0.18]}><sphereGeometry args={[0.055, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[-0.06, 0.31, 0.23]}><sphereGeometry args={[0.025, 8, 8]} /><meshStandardMaterial color="#111827" /></mesh>
+          <mesh position={[0.06, 0.31, 0.23]}><sphereGeometry args={[0.025, 8, 8]} /><meshStandardMaterial color="#111827" /></mesh>
+          <mesh position={[-0.22, 0.28, 0]}><sphereGeometry args={[0.07, 8, 8]} /><meshStandardMaterial color="#fcd39d" /></mesh>
+          <mesh position={[0.22, 0.28, 0]}><sphereGeometry args={[0.07, 8, 8]} /><meshStandardMaterial color="#fcd39d" /></mesh>
+          {/* 紅色鴨舌帽 */}
+          <mesh position={[0, 0.44, 0]}><sphereGeometry args={[0.21, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#dc2626" /></mesh>
+          <mesh position={[0, 0.42, 0.22]} rotation={[0.15, 0, 0]}><boxGeometry args={[0.3, 0.05, 0.22]} /><meshStandardMaterial color="#dc2626" /></mesh>
+          {/* 長猴尾 */}
+          <mesh position={[0, -0.15, -0.3]} rotation={[0.8, 0, 0]}><cylinderGeometry args={[0.035, 0.045, 0.48, 8]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <group ref={animA} position={[0.26, 0.02, 0.06]}><mesh position={[0, -0.12, 0]}><boxGeometry args={[0.1, 0.28, 0.1]} /><meshStandardMaterial color="#78350f" /></mesh></group>
+          <group ref={animB} position={[-0.26, 0.02, 0.06]}><mesh position={[0, -0.12, 0]}><boxGeometry args={[0.1, 0.28, 0.1]} /><meshStandardMaterial color="#78350f" /></mesh></group>
         </group>
       )}
 
