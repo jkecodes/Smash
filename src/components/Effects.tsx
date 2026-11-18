@@ -944,6 +944,12 @@ function ProjectileView({ p }: { p: Projectile }) {
             <mesh><sphereGeometry args={[r * 0.95, 14, 12]} /><meshStandardMaterial color="#06b6d4" emissive="#22d3ee" emissiveIntensity={0.85} transparent opacity={0.88} /></mesh>
             <mesh><torusGeometry args={[r * 1.12, 0.1, 8, 20]} /><meshBasicMaterial color="#67e8f9" transparent opacity={0.8} blending={ADD} depthWrite={false} /></mesh>
           </>
+        ) : charId === 'samura' ? (
+          <>
+            {/* 座村清市：飛宗黑金鴉羽斬波 */}
+            <mesh rotation={[0, 0, Math.PI / 4]}><boxGeometry args={[r * 2.1, r * 0.42, r * 0.16]} /><meshStandardMaterial color="#0f172a" emissive="#f59e0b" emissiveIntensity={1.1} /></mesh>
+            <mesh><torusGeometry args={[r * 1.05, 0.08, 8, 20]} /><meshBasicMaterial color="#fbbf24" transparent opacity={0.85} blending={ADD} depthWrite={false} /></mesh>
+          </>
         ) : (
           <>
             <mesh><octahedronGeometry args={[r * 0.85, 0]} /><meshBasicMaterial color="#ffffff" /></mesh>

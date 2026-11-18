@@ -34,6 +34,7 @@ const CHAR_MECHANIC: Partial<Record<CharacterId, { kind: MechanicKind; label: st
   suzuka: { kind: 'ko', label: '💨 異次元大逃げ', color: '#22c55e' },
   creeper: { kind: 'ko', label: '💥 高壓苦力怕', color: '#4ade80' },
   josuke: { kind: 'awaken', label: '💢 髮型暴怒覺醒', color: '#ec4899' },
+  samura: { kind: 'awaken', label: '🪶 飛宗「雀」覺醒', color: '#f59e0b' },
 }
 
 const states: Record<FighterId, MechanicState | null> = Object.fromEntries(

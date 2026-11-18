@@ -5,7 +5,7 @@
 export const PARTNER_IDS = [
   'mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky',
   'hakuri', 'descara', 'umi', 'miramira', 'sukuna', 'bakugo', 'hibari', 'rintaro', 'hajime', 'doh',
-  'josuke', 'angelo',
+  'josuke', 'angelo', 'samura',
 ] as const
 export type PartnerId = typeof PARTNER_IDS[number]
 
@@ -377,6 +377,22 @@ export const PARTNERS: PartnerSpec[] = [
       ult: { name: '水項鍊・體內侵蝕終結！', kind: 'barrage', color: '#06b6d4' },
     },
     flags: ['caster', 'ranged', 'trap'],
+  },
+  {
+    id: 'samura', name: 'SAMURA 座村清市', short: 'SAMURA', color: '#f59e0b', partnerOf: 'chihiro',
+    scale: 1.0, speedMult: 1.14, damageMult: 1.14, weightMult: 0.98,
+    trait: '🪶 神樂缽・妖刀「飛宗」盲劍客！居合白契流、鴉羽瞬移斬與「雀」覺醒。',
+    portrait: { bg: '#1c1917', hair: '#18181b', outfit: '#0f172a', accent: '#f59e0b', eye: '#fbbf24', shortHair: true, scar: true, blindfold: true },
+    preset: { body: '#0f172a', hair: '#18181b', accent: '#f59e0b', prop: 'katana', style: 'sword', shortHair: true },
+    kit: {
+      a1: '居合白契流・抜刀', a2: '飛宗連斬', tilts: ['居合橫斬', '飛宗上挑', '逆袈裟下斬'],
+      s1: { name: '飛宗「梟」黑羽斬波', projColor: '#f59e0b', pierce: true, speed: 24 },
+      side: '「鴉」羽化瞬移斬', up: '「鴉」黑羽翔空', down: '「雀」炎羽護身',
+      s2: { name: '「梟」感知黑羽陣', kind: 'zone', color: '#d97706' },
+      smashes: ['居合白契流・絕', '飛宗昇龍閃', '黑羽震地斬'],
+      ult: { name: '飛宗・極「梟・鴉・雀」萬羽絕斬！', kind: 'omnislash', color: '#f59e0b' },
+    },
+    flags: ['charge', 'tpSide', 'tpUp'],
   },
 ]
 
