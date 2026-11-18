@@ -608,11 +608,11 @@ const KITS: KitSpec[] = [
   {
     p: 'seija', color: '#e11d48', a1: '逆轉扇擊', a2: '天邪鬼雙連踢',
     tilts: ['逆針橫掃', '天邪鬼上挑', '反轉下掃'],
-    s1: { name: '逆符「Reverse Hierarchy」（可操控）', projColor: '#e11d48', pierce: true, speed: 19, steerable: 4.8 },
-    side: '欺符「逆針擊」反向背刺', up: '逆弓「天壤夢弓」升空', down: '反轉結界「Four of a Kind」',
-    s2: { name: '天邪鬼反轉力場', kind: 'zone', color: '#e11d48' },
-    smashes: ['天地逆轉重擊', '萬象反轉上鉤', '逆轉震地'],
-    ult: { name: '「Reverse Ideology」逆轉彈幕齊射！', kind: 'barrage', color: '#e11d48' },
+    s1: { name: '逆符「鏡之國的彈幕」（可操控）', projColor: '#e11d48', pierce: true, speed: 19, steerable: 4.8 },
+    side: '欺符「逆針擊」反向背刺', up: '逆弓「天壤夢弓」升空', down: '逆符「天下轉覆」反轉結界',
+    s2: { name: '逆符「邪惡的結晶」反轉力場', kind: 'zone', color: '#e11d48' },
+    smashes: ['天地逆轉重擊', '萬象反轉上鉤', '天下轉覆震地'],
+    ult: { name: '逆符「Reverse Hierarchy・天地逆轉」！', kind: 'barrage', color: '#e11d48' },
   },
   {
     p: 'youmu', color: '#34d399', a1: '樓觀劍斬', a2: '白樓劍二刀流',
