@@ -716,10 +716,20 @@ function ProjectileView({ p }: { p: Projectile }) {
             <mesh><sphereGeometry args={[r * 0.95, 12, 12]} /><meshBasicMaterial color={p.color} transparent opacity={0.5} blending={ADD} depthWrite={false} /></mesh>
           </>
         ) : charId === 'ichi' ? (
-          <>
-            <mesh><octahedronGeometry args={[r * 0.9, 0]} /><meshStandardMaterial color="#facc15" emissive="#fde047" emissiveIntensity={0.85} /></mesh>
-            <mesh position={[-r * 0.85, 0, 0]} rotation={[0, 0, 0.4]}><coneGeometry args={[r * 0.35, r * 1.1, 5]} /><meshBasicMaterial color="#38bdf8" /></mesh>
-          </>
+          <group scale={[r * 0.9, r * 0.9, r * 0.9]}>
+            {/* 伊奇：3D 雷狐動物魔彈 */}
+            <mesh scale={[1.3, 0.85, 0.85]}><sphereGeometry args={[0.65, 12, 12]} /><meshStandardMaterial color="#facc15" emissive="#eab308" emissiveIntensity={0.65} /></mesh>
+            <mesh position={[0.65, 0.3, 0]}><sphereGeometry args={[0.42, 12, 12]} /><meshStandardMaterial color="#fef08a" emissive="#facc15" emissiveIntensity={0.5} /></mesh>
+            <mesh position={[0.92, 0.36, 0.2]}><sphereGeometry args={[0.07, 8, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+            <mesh position={[0.92, 0.36, -0.2]}><sphereGeometry args={[0.07, 8, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+            {[[0.35, -0.55, 0.25], [0.35, -0.55, -0.25], [-0.4, -0.55, 0.25], [-0.4, -0.55, -0.25]].map(([lx, ly, lz], i) => (
+              <mesh key={i} position={[lx, ly, lz]}><cylinderGeometry args={[0.1, 0.08, 0.5, 6]} /><meshStandardMaterial color="#eab308" /></mesh>
+            ))}
+            <mesh position={[0.55, 0.82, 0.22]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.14, 0.45, 5]} /><meshStandardMaterial color="#facc15" /></mesh>
+            <mesh position={[0.55, 0.82, -0.22]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.14, 0.45, 5]} /><meshStandardMaterial color="#facc15" /></mesh>
+            <mesh position={[-0.85, 0.35, 0]} rotation={[0, 0, 0.65]}><coneGeometry args={[0.32, 1.1, 6]} /><meshStandardMaterial color="#38bdf8" emissive="#facc15" emissiveIntensity={0.7} /></mesh>
+            <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.05, 0.06, 8, 20]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+          </group>
         ) : charId === 'gojo' || charId === 'ruri' || charId === 'lumine' || charId === 'saki' ? (
           <>
             <mesh><octahedronGeometry args={[r * 0.95, 0]} /><meshBasicMaterial color="#ffffff" /></mesh>
