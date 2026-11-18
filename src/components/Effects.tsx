@@ -307,6 +307,9 @@ function SummonFx({ it }: { it: FxItem }) {
       g.current.position.x = it.pos[0] + dir * t * 7.2
       g.current.position.y = it.pos[1] + Math.sin(t * Math.PI * 3) * 0.35
       if (sub.current) sub.current.rotation.y = Math.sin(t * 16) * 0.2
+    } else if (it.model === 'hollow') {
+      g.current.position.x = it.pos[0] + dir * t * 18
+      if (sub.current) { sub.current.rotation.z += dt * 6; sub.current.rotation.y += dt * 4 }
     } else {
       g.current.position.x = it.pos[0] + dir * t * 3.5
       if (sub.current) sub.current.rotation.z += dt * 3

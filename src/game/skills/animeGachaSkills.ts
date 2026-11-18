@@ -212,7 +212,17 @@ function registerKit(k: KitSpec) {
     damage: 22,
     knockback: { dir: [0, 0.6, 1], base: 26, scaling: 18, radial: k.ult.kind === 'burst', hitstunMs: 1350 },
     hooks: {
-      onStart(c) { c.setGravityScale(0.15); c.setVelocity(0, 3.5, 0) },
+      onStart(c) {
+        c.setGravityScale(0.15)
+        c.setVelocity(0, 3.5, 0)
+        if (p === 'gojo') {
+          // 領域展開「無量空處」：全場大範圍緩速結界＋紅蒼雙球共鳴
+          c.spawnZone([...c.caster.pos], { radius: 11, durationMs: 1450, slowFactor: 0.08, color: '#312e81', damagePerSec: 4 })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#818cf8', ttl: 560, radius: 9.5, plane: 'vertical' })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#38bdf8', ttl: 520, radius: 5.5 })
+          c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: '#1e1b4b', ttl: 560, radius: 8.5 })
+        }
+      },
       onTick(c) {
         if (c.phase === 'recovery') return
         c.setInvulnerable(140)
@@ -230,6 +240,10 @@ function registerKit(k: KitSpec) {
           c.fx({ kind: 'summon', model: 'thunderFox', pos: at(c, 0.8, 1.2), color: '#facc15', ttl: 1200, size: 1.25, dir: c.forward[0] })
           c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, -0.4, 2.2), color: '#38bdf8', ttl: 1200, size: 1.25, dir: c.forward[0] })
           c.fx({ kind: 'summon', model: 'baku', pos: at(c, 0.2, 0.6), color: '#a855f7', ttl: 1200, size: 1.25, dir: -c.forward[0] })
+        } else if (p === 'gojo') {
+          // 虛式「茈」：發射巨大貫穿紫球＋召喚3D虛式＋毀滅光束
+          c.spawnProjectile({ pos: at(c, 0.3, 1.2), vel: [c.forward[0] * 20, 0, 0], radius: 1.85, ttlMs: 1600, color: '#a855f7', pierce: true, maxRange: 28 })
+          c.fx({ kind: 'summon', model: 'hollow', pos: at(c, 0.3, 1.2), color: '#a855f7', ttl: 1350, size: 1.85, dir: c.forward[0] })
         } else {
           const model = KIT_SUMMONS[p]
           if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.8, 1.4), color: k.ult.color, ttl: 1200, size: 1.45, dir: c.forward[0] })
