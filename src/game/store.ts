@@ -18,8 +18,8 @@ const DEFAULT_SELECTION: Record<FighterId, CharacterId> = {
   p8: 'kong',
 }
 
-const DEFAULT_CPU: Record<FighterId, 0 | 1 | 2 | 3> = {
-  p1: 0, p2: 2, p3: 2, p4: 2, p5: 2, p6: 2, p7: 2, p8: 2,
+const DEFAULT_CPU: Record<FighterId, number> = {
+  p1: 0, p2: 5, p3: 5, p4: 5, p5: 5, p6: 5, p7: 5, p8: 5,
 }
 
 export function createFighter(id: FighterId, character: CharacterId, stocks = START_STOCKS): FighterState {
@@ -74,9 +74,9 @@ interface GameStore {
   showDebug: boolean
   paused: boolean
   setPaused(p: boolean): void
-  /** 電腦玩家難度：0=真人，1~3=CPU 等級 */
-  cpu: Record<FighterId, 0 | 1 | 2 | 3>
-  setCpu(id: FighterId, lv: 0 | 1 | 2 | 3): void
+  /** 電腦玩家難度：0=真人，1~9=CPU 等級 */
+  cpu: Record<FighterId, number>
+  setCpu(id: FighterId, lv: number): void
   /** 玩家拖曳匯入的自訂模型（blob URL） */
   playerModel: Record<FighterId, { url: string; name: string } | null>
   setPlayerModel(id: FighterId, file: File | null): void
@@ -114,7 +114,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   paused: false,
   setPaused: (p) => set({ paused: p }),
   cpu: { ...DEFAULT_CPU },
-  setCpu: (id, lv) => set((s) => ({ cpu: { ...s.cpu, [id]: lv } })),
+  setCpu: (id, lv) => set((s) => ({ cpu: { ...s.cpu, [id]: Math.max(0, Math.min(9, Math.round(lv))) } })),
   playerModel: { p1: null, p2: null, p3: null, p4: null, p5: null, p6: null, p7: null, p8: null },
   setPlayerModel: (id, file) => {
     const old = get().playerModel[id]

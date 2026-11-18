@@ -41,12 +41,16 @@ const fresh = (): Mem => ({ prev: noBtns(), think: 400, act: null, shield: 0, ju
 const mem = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, fresh()])) as Record<FighterId, Mem>
 export function resetCpu(id: FighterId) { mem[id] = fresh() }
 
-const LEVEL = {
-  // [思考間隔最小, 最大(ms)]、防禦機率、是否會用上+特招回場
-  1: { think: [480, 900], block: 0.15, recover: 0.5, idle: 0.35 },
-  2: { think: [260, 480], block: 0.4, recover: 0.85, idle: 0.15 },
-  3: { think: [110, 240], block: 0.7, recover: 1, idle: 0.04 },
-} as const
+function levelParams(rawLv: number) {
+  const n = Math.max(1, Math.min(9, rawLv || 5))
+  const t = (n - 1) / 8 // 0 (Lv.1) -> 1 (Lv.9)
+  return {
+    think: [Math.round(580 - t * 525), Math.round(980 - t * 865)] as [number, number],
+    block: 0.08 + t * 0.8,
+    recover: Math.min(1, 0.35 + t * 0.72),
+    idle: Math.max(0, 0.44 * (1 - t)),
+  }
+}
 
 type Dir = 'n' | 'side' | 'up' | 'down'
 const lo = (f: FighterState) => CHARACTERS[f.character].loadout
@@ -114,7 +118,7 @@ export function cpuInput(id: FighterId, dt: number): InputFrame {
     if (d < bestD) { bestD = d; e = o }
   }
   const m = mem[id]
-  const lv = LEVEL[(S.cpu[id] || 2) as 1 | 2 | 3]
+  const lv = levelParams(S.cpu[id] || 5)
   const dtMs = dt * 1000
   const held = noBtns()
   let mx = 0, my = 0

@@ -354,16 +354,49 @@ function PadInfo({ id, onSetup, compact = false }: { id: FighterId; onSetup: () 
   )
 }
 
-const CPU_LABEL = ['玩家', 'CPU 1', 'CPU 2', 'CPU 3'] as const
 function CpuPicker({ id }: { id: FighterId }) {
   const lv = useGameStore((s) => s.cpu[id])
   const setCpu = useGameStore((s) => s.setCpu)
+  const lvColor = lv >= 7 ? 'text-rose-300' : lv >= 4 ? 'text-yellow-300' : 'text-emerald-300'
   return (
-    <div className="mt-1.5 flex gap-1" onClick={(e) => e.stopPropagation()}>
-      {CPU_LABEL.map((l, i) => (
-        <button key={l} onClick={() => setCpu(id, i as 0 | 1 | 2 | 3)}
-          className={`flex-1 rounded px-1 py-1 text-[10px] font-bold ${lv === i ? 'bg-yellow-300 text-black' : 'bg-white/15 text-white/70 hover:bg-white/25'}`}>{l}</button>
-      ))}
+    <div className="mt-1.5 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setCpu(id, 0)}
+        className={`rounded px-2 py-1 text-[10px] font-bold transition ${lv === 0 ? 'bg-yellow-300 text-black' : 'bg-white/15 text-white/70 hover:bg-white/25'}`}
+      >
+        玩家
+      </button>
+      <button
+        type="button"
+        onClick={() => setCpu(id, lv > 0 ? lv : 5)}
+        className={`rounded px-2 py-1 text-[10px] font-bold transition ${lv > 0 ? 'bg-cyan-400 text-black' : 'bg-white/15 text-white/70 hover:bg-white/25'}`}
+      >
+        CPU
+      </button>
+      {lv > 0 && (
+        <div className="ml-auto flex items-center gap-1 rounded bg-black/40 px-1 py-0.5 border border-white/15">
+          <button
+            type="button"
+            disabled={lv <= 1}
+            onClick={() => setCpu(id, lv - 1)}
+            className="h-5 w-5 rounded bg-white/15 text-[11px] font-black hover:bg-white/25 disabled:opacity-30"
+          >
+            －
+          </button>
+          <span className={`min-w-[2.4rem] text-center text-[10px] font-black font-mono ${lvColor}`}>
+            Lv.{lv}
+          </span>
+          <button
+            type="button"
+            disabled={lv >= 9}
+            onClick={() => setCpu(id, lv + 1)}
+            className="h-5 w-5 rounded bg-white/15 text-[11px] font-black hover:bg-white/25 disabled:opacity-30"
+          >
+            ＋
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -937,7 +970,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         sfx('ui')
         const target: FighterId = safePicker === 'p1' ? 'p2' : safePicker
         const curLv = useGameStore.getState().cpu[target]
-        useGameStore.getState().setCpu(target, ((curLv + 1) % 4) as 0 | 1 | 2 | 3)
+        useGameStore.getState().setCpu(target, (curLv + 1) % 10)
       } else if (code === 'KeyG' && step === 'char') {
         e.preventDefault()
         onGuide(selection[safePicker])
