@@ -209,11 +209,127 @@ export function StagePreview({ id, form = 'normal', className = '' }: { id: Stag
           <circle cx="108" cy="24" r="2.5" fill="#6ee7b7" />
         </g>
       )}
-      {!['reimu','marisa','tetro','pacman','mario','invader','bomber','snake','frogger','kong','pong','ryu','chunli','yugi','kaiba','omnom','tom','ben','crossy','red','steve','arisa'].includes(id) && (
-        <g opacity="0.8">
-          <rect x="20" y="24" width="12" height="38" fill={theme.platColor} stroke={theme.accentColor} strokeWidth="1" />
-          <rect x="128" y="24" width="12" height="38" fill={theme.platColor} stroke={theme.accentColor} strokeWidth="1" />
-          <circle cx="80" cy="32" r="16" fill="none" stroke={theme.edgeColor} strokeWidth="1.4" opacity="0.6" />
+      {id === 'chihiro' && (
+        <g opacity="0.85">
+          <line x1="58" y1="16" x2="102" y2="52" stroke="#ef4444" strokeWidth="2.4" />
+          <line x1="102" y1="16" x2="58" y2="52" stroke="#f87171" strokeWidth="2.4" />
+          <rect x="26" y="34" width="10" height="28" fill="#18181b" stroke="#ef4444" strokeWidth="0.9" />
+          <rect x="124" y="34" width="10" height="28" fill="#18181b" stroke="#ef4444" strokeWidth="0.9" />
+        </g>
+      )}
+      {id === 'ichi' && (
+        <g opacity="0.85">
+          <polygon points="80,14 94,32 80,50 66,32" fill="none" stroke="#38bdf8" strokeWidth="1.6" />
+          <polygon points="24,62 32,26 40,62" fill="#0c4a6e" stroke="#38bdf8" strokeWidth="1" />
+          <polygon points="120,62 128,26 136,62" fill="#0c4a6e" stroke="#38bdf8" strokeWidth="1" />
+        </g>
+      )}
+      {id === 'ruri' && (
+        <g opacity="0.85">
+          <rect x="114" y="30" width="16" height="22" rx="2" fill="#475569" stroke="#34d399" strokeWidth="1" />
+          <circle cx="52" cy="24" r="9" fill="#e2e8f0" opacity="0.7" />
+          <circle cx="64" cy="22" r="11" fill="#e2e8f0" opacity="0.75" />
+          <circle cx="76" cy="25" r="8" fill="#e2e8f0" opacity="0.65" />
+        </g>
+      )}
+      {id === 'nona' && (
+        <g opacity="0.85">
+          <line x1="34" y1="12" x2="54" y2="62" stroke="#e879f9" strokeWidth="1.4" />
+          <line x1="126" y1="12" x2="106" y2="62" stroke="#e879f9" strokeWidth="1.4" />
+          <circle cx="80" cy="34" r="15" fill="none" stroke="#f0abfc" strokeWidth="1.4" strokeDasharray="4 3" />
+        </g>
+      )}
+      {id === 'gojo' && (
+        <g opacity="0.88">
+          <circle cx="80" cy="34" r="12" fill="#a855f7" opacity="0.45" />
+          <circle cx="80" cy="34" r="17" fill="none" stroke="#38bdf8" strokeWidth="1.3" />
+          <rect x="26" y="20" width="6" height="42" fill="#312e81" />
+          <rect x="128" y="20" width="6" height="42" fill="#312e81" />
+        </g>
+      )}
+      {id === 'deku' && (
+        <g opacity="0.85">
+          <rect x="22" y="32" width="14" height="30" fill="#334155" stroke="#22c55e" strokeWidth="0.9" />
+          <rect x="52" y="22" width="16" height="40" fill="#334155" stroke="#22c55e" strokeWidth="0.9" />
+          <rect x="114" y="16" width="18" height="46" fill="#334155" stroke="#4ade80" strokeWidth="0.9" />
+        </g>
+      )}
+      {id === 'yodaka' && (
+        <g opacity="0.88">
+          <circle cx="80" cy="28" r="14" fill="#e2e8f0" opacity="0.75" />
+          <polygon points="18,38 34,24 50,38" fill="#020617" stroke="#38bdf8" strokeWidth="1" />
+          <polygon points="110,38 126,24 142,38" fill="#020617" stroke="#38bdf8" strokeWidth="1" />
+        </g>
+      )}
+      {id === 'saki' && (
+        <g opacity="0.85">
+          <polygon points="56,14 40,62 72,62" fill="#fb7185" opacity="0.22" />
+          <polygon points="80,14 64,62 96,62" fill="#fde047" opacity="0.22" />
+          <polygon points="104,14 88,62 120,62" fill="#fb7185" opacity="0.22" />
+          <rect x="20" y="28" width="14" height="34" fill="#1e1b4b" stroke="#f43f5e" strokeWidth="1" />
+          <rect x="126" y="28" width="14" height="34" fill="#1e1b4b" stroke="#f43f5e" strokeWidth="1" />
+        </g>
+      )}
+      {id === 'spe' && (
+        <g opacity="0.85">
+          <path d="M 38 62 A 42 36 0 0 1 122 62" fill="none" stroke="#c084fc" strokeWidth="2.4" />
+          <line x1="16" y1="54" x2="144" y2="54" stroke="#ffffff" strokeWidth="1.2" opacity="0.7" />
+        </g>
+      )}
+      {id === 'kaoruko' && (
+        <g opacity="0.85">
+          <path d="M 48 62 A 32 28 0 0 1 112 62" fill="none" stroke="#f9a8d4" strokeWidth="3" />
+          <rect x="22" y="34" width="18" height="28" fill="#831843" stroke="#fbcfe8" strokeWidth="1" />
+          <rect x="120" y="34" width="18" height="28" fill="#831843" stroke="#fbcfe8" strokeWidth="1" />
+        </g>
+      )}
+      {id === 'stelle' && (
+        <g opacity="0.88">
+          <circle cx="114" cy="24" r="10" fill="#facc15" opacity="0.75" />
+          <ellipse cx="114" cy="24" rx="19" ry="5" fill="none" stroke="#fde68a" strokeWidth="1.2" transform="rotate(-18 114 24)" />
+          <rect x="30" y="38" width="54" height="12" rx="6" fill="#334155" stroke="#38bdf8" strokeWidth="1.1" />
+        </g>
+      )}
+      {id === 'lumine' && (
+        <g opacity="0.85">
+          <rect x="76" y="34" width="8" height="28" fill="#78350f" />
+          <circle cx="80" cy="26" r="15" fill="#16a34a" opacity="0.8" />
+          <circle cx="66" cy="30" r="10" fill="#16a34a" opacity="0.75" />
+          <circle cx="94" cy="30" r="10" fill="#16a34a" opacity="0.75" />
+          <circle cx="80" cy="40" r="9" fill="none" stroke="#fde047" strokeWidth="1.2" />
+        </g>
+      )}
+      {id === 'miyabi' && (
+        <g opacity="0.88">
+          <polygon points="80,16 96,26 96,44 80,54 64,44 64,26" fill="none" stroke="#22d3ee" strokeWidth="1.6" />
+          <rect x="24" y="30" width="9" height="24" transform="rotate(14 28 42)" fill="#164e63" stroke="#22d3ee" strokeWidth="1" />
+          <rect x="126" y="28" width="9" height="24" transform="rotate(-14 130 40)" fill="#164e63" stroke="#f43f5e" strokeWidth="1" />
+        </g>
+      )}
+      {id === 'rover' && (
+        <g opacity="0.85">
+          <circle cx="80" cy="32" r="15" fill="none" stroke="#facc15" strokeWidth="1.5" />
+          <line x1="65" y1="32" x2="95" y2="32" stroke="#fde047" strokeWidth="1.2" />
+          <rect x="22" y="28" width="6" height="34" fill="#334155" />
+          <rect x="16" y="25" width="18" height="5" fill="#ca8a04" />
+          <rect x="132" y="28" width="6" height="34" fill="#334155" />
+          <rect x="126" y="25" width="18" height="5" fill="#ca8a04" />
+        </g>
+      )}
+      {id === 'rapi' && (
+        <g opacity="0.85">
+          <rect x="20" y="34" width="22" height="28" fill="#3f3f46" stroke="#ef4444" strokeWidth="1" />
+          <line x1="42" y1="42" x2="58" y2="36" stroke="#ef4444" strokeWidth="2.4" />
+          <rect x="118" y="34" width="22" height="28" fill="#3f3f46" stroke="#ef4444" strokeWidth="1" />
+          <line x1="118" y1="42" x2="102" y2="36" stroke="#ef4444" strokeWidth="2.4" />
+        </g>
+      )}
+      {id === 'akira' && (
+        <g opacity="0.88">
+          <rect x="44" y="34" width="8" height="28" fill="#9f1239" />
+          <rect x="108" y="34" width="8" height="28" fill="#9f1239" />
+          <circle cx="28" cy="32" r="12" fill="#f472b6" opacity="0.8" />
+          <circle cx="132" cy="32" r="12" fill="#f472b6" opacity="0.8" />
         </g>
       )}
 
