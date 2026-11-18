@@ -168,6 +168,47 @@ export function StagePreview({ id, form = 'normal', className = '' }: { id: Stag
           <circle cx="80" cy="34" r="17" fill="none" stroke="#67e8f9" strokeWidth="1.6" opacity="0.75" />
         </g>
       )}
+      {id === 'omnom' && (
+        <g opacity="0.9">
+          <line x1="80" y1="0" x2="80" y2="28" stroke="#fde68a" strokeWidth="2" strokeDasharray="3 2" />
+          <circle cx="80" cy="30" r="8" fill="#f43f5e" stroke="#ffffff" strokeWidth="2" />
+        </g>
+      )}
+      {(id === 'tom' || id === 'ben') && (
+        <g opacity="0.85">
+          <rect x="20" y="34" width="16" height="28" rx="2" fill={id === 'ben' ? '#22c55e' : '#ca8a04'} />
+          <rect x="124" y="34" width="16" height="28" rx="2" fill={id === 'ben' ? '#a855f7' : '#ca8a04'} />
+        </g>
+      )}
+      {id === 'crossy' && (
+        <g opacity="0.9">
+          <rect x="22" y="22" width="18" height="10" fill="#ef4444" />
+          <rect x="116" y="34" width="20" height="10" fill="#3b82f6" />
+        </g>
+      )}
+      {id === 'red' && (
+        <g opacity="0.85">
+          <rect x="24" y="32" width="12" height="30" fill="#b45309" />
+          <circle cx="30" cy="26" r="6" fill="#4ade80" />
+          <rect x="124" y="32" width="12" height="30" fill="#b45309" />
+          <circle cx="130" cy="26" r="6" fill="#4ade80" />
+        </g>
+      )}
+      {id === 'steve' && (
+        <g opacity="0.9">
+          <rect x="24" y="42" width="8" height="20" fill="#78350f" />
+          <rect x="16" y="26" width="24" height="18" fill="#16a34a" />
+          <rect x="128" y="42" width="8" height="20" fill="#78350f" />
+          <rect x="120" y="26" width="24" height="18" fill="#16a34a" />
+        </g>
+      )}
+      {id === 'arisa' && (
+        <g opacity="0.85">
+          <circle cx="80" cy="34" r="18" fill="none" stroke="#34d399" strokeWidth="1.6" />
+          <circle cx="52" cy="24" r="2.5" fill="#6ee7b7" />
+          <circle cx="108" cy="24" r="2.5" fill="#6ee7b7" />
+        </g>
+      )}
 
       {/* 層板配置（依實際 stages.ts 幾何描繪） */}
       {st.platforms.map((p, i) => {

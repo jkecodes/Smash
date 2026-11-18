@@ -17,6 +17,13 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   chunli: 'CHUN-LI',
   yugi: 'YUGI',
   kaiba: 'KAIBA',
+  omnom: 'OM NOM',
+  tom: 'TOM',
+  ben: 'BEN',
+  crossy: 'CHICKEN',
+  red: 'RED',
+  steve: 'STEVE',
+  arisa: 'ARISA',
 }
 
 export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'random'; className?: string }) {
@@ -392,6 +399,101 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M24,78 L96,78 L104,120 L16,120 Z" fill="#f8fafc" stroke="#38bdf8" strokeWidth="2.5" />
           <path d="M46,78 L60,104 L74,78 Z" fill="#1e293b" />
           <rect x="86" y="70" width="22" height="32" rx="2" fill="#67e8f9" stroke="#e0f2fe" strokeWidth="2" />
+        </>
+      )}
+
+      {id === 'omnom' && (
+        <>
+          <rect width="120" height="120" fill="#78350f" />
+          <polygon points="55,14 65,14 60,26" fill="#22c55e" />
+          <circle cx="60" cy="64" r="36" fill="#4ade80" stroke="#15803d" strokeWidth="3" />
+          <circle cx="46" cy="52" r="10" fill="#ffffff" />
+          <circle cx="74" cy="52" r="10" fill="#ffffff" />
+          <circle cx="48" cy="52" r="4.5" fill="#0f172a" />
+          <circle cx="72" cy="52" r="4.5" fill="#0f172a" />
+          <path d="M36,74 Q60,92 84,74 Z" fill="#7f1d1d" />
+          <polygon points="44,74 50,82 56,74" fill="#ffffff" />
+          <polygon points="64,74 70,82 76,74" fill="#ffffff" />
+        </>
+      )}
+
+      {id === 'tom' && (
+        <>
+          <rect width="120" height="120" fill="#1e293b" />
+          <polygon points="24,18 44,40 22,52" fill="#64748b" />
+          <polygon points="96,18 76,40 98,52" fill="#64748b" />
+          <circle cx="60" cy="64" r="34" fill="#94a3b8" stroke="#475569" strokeWidth="2" />
+          <ellipse cx="47" cy="56" rx="7" ry="9" fill="#22c55e" />
+          <ellipse cx="73" cy="56" rx="7" ry="9" fill="#22c55e" />
+          <ellipse cx="47" cy="56" rx="3" ry="6" fill="#0f172a" />
+          <ellipse cx="73" cy="56" rx="3" ry="6" fill="#0f172a" />
+          <ellipse cx="60" cy="76" rx="16" ry="12" fill="#f8fafc" />
+          <polygon points="55,68 65,68 60,74" fill="#f472b6" />
+        </>
+      )}
+
+      {id === 'ben' && (
+        <>
+          <rect width="120" height="120" fill="#451a03" />
+          <ellipse cx="26" cy="64" rx="10" ry="24" fill="#78350f" />
+          <ellipse cx="94" cy="64" rx="10" ry="24" fill="#78350f" />
+          <circle cx="60" cy="62" r="34" fill="#b45309" />
+          <ellipse cx="60" cy="74" rx="22" ry="16" fill="#fde68a" />
+          <circle cx="48" cy="50" r="5" fill="#0f172a" />
+          <circle cx="72" cy="50" r="5" fill="#0f172a" />
+          <ellipse cx="60" cy="66" rx="8" ry="5" fill="#1e293b" />
+        </>
+      )}
+
+      {id === 'crossy' && (
+        <>
+          <rect width="120" height="120" fill="#0284c7" />
+          <rect x="46" y="12" width="28" height="16" fill="#ef4444" />
+          <rect x="28" y="28" width="64" height="68" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2" />
+          <rect x="38" y="46" width="10" height="10" fill="#0f172a" />
+          <rect x="72" y="46" width="10" height="10" fill="#0f172a" />
+          <rect x="48" y="60" width="24" height="12" fill="#f97316" />
+          <rect x="54" y="72" width="12" height="12" fill="#ef4444" />
+        </>
+      )}
+
+      {id === 'red' && (
+        <>
+          <rect width="120" height="120" fill="#0f172a" />
+          <circle cx="60" cy="66" r="36" fill="#dc2626" stroke="#7f1d1d" strokeWidth="2.5" />
+          <ellipse cx="60" cy="84" rx="22" ry="14" fill="#fef3c7" />
+          <circle cx="48" cy="58" r="8" fill="#ffffff" />
+          <circle cx="72" cy="58" r="8" fill="#ffffff" />
+          <circle cx="50" cy="58" r="3.5" fill="#0f172a" />
+          <circle cx="70" cy="58" r="3.5" fill="#0f172a" />
+          <path d="M36,44 L60,54 L84,44" stroke="#0f172a" strokeWidth="7" fill="none" />
+          <polygon points="52,66 68,66 60,78" fill="#facc15" />
+        </>
+      )}
+
+      {id === 'steve' && (
+        <>
+          <rect width="120" height="120" fill="#16a34a" />
+          <rect x="24" y="20" width="72" height="72" fill="#d97706" stroke="#451a03" strokeWidth="2" />
+          <rect x="24" y="20" width="72" height="22" fill="#451a03" />
+          <rect x="36" y="52" width="14" height="8" fill="#ffffff" />
+          <rect x="42" y="52" width="8" height="8" fill="#3b82f6" />
+          <rect x="70" y="52" width="14" height="8" fill="#ffffff" />
+          <rect x="70" y="52" width="8" height="8" fill="#3b82f6" />
+          <rect x="52" y="64" width="16" height="8" fill="#92400e" />
+          <rect x="46" y="76" width="28" height="10" fill="#451a03" />
+          <rect x="24" y="92" width="72" height="28" fill="#06b6d4" />
+        </>
+      )}
+
+      {id === 'arisa' && (
+        <>
+          <rect width="120" height="120" fill="#064e3b" />
+          <path d="M30,48 L20,104 L100,104 L90,48 Z" fill="#eab308" />
+          <ellipse cx="60" cy="60" rx="22" ry="22" fill="#fde8d7" />
+          <ellipse cx="52" cy="60" rx="3.5" ry="5" fill="#10b981" />
+          <ellipse cx="68" cy="60" rx="3.5" ry="5" fill="#10b981" />
+          <path d="M34,82 L86,82 L94,120 L26,120 Z" fill="#10b981" stroke="#6ee7b7" strokeWidth="2" />
         </>
       )}
 

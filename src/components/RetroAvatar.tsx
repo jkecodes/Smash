@@ -8,6 +8,7 @@ const RETRO_IDS = new Set<CharacterId>([
   'pacman', 'mario', 'invader', 'bomber', 'snake',
   'frogger', 'kong', 'pong', 'reimu', 'marisa',
   'ryu', 'chunli', 'yugi', 'kaiba',
+  'omnom', 'tom', 'ben', 'crossy', 'red', 'steve', 'arisa',
 ])
 
 export function isRetroAvatar(c: CharacterId): boolean {
@@ -135,6 +136,12 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
     } else if (charId === 'yugi' || charId === 'kaiba') {
       if (animA.current) animA.current.rotation.y = t * (attacking ? 7 : 2.2)
       if (animB.current) animB.current.rotation.x = running ? 0.35 + Math.sin(t * 10) * 0.15 : Math.sin(t * 3) * 0.08
+    } else if (charId === 'omnom' || charId === 'red') {
+      if (animA.current) animA.current.rotation.x = running ? Math.sin(t * 14) * 0.25 : Math.sin(t * 4) * 0.08
+    } else if (charId === 'tom' || charId === 'ben' || charId === 'steve' || charId === 'crossy' || charId === 'arisa') {
+      const sw = running ? Math.sin(t * 14) * 0.65 : attacking ? -0.9 : Math.sin(t * 3.5) * 0.1
+      if (animA.current) animA.current.rotation.x = sw
+      if (animB.current) animB.current.rotation.x = -sw
     }
   })
 
@@ -770,6 +777,102 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
           <group ref={animA} position={[0, 0.15, 0]}>
             <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.56, 0.03, 8, 24]} /><meshStandardMaterial color="#67e8f9" emissive="#38bdf8" emissiveIntensity={0.9} /></mesh>
           </group>
+        </group>
+      )}
+
+      {charId === 'omnom' && (
+        <group ref={animA}>
+          <mesh position={[0, 0.02, 0]} scale={[1.05, 0.95, 1.05]} castShadow><sphereGeometry args={[0.42, 16, 16]} /><meshStandardMaterial color="#4ade80" /></mesh>
+          <mesh position={[0, 0.45, 0]}><coneGeometry args={[0.08, 0.2, 8]} /><meshStandardMaterial color="#22c55e" /></mesh>
+          <mesh position={[0.14, 0.18, 0.34]}><sphereGeometry args={[0.11, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[-0.14, 0.18, 0.34]}><sphereGeometry args={[0.11, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[0.14, 0.19, 0.43]}><sphereGeometry args={[0.05, 8, 8]} /><meshStandardMaterial color="#0f172a" /></mesh>
+          <mesh position={[-0.14, 0.19, 0.43]}><sphereGeometry args={[0.05, 8, 8]} /><meshStandardMaterial color="#0f172a" /></mesh>
+          <mesh position={[0, -0.05, 0.36]}><boxGeometry args={[0.36, 0.14, 0.1]} /><meshStandardMaterial color="#7f1d1d" /></mesh>
+          <mesh position={[0.08, -0.02, 0.4]}><boxGeometry args={[0.07, 0.07, 0.06]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[-0.08, -0.02, 0.4]}><boxGeometry args={[0.07, 0.07, 0.06]} /><meshStandardMaterial color="#ffffff" /></mesh>
+        </group>
+      )}
+
+      {charId === 'tom' && (
+        <group>
+          <mesh position={[0, -0.08, 0]} castShadow><cylinderGeometry args={[0.22, 0.26, 0.5, 12]} /><meshStandardMaterial color="#94a3b8" /></mesh>
+          <mesh position={[0, -0.08, 0.14]}><boxGeometry args={[0.24, 0.36, 0.14]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.24, 14, 14]} /><meshStandardMaterial color="#94a3b8" /></mesh>
+          <mesh position={[0.16, 0.56, 0]}><coneGeometry args={[0.09, 0.22, 4]} /><meshStandardMaterial color="#64748b" /></mesh>
+          <mesh position={[-0.16, 0.56, 0]}><coneGeometry args={[0.09, 0.22, 4]} /><meshStandardMaterial color="#64748b" /></mesh>
+          <mesh position={[0.09, 0.38, 0.22]}><sphereGeometry args={[0.05, 8, 8]} /><meshStandardMaterial color="#22c55e" /></mesh>
+          <mesh position={[-0.09, 0.38, 0.22]}><sphereGeometry args={[0.05, 8, 8]} /><meshStandardMaterial color="#22c55e" /></mesh>
+          <group ref={animA} position={[0.26, 0.02, 0]}><mesh position={[0, -0.14, 0.06]}><boxGeometry args={[0.12, 0.3, 0.14]} /><meshStandardMaterial color="#94a3b8" /></mesh></group>
+          <group ref={animB} position={[-0.26, 0.02, 0]}><mesh position={[0, -0.14, 0.06]}><boxGeometry args={[0.12, 0.3, 0.14]} /><meshStandardMaterial color="#94a3b8" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'ben' && (
+        <group>
+          <mesh position={[0, -0.08, 0]} castShadow><cylinderGeometry args={[0.25, 0.28, 0.52, 12]} /><meshStandardMaterial color="#b45309" /></mesh>
+          <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.23, 14, 14]} /><meshStandardMaterial color="#b45309" /></mesh>
+          <mesh position={[0, 0.28, 0.22]}><boxGeometry args={[0.22, 0.14, 0.18]} /><meshStandardMaterial color="#fde68a" /></mesh>
+          <mesh position={[0.18, 0.42, 0]}><boxGeometry args={[0.1, 0.24, 0.14]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <mesh position={[-0.18, 0.42, 0]}><boxGeometry args={[0.1, 0.24, 0.14]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <group ref={animA} position={[0.28, 0.02, 0]}>
+            <mesh position={[0, -0.1, 0.14]}><cylinderGeometry args={[0.06, 0.07, 0.24, 10]} /><meshStandardMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={0.6} /></mesh>
+          </group>
+          <group ref={animB} position={[-0.28, 0.02, 0]}><mesh position={[0, -0.12, 0.06]}><boxGeometry args={[0.13, 0.28, 0.13]} /><meshStandardMaterial color="#92400e" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'crossy' && (
+        <group>
+          <mesh position={[0, -0.05, -0.04]} castShadow><boxGeometry args={[0.46, 0.42, 0.54]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[0, 0.3, 0.12]} castShadow><boxGeometry args={[0.36, 0.34, 0.34]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[0, 0.52, 0.12]}><boxGeometry args={[0.12, 0.12, 0.24]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          <mesh position={[0, 0.28, 0.33]}><boxGeometry args={[0.18, 0.1, 0.14]} /><meshStandardMaterial color="#f97316" /></mesh>
+          <mesh position={[0, 0.18, 0.29]}><boxGeometry args={[0.1, 0.12, 0.08]} /><meshStandardMaterial color="#ef4444" /></mesh>
+          <group ref={animA} position={[0.14, -0.34, 0]}><mesh><boxGeometry args={[0.1, 0.22, 0.18]} /><meshStandardMaterial color="#f97316" /></mesh></group>
+          <group ref={animB} position={[-0.14, -0.34, 0]}><mesh><boxGeometry args={[0.1, 0.22, 0.18]} /><meshStandardMaterial color="#f97316" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'red' && (
+        <group ref={animA}>
+          <mesh position={[0, 0.02, 0]} castShadow><sphereGeometry args={[0.42, 16, 16]} /><meshStandardMaterial color="#dc2626" /></mesh>
+          <mesh position={[0, -0.16, 0.22]}><sphereGeometry args={[0.26, 12, 12]} /><meshStandardMaterial color="#fef3c7" /></mesh>
+          <mesh position={[0, 0.46, -0.04]} rotation={[-0.4, 0, 0]}><boxGeometry args={[0.12, 0.22, 0.18]} /><meshStandardMaterial color="#b91c1c" /></mesh>
+          <mesh position={[0, 0.02, 0.44]} rotation={[Math.PI / 2, 0, 0]}><coneGeometry args={[0.12, 0.24, 4]} /><meshStandardMaterial color="#facc15" /></mesh>
+          <mesh position={[0.12, 0.2, 0.36]} rotation={[0, 0, 0.35]}><boxGeometry args={[0.18, 0.06, 0.06]} /><meshStandardMaterial color="#0f172a" /></mesh>
+          <mesh position={[-0.12, 0.2, 0.36]} rotation={[0, 0, -0.35]}><boxGeometry args={[0.18, 0.06, 0.06]} /><meshStandardMaterial color="#0f172a" /></mesh>
+        </group>
+      )}
+
+      {charId === 'steve' && (
+        <group>
+          {/* Steve 方塊頭 ＋ 青藍襯衫 ＋ 深藍長褲 ＋ 鑽石劍 */}
+          <mesh position={[0, 0.36, 0]} castShadow><boxGeometry args={[0.36, 0.36, 0.36]} /><meshStandardMaterial color="#d97706" /></mesh>
+          <mesh position={[0, 0.46, 0]}><boxGeometry args={[0.37, 0.14, 0.37]} /><meshStandardMaterial color="#451a03" /></mesh>
+          <mesh position={[0, -0.02, 0]} castShadow><boxGeometry args={[0.38, 0.42, 0.24]} /><meshStandardMaterial color="#06b6d4" /></mesh>
+          <mesh position={[0, -0.36, 0]} castShadow><boxGeometry args={[0.36, 0.28, 0.24]} /><meshStandardMaterial color="#312e81" /></mesh>
+          <group ref={animA} position={[0.27, 0.1, 0]}>
+            <mesh position={[0, -0.14, 0.04]}><boxGeometry args={[0.14, 0.34, 0.14]} /><meshStandardMaterial color="#d97706" /></mesh>
+            <mesh position={[0, -0.1, 0.36]} rotation={[0.8, 0, 0]}><boxGeometry args={[0.06, 0.56, 0.12]} /><meshStandardMaterial color="#22d3ee" emissive="#06b6d4" emissiveIntensity={0.45} /></mesh>
+          </group>
+          <group ref={animB} position={[-0.27, 0.1, 0]}><mesh position={[0, -0.14, 0]}><boxGeometry args={[0.14, 0.34, 0.14]} /><meshStandardMaterial color="#d97706" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'arisa' && (
+        <group>
+          {/* 亞里莎精靈綠裙 ＋ 金髮雙馬尾 ＋ 發光精靈長弓 */}
+          <mesh position={[0, -0.2, 0]} castShadow><cylinderGeometry args={[0.18, 0.36, 0.48, 12]} /><meshStandardMaterial color="#10b981" /></mesh>
+          <mesh position={[0, 0.08, 0]} castShadow><boxGeometry args={[0.3, 0.26, 0.22]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[0, 0.35, 0.02]} castShadow><sphereGeometry args={[0.19, 14, 14]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh position={[0, 0.38, -0.04]}><sphereGeometry args={[0.21, 12, 12]} /><meshStandardMaterial color="#facc15" /></mesh>
+          <mesh position={[0.2, 0.42, 0.02]} rotation={[0, 0, -0.5]}><coneGeometry args={[0.05, 0.18, 4]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh position={[-0.2, 0.42, 0.02]} rotation={[0, 0, 0.5]}><coneGeometry args={[0.05, 0.18, 4]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <group ref={animA} position={[0.24, 0.08, 0.2]}>
+            <mesh rotation={[0, 0, 0]}><torusGeometry args={[0.28, 0.03, 8, 16, Math.PI]} /><meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.8} /></mesh>
+          </group>
+          <group ref={animB} position={[-0.24, 0.08, 0]}><mesh position={[0, -0.12, 0]}><boxGeometry args={[0.1, 0.26, 0.1]} /><meshStandardMaterial color="#fde8d7" /></mesh></group>
         </group>
       )}
     </group>

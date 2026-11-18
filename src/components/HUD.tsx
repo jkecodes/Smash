@@ -359,7 +359,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
                   className={`rounded-lg px-1.5 py-1.5 text-center transition border ${on
                     ? 'border-yellow-300 bg-yellow-300 text-black font-black shadow'
                     : 'border-white/15 bg-white/10 text-white/80 hover:bg-white/20 font-bold'
-                  }`}
+                    }`}
                 >
                   <div className="text-[11px] leading-tight">{f.label}</div>
                   <div className={`text-[9px] leading-tight mt-0.5 ${on ? 'text-black/70' : 'text-white/45'}`}>{f.hint}</div>
@@ -378,9 +378,9 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
         </button>
       </div>
 
-      {/* 右側：Smash Ultimate 風格高密度 4×4 場地選擇矩陣（左上角為隨機） */}
+      {/* 右側：Smash Ultimate 風格高密度 6×4 場地選擇矩陣（左上角為隨機） */}
       <div className="flex-1 rounded-2xl border-2 border-white/20 bg-black/70 p-2 shadow-2xl">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
           {stageCards.map((item) => {
             if (item === 'random') {
               return (
@@ -412,7 +412,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
                 className={`relative overflow-hidden border-[1.5px] border-black bg-black group cursor-pointer focus:outline-none transition-transform ${active
                   ? 'ring-2 ring-inset ring-yellow-300 z-10 scale-[1.03]'
                   : 'opacity-85 hover:opacity-100 hover:ring-1 hover:ring-white/50'
-                }`}
+                  }`}
               >
                 <StagePreview id={item} form={stageForm} className="w-full aspect-[2/1] object-cover transition-transform duration-150 group-hover:scale-105" />
                 <span
@@ -583,9 +583,8 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
                 key={id}
                 type="button"
                 onClick={() => { setCid(id); sfx('ui') }}
-                className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-bold border transition ${
-                  active ? 'border-yellow-300 bg-white/20 text-white' : 'border-white/10 bg-white/5 text-white/65 hover:bg-white/15'
-                }`}
+                className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-bold border transition ${active ? 'border-yellow-300 bg-white/20 text-white' : 'border-white/10 bg-white/5 text-white/65 hover:bg-white/15'
+                  }`}
               >
                 <div className="h-6 w-6 overflow-hidden rounded border border-white/20 bg-black">
                   <CharacterPortrait id={id} className="h-full w-full" />
@@ -703,7 +702,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     (id, dx, dy) => {
       if (step === 'stage') {
         const cur = useGameStore.getState().stageId
-        selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 4))
+        selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 6))
       } else {
         const cur = useGameStore.getState().selection[id]
         select(id, stepListGrid(CHARACTER_IDS, cur, dx, dy, 8))
@@ -723,10 +722,11 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     sfx('ui')
   }
 
-  // 隨機在左上角第 1 格 ＋ 15 角色 = 16 格 -> 8x2 整齊格陣
+  // 隨機在左上角第 1 格 ＋ 22 角色 = 23 格 -> 8x3 整齊格陣
   const rosterGrid: (CharacterId | 'random')[] = ['random', ...CHARACTER_IDS]
   const row1 = rosterGrid.slice(0, 8)
-  const row2 = rosterGrid.slice(8)
+  const row2 = rosterGrid.slice(8, 16)
+  const row3 = rosterGrid.slice(16)
 
   const renderCell = (item: CharacterId | 'random') => {
     const isRand = item === 'random'
@@ -857,10 +857,11 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
             左鍵指派給 <strong style={{ color: PLAYER_COLORS[safePicker] }}>{safePicker.toUpperCase()}</strong>・右鍵直選 P2（亦可用 WASD / 方向鍵或手把上下左右切換）
           </span>
 
-          {/* 8×2 大亂鬥角色選擇盤 */}
+          {/* 8×3 大亂鬥角色選擇盤 */}
           <div className="rounded-lg border-2 border-white/20 bg-black p-1 shadow-2xl">
             <div className="flex justify-center">{row1.map(renderCell)}</div>
             <div className="flex justify-center">{row2.map(renderCell)}</div>
+            <div className="flex justify-center">{row3.map(renderCell)}</div>
           </div>
 
           {/* 2~8 人角色展示與控制面板 */}
@@ -878,9 +879,8 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
                   key={id}
                   onClick={() => setActivePicker(id)}
                   style={isActive ? { borderColor: pCol, boxShadow: `0 0 0 1px ${pCol}66` } : undefined}
-                  className={`${compact ? 'w-full p-2' : 'w-[21rem] p-2.5'} rounded-xl border backdrop-blur-sm transition-all cursor-pointer ${
-                    isActive ? 'bg-white/15' : 'border-white/15 bg-white/10 hover:border-white/30 opacity-90'
-                  }`}
+                  className={`${compact ? 'w-full p-2' : 'w-[21rem] p-2.5'} rounded-xl border backdrop-blur-sm transition-all cursor-pointer ${isActive ? 'bg-white/15' : 'border-white/15 bg-white/10 hover:border-white/30 opacity-90'
+                    }`}
                 >
                   <div className="mb-1 flex items-center justify-between gap-1">
                     <span className="text-xs font-black tracking-wider" style={{ color: pCol }}>

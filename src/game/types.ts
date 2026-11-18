@@ -19,6 +19,7 @@ export type CharacterId =
   | 'snake' | 'frogger' | 'kong' | 'pong'
   | 'reimu' | 'marisa'
   | 'ryu' | 'chunli' | 'yugi' | 'kaiba'
+  | 'omnom' | 'tom' | 'ben' | 'crossy' | 'red' | 'steve' | 'arisa'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'
   | 'ATTACK_STARTUP' | 'ATTACK_ACTIVE' | 'ATTACK_RECOVERY'

@@ -200,7 +200,7 @@ export function useStageSurfaceTexture(stageId: StageId): THREE.CanvasTexture {
         g.beginPath(); g.ellipse(w / 2, h / 2, 40, 24, 0, 0, Math.PI * 2); g.stroke()
         g.fillStyle = '#fde047'
         g.beginPath(); g.arc(w / 2, h / 2, 10, 0, Math.PI * 2); g.fill()
-      } else {
+      } else if (stageId === 'kaiba') {
         // kaiba：海馬企業六角全息決鬥台
         g.fillStyle = '#0f172a'
         g.fillRect(0, 0, w, h)
@@ -213,6 +213,45 @@ export function useStageSurfaceTexture(stageId: StageId): THREE.CanvasTexture {
         g.beginPath(); g.arc(w / 2, h / 2, 64, 0, Math.PI * 2); g.stroke()
         g.fillStyle = '#38bdf8'
         g.fillRect(0, 0, 14, h); g.fillRect(w - 14, 0, 14, h)
+      } else if (stageId === 'omnom') {
+        // 糖果盒實驗室：牛皮紙盒＋紅白漩渦糖果圖騰
+        g.fillStyle = '#b45309'
+        g.fillRect(0, 0, w, h)
+        g.strokeStyle = '#78350f'; g.lineWidth = 4; g.strokeRect(8, 8, w - 16, h - 16)
+        g.fillStyle = '#f43f5e'; g.beginPath(); g.arc(w / 2, h / 2, 42, 0, Math.PI * 2); g.fill()
+        g.fillStyle = '#ffffff'; g.beginPath(); g.arc(w / 2, h / 2, 24, 0, Math.PI * 2); g.fill()
+        g.fillStyle = '#4ade80'; g.fillRect(0, 0, 14, h); g.fillRect(w - 14, 0, 14, h)
+      } else if (stageId === 'tom' || stageId === 'ben') {
+        // 湯姆客廳／阿班實驗室：木紋拼接地板
+        g.fillStyle = stageId === 'tom' ? '#64748b' : '#78350f'
+        g.fillRect(0, 0, w, h)
+        g.strokeStyle = 'rgba(0,0,0,0.28)'; g.lineWidth = 2
+        for (let y = 0; y <= h; y += 32) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke() }
+        g.fillStyle = stageId === 'tom' ? '#38bdf8' : '#22c55e'
+        g.fillRect(0, 0, 12, h); g.fillRect(w - 12, 0, 12, h)
+      } else if (stageId === 'crossy') {
+        // 天天過馬路：柏油斑馬線＋草地邊緣
+        g.fillStyle = '#334155'; g.fillRect(0, 0, w, h)
+        g.fillStyle = '#16a34a'; g.fillRect(0, 0, w, 34); g.fillRect(0, h - 34, w, 34)
+        g.fillStyle = '#f8fafc'
+        for (let x = 24; x < w; x += 64) g.fillRect(x, h / 2 - 14, 34, 28)
+      } else if (stageId === 'red' || stageId === 'steve') {
+        // 綠豬堡壘 / Minecraft 平原草地像素塊
+        g.fillStyle = '#22c55e'; g.fillRect(0, 0, w, h)
+        for (let r = 0; r < 4; r++) {
+          for (let c = 0; c < 8; c++) {
+            g.fillStyle = (r + c) % 2 === 0 ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)'
+            g.fillRect(c * 64, r * 64, 64, 64)
+          }
+        }
+        g.fillStyle = stageId === 'red' ? '#ef4444' : '#38bdf8'
+        g.fillRect(0, 0, 14, h); g.fillRect(w - 14, 0, 14, h)
+      } else {
+        // arisa：精靈聖樹翡翠法陣
+        g.fillStyle = '#064e3b'; g.fillRect(0, 0, w, h)
+        g.strokeStyle = 'rgba(110, 231, 183, 0.55)'; g.lineWidth = 3
+        g.beginPath(); g.ellipse(w / 2, h / 2, 95, 62, 0, 0, Math.PI * 2); g.stroke()
+        g.beginPath(); g.ellipse(w / 2, h / 2, 55, 36, 0, 0, Math.PI * 2); g.stroke()
       }
     })
   }, [stageId])
@@ -697,6 +736,92 @@ function KaibaDecor({ stage }: { stage: StageDef }) {
   )
 }
 
+/** 16. Cut the Rope / Talking Tom & Ben / Crossy / Angry Birds / Minecraft / Shadowverse 裝飾 */
+function OmnomDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.75, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#78350f" /></mesh>
+      {[-8, 8].map((x, i) => (
+        <group key={i} position={[x, 6.5, -10]}>
+          <mesh position={[0, 3, 0]}><cylinderGeometry args={[0.1, 0.1, 7, 6]} /><meshStandardMaterial color="#fde68a" /></mesh>
+          <mesh><sphereGeometry args={[1.4, 14, 14]} /><meshStandardMaterial color={i === 0 ? '#f43f5e' : '#facc15'} /></mesh>
+        </group>
+      ))}
+    </>
+  )
+}
+function TomBenDecor({ stage, lab }: { stage: StageDef; lab?: boolean }) {
+  const h = stage.half
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.75, 2.8, h.z * 1.4]} /><meshStandardMaterial color={lab ? '#451a03' : '#334155'} /></mesh>
+      {[-10, 10].map((x, i) => (
+        <mesh key={i} position={[x, 3.2, -11]}>
+          <cylinderGeometry args={[1.2, 1.4, 4.5, 12]} />
+          <meshStandardMaterial color={lab ? (i === 0 ? '#22c55e' : '#a855f7') : '#ca8a04'} emissive={lab ? (i === 0 ? '#22c55e' : '#a855f7') : '#000000'} emissiveIntensity={0.45} />
+        </mesh>
+      ))}
+    </>
+  )
+}
+function CrossyDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.8, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#1e293b" /></mesh>
+      {[-9, 0, 9].map((x, i) => (
+        <mesh key={i} position={[x, 4.5 + (i % 2) * 2, -13]}>
+          <boxGeometry args={[3.2, 1.8, 1.8]} />
+          <meshStandardMaterial color={['#ef4444', '#facc15', '#3b82f6'][i]} />
+        </mesh>
+      ))}
+    </>
+  )
+}
+function RedDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.75, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#15803d" /></mesh>
+      {[-10, 10].map((x, i) => (
+        <group key={i} position={[x, 2.5, -11]}>
+          <mesh><boxGeometry args={[2.6, 5.0, 2.2]} /><meshStandardMaterial color="#b45309" /></mesh>
+          <mesh position={[0, 3.4, 0]}><sphereGeometry args={[1.1, 12, 12]} /><meshStandardMaterial color="#4ade80" /></mesh>
+        </group>
+      ))}
+    </>
+  )
+}
+function SteveDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><boxGeometry args={[h.x * 1.8, 2.8, h.z * 1.4]} /><meshStandardMaterial color="#78350f" /></mesh>
+      {[-10, 10].map((x, i) => (
+        <group key={i} position={[x, 2.0, -11]}>
+          <mesh><boxGeometry args={[1.4, 5.2, 1.4]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <mesh position={[0, 3.4, 0]}><boxGeometry args={[3.8, 3.0, 3.8]} /><meshStandardMaterial color="#16a34a" /></mesh>
+        </group>
+      ))}
+    </>
+  )
+}
+function ArisaDecor({ stage }: { stage: StageDef }) {
+  const h = stage.half
+  const ring = useRef<THREE.Mesh>(null)
+  useFrame((_, dt) => { if (ring.current) ring.current.rotation.z += dt * 0.45 })
+  return (
+    <>
+      <mesh position={[0, -2.0, 0]}><cylinderGeometry args={[h.x * 0.9, h.x * 0.35, 3.0, 10]} /><meshStandardMaterial color="#064e3b" /></mesh>
+      <mesh ref={ring} position={[0, 6.2, -14]}>
+        <torusGeometry args={[5.2, 0.16, 12, 32]} />
+        <meshBasicMaterial color="#34d399" transparent opacity={0.55} />
+      </mesh>
+    </>
+  )
+}
+
 /** 各場地獨特風格、3D 紋理立體底座與遠景建築 */
 export function StageDecor({ stage }: { stage: StageDef }) {
   const { theme } = stage
@@ -717,6 +842,13 @@ export function StageDecor({ stage }: { stage: StageDef }) {
       {stage.id === 'chunli' && <ChunliDecor stage={stage} />}
       {stage.id === 'yugi' && <YugiDecor stage={stage} />}
       {stage.id === 'kaiba' && <KaibaDecor stage={stage} />}
+      {stage.id === 'omnom' && <OmnomDecor stage={stage} />}
+      {stage.id === 'tom' && <TomBenDecor stage={stage} />}
+      {stage.id === 'ben' && <TomBenDecor stage={stage} lab />}
+      {stage.id === 'crossy' && <CrossyDecor stage={stage} />}
+      {stage.id === 'red' && <RedDecor stage={stage} />}
+      {stage.id === 'steve' && <SteveDecor stage={stage} />}
+      {stage.id === 'arisa' && <ArisaDecor stage={stage} />}
       <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
     </>
   )

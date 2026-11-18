@@ -287,5 +287,131 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
       skill2: 'kaiba.enemyController', ...smashes('kaiba'), ult: 'kaiba.ultimateDragon',
     },
   },
+  omnom: {
+    id: 'omnom', name: 'OM NOM 奧姆', color: '#4ade80',
+    trait: '🍬 Cut the Rope 吃糖果小怪獸・蜘蛛絲拉扯控場・泡泡漂浮',
+    guide: {
+      summary: '《Cut the Rope》可愛綠色小怪獸！擅長用蜘蛛絲把敵人拉近並減速，再拋出糖果爆彈與三星糖果雨轟炸全場。',
+      steps: [
+        '先按【技能2 L】放蜘蛛絲減速陣拉扯敵人，再用【普攻 J】黏舌連咬輸出。',
+        '中距離拋出【特招 K】糖果爆彈牽制，或用【左右+K】切斷繩索擺盪突擊！',
+        '出界時用【上+K】泡泡浮空升天，超高垂直浮力輕鬆回場。',
+      ],
+      combo: 'L (蜘蛛絲吸敵緩速) → J → J (黏舌大口咬) → K (糖果爆彈)',
+    },
+    loadout: {
+      attack: 'omnom.a1', ...tilts('omnom'),
+      skill1: 'omnom.candy', 'skill1:side': 'omnom.ropeSwing', 'skill1:up': 'omnom.bubbleRise', 'skill1:down': 'omnom.chompSlam',
+      skill2: 'omnom.spiderTrap', ...smashes('omnom'), ult: 'omnom.superCandy',
+    },
+  },
+  tom: {
+    id: 'tom', name: 'TOM 湯姆貓', color: '#94a3b8',
+    trait: '🐱 Talking Tom 迴音學舌音波・奶油派轟臉・打翻牛奶緩速',
+    guide: {
+      summary: '《Talking Tom》靈活近戰騷擾型！用迴音音波貫穿牽制，打翻牛奶讓敵人滑倒緩速，再用奶油派把對手砸飛。',
+      steps: [
+        '中距離發射【特招 K】迴音學舌音波貫穿多人，並以【左右+K】靈貓飛撲貼身。',
+        '站在平台要道按【下+K】打翻牛奶留下滑溜減速區，限制對手走位。',
+        '高損傷時用【技能2 L】砸奶油派收頭！',
+      ],
+      combo: '下+K (牛奶緩速) → 左右+K (飛撲近身) → L (奶油派擊飛)',
+    },
+    loadout: {
+      attack: 'tom.a1', ...tilts('tom'),
+      skill1: 'tom.echoMeow', 'skill1:side': 'tom.pounce', 'skill1:up': 'tom.highJump', 'skill1:down': 'tom.milkSplash',
+      skill2: 'tom.pieThrow', ...smashes('tom'), ult: 'tom.megaphone',
+    },
+  },
+  ben: {
+    id: 'ben', name: 'BEN 阿班博士', color: '#b45309',
+    trait: '🧪 Talking Ben 化學毒霧區・隨機爆裂試管・"Yes?"/"No."',
+    guide: {
+      summary: '《Talking Ben》毒霧陣地學者！拋擲雙色化學試管爆破，並以腐蝕毒氣燒瓶封鎖平台持續累積損傷%。',
+      steps: [
+        '在敵人必經處按【技能2 L】放下腐蝕毒氣燒瓶，持續每秒造成高額毒傷。',
+        '中遠距離連丟【特招 K】混合化學試管製造範圍爆風。',
+        '近身被圍時按【下+K】「No.」拒絕震地把敵人統統彈開！',
+      ],
+      combo: 'L (毒氣燒瓶緩速扣血) → K (化學試管爆破) → 下+K (No. 震飛)',
+    },
+    loadout: {
+      attack: 'ben.a1', ...tilts('ben'),
+      skill1: 'ben.flask', 'skill1:side': 'ben.phoneDash', 'skill1:up': 'ben.labRocket', 'skill1:down': 'ben.noSlam',
+      skill2: 'ben.acidZone', ...smashes('ben'), ult: 'ben.boomLab',
+    },
+  },
+  crossy: {
+    id: 'crossy', name: 'CHICKEN 過馬路雞', color: '#f8fafc',
+    trait: '🐔 天天過馬路・召喚超速賽車與火車橫掃・滾動浮木貫穿',
+    guide: {
+      summary: '《Crossy Road》超高機動車禍召喚師！能開超速賽車突進、丟出貫穿滾木，大招更召喚全車道尖峰時刻撞飛全場！',
+      steps: [
+        '遠距用【特招 K】像素雞蛋彈與【技能2 L】河道浮木滾擊貫穿壓制。',
+        '抓到對手落地空檔時用【左右+K】超速賽車衝撞高速撞飛！',
+        '空中按【下+K】召喚高速火車重壓，或用【上+K】老鷹抓飛回場。',
+      ],
+      combo: 'L (浮木貫穿) → 左右+K (賽車衝撞) → 下+K (火車壓頂)',
+    },
+    loadout: {
+      attack: 'crossy.a1', ...tilts('crossy'),
+      skill1: 'crossy.egg', 'skill1:side': 'crossy.carDash', 'skill1:up': 'crossy.eagleLift', 'skill1:down': 'crossy.trainDrop',
+      skill2: 'crossy.logThrow', ...smashes('crossy'), ult: 'crossy.highwayRush',
+    },
+  },
+  red: {
+    id: 'red', name: 'RED 怒鳥紅', color: '#dc2626',
+    trait: '🐦 Angry Birds 彈弓全力暴衝・炸藥蛋空襲・神鷹 Mighty Eagle',
+    guide: {
+      summary: '《Angry Birds》高爆發撞擊專家！彈弓高速衝鋒與戰吼震波擊飛極強，空中還能下炸藥蛋反打底下對手。',
+      steps: [
+        '中距離按【特招 K】彈弓小鳥飛彈炸開敵陣，或【左右+K】彈弓全力暴衝直接撞飛！',
+        '跳到敵人正上方按【下+K】白鳥炸藥蛋空襲，一邊下蛋轟炸一邊彈高閃避。',
+        '被圍攻時開【技能2 L】怒鳥戰吼震波大範圍彈飛所有敵人！',
+      ],
+      combo: '左右+K (彈弓暴衝) → 下+K (炸藥蛋空襲) → L (怒鳥戰吼收頭)',
+    },
+    loadout: {
+      attack: 'red.a1', ...tilts('red'),
+      skill1: 'red.slingshot', 'skill1:side': 'red.dash', 'skill1:up': 'red.launchUp', 'skill1:down': 'red.eggBomb',
+      skill2: 'red.battleCry', ...smashes('red'), ult: 'red.mightyEagle',
+    },
+  },
+  steve: {
+    id: 'steve', name: 'STEVE 史蒂夫', color: '#38bdf8',
+    trait: '⛏️ Minecraft 鑽石劍・附魔弓箭・礦車突進・鐵砧重砸與 TNT',
+    guide: {
+      summary: '《Minecraft》全能方塊冒險家！擁有極快的附魔弓遠射、紅石礦車突進、高傷破盾鐵砧與大範圍 TNT 爆破。',
+      steps: [
+        '遠距用【特招 K】附魔弓箭與【技能2 L】點燃 TNT 炸彈封鎖平台。',
+        '近身打【普攻 J → J】鑽石劍連斬，或從對手上方按【下+K】鐵砧重砸瞬間打出超高傷害！',
+        '回場用【上+K】鞘翅煙火火箭，擁有全遊戲頂尖的垂直飛翔高度。',
+      ],
+      combo: 'L (丟 TNT 逼走位) → 左右+K (礦車撞飛) → 下+K (鐵砧砸下)',
+    },
+    loadout: {
+      attack: 'steve.a1', ...tilts('steve'),
+      skill1: 'steve.bow', 'skill1:side': 'steve.minecart', 'skill1:up': 'steve.elytra', 'skill1:down': 'steve.anvil',
+      skill2: 'steve.tnt', ...smashes('steve'), ult: 'steve.enderDragon',
+    },
+  },
+  arisa: {
+    id: 'arisa', name: 'ARISA 亞里莎', color: '#10b981',
+    trait: '🧝 Shadowverse 妖精連矢・疾風步・破魔蟲強襲・EP進化齊射',
+    guide: {
+      summary: '《Shadowverse 闇影詩章》森之精靈弓手！高攻速連矢搭配疾風步穿梭，並能展開聖樹結界緩速扣血再以破魔蟲強襲收頭。',
+      steps: [
+        '遠距離連發【特招 K】妖精引導箭，搭配【左右+K】妖精疾風步快速調整距離。',
+        '在敵陣放【技能2 L】精靈聖樹結界緩速扣血，再以【下+K】破魔蟲強襲收頭！',
+        '打破大招球開啟【EP 進化】，齊射妖精火箭雨橫掃舞台！',
+      ],
+      combo: 'L (聖樹結界) → K (妖精箭) → 下+K (破魔蟲強襲)',
+    },
+    loadout: {
+      attack: 'arisa.a1', ...tilts('arisa'),
+      skill1: 'arisa.fairyArrow', 'skill1:side': 'arisa.windStep', 'skill1:up': 'arisa.fairyWings', 'skill1:down': 'arisa.rhinoSlam',
+      skill2: 'arisa.forestSeal', ...smashes('arisa'), ult: 'arisa.evolveBurst',
+    },
+  },
 }
 export const CHARACTER_IDS = Object.keys(CHARACTERS) as CharacterId[]

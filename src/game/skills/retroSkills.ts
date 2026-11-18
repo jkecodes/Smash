@@ -1339,3 +1339,463 @@ reg({
     onEnd(c) { c.setGravityScale(1) },
   },
 })
+
+// ================================================================ 15. OM NOM 奧姆 (Cut the Rope)
+const OMN = '#4ade80'
+reg({
+  id: 'omnom.a1', name: '黏舌甩擊', energyCost: 0, chain: 'omnom.a2',
+  startupMs: 55, activeMs: 80, recoveryMs: 135,
+  hitbox: { offset: [0, 0.1, 1.0], radius: 0.9 }, damage: 3.5,
+  knockback: { dir: [0, 0.25, 1], base: 5.5, scaling: 5.5 },
+  hooks: { onActive(c) { slash(c, '#f472b6', { r: 1.3 }) } },
+})
+reg({
+  id: 'omnom.a2', name: '大口嚼糖咬', energyCost: 0,
+  startupMs: 80, activeMs: 100, recoveryMs: 200,
+  hitbox: { offset: [0, 0.1, 1.05], radius: 1.05 }, damage: 6.5,
+  knockback: { dir: [0, 0.45, 1], base: 10, scaling: 10.5 },
+  hooks: { onActive(c) { slash(c, OMN, { r: 1.55, flip: true }) } },
+})
+registerTilts('omnom', { color: OMN, names: ['彈性舌鞭', '仰頭嚼擊', '圓滾滾壓頂'] })
+reg({
+  id: 'omnom.candy', name: '糖果爆彈', energyCost: 0, cooldownMs: 1350, startupMs: 130, activeMs: 50, recoveryMs: 220,
+  damage: 9.5, knockback: { dir: [0, 0.55, 1], base: 11.5, scaling: 12, radial: true },
+  hooks: {
+    onActive(c) {
+      c.spawnProjectile({ pos: at(c, 0.2, 0.85), vel: [c.forward[0] * 14, 5.5, 0], radius: 0.48, ttlMs: 1450, color: '#f43f5e', gravity: -20, explodeRadius: 2.1 })
+    },
+  },
+})
+reg(dashMove('omnom.ropeSwing', '切斷繩索擺盪', OMN, { speed: 22, dmg: 8.5, base: 11, scaling: 12, cd: 1650 }))
+reg(upRise('omnom.bubbleRise', '泡泡浮空升天', '#38bdf8', { dmg: 7.5, base: 11, scaling: 12.5, rise: 18 }))
+reg(slamMove('omnom.chompSlam', '飢餓重壓', OMN, { dmg: 10, base: 12, scaling: 13.5, cd: 1900 }))
+reg({
+  id: 'omnom.spiderTrap', name: '蜘蛛絲減速陣', energyCost: 18, cooldownMs: 2600, startupMs: 160, activeMs: 60, recoveryMs: 260,
+  damage: 0, knockback: { dir: [0, 0, 0], base: 0, scaling: 0 },
+  hooks: {
+    onActive(c) {
+      const p: Vec3 = [c.caster.pos[0], Math.max(0, c.caster.pos[1] - 0.35), 0]
+      c.spawnZone(p, { radius: 3.0, durationMs: 3200, slowFactor: 0.45, color: '#e2e8f0', pull: 12, damagePerSec: 3.5 })
+      c.fx({ kind: 'ring', pos: p, color: '#ffffff', ttl: 400, radius: 3.0 })
+    },
+  },
+})
+registerSmashes('omnom', { color: OMN, names: ['巨口吞噬衝', '糖果跳頂撞', '貪吃重肚震'] })
+reg({
+  id: 'omnom.superCandy', name: '三星糖果雨！', energyCost: 0, requiresUlt: true,
+  startupMs: 520, activeMs: 1300, recoveryMs: 380,
+  damage: 11, knockback: { dir: [0, 0.85, 1], base: 18, scaling: 16, radial: true },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.2); c.setVelocity(0, 4, 0) },
+    onTick(c) {
+      if (c.phase === 'recovery') return
+      c.setInvulnerable(140)
+      if (c.phase === 'active') {
+        c.scratch.sc = (c.scratch.sc ?? 0) - c.dt * 1000
+        if (c.scratch.sc <= 0) {
+          c.scratch.sc = 175
+          const x = clampStageX((Math.random() - 0.5) * 16)
+          c.spawnProjectile({ pos: [x, 14, 0], vel: [0, -18, 0], radius: 0.65, ttlMs: 1600, color: '#f43f5e', gravity: -14, explodeRadius: 2.3 })
+        }
+      }
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})
+
+// ================================================================ 16. TOM 湯姆貓 (Talking Tom)
+const TOM = '#94a3b8'
+reg({
+  id: 'tom.a1', name: '貓爪連抓', energyCost: 0, chain: 'tom.a2',
+  startupMs: 50, activeMs: 80, recoveryMs: 130,
+  hitbox: { offset: [0, 0.1, 0.9], radius: 0.85 }, damage: 3.5,
+  knockback: { dir: [0, 0.22, 1], base: 5.5, scaling: 5.5 },
+  hooks: { onActive(c) { slash(c, '#ffffff', { r: 1.25 }) } },
+})
+reg({
+  id: 'tom.a2', name: '湯姆飛踢', energyCost: 0,
+  startupMs: 75, activeMs: 100, recoveryMs: 200,
+  hitbox: { offset: [0, 0.1, 1.05], radius: 1.0 }, damage: 6,
+  knockback: { dir: [0, 0.45, 1], base: 9.5, scaling: 10 },
+  hooks: { onActive(c) { slash(c, TOM, { r: 1.5, flip: true }) } },
+})
+registerTilts('tom', { color: TOM, names: ['喵拳橫揮', '貓耳上頂', '掃尾下踢'] })
+reg({
+  id: 'tom.echoMeow', name: '迴音學舌音波', energyCost: 0, cooldownMs: 1200, startupMs: 130, activeMs: 60, recoveryMs: 210,
+  projectile: { speed: 17, radius: 0.52, lifetimeMs: 1150, pierce: true, offset: [0, 0.15, 0.9], color: '#38bdf8' },
+  damage: 8.5, knockback: { dir: [0, 0.4, 1], base: 10, scaling: 11 },
+  hooks: { onActive(c) { c.fx({ kind: 'ring', pos: at(c, 0.15, 0.9), color: '#38bdf8', ttl: 240, radius: 1.3, plane: 'vertical' }) } },
+})
+reg(dashMove('tom.pounce', '靈貓飛撲', TOM, { speed: 23, dmg: 8, base: 10.5, scaling: 12, cd: 1600 }))
+reg(upRise('tom.highJump', '驚嚇炸毛跳', '#facc15', { dmg: 7.5, base: 11, scaling: 12, rise: 18 }))
+reg({
+  id: 'tom.milkSplash', name: '打翻牛奶滑倒', energyCost: 0, cooldownMs: 2000, startupMs: 140, activeMs: 120, recoveryMs: 250,
+  hitbox: { offset: [0, -0.1, 0], radius: 2.2 }, damage: 7,
+  knockback: { dir: [0, 0.5, 1], base: 10, scaling: 10, radial: true },
+  hooks: {
+    onActive(c) {
+      const p: Vec3 = [c.caster.pos[0], Math.max(0, c.caster.pos[1] - 0.35), 0]
+      c.spawnZone(p, { radius: 2.8, durationMs: 3000, slowFactor: 0.5, color: '#f8fafc', damagePerSec: 2 })
+      c.fx({ kind: 'ring', pos: p, color: '#ffffff', ttl: 380, radius: 2.8 })
+    },
+  },
+})
+reg({
+  id: 'tom.pieThrow', name: '砸奶油派', energyCost: 18, cooldownMs: 1900, startupMs: 145, activeMs: 50, recoveryMs: 230,
+  damage: 11.5, knockback: { dir: [0, 0.65, 1], base: 13.5, scaling: 14, hitstunMs: 900 },
+  hooks: {
+    onActive(c) {
+      c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 17, 3, 0], radius: 0.5, ttlMs: 1300, color: '#fef3c7', gravity: -16, explodeRadius: 2.0 })
+    },
+  },
+})
+registerSmashes('tom', { color: TOM, names: ['湯姆重巴掌', '貓抓板突刺', '沙發彈壓'] })
+reg({
+  id: 'tom.megaphone', name: '擴音器「學你講話」大暴走！', energyCost: 0, requiresUlt: true,
+  startupMs: 500, activeMs: 950, recoveryMs: 400,
+  hitbox: { offset: [0, 0.15, 0], radius: 5.5, manual: true }, damage: 7,
+  knockback: { dir: [0, 0.72, 1], base: 20, scaling: 17, radial: true },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.15); c.setVelocity(0, 2, 0) },
+    onTick(c) {
+      if (c.phase === 'recovery') return
+      c.setInvulnerable(140)
+      if (c.phase === 'active') {
+        c.scratch.mg = (c.scratch.mg ?? 0) - c.dt * 1000
+        if (c.scratch.mg <= 0) {
+          c.scratch.mg = 220
+          c.strike()
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#38bdf8', ttl: 340, radius: 5.5, plane: 'vertical' })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#facc15', ttl: 320, radius: 5.0 })
+          c.shake(0.55)
+        }
+      }
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})
+
+// ================================================================ 17. BEN 阿班博士 (Talking Ben)
+const BEN = '#b45309'
+reg({
+  id: 'ben.a1', name: '報紙揮拍', energyCost: 0, chain: 'ben.a2',
+  startupMs: 60, activeMs: 85, recoveryMs: 145,
+  hitbox: { offset: [0, 0.1, 0.95], radius: 0.9 }, damage: 3.5,
+  knockback: { dir: [0, 0.25, 1], base: 5.5, scaling: 5.5 },
+  hooks: { onActive(c) { slash(c, '#fef3c7', { r: 1.35 }) } },
+})
+reg({
+  id: 'ben.a2', name: '電話筒重敲', energyCost: 0,
+  startupMs: 85, activeMs: 105, recoveryMs: 210,
+  hitbox: { offset: [0, 0.1, 1.05], radius: 1.0 }, damage: 6.5,
+  knockback: { dir: [0, 0.5, 1], base: 10, scaling: 10.5 },
+  hooks: { onActive(c) { slash(c, BEN, { r: 1.55, flip: true }) } },
+})
+registerTilts('ben', { color: BEN, names: ['報紙橫掃', '燒杯上擊', '老狗甩尾'] })
+reg({
+  id: 'ben.flask', name: '混合化學試管', energyCost: 0, cooldownMs: 1400, startupMs: 140, activeMs: 50, recoveryMs: 230,
+  damage: 9.5, knockback: { dir: [0, 0.55, 1], base: 11.5, scaling: 12, radial: true },
+  hooks: {
+    onActive(c) {
+      const col = Math.random() > 0.5 ? '#22c55e' : '#a855f7'
+      c.spawnProjectile({ pos: at(c, 0.25, 0.85), vel: [c.forward[0] * 14.5, 5, 0], radius: 0.46, ttlMs: 1450, color: col, gravity: -22, explodeRadius: 2.2 })
+    },
+  },
+})
+reg(dashMove('ben.phoneDash', '「Yes?」電話衝撞', BEN, { speed: 21, dmg: 8.5, base: 11, scaling: 12, cd: 1650 }))
+reg(upRise('ben.labRocket', '燒瓶噴氣升空', '#22c55e', { dmg: 8, base: 11, scaling: 13, rise: 17.8 }))
+reg(slamMove('ben.noSlam', '「No.」拒絕震地', '#ef4444', { dmg: 9.5, base: 12.5, scaling: 13, cd: 1900 }))
+reg({
+  id: 'ben.acidZone', name: '腐蝕毒氣燒瓶', energyCost: 20, cooldownMs: 2700, startupMs: 165, activeMs: 60, recoveryMs: 260,
+  damage: 0, knockback: { dir: [0, 0, 0], base: 0, scaling: 0 },
+  hooks: {
+    onActive(c) {
+      const p: Vec3 = [c.caster.pos[0], Math.max(0, c.caster.pos[1] - 0.35), 0]
+      c.spawnZone(p, { radius: 3.1, durationMs: 3500, slowFactor: 0.58, color: '#a855f7', damagePerSec: 7.5 })
+      c.fx({ kind: 'ring', pos: p, color: '#22c55e', ttl: 420, radius: 3.1 })
+    },
+  },
+})
+registerSmashes('ben', { color: '#22c55e', names: ['實驗大暴走', '氮氣筒沖天', '報紙拍桌震'] })
+reg({
+  id: 'ben.boomLab', name: '化學實驗室大爆炸！', energyCost: 0, requiresUlt: true,
+  startupMs: 560, activeMs: 1200, recoveryMs: 420,
+  damage: 14, knockback: { dir: [0, 0.85, 1], base: 20, scaling: 17, radial: true },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.15); c.setVelocity(0, 3, 0) },
+    onTick(c) {
+      if (c.phase === 'recovery') return
+      c.setInvulnerable(140)
+      if (c.phase === 'active') {
+        c.scratch.bl = (c.scratch.bl ?? 0) - c.dt * 1000
+        if (c.scratch.bl <= 0) {
+          c.scratch.bl = 200
+          const x = clampStageX((Math.random() - 0.5) * 14)
+          c.spawnProjectile({ pos: [x, 12, 0], vel: [0, -19, 0], radius: 0.7, ttlMs: 1500, color: '#a855f7', gravity: -12, explodeRadius: 2.8 })
+          c.shake(0.5)
+        }
+      }
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})
+
+// ================================================================ 18. CROSSY ROAD 天天過馬路小雞
+reg({
+  id: 'crossy.a1', name: '方塊啄擊', energyCost: 0, chain: 'crossy.a2',
+  startupMs: 50, activeMs: 75, recoveryMs: 125,
+  hitbox: { offset: [0, 0.1, 0.9], radius: 0.85 }, damage: 3.5,
+  knockback: { dir: [0, 0.25, 1], base: 5.5, scaling: 5.5 },
+  hooks: { onActive(c) { slash(c, '#fde047', { r: 1.25 }) } },
+})
+reg({
+  id: 'crossy.a2', name: '撲翅跳躍撞', energyCost: 0,
+  startupMs: 70, activeMs: 95, recoveryMs: 190,
+  hitbox: { offset: [0, 0.12, 1.0], radius: 1.0 }, damage: 6,
+  knockback: { dir: [0, 0.45, 1], base: 9.5, scaling: 10 },
+  hooks: { onActive(c) { slash(c, '#ef4444', { r: 1.45, flip: true }) } },
+})
+registerTilts('crossy', { color: '#fde047', names: ['雞冠突刺', '振翅上啄', '腳爪下踏'] })
+reg({
+  id: 'crossy.egg', name: '像素雞蛋彈', energyCost: 0, cooldownMs: 1100, startupMs: 110, activeMs: 40, recoveryMs: 200,
+  projectile: { speed: 18, radius: 0.36, lifetimeMs: 1100, pierce: false, offset: [0, 0.15, 0.85], color: '#fef9c3' },
+  damage: 8, knockback: { dir: [0, 0.4, 1], base: 9.5, scaling: 10.5 },
+})
+reg(dashMove('crossy.carDash', '超速賽車衝撞', '#ef4444', { speed: 25, dmg: 9, base: 11.5, scaling: 12.5, cd: 1650 }))
+reg(upRise('crossy.eagleLift', '天降老鷹抓飛', '#78350f', { dmg: 7.5, base: 11, scaling: 12, rise: 18.5 }))
+reg(slamMove('crossy.trainDrop', '高速火車壓頂', '#38bdf8', { dmg: 10.5, base: 12.5, scaling: 14, cd: 1950 }))
+reg({
+  id: 'crossy.logThrow', name: '河道浮木滾擊', energyCost: 18, cooldownMs: 2100, startupMs: 160, activeMs: 60, recoveryMs: 240,
+  damage: 11, knockback: { dir: [0, 0.48, 1], base: 13.5, scaling: 13 },
+  hooks: {
+    onActive(c) {
+      c.spawnProjectile({ pos: at(c, 0, 0.9), vel: [c.forward[0] * 16, 0, 0], radius: 0.6, ttlMs: 1500, color: '#92400e', pierce: true })
+    },
+  },
+})
+registerSmashes('crossy', { color: '#ef4444', names: ['號誌燈重擊', '跳格神雞啄', '斑馬線重踏'] })
+reg({
+  id: 'crossy.highwayRush', name: '尖峰時刻・全車道大暴衝！', energyCost: 0, requiresUlt: true,
+  startupMs: 500, activeMs: 1250, recoveryMs: 380,
+  damage: 14, knockback: { dir: [0, 0.55, 1], base: 22, scaling: 17 },
+  hooks: {
+    onTick(c) {
+      if (c.phase === 'recovery') return
+      c.setInvulnerable(140)
+      if (c.phase === 'active') {
+        c.scratch.cr = (c.scratch.cr ?? 0) - c.dt * 1000
+        if (c.scratch.cr <= 0) {
+          c.scratch.cr = 180
+          const side = Math.random() > 0.5 ? 1 : -1
+          const y = 0.4 + Math.random() * 4.2
+          const col = ['#ef4444', '#3b82f6', '#facc15', '#22c55e'][Math.floor(Math.random() * 4)]
+          c.spawnProjectile({ pos: [-side * 12, y, 0], vel: [side * 25, 0, 0], radius: 0.72, ttlMs: 1350, color: col, pierce: true })
+          c.shake(0.35)
+        }
+      }
+    },
+  },
+})
+
+// ================================================================ 19. ANGRY BIRDS 怒鳥紅 RED
+const RED = '#dc2626'
+reg({
+  id: 'red.a1', name: '憤怒頭槌', energyCost: 0, chain: 'red.a2',
+  startupMs: 55, activeMs: 85, recoveryMs: 135,
+  hitbox: { offset: [0, 0.1, 0.9], radius: 0.9 }, damage: 4,
+  knockback: { dir: [0, 0.25, 1], base: 6, scaling: 5.5 },
+  hooks: { onActive(c) { slash(c, RED, { r: 1.3 }) } },
+})
+reg({
+  id: 'red.a2', name: '鋼鐵羽翼撞', energyCost: 0,
+  startupMs: 75, activeMs: 100, recoveryMs: 205,
+  hitbox: { offset: [0, 0.1, 1.05], radius: 1.0 }, damage: 6.5,
+  knockback: { dir: [0, 0.5, 1], base: 10.5, scaling: 10.5 },
+  hooks: { onActive(c) { slash(c, '#fde047', { r: 1.55, flip: true }) } },
+})
+registerTilts('red', { color: RED, names: ['怒眉橫撞', '朝天鳥喙頂', '重羽下墜擊'] })
+reg({
+  id: 'red.slingshot', name: '彈弓小鳥飛彈', energyCost: 0, cooldownMs: 1300, startupMs: 150, activeMs: 50, recoveryMs: 220,
+  damage: 10, knockback: { dir: [0, 0.5, 1], base: 12, scaling: 12.5 },
+  hooks: {
+    onActive(c) {
+      c.spawnProjectile({ pos: at(c, 0.15, 0.9), vel: [c.forward[0] * 20, 4, 0], radius: 0.48, ttlMs: 1300, color: RED, gravity: -16, explodeRadius: 1.9 })
+    },
+  },
+})
+reg(dashMove('red.dash', '彈弓全力暴衝', RED, { speed: 25, dmg: 9.5, base: 12, scaling: 13.5, cd: 1650 }))
+reg(upRise('red.launchUp', '彈弓朝天發射', '#f97316', { dmg: 8.5, base: 11.5, scaling: 13, rise: 18.5 }))
+reg({
+  id: 'red.eggBomb', name: '白鳥炸藥蛋空襲', energyCost: 0, cooldownMs: 1950, startupMs: 130, activeMs: 80, recoveryMs: 240,
+  damage: 11.5, knockback: { dir: [0, 0.7, 1], base: 14, scaling: 14, radial: true },
+  hooks: {
+    onActive(c) {
+      c.setVelocity(c.forward[0] * 4, 11, 0)
+      c.spawnProjectile({ pos: at(c, -0.3, 0), vel: [0, -14, 0], radius: 0.52, ttlMs: 1100, color: '#ffffff', gravity: -20, explodeRadius: 2.5 })
+    },
+  },
+})
+reg({
+  id: 'red.battleCry', name: '怒鳥戰吼震波', energyCost: 20, cooldownMs: 2200, startupMs: 140, activeMs: 120, recoveryMs: 240,
+  hitbox: { offset: [0, 0.1, 0], radius: 3.1 }, damage: 9.5,
+  knockback: { dir: [0, 0.65, 1], base: 14, scaling: 14, radial: true },
+  hooks: {
+    onActive(c) {
+      c.fx({ kind: 'ring', pos: [...c.caster.pos], color: RED, ttl: 380, radius: 3.1, plane: 'vertical' })
+      c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fde047', ttl: 340, radius: 2.8 })
+      c.shake(0.4)
+    },
+  },
+})
+registerSmashes('red', { color: RED, names: ['木箱粉碎撞', '石塊突破頂', '重鳥震波'] })
+reg({
+  id: 'red.mightyEagle', name: '神鷹降臨！Mighty Eagle', energyCost: 0, requiresUlt: true,
+  startupMs: 580, activeMs: 650, recoveryMs: 440,
+  hitbox: { offset: [0, 0.2, 0.8], radius: 4.5 }, damage: 23,
+  knockback: { dir: [0, 0.65, 1], base: 27, scaling: 18, radial: true, hitstunMs: 1350 },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.15); c.setVelocity(0, 6, 0) },
+    onTick(c) { if (c.phase !== 'recovery') c.setInvulnerable(140) },
+    onActive(c) {
+      c.setVelocity(c.forward[0] * 18, -14, 0)
+      c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: '#fde047', ttl: 550, radius: 3.0 })
+      c.fx({ kind: 'ring', pos: [...c.caster.pos], color: RED, ttl: 500, radius: 4.5, plane: 'vertical' })
+      c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#ffffff', ttl: 600, count: 55, speed: 12, size: 0.22 })
+      c.shake(1.3)
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})
+
+// ================================================================ 20. MINECRAFT 史蒂夫 STEVE
+const STV = '#38bdf8'
+reg({
+  id: 'steve.a1', name: '鑽石劍橫斬', energyCost: 0, chain: 'steve.a2',
+  startupMs: 55, activeMs: 85, recoveryMs: 135,
+  hitbox: { offset: [0, 0.1, 1.0], radius: 0.92 }, damage: 4,
+  knockback: { dir: [0, 0.22, 1], base: 5.5, scaling: 5.5 },
+  hooks: { onActive(c) { slash(c, STV, { r: 1.45 }) } },
+})
+reg({
+  id: 'steve.a2', name: '鑽石劍連斬', energyCost: 0,
+  startupMs: 75, activeMs: 100, recoveryMs: 195,
+  hitbox: { offset: [0, 0.1, 1.15], radius: 1.05 }, damage: 6.5,
+  knockback: { dir: [0, 0.45, 1], base: 10, scaling: 10.5 },
+  hooks: { onActive(c) { slash(c, '#22d3ee', { r: 1.65, flip: true }) } },
+})
+registerTilts('steve', { color: STV, names: ['石鎬橫揮', '鑽石斧上劈', '方塊下挖掃'] })
+reg({
+  id: 'steve.bow', name: '附魔弓箭', energyCost: 0, cooldownMs: 1050, startupMs: 140, activeMs: 40, recoveryMs: 210,
+  projectile: { speed: 23, radius: 0.34, lifetimeMs: 1100, pierce: false, offset: [0, 0.18, 0.9], color: '#a855f7' },
+  damage: 9.5, knockback: { dir: [0, 0.38, 1], base: 11, scaling: 11.5 },
+})
+reg(dashMove('steve.minecart', '紅石礦車衝撞', '#94a3b8', { speed: 24, dmg: 9, base: 11.5, scaling: 12.5, cd: 1650 }))
+reg(upRise('steve.elytra', '鞘翅煙火火箭！', '#f43f5e', { dmg: 8, base: 11, scaling: 12.5, rise: 19.2 }))
+reg({
+  id: 'steve.anvil', name: '鐵砧重砸！', energyCost: 0, cooldownMs: 1950, startupMs: 150, activeMs: 220, recoveryMs: 260,
+  hitbox: { offset: [0, -0.35, 0], radius: 1.65 }, damage: 13,
+  knockback: { dir: [0, 0.4, 1], base: 14.5, scaling: 14.5, radial: true },
+  hooks: {
+    onStart(c) { c.setVelocity(0, 5, 0) },
+    onActive(c) {
+      c.setVelocity(0, -24, 0)
+      c.fx({ kind: 'ring', pos: at(c, -0.4, 0), color: '#64748b', ttl: 360, radius: 1.9 })
+      c.shake(0.4)
+    },
+  },
+})
+reg({
+  id: 'steve.tnt', name: '點燃 TNT 方塊炸彈', energyCost: 22, cooldownMs: 2300, startupMs: 160, activeMs: 60, recoveryMs: 240,
+  damage: 15, knockback: { dir: [0, 0.72, 1], base: 16, scaling: 16, radial: true },
+  hooks: {
+    onActive(c) {
+      c.spawnProjectile({ pos: at(c, 0.25, 0.85), vel: [c.forward[0] * 11, 5.5, 0], radius: 0.55, ttlMs: 1400, color: '#ef4444', gravity: -24, explodeRadius: 2.9 })
+    },
+  },
+})
+registerSmashes('steve', { color: STV, names: ['附魔鑽石重劈', '岩漿桶上潑', '苦力怕震爆'] })
+reg({
+  id: 'steve.enderDragon', name: '終界龍息・末影水晶大爆破！', energyCost: 0, requiresUlt: true,
+  startupMs: 560, activeMs: 1150, recoveryMs: 420,
+  damage: 14, knockback: { dir: [0, 0.75, 1], base: 21, scaling: 17, radial: true },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.15); c.setVelocity(0, 4, 0) },
+    onTick(c) {
+      if (c.phase === 'recovery') return
+      c.setInvulnerable(140)
+      if (c.phase === 'active') {
+        c.scratch.ed = (c.scratch.ed ?? 0) - c.dt * 1000
+        if (c.scratch.ed <= 0) {
+          c.scratch.ed = 190
+          const x = clampStageX((Math.random() - 0.5) * 14)
+          c.spawnProjectile({ pos: [x, 13, 0], vel: [0, -21, 0], radius: 0.65, ttlMs: 1500, color: '#c084fc', gravity: -12, explodeRadius: 2.7 })
+          c.fx({ kind: 'beam', pos: at(c, 0.2, 0.9), yaw: yawOf(c), length: 22, radius: 1.4, color: '#c084fc', ttl: 240 })
+          c.shake(0.55)
+        }
+      }
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})
+
+// ================================================================ 21. SHADOWVERSE 亞里莎 ARISA
+const ARS = '#10b981'
+reg({
+  id: 'arisa.a1', name: '精靈短劍連擊', energyCost: 0, chain: 'arisa.a2',
+  startupMs: 50, activeMs: 80, recoveryMs: 125,
+  hitbox: { offset: [0, 0.12, 0.9], radius: 0.88 }, damage: 3.5,
+  knockback: { dir: [0, 0.25, 1], base: 5.5, scaling: 5.5 },
+  hooks: { onActive(c) { slash(c, '#6ee7b7', { r: 1.3 }) } },
+})
+reg({
+  id: 'arisa.a2', name: '旋風矢斬', energyCost: 0,
+  startupMs: 75, activeMs: 95, recoveryMs: 195,
+  hitbox: { offset: [0, 0.12, 1.05], radius: 1.0 }, damage: 6,
+  knockback: { dir: [0, 0.45, 1], base: 9.5, scaling: 10 },
+  hooks: { onActive(c) { slash(c, ARS, { r: 1.55, flip: true }) } },
+})
+registerTilts('arisa', { color: ARS, names: ['森之連矢', '自然之導上擊', '樹藤絆腿'] })
+reg({
+  id: 'arisa.fairyArrow', name: '妖精引導箭', energyCost: 0, cooldownMs: 1100, startupMs: 120, activeMs: 40, recoveryMs: 200,
+  projectile: { speed: 22, radius: 0.36, lifetimeMs: 1100, pierce: false, offset: [0, 0.15, 0.9], color: '#34d399' },
+  damage: 8.5, knockback: { dir: [0, 0.4, 1], base: 10.5, scaling: 11 },
+})
+reg(dashMove('arisa.windStep', '妖精疾風步', ARS, { speed: 23, dmg: 8, base: 10.5, scaling: 12, cd: 1550 }))
+reg(upRise('arisa.fairyWings', '妖精之翼飛翔', '#6ee7b7', { dmg: 7.5, base: 11, scaling: 12, rise: 18 }))
+reg(slamMove('arisa.rhinoSlam', '破魔蟲強襲衝擊', '#a3e635', { dmg: 10, base: 12.5, scaling: 14, cd: 1900 }))
+reg({
+  id: 'arisa.forestSeal', name: '精靈聖樹結界', energyCost: 20, cooldownMs: 2600, startupMs: 160, activeMs: 60, recoveryMs: 250,
+  damage: 0, knockback: { dir: [0, 0, 0], base: 0, scaling: 0 },
+  hooks: {
+    onActive(c) {
+      const p: Vec3 = [c.caster.pos[0], Math.max(0, c.caster.pos[1] - 0.35), 0]
+      c.spawnZone(p, { radius: 3.1, durationMs: 3400, slowFactor: 0.55, color: ARS, damagePerSec: 6 })
+      c.fx({ kind: 'ring', pos: p, color: '#6ee7b7', ttl: 420, radius: 3.1 })
+    },
+  },
+})
+registerSmashes('arisa', { color: ARS, names: ['白狼劍閃', '荊棘森羅破', '大地精靈震'] })
+reg({
+  id: 'arisa.evolveBurst', name: 'EP 進化！森羅妖精齊射', energyCost: 0, requiresUlt: true,
+  startupMs: 520, activeMs: 1100, recoveryMs: 420,
+  damage: 11.5, knockback: { dir: [0, 0.55, 1], base: 20, scaling: 17 },
+  hooks: {
+    onStart(c) { c.setGravityScale(0.15); c.setVelocity(0, 4, 0) },
+    onTick(c) {
+      if (c.phase === 'recovery') return
+      c.setInvulnerable(140)
+      if (c.phase === 'active') {
+        c.scratch.ar = (c.scratch.ar ?? 0) - c.dt * 1000
+        if (c.scratch.ar <= 0) {
+          c.scratch.ar = 160
+          for (const vy of [-3, 0, 3]) {
+            c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 24, vy, 0], radius: 0.48, ttlMs: 1150, color: '#34d399', explodeRadius: 1.8 })
+          }
+          c.fx({ kind: 'beam', pos: at(c, 0.2, 0.9), yaw: yawOf(c), length: 24, radius: 1.2, color: ARS, ttl: 220 })
+          c.shake(0.45)
+        }
+      }
+    },
+    onEnd(c) { c.setGravityScale(1) },
+  },
+})

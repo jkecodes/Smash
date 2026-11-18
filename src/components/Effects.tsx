@@ -293,6 +293,42 @@ function ProjectileView({ p }: { p: Projectile }) {
               <mesh><torusGeometry args={[r * 1.1, r * 0.12, 8, 20]} /><meshBasicMaterial color="#fde047" transparent opacity={0.75} blending={ADD} /></mesh>
             </>
           )
+        ) : charId === 'omnom' ? (
+          <>
+            <mesh><sphereGeometry args={[r * 0.9, 16, 16]} /><meshStandardMaterial color="#f43f5e" emissive="#be123c" emissiveIntensity={0.35} /></mesh>
+            <mesh><torusGeometry args={[r * 0.92, r * 0.14, 8, 20]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          </>
+        ) : charId === 'tom' ? (
+          <>
+            <mesh><cylinderGeometry args={[r, r, r * 0.45, 14]} /><meshStandardMaterial color="#fef3c7" /></mesh>
+            <mesh position={[0, r * 0.25, 0]}><sphereGeometry args={[r * 0.7, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.5]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          </>
+        ) : charId === 'ben' ? (
+          <>
+            <mesh><cylinderGeometry args={[r * 0.45, r * 0.55, r * 1.6, 12]} /><meshStandardMaterial color={p.color} emissive={p.color} emissiveIntensity={0.6} /></mesh>
+            <mesh position={[0, r * 0.9, 0]}><cylinderGeometry args={[r * 0.25, r * 0.25, r * 0.35, 10]} /><meshStandardMaterial color="#e2e8f0" /></mesh>
+          </>
+        ) : charId === 'crossy' ? (
+          <mesh><boxGeometry args={[r * 1.4, r * 1.6, r * 1.4]} /><meshStandardMaterial color={p.color} /></mesh>
+        ) : charId === 'red' ? (
+          <>
+            <mesh><sphereGeometry args={[r * 0.9, 14, 14]} /><meshStandardMaterial color={p.color} /></mesh>
+            <mesh position={[r * 0.75, 0, 0]} rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[r * 0.3, r * 0.6, 6]} /><meshStandardMaterial color="#facc15" /></mesh>
+          </>
+        ) : charId === 'steve' ? (
+          skillId.includes('tnt') ? (
+            <>
+              <mesh><boxGeometry args={[r * 1.7, r * 1.7, r * 1.7]} /><meshStandardMaterial color="#ef4444" emissive="#991b1b" emissiveIntensity={0.35} /></mesh>
+              <mesh><boxGeometry args={[r * 1.75, r * 0.55, r * 1.75]} /><meshBasicMaterial color="#ffffff" /></mesh>
+            </>
+          ) : (
+            <mesh><boxGeometry args={[r * 2.5, r * 0.35, r * 0.35]} /><meshStandardMaterial color="#a855f7" emissive="#c084fc" emissiveIntensity={0.65} /></mesh>
+          )
+        ) : charId === 'arisa' ? (
+          <>
+            <mesh><boxGeometry args={[r * 2.4, r * 0.35, r * 0.35]} /><meshBasicMaterial color="#6ee7b7" /></mesh>
+            <mesh><sphereGeometry args={[r * 0.9, 12, 12]} /><meshBasicMaterial color="#10b981" transparent opacity={0.45} blending={ADD} depthWrite={false} /></mesh>
+          </>
         ) : (
           <>
             <mesh><sphereGeometry args={[r * 0.6, 16, 16]} /><meshBasicMaterial color="#ffffff" /></mesh>
