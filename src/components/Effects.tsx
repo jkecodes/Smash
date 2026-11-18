@@ -654,10 +654,15 @@ function ProjectileView({ p }: { p: Projectile }) {
             <mesh><boxGeometry args={[r * 2.5, r * 0.35, r * 0.35]} /><meshStandardMaterial color="#a855f7" emissive="#c084fc" emissiveIntensity={0.65} /></mesh>
           )
         ) : charId === 'chihiro' ? (
-          <>
-            <mesh scale={[1.4, 0.8, 0.7]}><sphereGeometry args={[r * 0.75, 12, 12]} /><meshStandardMaterial color="#18181b" emissive="#ef4444" emissiveIntensity={0.55} /></mesh>
-            <mesh position={[-r * 0.9, 0, 0]}><boxGeometry args={[r * 0.9, r * 0.7, r * 0.1]} /><meshBasicMaterial color="#ef4444" /></mesh>
-          </>
+          <group scale={[r * 1.15, r * 1.15, r * 1.15]}>
+            {/* 六平千紘：直接發射 3D 黑紅金魚（錦／涅） */}
+            <mesh scale={[1.4, 0.85, 0.7]}><sphereGeometry args={[0.7, 14, 14]} /><meshStandardMaterial color="#18181b" emissive="#ef4444" emissiveIntensity={0.55} /></mesh>
+            <mesh position={[0.45, 0.12, 0.45]}><sphereGeometry args={[0.1, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+            <mesh position={[0.45, 0.12, -0.45]}><sphereGeometry args={[0.1, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+            <mesh position={[0.1, 0.7, 0]} rotation={[0, 0, -0.35]}><boxGeometry args={[0.7, 0.55, 0.08]} /><meshBasicMaterial color="#ef4444" transparent opacity={0.9} /></mesh>
+            <mesh position={[-1.1, 0.2, 0]} rotation={[0, 0, 0.4]}><boxGeometry args={[0.95, 0.5, 0.06]} /><meshBasicMaterial color="#dc2626" transparent opacity={0.85} /></mesh>
+            <mesh position={[-1.1, -0.2, 0]} rotation={[0, 0, -0.4]}><boxGeometry args={[0.95, 0.5, 0.06]} /><meshBasicMaterial color="#18181b" transparent opacity={0.9} /></mesh>
+          </group>
         ) : charId === 'hutao' ? (
           <>
             <mesh><sphereGeometry args={[r * 0.85, 14, 14]} /><meshStandardMaterial color="#ffffff" emissive="#f97316" emissiveIntensity={0.5} /></mesh>

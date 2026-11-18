@@ -206,11 +206,6 @@ function registerKit(k: KitSpec) {
     damage: 9.5, knockback: { dir: [0, 0.45, 1], base: 11, scaling: 11.5 },
     hooks: {
       onActive(c) {
-        if (p === 'ichi') {
-          c.fx({ kind: 'summon', model: 'thunderFox', pos: at(c, 0.3, 0.9), color: '#facc15', ttl: 850, size: 0.95, dir: c.forward[0] })
-        } else if (p === 'chihiro') {
-          c.fx({ kind: 'summon', model: 'goldfish', pos: at(c, 0.25, 0.9), color: '#ef4444', ttl: 850, size: 0.9, dir: c.forward[0] })
-        }
         const baseVel = p === 'paddle' ? 26 : p === 'sukuna' || p === 'jinhsi' ? 24 : (k.s1.speed ?? 19)
         const spawnMain = (vx: number, vy: number) => c.spawnProjectile({
           pos: at(c, 0.15, 0.9),
