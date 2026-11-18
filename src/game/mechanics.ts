@@ -53,7 +53,7 @@ export function stepMechanics(dt: number, fighters: Record<FighterId, FighterSta
     if (m.kind === 'aura') {
       m.gauge = Math.min(100, Math.round((f.damage / 150) * 100))
     } else if (m.kind === 'mana') {
-      m.gauge = Math.min(100, Math.round(f.energy))
+      m.gauge = Math.min(100, m.gauge + dt * 5)
     } else if (m.kind === 'awaken' && m.activeMs > 0) {
       m.activeMs = Math.max(0, m.activeMs - dtMs)
       m.gauge = Math.round((m.activeMs / 6500) * 100)
@@ -73,7 +73,7 @@ export function onMechanicHit(att: FighterState, tgt: FighterState, dmg: number)
         addFx({ kind: 'ring', pos: [...att.pos], color: ma.color, ttl: 420, radius: 2.2, plane: 'vertical' })
       }
     } else if (ma.kind === 'mana') {
-      att.energy = Math.min(100, att.energy + 8)
+      ma.gauge = Math.min(100, ma.gauge + dmg * 2.0 + 8)
     }
   }
   const mt = states[tgt.id]
@@ -102,7 +102,9 @@ export function consumeSkillMechanic(f: FighterState, slot: string): { dmgMult: 
   if (m.kind === 'awaken' && m.activeMs > 0) {
     return { dmgMult: 1.32, kbMult: 1.25 }
   }
-  if (m.kind === 'mana' && f.energy >= 75 && (slot === 'skill1' || slot === 'skill2')) {
+  if (m.kind === 'mana' && m.gauge >= 75 && (slot === 'skill1' || slot === 'skill2')) {
+    m.gauge = Math.max(0, m.gauge - 50)
+    addFx({ kind: 'ring', pos: [...f.pos], color: m.color, ttl: 320, radius: 1.9, plane: 'vertical' })
     return { dmgMult: 1.28, kbMult: 1.2 }
   }
   if (m.kind === 'limit' && m.gauge >= 100 && (slot === 'skill1' || slot === 'skill2')) {
