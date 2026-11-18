@@ -21,6 +21,8 @@ const damageColor = (d: number) => {
   const t = Math.min(1, d / 200)
   return `rgb(255, ${Math.round(255 - t * 200)}, ${Math.round(255 - t * 230)})`
 }
+const zhNameOf = (full: string) =>
+  full.replace(/^(?:[A-Za-z0-9.'&!\- ]+\s+)+/, '').replace(/\s+[A-Za-z0-9.'&!\- ]+$/, '').trim() || full
 const SLOT_KEYS: Partial<Record<FighterId, Record<string, string>>> = {
   p1: { attack: 'J', skill1: 'K', skill2: 'L', ult: 'I' },
   p2: { attack: '.', skill1: '/', skill2: "'", ult: ';' },
@@ -2012,7 +2014,7 @@ export function HUD() {
                       style={{ backgroundColor: pCol, transform: 'skewX(-12deg)' }}
                     >
                       <span>{cpuLv > 0 ? `CPU Lv.${cpuLv}` : id.toUpperCase()}</span>
-                      <span className="opacity-80 font-sans not-italic">{u.name}</span>
+                      <span className="opacity-80 font-sans not-italic">{zhNameOf(u.name)}</span>
                     </div>
                   </div>
                   <div className="relative h-32 w-full overflow-hidden bg-black/60">
@@ -2104,7 +2106,7 @@ export function HUD() {
                 {SHORT_NAMES[selection[winner]]}
               </div>
               <div className="text-lg sm:text-xl font-black text-yellow-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
-                {ui[winner].name} · 擊墜 {ui[winner].stats.kos} · 輸出 {ui[winner].stats.damageDealt}%
+                {zhNameOf(ui[winner].name)} · 擊墜 {ui[winner].stats.kos} · 輸出 {ui[winner].stats.damageDealt}%
               </div>
             </div>
 
