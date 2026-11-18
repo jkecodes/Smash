@@ -741,6 +741,7 @@ function ko(f: FighterState) {
   if (aliveIds.length <= 1) {
     publishUi(0, true)
     store().endMatch(aliveIds[0] ?? killerId ?? f.id)
+    broadcastStateIfHost(true)
   }
 }
 

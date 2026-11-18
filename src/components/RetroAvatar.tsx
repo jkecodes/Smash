@@ -243,15 +243,6 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
             <sphereGeometry args={[0.33, 14, 14]} />
             <meshStandardMaterial color="#7f1d1d" roughness={0.8} />
           </mesh>
-          {/* 經典紅靴 */}
-          <mesh position={[0.16, -0.46, 0.08]} castShadow>
-            <boxGeometry args={[0.16, 0.12, 0.26]} />
-            <meshStandardMaterial color="#ef4444" />
-          </mesh>
-          <mesh position={[-0.16, -0.46, 0.08]} castShadow>
-            <boxGeometry args={[0.16, 0.12, 0.26]} />
-            <meshStandardMaterial color="#ef4444" />
-          </mesh>
         </group>
       )}
 

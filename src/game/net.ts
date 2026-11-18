@@ -224,8 +224,11 @@ function applySnapshot(msg: any) {
       f.stats = snap.stats
       const rb = runtime.bodies[id]
       if (rb) {
-        rb.setTranslation({ x: f.pos[0], y: f.pos[1], z: f.pos[2] }, true)
-        rb.setLinvel({ x: f.vel[0], y: f.vel[1], z: f.vel[2] }, true)
+        rb.setEnabled(!!f.alive)
+        if (f.alive) {
+          rb.setTranslation({ x: f.pos[0], y: f.pos[1], z: f.pos[2] }, true)
+          rb.setLinvel({ x: f.vel[0], y: f.vel[1], z: f.vel[2] }, true)
+        }
       }
     }
   }
@@ -319,10 +322,10 @@ export function sendGuestInput(inp: InputFrame) {
   sendRaw({ type: 'input', input: inp })
 }
 
-export function broadcastStateIfHost() {
+export function broadcastStateIfHost(force = false) {
   if (useNetStore.getState().role !== 'host') return
   const now = performance.now()
-  if (now - netRuntime.lastBroadcastMs < 33) return
+  if (!force && now - netRuntime.lastBroadcastMs < 33) return
   netRuntime.lastBroadcastMs = now
   const gs = useGameStore.getState()
   const fighters: Record<string, any> = {}

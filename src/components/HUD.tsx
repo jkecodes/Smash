@@ -1384,10 +1384,14 @@ function PauseOverlay({ onGuide, active }: { onGuide: () => void; active: boolea
     return () => clearTimeout(t)
   }, [])
 
+  const netRole = useNetStore((s) => s.role)
   const actions = [
     () => setPaused(false),
     onGuide,
-    () => { clearEntities(); start(); resetSimStage(); broadcastStart() },
+    () => {
+      if (netRole === 'guest') return
+      clearEntities(); start(); resetSimStage(); broadcastStart()
+    },
     toMenu,
   ]
 
