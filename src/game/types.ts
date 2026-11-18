@@ -208,7 +208,7 @@ export interface SkillContext {
   teleport(pos: Vec3): void
   spawnZone(pos: Vec3, def: ZoneDef): void
   /** 發射自訂投射物（可指定速度向量 / 重力 / 爆炸半徑），傷害與擊飛取自目前招式 */
-  spawnProjectile(p: { pos: Vec3; vel: Vec3; radius: number; ttlMs: number; pierce?: boolean; color: string; gravity?: number; explodeRadius?: number }): void
+  spawnProjectile(p: { pos: Vec3; vel: Vec3; radius: number; ttlMs: number; pierce?: boolean; color: string; gravity?: number; explodeRadius?: number; steerable?: number; maxRange?: number }): void
   fx(item: FxSpec): void
   nearestEnemy(): FighterState | null
   isGrounded(): boolean
@@ -255,6 +255,7 @@ export interface Projectile {
   explodeRadius: number
   traveled?: number
   maxRange?: number
+  steerable?: number
 }
 export interface Zone {
   id: number

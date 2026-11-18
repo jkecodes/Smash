@@ -302,7 +302,7 @@ function makeCtx(f: FighterState, sk: ActiveSkill, dt: number): SkillContext {
     spawnZone: (p, d) => { addZone(f.id, p, d); sfx('zone') },
     spawnProjectile: (p) => addProjectile({
       owner: f.id, pos: [...p.pos], vel: [...p.vel], radius: p.radius, ttlMs: p.ttlMs, pierce: !!p.pierce, color: p.color,
-      gravity: p.gravity, explodeRadius: p.explodeRadius,
+      gravity: p.gravity, explodeRadius: p.explodeRadius, steerable: p.steerable, maxRange: p.maxRange,
       source: { def: sk.def, hitSet: new Set(), kbMult: sk.kbMult, dmgMult: sk.dmgMult },
     }),
     fx: (spec) => addFx({ char: f.character, ...spec }),
@@ -721,6 +721,8 @@ function respawn(f: FighterState) {
   if (!first) sfx('respawn')
 }
 
+const latestInputs: Partial<Record<FighterId, InputFrame>> = {}
+
 function updateFighter(f: FighterState, dt: number) {
   const rb = runtime.bodies[f.id]
   if (!rb) return
@@ -773,6 +775,7 @@ function updateFighter(f: FighterState, dt: number) {
   } else {
     inp = store().cpu[f.id] ? cpuInput(f.id, dt) : readInput(f.id)
   }
+  latestInputs[f.id] = inp
   if (store().phase !== 'playing') return
 
   // 跳躍輸入緩衝（150ms）：避免跑步換手、剛結束硬直或起跳前一刻按跳沒反應
@@ -886,6 +889,19 @@ function updateProjectiles(dt: number) {
   const dtMs = dt * 1000
   for (const p of [...runtime.projectiles]) {
     p.ttlMs -= dtMs
+    if (p.steerable && p.steerable > 0) {
+      const inp = latestInputs[p.owner]
+      if (inp && Math.hypot(inp.moveX, inp.moveY) > 0.2) {
+        const targetAng = Math.atan2(inp.moveY, inp.moveX)
+        const curAng = Math.atan2(p.vel[1], p.vel[0])
+        const spd = Math.hypot(p.vel[0], p.vel[1]) || 12
+        const diff = Math.atan2(Math.sin(targetAng - curAng), Math.cos(targetAng - curAng))
+        const step = clamp(diff, -p.steerable * dt, p.steerable * dt)
+        const nextAng = curAng + step
+        p.vel[0] = Math.cos(nextAng) * spd
+        p.vel[1] = Math.sin(nextAng) * spd
+      }
+    }
     p.vel[1] += p.gravity * dt
     const dx = p.vel[0] * dt
     const dy = p.vel[1] * dt

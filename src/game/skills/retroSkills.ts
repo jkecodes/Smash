@@ -826,13 +826,13 @@ reg({
 })
 registerTilts('marisa', { color: MRS, names: ['掃帚突刺', '星屑挑擊', '星塵掃地'] })
 reg({
-  id: 'marisa.magicMissile', name: '魔導星塵飛彈', energyCost: 0, cooldownMs: 1300, startupMs: 130, activeMs: 40, recoveryMs: 250,
+  id: 'marisa.magicMissile', name: '魔導星塵飛彈（可操控）', energyCost: 0, cooldownMs: 1300, startupMs: 130, activeMs: 40, recoveryMs: 250,
   damage: 5, knockback: { dir: [0, 0.4, 1], base: 8, scaling: 9, radial: true },
   hooks: {
     onActive(c) {
       const cols = ['#fde047', '#38bdf8', '#f472b6']
       cols.forEach((col, i) => {
-        c.spawnProjectile({ pos: at(c, 0.15 + (i - 1) * 0.25, 0.85), vel: [c.forward[0] * (19 + i * 2), (i - 1) * 2.5, 0], radius: 0.36, ttlMs: 1100, color: col, explodeRadius: 1.5 })
+        c.spawnProjectile({ pos: at(c, 0.15 + (i - 1) * 0.25, 0.85), vel: [c.forward[0] * (15 + i * 1.5), (i - 1) * 2.5, 0], radius: 0.36, ttlMs: 1650, color: col, explodeRadius: 1.5, steerable: 4.6, maxRange: 20 })
       })
     },
   },

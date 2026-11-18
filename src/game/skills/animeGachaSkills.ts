@@ -72,7 +72,7 @@ interface KitSpec {
   a1: string
   a2: string
   tilts: [string, string, string]
-  s1: { name: string; projColor: string; pierce?: boolean; explode?: number; speed?: number }
+  s1: { name: string; projColor: string; pierce?: boolean; explode?: number; speed?: number; steerable?: number }
   side: string
   up: string
   down: string
@@ -154,6 +154,7 @@ function registerKit(k: KitSpec) {
           pierce: k.s1.pierce,
           gravity: k.s1.explode ? -16 : 0,
           explodeRadius: k.s1.explode,
+          steerable: k.s1.steerable,
         })
       },
     },
@@ -260,7 +261,7 @@ const KITS: KitSpec[] = [
   {
     p: 'ichi', color: '#38bdf8', a1: '魔男獵刀斬', a2: '野性雙連劈',
     tilts: ['獵刀橫揮', '雷狐電弧挑擊', '冰晶下掃'],
-    s1: { name: '雷狐之魔法「電光雷鳴」', projColor: '#facc15', pierce: true, speed: 23 },
+    s1: { name: '雷狐之魔法「電光雷鳴」（可操控）', projColor: '#facc15', pierce: true, speed: 18, steerable: 4.8 },
     side: '冰鯊之魔法「冰牙突襲」', up: '蛛絲之魔法「獵場飛躍」', down: '菌菇之魔法「巨菇壓頂」',
     s2: { name: '夢貘之魔法「夢境吞噬領域」', kind: 'zone', color: '#a855f7' },
     smashes: ['魔男真紅斬', '凍結鯊牙衝', '大狩獵震地'],
@@ -269,7 +270,7 @@ const KITS: KitSpec[] = [
   {
     p: 'ruri', color: '#34d399', a1: '龍角衝撞', a2: '小龍炎爪擊',
     tilts: ['龍尾橫掃', '閃電角上頂', '噴火下壓'],
-    s1: { name: '龍之火炎吐息', projColor: '#f97316', explode: 2.0, speed: 17 },
+    s1: { name: '龍之火炎吐息（可操控）', projColor: '#f97316', explode: 2.0, speed: 15, steerable: 4.2 },
     side: '龍鱗暴衝', up: '龍翼雷電升空', down: '青龍落雷震地',
     s2: { name: '龍角放電＋毒霧領域', kind: 'zone', color: '#a3e635' },
     smashes: ['真龍烈焰噴射', '雷角穿雲頂', '龍吼震波'],
@@ -287,7 +288,7 @@ const KITS: KitSpec[] = [
   {
     p: 'gojo', color: '#818cf8', a1: '咒力正拳', a2: '黑閃連打',
     tilts: ['無下限推擊', '咒力升龍拳', '術式下壓'],
-    s1: { name: '術式反轉「赫」', projColor: '#ef4444', explode: 2.3, speed: 20 },
+    s1: { name: '術式反轉「赫」（可操控）', projColor: '#ef4444', explode: 2.3, speed: 17, steerable: 4.5 },
     side: '無下限瞬間移動突襲', up: '術式順轉「蒼」浮升', down: '無下限重力壓頂',
     s2: { name: '虛式「茈」貫穿彈', kind: 'proj', color: '#a855f7' },
     smashes: ['極限黑閃重拳', '赫・蒼雙重爆', '領域壓迫衝擊'],
