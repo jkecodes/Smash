@@ -16,28 +16,29 @@ const RETRO_IDS = new Set<CharacterId>([
 
 type AnimePreset = {
   body: string; hair: string; accent: string; head?: string
-  prop?: 'katana' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat'
+  prop?: 'katana' | 'spear' | 'orb' | 'horns' | 'ears' | 'bat' | 'rifle' | 'hat' | 'mic' | 'needle' | 'book'
+  style?: 'sword' | 'spear' | 'martial' | 'gun' | 'idol' | 'mage'
   shortHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; blindfold?: boolean; hornColor?: string
 }
 const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
-  chihiro: { body: '#18181b', hair: '#09090b', accent: '#ef4444', prop: 'katana', shortHair: true, scar: true },
-  ichi: { body: '#1e3a8a', hair: '#111827', accent: '#38bdf8', prop: 'hat', shortHair: true },
-  ruri: { body: '#f8fafc', hair: '#6b4423', accent: '#d97706', prop: 'horns', hornColor: '#d97706' },
-  nona: { body: '#4a044e', hair: '#e9d5ff', accent: '#e879f9', prop: 'orb' },
-  gojo: { body: '#111827', hair: '#f8fafc', accent: '#818cf8', prop: 'orb', shortHair: true, blindfold: true },
-  deku: { body: '#14532d', hair: '#15803d', accent: '#4ade80', prop: 'orb', shortHair: true },
-  yodaka: { body: '#0f172a', hair: '#334155', accent: '#38bdf8', prop: 'katana', shortHair: true },
-  saki: { body: '#be123c', hair: '#fb7185', accent: '#fde047', prop: 'orb' },
-  spe: { body: '#ffffff', hair: '#78350f', accent: '#c084fc', prop: 'ears' },
-  kaoruko: { body: '#831843', hair: '#1e1b2e', accent: '#f9a8d4', prop: 'orb' },
-  stelle: { body: '#1e293b', hair: '#94a3b8', accent: '#facc15', prop: 'bat' },
-  lumine: { body: '#f8fafc', hair: '#fde047', accent: '#5eead4', prop: 'katana' },
-  miyabi: { body: '#0f172a', hair: '#18181b', accent: '#22d3ee', prop: 'ears' },
-  rover: { body: '#1e293b', hair: '#09090b', accent: '#facc15', prop: 'katana', shortHair: true },
-  rapi: { body: '#27272a', hair: '#9a3412', accent: '#ef4444', prop: 'rifle' },
-  akira: { body: '#1e3a8a', hair: '#f472b6', accent: '#fbcfe8', prop: 'orb' },
-  kotone: { body: '#f59e0b', hair: '#facc15', accent: '#fef08a', prop: 'orb', twintails: true },
-  hutao: { body: '#18181b', hair: '#3f2318', accent: '#ef4444', prop: 'katana', twintails: true, huTaoHat: true },
+  chihiro: { body: '#18181b', hair: '#09090b', accent: '#ef4444', prop: 'katana', style: 'sword', shortHair: true, scar: true },
+  ichi: { body: '#1e3a8a', hair: '#111827', accent: '#38bdf8', prop: 'hat', style: 'mage', shortHair: true },
+  ruri: { body: '#f8fafc', hair: '#6b4423', accent: '#d97706', prop: 'horns', style: 'mage', hornColor: '#d97706' },
+  nona: { body: '#4a044e', hair: '#e9d5ff', accent: '#e879f9', prop: 'needle', style: 'mage' },
+  gojo: { body: '#111827', hair: '#f8fafc', accent: '#818cf8', prop: 'orb', style: 'martial', shortHair: true, blindfold: true },
+  deku: { body: '#14532d', hair: '#15803d', accent: '#4ade80', prop: 'orb', style: 'martial', shortHair: true },
+  yodaka: { body: '#0f172a', hair: '#334155', accent: '#38bdf8', prop: 'katana', style: 'sword', shortHair: true },
+  saki: { body: '#be123c', hair: '#fb7185', accent: '#fde047', prop: 'mic', style: 'idol' },
+  spe: { body: '#ffffff', hair: '#78350f', accent: '#c084fc', prop: 'ears', style: 'martial' },
+  kaoruko: { body: '#831843', hair: '#1e1b2e', accent: '#f9a8d4', prop: 'book', style: 'idol' },
+  stelle: { body: '#1e293b', hair: '#94a3b8', accent: '#facc15', prop: 'bat', style: 'spear' },
+  lumine: { body: '#f8fafc', hair: '#fde047', accent: '#5eead4', prop: 'katana', style: 'sword' },
+  miyabi: { body: '#0f172a', hair: '#18181b', accent: '#22d3ee', prop: 'ears', style: 'sword' },
+  rover: { body: '#1e293b', hair: '#09090b', accent: '#facc15', prop: 'katana', style: 'sword', shortHair: true },
+  rapi: { body: '#27272a', hair: '#9a3412', accent: '#ef4444', prop: 'rifle', style: 'gun' },
+  akira: { body: '#1e3a8a', hair: '#f472b6', accent: '#fbcfe8', prop: 'book', style: 'mage' },
+  kotone: { body: '#f59e0b', hair: '#facc15', accent: '#fef08a', prop: 'mic', style: 'idol', twintails: true },
+  hutao: { body: '#18181b', hair: '#3f2318', accent: '#ef4444', prop: 'spear', style: 'spear', twintails: true, huTaoHat: true },
 }
 
 export function isRetroAvatar(c: CharacterId): boolean {
@@ -170,7 +171,41 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
       if (animB.current) animB.current.rotation.x = running ? 0.35 + Math.sin(t * 10) * 0.15 : Math.sin(t * 3) * 0.08
     } else if (charId === 'omnom' || charId === 'red') {
       if (animA.current) animA.current.rotation.x = running ? Math.sin(t * 14) * 0.25 : Math.sin(t * 4) * 0.08
-    } else if (charId === 'tom' || charId === 'ben' || charId === 'steve' || charId === 'crossy' || charId === 'arisa' || ANIME_PRESETS[charId]) {
+    } else if (ANIME_PRESETS[charId]) {
+      const style = ANIME_PRESETS[charId]!.style ?? 'martial'
+      const startup = f.fsm === 'ATTACK_STARTUP'
+      const active = f.fsm === 'ATTACK_ACTIVE'
+      const sw = running ? Math.sin(t * 14) * 0.65 : Math.sin(t * 3.5) * 0.1
+      let targetYaw = 0
+      if (style === 'sword') {
+        if (startup) { targetYaw = -0.35; if (animA.current) { animA.current.rotation.set(0.85, 0, 0.3) } }
+        else if (active) { targetYaw = 0.45; if (animA.current) { animA.current.rotation.set(-1.65, 0, -0.65) } }
+        else if (animA.current) { animA.current.rotation.set(sw, 0, 0) }
+        if (animB.current) animB.current.rotation.x = active ? 0.5 : -sw
+      } else if (style === 'spear') {
+        if (startup) { targetYaw = -0.45; if (animA.current) animA.current.rotation.set(0.6, 0, 0) }
+        else if (active) { targetYaw = Math.sin(t * 22) * 0.55; if (animA.current) animA.current.rotation.set(-1.45 + Math.sin(t * 28) * 0.45, 0, -0.35) }
+        else if (animA.current) animA.current.rotation.set(sw, 0, 0)
+        if (animB.current) animB.current.rotation.x = active ? -1.0 : -sw
+      } else if (style === 'gun') {
+        const recoil = active ? Math.sin(t * 40) * 0.15 : 0
+        if (animA.current) animA.current.rotation.set(attacking ? -1.45 + recoil : sw * 0.4, 0, 0)
+        if (animB.current) animB.current.rotation.set(attacking ? -1.25 + recoil : -sw * 0.4, 0, 0)
+      } else if (style === 'idol') {
+        if (active) targetYaw = (f.stateMs * 0.015) % (Math.PI * 2)
+        if (animA.current) animA.current.rotation.set(attacking ? -1.8 : sw, 0, active ? -0.4 : 0)
+        if (animB.current) animB.current.rotation.set(attacking ? -1.8 : -sw, 0, active ? 0.4 : 0)
+      } else if (style === 'mage') {
+        if (animA.current) animA.current.rotation.set(attacking ? -1.95 : sw, 0, attacking ? -0.3 : 0)
+        if (animB.current) animB.current.rotation.set(attacking ? -1.95 : -sw, 0, attacking ? 0.3 : 0)
+      } else {
+        // martial: 快速交替連拳
+        const flurry = Math.sin(t * 32) * 1.15
+        if (animA.current) animA.current.rotation.set(active ? -1.1 + flurry : startup ? 0.6 : sw, 0, 0)
+        if (animB.current) animB.current.rotation.set(active ? -1.1 - flurry : startup ? 0.4 : -sw, 0, 0)
+      }
+      root.current.rotation.y = THREE.MathUtils.lerp(root.current.rotation.y, targetYaw, 0.35)
+    } else if (charId === 'tom' || charId === 'ben' || charId === 'steve' || charId === 'crossy' || charId === 'arisa') {
       const sw = running ? Math.sin(t * 14) * 0.65 : attacking ? -0.9 : Math.sin(t * 3.5) * 0.1
       if (animA.current) animA.current.rotation.x = sw
       if (animB.current) animB.current.rotation.x = -sw
@@ -960,11 +995,38 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
             )}
             <group ref={animA} position={[0.25, 0.06, 0]}>
               <mesh position={[0, -0.12, 0.06]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color={pr.body} /></mesh>
-              {(pr.prop === 'katana' || pr.prop === 'bat') && (
-                <mesh position={[0, -0.04, 0.38]} rotation={[0.9, 0, 0]}><boxGeometry args={[0.05, pr.prop === 'bat' ? 0.58 : 0.68, 0.08]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.5} /></mesh>
+              {pr.prop === 'katana' && (
+                <group position={[0, -0.04, 0.36]} rotation={[0.95, 0, 0]}>
+                  <mesh position={[0, 0.26, 0]}><boxGeometry args={[0.04, 0.68, 0.07]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.6} /></mesh>
+                  <mesh position={[0, -0.08, 0]}><boxGeometry args={[0.14, 0.04, 0.14]} /><meshStandardMaterial color="#facc15" /></mesh>
+                </group>
+              )}
+              {pr.prop === 'spear' && (
+                <group position={[0, -0.02, 0.42]} rotation={[1.05, 0, 0]}>
+                  <mesh><cylinderGeometry args={[0.025, 0.025, 1.05, 8]} /><meshStandardMaterial color="#18181b" /></mesh>
+                  <mesh position={[0, 0.62, 0]}><coneGeometry args={[0.08, 0.28, 5]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.75} /></mesh>
+                </group>
+              )}
+              {pr.prop === 'bat' && (
+                <mesh position={[0, -0.02, 0.38]} rotation={[0.9, 0, 0]}><cylinderGeometry args={[0.055, 0.025, 0.66, 10]} /><meshStandardMaterial color="#e2e8f0" emissive={pr.accent} emissiveIntensity={0.45} /></mesh>
               )}
               {pr.prop === 'rifle' && (
-                <mesh position={[0, -0.06, 0.36]}><boxGeometry args={[0.08, 0.14, 0.62]} /><meshStandardMaterial color="#18181b" /></mesh>
+                <group position={[0, -0.06, 0.36]}>
+                  <mesh><boxGeometry args={[0.08, 0.14, 0.68]} /><meshStandardMaterial color="#18181b" /></mesh>
+                  <mesh position={[0, 0.1, -0.05]}><boxGeometry args={[0.05, 0.06, 0.22]} /><meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.6} /></mesh>
+                </group>
+              )}
+              {pr.prop === 'mic' && (
+                <group position={[0, -0.04, 0.26]} rotation={[0.7, 0, 0]}>
+                  <mesh><cylinderGeometry args={[0.03, 0.025, 0.26, 8]} /><meshStandardMaterial color="#18181b" /></mesh>
+                  <mesh position={[0, 0.16, 0]}><sphereGeometry args={[0.075, 10, 10]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.85} /></mesh>
+                </group>
+              )}
+              {pr.prop === 'needle' && (
+                <mesh position={[0, -0.04, 0.38]} rotation={[Math.PI / 2, 0, 0]}><coneGeometry args={[0.04, 0.62, 8]} /><meshStandardMaterial color="#e2e8f0" emissive="#e879f9" emissiveIntensity={0.7} /></mesh>
+              )}
+              {pr.prop === 'book' && (
+                <mesh position={[0, -0.04, 0.26]} rotation={[0.4, 0, 0]}><boxGeometry args={[0.18, 0.22, 0.05]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.35} /></mesh>
               )}
               {pr.prop === 'orb' && (
                 <mesh position={[0, -0.04, 0.32]}><sphereGeometry args={[0.12, 10, 10]} /><meshStandardMaterial color={pr.accent} emissive={pr.accent} emissiveIntensity={0.85} /></mesh>

@@ -91,6 +91,24 @@ const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
 }
 
 const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover'])
+const GUN_CHARS = new Set(['rapi'])
+const MARTIAL_CHARS = new Set(['gojo', 'deku', 'spe'])
+const CASTER_CHARS = new Set(['ichi', 'ruri', 'nona', 'saki', 'kaoruko', 'akira', 'kotone'])
+
+function hitVfx(c: any, color: string, p: string, r: number, flip = false) {
+  if (GUN_CHARS.has(p)) {
+    c.fx({ kind: 'beam', pos: at(c, 0.15, 0.9), yaw: yawOf(c), length: r * 2.2, radius: 0.18, color, ttl: 150 })
+    c.fx({ kind: 'burst', pos: at(c, 0.15, 0.9), color: '#fde047', ttl: 160, count: 6, speed: 5, size: 0.12 })
+  } else if (MARTIAL_CHARS.has(p)) {
+    c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color, ttl: 200, radius: r * 0.95, plane: 'vertical' })
+    c.fx({ kind: 'burst', pos: at(c, 0.12, 0.9), color: '#ffffff', ttl: 180, count: 8, speed: 4.5, size: 0.12 })
+  } else if (CASTER_CHARS.has(p)) {
+    c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color, ttl: 220, radius: r })
+    c.fx({ kind: 'burst', pos: at(c, 0.12, 0.9), color, ttl: 200, count: 8, speed: 4, size: 0.13 })
+  } else {
+    slash(c, color, { r, flip })
+  }
+}
 
 function registerKit(k: KitSpec) {
   const { p, color } = k
@@ -103,7 +121,7 @@ function registerKit(k: KitSpec) {
     knockback: { dir: [0, 0.22, 1], base: 5.5, scaling: 5.5 },
     hooks: {
       onActive(c) {
-        slash(c, c.chargeRatio > 0.35 ? color : '#ffffff', { r: 1.3 + c.chargeRatio * 0.5 })
+        hitVfx(c, c.chargeRatio > 0.35 ? color : '#ffffff', p, 1.3 + c.chargeRatio * 0.5)
         if (c.chargeRatio > 0.35) {
           c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color, ttl: 260, radius: 1.6, plane: 'vertical' })
           c.shake(0.24)
@@ -116,7 +134,7 @@ function registerKit(k: KitSpec) {
     startupMs: 75, activeMs: 100, recoveryMs: 195,
     hitbox: { offset: [0, 0.12, 1.1], radius: 1.05 }, damage: 6.5,
     knockback: { dir: [0, 0.45, 1], base: 10, scaling: 10.5 },
-    hooks: { onActive(c) { slash(c, color, { r: 1.6, flip: true }) } },
+    hooks: { onActive(c) { hitVfx(c, color, p, 1.6, true) } },
   })
   registerTilts(p, { color, names: k.tilts })
   reg({
