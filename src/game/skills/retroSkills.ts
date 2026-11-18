@@ -1264,6 +1264,7 @@ reg({
       }
     },
     onActive(c) {
+      c.fx({ kind: 'summon', model: 'exodia', pos: at(c, 0.6, -0.6), color: '#fde047', ttl: 1350, size: 1.45, dir: c.forward[0] })
       c.fx({ kind: 'beam', pos: at(c, 0.2, 0.8), yaw: yawOf(c), length: 28, radius: 2.3, color: '#fde047', ttl: 650 })
       c.fx({ kind: 'pillar', pos: at(c, -2, 4), color: '#facc15', ttl: 700, radius: 2.8 })
       c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#fde047', ttl: 750, count: 60, speed: 12, size: 0.24 })

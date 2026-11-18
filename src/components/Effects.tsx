@@ -310,6 +310,9 @@ function SummonFx({ it }: { it: FxItem }) {
     } else if (it.model === 'hollow') {
       g.current.position.x = it.pos[0] + dir * t * 18
       if (sub.current) { sub.current.rotation.z += dt * 6; sub.current.rotation.y += dt * 4 }
+    } else if (it.model === 'exodia') {
+      g.current.position.y = it.pos[1] + Math.sin(t * Math.PI) * 0.65
+      if (sub.current) sub.current.rotation.z += dt * 2.2
     } else {
       g.current.position.x = it.pos[0] + dir * t * 3.5
       if (sub.current) sub.current.rotation.z += dt * 3
@@ -423,6 +426,32 @@ function SummonFx({ it }: { it: FxItem }) {
           <mesh position={[0.45, 0.68, -0.35]}><sphereGeometry args={[0.18, 10, 10]} /><meshStandardMaterial color="#c084fc" /></mesh>
           {/* 夢境睡眠光環 */}
           <mesh position={[0, 0.95, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.85, 0.07, 8, 22]} /><meshBasicMaterial color="#e879f9" /></mesh>
+        </group>
+      )}
+      {it.model === 'exodia' && (
+        <group>
+          {/* 黑暗大法師・艾克索迪亞：黃金巨軀＋千年印記胸甲 */}
+          <mesh position={[0, 0.3, 0]}><boxGeometry args={[1.6, 2.0, 1.1]} /><meshStandardMaterial color="#b45309" emissive="#facc15" emissiveIntensity={0.35} metalness={0.6} /></mesh>
+          <mesh position={[0.6, 0.45, 0]}><sphereGeometry args={[0.28, 12, 12]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          {/* 黃金巨肩甲 */}
+          <mesh position={[0, 1.1, 0.95]}><boxGeometry args={[1.1, 0.7, 0.8]} /><meshStandardMaterial color="#facc15" metalness={0.7} /></mesh>
+          <mesh position={[0, 1.1, -0.95]}><boxGeometry args={[1.1, 0.7, 0.8]} /><meshStandardMaterial color="#facc15" metalness={0.7} /></mesh>
+          {/* 雙前伸黃金巨拳＋封印鐵鍊手銬 */}
+          <mesh position={[1.45, 0.55, 0.95]}><boxGeometry args={[1.35, 0.58, 0.58]} /><meshStandardMaterial color="#eab308" emissive="#fde047" emissiveIntensity={0.4} /></mesh>
+          <mesh position={[1.45, 0.55, -0.95]}><boxGeometry args={[1.35, 0.58, 0.58]} /><meshStandardMaterial color="#eab308" emissive="#fde047" emissiveIntensity={0.4} /></mesh>
+          <mesh position={[0.95, 0.55, 0.95]} rotation={[0, 0, Math.PI / 2]}><torusGeometry args={[0.35, 0.08, 8, 16]} /><meshStandardMaterial color="#1e293b" /></mesh>
+          <mesh position={[0.95, 0.55, -0.95]} rotation={[0, 0, Math.PI / 2]}><torusGeometry args={[0.35, 0.08, 8, 16]} /><meshStandardMaterial color="#1e293b" /></mesh>
+          {/* 法老黃金頭盔＋雙角＋紅眼 */}
+          <mesh position={[0.1, 1.85, 0]}><boxGeometry args={[0.85, 0.9, 0.85]} /><meshStandardMaterial color="#facc15" emissive="#ca8a04" emissiveIntensity={0.3} /></mesh>
+          <mesh position={[0.15, 2.45, 0.35]} rotation={[0.3, 0, -0.2]}><coneGeometry args={[0.16, 0.65, 5]} /><meshStandardMaterial color="#fde047" /></mesh>
+          <mesh position={[0.15, 2.45, -0.35]} rotation={[-0.3, 0, -0.2]}><coneGeometry args={[0.16, 0.65, 5]} /><meshStandardMaterial color="#fde047" /></mesh>
+          <mesh position={[0.55, 1.9, 0.22]}><sphereGeometry args={[0.09, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          <mesh position={[0.55, 1.9, -0.22]}><sphereGeometry args={[0.09, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          {/* 背後旋轉千年魔法陣 */}
+          <group ref={sub} position={[-0.75, 0.9, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <mesh><torusGeometry args={[2.3, 0.1, 10, 32]} /><meshBasicMaterial color="#fde047" /></mesh>
+            <mesh rotation={[0, 0, Math.PI / 4]}><boxGeometry args={[3.2, 0.12, 0.12]} /><meshBasicMaterial color="#f59e0b" /></mesh>
+          </group>
         </group>
       )}
     </group>
