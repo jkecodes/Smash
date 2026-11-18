@@ -113,12 +113,6 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
           ))}
         </span>
       </div>
-      <div className="mt-1 h-1.5 overflow-hidden rounded bg-white/10" title="能量">
-        <div className="h-full" style={{ width: `${u.energy}%`, background: u.energy >= 100 ? '#ffd24d' : '#4dd2ff' }} />
-      </div>
-      <div className="mt-0.5 h-1 overflow-hidden rounded bg-white/10" title="護盾">
-        <div className="h-full bg-sky-300/80" style={{ width: `${u.shield}%` }} />
-      </div>
       {tb && (
         <div className="mt-1 flex items-center justify-between rounded bg-white/10 px-1.5 py-0.5 text-[10px]">
           <div className="flex items-center gap-1">
@@ -834,7 +828,6 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
                     <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px] text-white/60">
                       <span>傷害 {Math.round(sk.damage * 10) / 10}%</span>
                       <span>· 擊飛 {sk.knockback.base}+{sk.knockback.scaling}×</span>
-                      {sk.energyCost > 0 && <span>· 耗能 {sk.energyCost}</span>}
                       {sk.cooldownMs ? <span>· CD {(sk.cooldownMs * 0.5 / 1000).toFixed(1)}s</span> : null}
                       {sk.charge && <span className="text-yellow-300">· 按住蓄力</span>}
                       {sk.requiresUlt && <span className="text-amber-300">· 需大招球(5下)</span>}

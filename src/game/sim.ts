@@ -350,7 +350,7 @@ function tryStartSkill(f: FighterState, slot: SkillSlot, inp: InputFrame): boole
   if (!def) return false
   const isUpSpecial = slot === 'skill1' && dir === 'up' && def === getSkill(lo['skill1:up'])
   if (isUpSpecial && !f.grounded && f.upSpecialUsed) return false // 滯空時只能用一次
-  if ((f.cooldowns[def.id] ?? 0) > 0 || f.energy < def.energyCost) return false
+  if ((f.cooldowns[def.id] ?? 0) > 0) return false
   if (def.requiresUlt && !f.ultReady) return false
   if (isUpSpecial && !f.grounded) f.upSpecialUsed = true
   startSkill(f, def, slot, inp)
@@ -358,7 +358,7 @@ function tryStartSkill(f: FighterState, slot: SkillSlot, inp: InputFrame): boole
 }
 
 function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputFrame) {
-  f.energy -= def.energyCost
+  // 能量條機制已移除，改為純冷卻制
   if (def.requiresUlt) {
     f.ultReady = false
     f.invulnMs = Math.max(f.invulnMs, def.startupMs + def.activeMs + 150)
@@ -1268,7 +1268,7 @@ function publishUi(dt: number, force = false) {
         const d = getSkill(c.loadout[slot])
         if (!d) return []
         const cd = d.cooldownMs ? (f.cooldowns[d.id] ?? 0) / (d.cooldownMs * COOLDOWN_SCALE) : 0
-        return [{ slot, name: d.name, cd, cost: d.energyCost, locked: !!d.requiresUlt && !f.ultReady }]
+        return [{ slot, name: d.name, cd, cost: 0, locked: !!d.requiresUlt && !f.ultReady }]
       }),
     }
   }

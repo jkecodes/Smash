@@ -58,7 +58,7 @@ const defFor = (f: FighterState, slot: SkillSlot, dir: Dir): SkillDef | undefine
   getSkill(lo(f)[dir === 'n' ? slot : `${slot}:${dir}`])
 const usable = (f: FighterState, d: SkillDef) =>
   !(d === getSkill(lo(f)['skill1:up']) && !f.grounded && f.upSpecialUsed) && // 滯空時上+特招只能用一次
-  (f.cooldowns[d.id] ?? 0) <= 0 && f.energy >= d.energyCost && (!d.requiresUlt || f.ultReady)
+  (f.cooldowns[d.id] ?? 0) <= 0 && (!d.requiresUlt || f.ultReady)
 /** 招式大致的有效距離（無判定框者視為遠程投射物） */
 const reachOf = (d: SkillDef) => {
   const hb = d.hitbox
