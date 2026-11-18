@@ -12,6 +12,7 @@ import { sfx, useAudioStore } from '../game/audio'
 import { CharacterPortrait, SHORT_NAMES } from './CharacterPortrait'
 import { StagePreview } from './StagePreview'
 import { TouchControls } from './TouchControls'
+import { broadcastLobby, broadcastStart, hostRoom, joinRoom, leaveRoom, sendPick, useNetStore } from '../game/net'
 
 const damageColor = (d: number) => {
   const t = Math.min(1, d / 200)
@@ -761,6 +762,12 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   const [wizard, setWizard] = useState<FighterId | null>(null)
   const [showHelp, setShowHelp] = useState(false)
   const [activePicker, setActivePicker] = useState<FighterId>('p1')
+  const [joinCode, setJoinCode] = useState('')
+  const netRole = useNetStore((s) => s.role)
+  const roomCode = useNetStore((s) => s.roomCode)
+  const mySlot = useNetStore((s) => s.mySlot)
+  const guests = useNetStore((s) => s.guests)
+  const netErr = useNetStore((s) => s.error)
   const playerCount = useGameStore((s) => s.playerCount)
   const setPlayerCount = useGameStore((s) => s.setPlayerCount)
   const selection = useGameStore((s) => s.selection)
@@ -819,7 +826,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         e.preventDefault()
         sfx('ui')
         if (step === 'stage') setStep('char')
-        else { clearEntities(); resetSimStage(); useGameStore.getState().startMatch() }
+        else if (netRole !== 'guest') { clearEntities(); resetSimStage(); broadcastStart(); useGameStore.getState().startMatch() }
       } else if (code === 'Escape' || code === 'Backspace') {
         if (step === 'char') { e.preventDefault(); sfx('ui'); setStep('stage') }
       } else if (code === 'KeyQ' || code === 'KeyE') {
@@ -875,6 +882,8 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
       chosen = item
     }
     select(target, chosen)
+    if (netRole === 'guest') sendPick(chosen)
+    else if (netRole === 'host') setTimeout(broadcastLobby, 0)
     sfx('ui')
   }
 
@@ -994,6 +1003,54 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         )}
       </div>
 
+      <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-cyan-400/30 bg-black/55 px-3 py-1.5 text-xs">
+        {netRole === 'offline' ? (
+          <>
+            <span className="font-black text-cyan-300">🌐 多人連線對戰</span>
+            <button
+              type="button"
+              onClick={() => { sfx('ui'); hostRoom() }}
+              className="rounded-lg bg-cyan-400 px-3 py-1 font-black text-black hover:bg-cyan-300 transition"
+            >
+              開房當房主 (Host)
+            </button>
+            <input
+              type="text"
+              maxLength={4}
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+              placeholder="輸入4碼房號"
+              className="w-24 rounded-lg border border-white/20 bg-white/10 px-2 py-1 text-center font-mono font-bold uppercase text-white placeholder:text-white/40 focus:border-cyan-300 focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => { if (joinCode.trim().length >= 4) { sfx('ui'); joinRoom(joinCode); setStep('char') } }}
+              className="rounded-lg bg-emerald-400 px-3 py-1 font-black text-black hover:bg-emerald-300 transition"
+            >
+              加入房間
+            </button>
+            {netErr && <span className="text-red-400 font-bold">{netErr}</span>}
+          </>
+        ) : netRole === 'host' ? (
+          <>
+            <span className="font-black text-yellow-300">🏠 房號：<span className="rounded bg-yellow-300/20 px-2 py-0.5 font-mono text-sm tracking-widest">{roomCode}</span></span>
+            <span className="text-emerald-300 font-bold">
+              已連線：P1(你){guests.length > 0 ? guests.map((g) => ` · ${g.toUpperCase()}`).join('') : '（等待朋友輸入房號加入...）'}
+            </span>
+            <button type="button" onClick={leaveRoom} className="rounded bg-white/15 px-2.5 py-0.5 text-[11px] hover:bg-red-500/40">
+              關閉房間
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="font-black text-emerald-300">🌐 已加入房間 <span className="font-mono text-yellow-300">{roomCode}</span>｜你是 {mySlot?.toUpperCase()}（請選角，等待房主按 START）</span>
+            <button type="button" onClick={leaveRoom} className="rounded bg-white/15 px-2.5 py-0.5 text-[11px] hover:bg-red-500/40">
+              離開房間
+            </button>
+          </>
+        )}
+      </div>
+
       {step === 'stage' ? (
         <>
           <StagePicker onNext={() => setStep('char')} />
@@ -1096,10 +1153,11 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
                 ← 重選地圖
               </button>
               <button
-                onClick={() => { clearEntities(); resetSimStage(); start() }}
-                className="rounded-xl bg-yellow-300 px-12 py-2 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
+                disabled={netRole === 'guest'}
+                onClick={() => { clearEntities(); resetSimStage(); broadcastStart(); start() }}
+                className="rounded-xl bg-yellow-300 px-12 py-2 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20 disabled:opacity-45 disabled:cursor-not-allowed"
               >
-                START
+                {netRole === 'guest' ? '等待房主開始...' : 'START'}
               </button>
             </div>
 

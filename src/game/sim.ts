@@ -6,6 +6,7 @@ import {
 } from './constants'
 import { getPlatformPos, resolveStage } from './stages'
 import { resetGimmicks, stepGimmicks } from './gimmicks'
+import { broadcastNetEvent, broadcastStateIfHost, netRuntime, sendGuestInput, useNetStore } from './net'
 import { cpuInput, resetCpu } from './ai'
 import { sfx } from './audio'
 import { debugKeys, readInput, rumble, type InputFrame } from './input'
@@ -318,7 +319,9 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
     sfx('ultStart')
     const ch = CHARACTERS[f.character]
     runtime.hitstopMs = Math.max(runtime.hitstopMs, 420)
-    store().triggerUltCutin({ charId: f.character, name: ch.name, skillName: def.name, color: ch.color })
+    const cutin = { charId: f.character, name: ch.name, skillName: def.name, color: ch.color }
+    store().triggerUltCutin(cutin)
+    broadcastNetEvent({ kind: 'ultCutin', data: cutin })
     addFx({ kind: 'ring', pos: [...f.pos], color: ch.color, ttl: 480, radius: 3.2, plane: 'vertical' })
   }
   else if (def.projectile) sfx('shoot')
@@ -613,6 +616,7 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
     runtime.hitstopMs = Math.max(runtime.hitstopMs, 260)
     runtime.shake = Math.max(runtime.shake, 1.1)
     store().triggerFatalFlash(tgt.pos[0], tgt.pos[1])
+    broadcastNetEvent({ kind: 'fatalFlash', x: tgt.pos[0], y: tgt.pos[1] })
     addFx({ kind: 'fatal', pos: [tgt.pos[0], tgt.pos[1], 0], color: '#ef4444', ttl: 480, radius: 4.5 })
   } else if (speed >= 18) {
     runtime.hitstopMs = Math.max(runtime.hitstopMs, clamp((speed - 14) * 3.5, 45, 120))
@@ -738,7 +742,15 @@ function updateFighter(f: FighterState, dt: number) {
     if (z.owner !== f.id && Math.abs(t.x - z.pos[0]) < z.radius && Math.abs(t.y - z.pos[1]) < 3) f.slowFactor = Math.min(f.slowFactor, z.slowFactor)
   }
 
-  const inp = store().cpu[f.id] ? cpuInput(f.id, dt) : readInput(f.id)
+  const ns = useNetStore.getState()
+  let inp: InputFrame
+  if (ns.role === 'host' && ns.guests.includes(f.id)) {
+    const ri = netRuntime.remoteInputs[f.id]
+    inp = { moveX: ri.moveX, moveY: ri.moveY, held: { ...ri.held }, pressed: { ...ri.pressed } }
+    for (const k of Object.keys(ri.pressed) as (keyof InputFrame['pressed'])[]) ri.pressed[k] = false
+  } else {
+    inp = store().cpu[f.id] ? cpuInput(f.id, dt) : readInput(f.id)
+  }
   if (store().phase !== 'playing') return
 
   // 跳躍輸入緩衝（150ms）：避免跑步換手、剛結束硬直或起跳前一刻按跳沒反應
@@ -949,6 +961,11 @@ export function stepSimulation(rawDt: number) {
   runtime.debugSpheres = runtime.debugSpheres.filter((d) => d.ttl > 0)
   runtime.shake *= Math.pow(0.001, dt) // 指數衰減
   if (s.phase !== 'playing') { ballTimer = 4; pending = []; ledgeOwner['-1'] = null; ledgeOwner['1'] = null; publishUi(dt); return }
+  if (useNetStore.getState().role === 'guest') {
+    sendGuestInput(readInput('p1'))
+    publishUi(dt)
+    return
+  }
   for (const id of getActiveFighterIds()) updateFighter(s.fighters[id], dt)
   updateProjectiles(dt)
   resolveHits()
@@ -957,6 +974,7 @@ export function stepSimulation(rawDt: number) {
   updateZones(dt)
   stepGimmicks(dt)
   publishUi(dt)
+  broadcastStateIfHost()
 }
 
 export { removeFx, GRAVITY }
