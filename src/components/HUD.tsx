@@ -6,7 +6,7 @@ import { resetSimStage } from '../game/sim'
 import { getSkill } from '../game/skills'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { TIER_COLORS, getSteveInv } from '../game/skills/steveBlocks'
-import { getMechanic } from '../game/mechanics'
+import { MECHANIC_GUIDE, getMechanic, getMechanicDef } from '../game/mechanics'
 import { STAGES, STAGE_IDS, resolveStage, type StageForm, type StageId } from '../game/stages'
 import { useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
@@ -685,6 +685,18 @@ function HelpModal({ onClose }: { onClose: () => void }) {
             <div>• <strong className="text-white">空中閃避：</strong>空中按防禦（落地前限一次）</div>
             <div>• <strong className="text-white">邊緣抓邊：</strong>落出場外靠近邊緣自動抓邊（按住下不抓）</div>
             <div>• <strong className="text-white">大招球：</strong>打破 <span className="text-yellow-300">5 下</span>大招球即獲全屏大招資格</div>
+            <div>• <strong className="text-white">空中招式：</strong>空中無方向＋普攻＝360°迴踢；空中下＋普攻＝隕石扣殺</div>
+            <div>• <strong className="text-white">投射物反射：</strong>反擊型下特招可將敵方子彈 1.4 倍加速彈回</div>
+          </div>
+          <div className="pt-1.5 border-t border-white/10 text-[11px] text-white/80 space-y-0.5">
+            <div className="font-bold text-cyan-300">🔋 角色頭像下方的「專屬充能條」是什麼？</div>
+            <div>部分角色擁有專屬充能條（攻擊／受擊或隨時間累積至 <span className="text-yellow-300">100%</span> 觸發）：</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 text-[10.5px] text-white/70">
+              <div>• <strong className="text-red-300">極限 / K.O. 條：</strong>集滿後強化下一次特招或普攻擊飛</div>
+              <div>• <strong className="text-purple-300">覺醒條：</strong>集滿自動變身約 8 秒（擴大判定＋覺醒波）</div>
+              <div>• <strong className="text-sky-300">波導背水條：</strong>自身 % 越高傷害越強</div>
+              <div>• <strong className="text-amber-300">魔力條：</strong>自動回魔，75% 以上施放特招自動增傷</div>
+            </div>
           </div>
         </div>
 
@@ -781,6 +793,7 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
 
   const c = CHARACTERS[cid]
   const g = c.guide
+  const mechDef = getMechanicDef(cid)
 
   return (
     <div
@@ -836,6 +849,15 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
                 </span>
               </div>
               {c.trait && <div className="text-xs font-bold text-yellow-300">{c.trait}</div>}
+              {mechDef && (
+                <div className="rounded-lg border px-2.5 py-1.5 text-[11px] space-y-0.5" style={{ borderColor: `${mechDef.color}55`, backgroundColor: `${mechDef.color}18` }}>
+                  <div className="font-black flex items-center gap-1.5" style={{ color: mechDef.color }}>
+                    <span>🔋 專屬充能條：{mechDef.label}</span>
+                    <span className="text-[10px] text-white/60 font-normal">（{MECHANIC_GUIDE[mechDef.kind].title}）</span>
+                  </div>
+                  <div className="text-white/85 leading-relaxed">{MECHANIC_GUIDE[mechDef.kind].desc}</div>
+                </div>
+              )}
               {g && (
                 <>
                   <p className="text-xs text-white/85 leading-relaxed">{g.summary}</p>

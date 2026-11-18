@@ -49,6 +49,33 @@ export function resetMechanics() {
   }
 }
 
+export const MECHANIC_GUIDE: Record<MechanicKind, { title: string; desc: string }> = {
+  limit: {
+    title: '極限充能條（Limit）',
+    desc: '攻擊命中或受到傷害時累積充能；集滿 100% 後，下一次施放「特招」將消耗極限條，大幅提升該招式的傷害與擊飛力！',
+  },
+  awaken: {
+    title: '覺醒充能條（Awaken）',
+    desc: '輸出或受擊累積覺醒值，滿 100% 自動進入約 8 秒覺醒狀態：全身燃起氣場、判定範圍擴大 1.35 倍、特招追加貫穿覺醒波（座村更會長出烏鴉翅膀自由飛行＋回血）。',
+  },
+  ko: {
+    title: 'K.O. 必殺拳充能條（K.O.）',
+    desc: '承受或造成傷害時累積，滿 100% 進入一擊必殺準備狀態，下一次攻擊或特招會附加超高擊飛力將對手轟出場外！',
+  },
+  aura: {
+    title: '波導背水條（Aura）',
+    desc: '隨自身累積 % 傷害同步提升！自身受傷 % 越高、波導條越滿，全招式傷害與擊飛力越強（絕地反殺機制）。',
+  },
+  mana: {
+    title: '魔力充能條（Mana）',
+    desc: '隨時間自動恢復魔力；當魔力高於 75% 時施放特招會消耗魔力並獲得額外傷害與擊飛加成。',
+  },
+}
+
+export function getMechanicDef(charId: CharacterId) {
+  return CHAR_MECHANIC[charId] ?? null
+}
+
 export function getMechanic(id: FighterId): MechanicState | null {
   return states[id]
 }
