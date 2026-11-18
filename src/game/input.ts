@@ -1,0 +1,214 @@
+import type { Btn, FighterId } from './types'
+
+type Map_ = Record<'left' | 'right' | 'up' | 'down' | Btn, string[]>
+const KEYMAP: Record<FighterId, Map_> = {
+  p1: {
+    left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], down: ['KeyS'],
+    jump: ['Space', 'KeyW'], attack: ['KeyJ'], skill1: ['KeyK'], skill2: ['KeyL'], ult: ['KeyI'], shield: ['ShiftLeft'],
+  },
+  p2: {
+    left: ['ArrowLeft'], right: ['ArrowRight'], up: ['ArrowUp'], down: ['ArrowDown'],
+    jump: ['Enter', 'ArrowUp'], attack: ['Period'], skill1: ['Slash'], skill2: ['Quote'], ult: ['Semicolon'], shield: ['ShiftRight'],
+  },
+}
+const BTNS: Btn[] = ['jump', 'attack', 'skill1', 'skill2', 'ult', 'shield']
+// 手把（大亂鬥配置，W3C 標準映射：0=下 1=右 2=左 3=上）
+//  A(右,1)=攻擊  B(下,0)=技能1  X/Y(3,2)=跳躍  左搖桿上推=跳躍
+//  右搖桿(任一方向)=技能2（按住蓄力）  RT(7)/R3(11)=大招  LB/RB/LT(4,5,6)=防禦
+const PAD_BTN: Record<Btn, number[]> = { jump: [2, 3], attack: [1], skill1: [0], skill2: [], ult: [7, 11], shield: [4, 5, 6] }
+const DEADZONE = 0.22
+
+const keys = new Set<string>()
+export const debugKeys = { toggle: false, giveUlt: false, pause: false }
+if (typeof window !== 'undefined') {
+  const prevent = new Set(Object.values(KEYMAP).flatMap((m) => Object.values(m).flat()))
+  window.addEventListener('keydown', (e) => {
+    if (prevent.has(e.code)) e.preventDefault()
+    if ((e.code === 'Escape' || e.code === 'KeyP') && !e.repeat) debugKeys.pause = true
+    if (e.code === 'KeyH' && !e.repeat) debugKeys.toggle = true
+    if (e.code === 'KeyU' && !e.repeat) debugKeys.giveUlt = true // 測試用：雙方立即獲得大招
+    keys.add(e.code)
+  })
+  window.addEventListener('keyup', (e) => keys.delete(e.code))
+  window.addEventListener('blur', () => keys.clear())
+}
+
+export interface InputFrame {
+  moveX: number
+  moveY: number // 向下為負：用於快速下墜
+  held: Record<Btn, boolean>
+  pressed: Record<Btn, boolean>
+}
+const prev: Record<FighterId, Record<Btn, boolean>> = {
+  p1: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false },
+  p2: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false },
+}
+/** 圓形死區，並重新縮放讓類比輸出平滑 */
+function radial(x: number, y: number): [number, number] {
+  const m = Math.hypot(x, y)
+  if (m < DEADZONE) return [0, 0]
+  const k = Math.min(1, (m - DEADZONE) / (1 - DEADZONE)) / m
+  return [x * k, y * k]
+}
+/** P1 = 第一支手把，P2 = 第二支 */
+function padFor(id: FighterId): Gamepad | null {
+  if (typeof navigator === 'undefined' || !navigator.getGamepads) return null
+  const pads = [...navigator.getGamepads()].filter((p): p is Gamepad => !!p && p.connected)
+  return pads[id === 'p1' ? 0 : 1] ?? null
+}
+export function connectedPadCount(): number {
+  if (typeof navigator === 'undefined' || !navigator.getGamepads) return 0
+  return [...navigator.getGamepads()].filter((p) => p && p.connected).length
+}
+/** 手把震動（受擊回饋） */
+export function rumble(id: FighterId, strength: number, ms = 120) {
+  const pad: any = padFor(id)
+  const act = pad?.vibrationActuator
+  if (!act?.playEffect) return
+  const m = Math.min(1, strength)
+  act.playEffect('dual-rumble', { duration: ms, strongMagnitude: m, weakMagnitude: m * 0.7 }).catch?.(() => {})
+}
+/** 選單用：回傳該玩家手把的「邊緣觸發」操作 */
+const menuPrev: Record<FighterId, { dx: number; ok: boolean }> = { p1: { dx: 0, ok: false }, p2: { dx: 0, ok: false } }
+export function readMenuPad(id: FighterId): { dx: number; confirm: boolean } {
+  const pad = padFor(id)
+  if (!pad) return { dx: 0, confirm: false }
+  const [ax] = radial(pad.axes[0] ?? 0, 0)
+  let dx = ax > 0.6 ? 1 : ax < -0.6 ? -1 : 0
+  if (pad.buttons[14]?.pressed) dx = -1
+  if (pad.buttons[15]?.pressed) dx = 1
+  const ok = !!(pad.buttons[1]?.pressed || pad.buttons[0]?.pressed || pad.buttons[9]?.pressed)
+  const out = { dx: dx !== menuPrev[id].dx ? dx : 0, confirm: ok && !menuPrev[id].ok }
+  menuPrev[id] = { dx, ok }
+  return out
+}
+const anyKey = (list: string[]) => list.some((c) => keys.has(c))
+
+export function readInput(id: FighterId): InputFrame {
+  const m = KEYMAP[id]
+  let moveX = (anyKey(m.right) ? 1 : 0) - (anyKey(m.left) ? 1 : 0)
+  let moveY = (anyKey(m.up) ? 1 : 0) - (anyKey(m.down) ? 1 : 0)
+  const held = {} as Record<Btn, boolean>
+  for (const b of BTNS) held[b] = anyKey(m[b])
+  const pad = padFor(id)
+  if (pad) {
+    const map = loadMap(pad)
+    const std = pad.mapping === 'standard'
+    let sx = pad.axes[0] ?? 0, sy = pad.axes[1] ?? 0 // sy：向下為正
+    if (map.ax) sx = -(pad.axes[map.ax.i] ?? 0) * map.ax.s
+    if (map.ay) sy = -(pad.axes[map.ay.i] ?? 0) * map.ay.s
+    const [ax, ay] = radial(sx, sy)
+    if (ax !== 0) moveX = ax
+    if (ay < -0.7) moveY = 1 // 搖桿上推 = 跳（大亂鬥 tap jump）
+    if (ay > 0.5) moveY = -ay
+    if (pad.buttons[14]?.pressed) moveX = -1
+    if (pad.buttons[15]?.pressed) moveX = 1
+    if (pad.buttons[12]?.pressed) moveY = 1
+    if (pad.buttons[13]?.pressed) moveY = -1
+    if (!std && !map.ax) { // 非標準手把（如單支 Joy-Con）：方向鍵常以 axes[9] 的 hat 值回報
+      const h = hatDir(pad)
+      if (h >= 0) {
+        if ([1, 2, 3].includes(h)) moveX = 1
+        if ([5, 6, 7].includes(h)) moveX = -1
+        if ([7, 0, 1].includes(h)) moveY = 1
+        if ([3, 4, 5].includes(h)) moveY = -1
+      }
+    }
+    for (const b of BTNS) {
+      const custom = map.btn?.[b]
+      const idxs = custom !== undefined ? [custom] : PAD_BTN[b]
+      if (idxs.some((i) => pad.buttons[i]?.pressed)) held[b] = true
+    }
+    if (map.btn?.skill2 === undefined && std && Math.hypot(pad.axes[2] ?? 0, pad.axes[3] ?? 0) > 0.6) held.skill2 = true
+    if (moveY > 0.7) held.jump = true
+  }
+  const pressed = {} as Record<Btn, boolean>
+  for (const b of BTNS) { pressed[b] = held[b] && !prev[id][b]; prev[id][b] = held[b] }
+  return { moveX: Math.max(-1, Math.min(1, moveX)), moveY, held, pressed }
+}
+
+// ------------------------------------------------------------ 手把辨識與自訂綁定
+export type PadKind = 'xbox' | 'ps' | 'nintendo' | 'generic'
+export function padKind(pad: Gamepad): PadKind {
+  const id = pad.id.toLowerCase()
+  if (/054c|dualsense|dualshock|playstation|wireless controller/.test(id)) return 'ps'
+  if (/057e|nintendo|joy-?con|pro controller|switch/.test(id)) return 'nintendo'
+  if (/xbox|xinput|045e/.test(id)) return 'xbox'
+  return 'generic'
+}
+export interface PadMap {
+  ax?: { i: number; s: number }
+  ay?: { i: number; s: number }
+  btn?: Partial<Record<Btn, number>>
+}
+const MAP_PREFIX = 'smash.padmap:'
+export function loadMap(pad: Gamepad): PadMap {
+  try { return JSON.parse(localStorage.getItem(MAP_PREFIX + pad.id) ?? '{}') as PadMap } catch { return {} }
+}
+export function saveMap(pad: Gamepad, m: PadMap) {
+  try { localStorage.setItem(MAP_PREFIX + pad.id, JSON.stringify(m)) } catch { /* ignore */ }
+}
+export function clearMap(pad: Gamepad) {
+  try { localStorage.removeItem(MAP_PREFIX + pad.id) } catch { /* ignore */ }
+}
+/** 非標準手把的 hat 方向：0=上 1=右上 2=右 3=右下 4=下 5=左下 6=左 7=左上，-1=無 */
+function hatDir(pad: Gamepad): number {
+  if (pad.axes.length < 10) return -1
+  const h = pad.axes[9]
+  if (h === undefined || h > 1.1) return -1
+  return Math.round((h + 1) * 3.5)
+}
+export function getPad(id: FighterId): Gamepad | null { return padFor(id) }
+export function describePad(id: FighterId): { name: string; kind: PadKind; standard: boolean; custom: boolean } | null {
+  const p = padFor(id)
+  if (!p) return null
+  return { name: p.id.replace(/\s*\(.*$/, '').slice(0, 32) || 'Gamepad', kind: padKind(p), standard: p.mapping === 'standard', custom: !!loadMap(p).btn || !!loadMap(p).ax }
+}
+
+/** 綁定精靈用：偵測「下一個」新輸入（按鈕或搖桿軸） */
+export interface CaptureBase { pressed: Set<number>; axes: number[] }
+export function captureBase(id: FighterId): CaptureBase {
+  const p = padFor(id)
+  return { pressed: new Set((p?.buttons ?? []).flatMap((b, i) => (b.pressed ? [i] : []))), axes: [...(p?.axes ?? [])] }
+}
+export function captureButton(id: FighterId, base: CaptureBase): number | null {
+  const p = padFor(id)
+  if (!p) return null
+  for (let i = 0; i < p.buttons.length; i++) {
+    const on = p.buttons[i].pressed
+    if (!on) base.pressed.delete(i)
+    else if (!base.pressed.has(i)) return i
+  }
+  return null
+}
+export function captureAxis(id: FighterId, base: CaptureBase): { i: number; s: number } | null {
+  const p = padFor(id)
+  if (!p) return null
+  const skipHat = p.mapping !== 'standard' && p.axes.length >= 10
+  for (let i = 0; i < p.axes.length; i++) {
+    if (skipHat && i === 9) continue
+    const d = p.axes[i] - (base.axes[i] ?? 0)
+    if (Math.abs(d) > 0.7) return { i, s: Math.sign(d) }
+  }
+  return null
+}
+
+/** 暫停：Esc / P / 任一手把 Start(+) 切換；暫停中按手把 A 或 B 也可繼續 */
+const padPrev = new Map<number, { start: boolean; ok: boolean }>()
+export function pollPause(): { toggle: boolean; confirm: boolean } {
+  let toggle = debugKeys.pause
+  debugKeys.pause = false
+  let confirm = false
+  if (typeof navigator !== 'undefined' && navigator.getGamepads) {
+    for (const p of navigator.getGamepads()) {
+      if (!p || !p.connected) continue
+      const start = !!p.buttons[9]?.pressed
+      const ok = !!(p.buttons[0]?.pressed || p.buttons[1]?.pressed)
+      const prev = padPrev.get(p.index) ?? { start: false, ok: false }
+      if (start && !prev.start) toggle = true
+      if (ok && !prev.ok) confirm = true
+      padPrev.set(p.index, { start, ok })
+    }
+  }
+  return { toggle, confirm }
+}

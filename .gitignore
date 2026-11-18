@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+dist/
+dist-ssr/
+
+# Local env & cache
+*.local
+.DS_Store
+Thumbs.db
+.vite/
+
+# Raw upstream asset download packs (Kenney / Cube World archives, ~176MB)
+characters/
