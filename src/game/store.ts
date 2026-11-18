@@ -108,10 +108,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((s) => ({ playerModel: { ...s.playerModel, [id]: file ? { url: URL.createObjectURL(file), name: file.name } : null } }))
   },
   projVersion: 0, zoneVersion: 0, fxVersion: 0,
-  select: (id, c) => set((s) => ({
-    selection: { ...s.selection, [id]: c },
-    stageId: id === 'p1' ? c : s.stageId,
-  })),
+  select: (id, c) => set((s) => ({ selection: { ...s.selection, [id]: c } })),
   startMatch: () => {
     const { selection } = get()
     set({

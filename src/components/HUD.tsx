@@ -119,30 +119,31 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
   )
 }
 
-/** 選角格陣欄數（與 Menu 中 8×2 頭像方陣一致） */
-const GRID_COLS = 8
-/** 在選角格陣中依方向移動：左右循環、上下換列（超出範圍時夾在最後一格） */
-function stepGrid(cur: CharacterId, dx: number, dy: number): CharacterId {
-  const n = CHARACTER_IDS.length
-  let i = Math.max(0, CHARACTER_IDS.indexOf(cur))
+/** 在多欄網格中依方向移動：左右循環、上下換列（超出範圍時夾在最後一格） */
+function stepListGrid<T extends string>(list: readonly T[], cur: T, dx: number, dy: number, cols: number): T {
+  const n = list.length
+  let i = Math.max(0, list.indexOf(cur))
   if (dx) i = (i + dx + n) % n
   if (dy) {
-    const j = i + dy * GRID_COLS
+    const j = i + dy * cols
     if (j >= 0 && j < n) i = j
-    else if (dy > 0 && Math.floor(i / GRID_COLS) < Math.floor((n - 1) / GRID_COLS)) i = n - 1
+    else if (dy > 0 && Math.floor(i / cols) < Math.floor((n - 1) / cols)) i = n - 1
   }
-  return CHARACTER_IDS[i]
+  return list[i]
 }
 
-/** 鍵盤選單：P1 用 WASD、P2 用方向鍵，上下左右移動選角 */
+/** 鍵盤選單：P1 用 WASD、P2 用方向鍵，上下左右移動 */
 const MENU_KEYS: Partial<Record<FighterId, Record<string, [number, number]>>> = {
   p1: { KeyA: [-1, 0], KeyD: [1, 0], KeyW: [0, -1], KeyS: [0, 1] },
   p2: { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] },
 }
 
-/** 手把操作選單：上下左右選角色、A/B/Start 確認；結算畫面按確認再來一場 */
-function usePadMenu(active: boolean, onConfirm: () => void, keyboardNav = false) {
-  const select = useGameStore((s) => s.select)
+/** 手把／鍵盤操作選單：上下左右移動、A/B/Start 確認；結算畫面按確認再來一場 */
+function usePadMenu(
+  active: boolean,
+  onConfirm: () => void,
+  onMove?: (id: FighterId, dx: number, dy: number) => void,
+) {
   useEffect(() => {
     if (!active) return
     let raf = 0
@@ -150,9 +151,8 @@ function usePadMenu(active: boolean, onConfirm: () => void, keyboardNav = false)
       const count = useGameStore.getState().playerCount
       for (const id of ALL_FIGHTER_IDS.slice(0, count)) {
         const { dx, dy, confirm } = readMenuPad(id)
-        if (dx || dy) {
-          const cur = useGameStore.getState().selection[id]
-          select(id, stepGrid(cur, dx, dy))
+        if ((dx || dy) && onMove) {
+          onMove(id, dx, dy)
           sfx('ui')
         }
         if (confirm) { onConfirm(); return }
@@ -161,19 +161,18 @@ function usePadMenu(active: boolean, onConfirm: () => void, keyboardNav = false)
     }
     raf = requestAnimationFrame(loop)
     const onKey = (e: KeyboardEvent) => {
-      if (!keyboardNav || e.repeat) return
+      if (!onMove || e.repeat) return
       for (const id of ['p1', 'p2'] as FighterId[]) {
         const d = MENU_KEYS[id]?.[e.code]
         if (!d) continue
         e.preventDefault()
-        const cur = useGameStore.getState().selection[id]
-        select(id, stepGrid(cur, d[0], d[1]))
+        onMove(id, d[0], d[1])
         sfx('ui')
       }
     }
     window.addEventListener('keydown', onKey)
     return () => { cancelAnimationFrame(raf); window.removeEventListener('keydown', onKey) }
-  }, [active, select, onConfirm, keyboardNav])
+  }, [active, onConfirm, onMove])
 }
 function PadStatus() {
   const [n, setN] = useState(connectedPadCount())
@@ -298,14 +297,21 @@ function CpuPicker({ id }: { id: FighterId }) {
   )
 }
 
-function StagePicker() {
+function StagePicker({ onNext }: { onNext?: () => void }) {
   const stageId = useGameStore((s) => s.stageId)
   const selectStage = useGameStore((s) => s.selectStage)
   const activeStage = STAGES[stageId] ?? STAGES.reimu
 
+  const pickRandomStage = () => {
+    const pool = STAGE_IDS.filter((id) => id !== stageId)
+    const next = pool[Math.floor(Math.random() * pool.length)] ?? STAGE_IDS[0]
+    selectStage(next)
+    sfx('ui')
+  }
+
   return (
-    <div className="flex flex-col items-center gap-1.5 max-w-5xl w-full px-3">
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 w-full">
+    <div className="flex flex-col items-center gap-3 max-w-5xl w-full px-3">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full">
         {STAGE_IDS.map((id) => {
           const st = STAGES[id]
           const active = stageId === id
@@ -313,25 +319,40 @@ function StagePicker() {
             <button
               key={id}
               type="button"
-              onClick={() => { selectStage(id); sfx('ui') }}
-              className={`flex flex-col items-start rounded-lg px-2 py-1 transition-all text-left border ${active
-                ? 'border-yellow-300 bg-white/20 shadow-md shadow-yellow-500/15 scale-[1.03] ring-1 ring-yellow-300'
-                : 'border-white/10 bg-white/5 hover:bg-white/12 hover:border-white/30 opacity-80 hover:opacity-100'
+              onClick={() => {
+                if (active && onNext) onNext()
+                else selectStage(id)
+                sfx('ui')
+              }}
+              onDoubleClick={() => onNext?.()}
+              className={`flex flex-col items-start rounded-xl px-3 py-2.5 transition-all text-left border ${active
+                ? 'border-yellow-300 bg-white/20 shadow-lg shadow-yellow-500/20 scale-[1.03] ring-2 ring-yellow-300'
+                : 'border-white/15 bg-black/45 hover:bg-white/15 hover:border-white/35 opacity-85 hover:opacity-100'
               }`}
             >
-              <div className="flex w-full items-center justify-between gap-1">
-                <span className="text-[11px] font-black text-white truncate">{st.theme.name}</span>
-                <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: CHARACTERS[id].color }} />
+              <div className="flex w-full items-center justify-between gap-1.5">
+                <span className="text-xs sm:text-sm font-black text-white truncate">{st.theme.name}</span>
+                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: CHARACTERS[id].color }} />
               </div>
-              <div className="text-[9px] truncate w-full" style={{ color: st.theme.accentColor }}>
+              <div className="mt-0.5 text-[10px] text-white/55 truncate w-full">{st.theme.subtitle}</div>
+              <div className="mt-1 text-[10px] font-bold truncate w-full" style={{ color: st.theme.accentColor }}>
                 {st.theme.tag}
               </div>
             </button>
           )
         })}
       </div>
-      <div className="text-[11px] text-yellow-200/85 text-center">
-        🏟️ <strong className="text-white">{activeStage.theme.name}</strong>：{activeStage.theme.desc}
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="rounded-full bg-black/50 border border-white/15 px-4 py-1.5 text-xs text-yellow-200/90 text-center">
+          🏟️ <strong className="text-white">{activeStage.theme.name}</strong>：{activeStage.theme.desc}
+        </div>
+        <button
+          type="button"
+          onClick={pickRandomStage}
+          className="rounded-full bg-white/15 border border-white/25 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-white/25 transition"
+        >
+          🎲 隨機地圖
+        </button>
       </div>
     </div>
   )
@@ -574,6 +595,7 @@ const NAME_STROKE = {
 }
 
 function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guideOpen: boolean }) {
+  const [step, setStep] = useState<'stage' | 'char'>('stage')
   const [wizard, setWizard] = useState<FighterId | null>(null)
   const [showHelp, setShowHelp] = useState(false)
   const [activePicker, setActivePicker] = useState<FighterId>('p1')
@@ -581,14 +603,30 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   const setPlayerCount = useGameStore((s) => s.setPlayerCount)
   const selection = useGameStore((s) => s.selection)
   const select = useGameStore((s) => s.select)
+  const stageId = useGameStore((s) => s.stageId)
+  const selectStage = useGameStore((s) => s.selectStage)
   const start = useGameStore((s) => s.startMatch)
 
   const activeIds = ALL_FIGHTER_IDS.slice(0, playerCount)
   const safePicker = activeIds.includes(activePicker) ? activePicker : 'p1'
+  const currentStage = STAGES[stageId] ?? STAGES.reimu
 
-  usePadMenu(wizard === null && !showHelp && !guideOpen, () => {
-    clearEntities(); resetSimStage(); useGameStore.getState().startMatch()
-  }, true)
+  usePadMenu(
+    wizard === null && !showHelp && !guideOpen,
+    () => {
+      if (step === 'stage') { sfx('ui'); setStep('char') }
+      else { clearEntities(); resetSimStage(); useGameStore.getState().startMatch() }
+    },
+    (id, dx, dy) => {
+      if (step === 'stage') {
+        const cur = useGameStore.getState().stageId
+        selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 5))
+      } else {
+        const cur = useGameStore.getState().selection[id]
+        select(id, stepListGrid(CHARACTER_IDS, cur, dx, dy, 8))
+      }
+    },
+  )
 
   const pickChar = (target: FighterId, item: CharacterId | 'random') => {
     let chosen: CharacterId
@@ -654,139 +692,207 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   }
 
   return (
-    <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-2.5 bg-black/75 text-white select-none overflow-y-auto py-3 px-2">
-      {/* 標題與參戰人數 ＋/－ 控制（預設 2 人，支援 2~8 人） */}
+    <div className={`pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-3 text-white select-none overflow-y-auto py-3 px-2 ${step === 'stage' ? 'bg-black/55' : 'bg-black/75'}`}>
+      {/* 標題與流程步驟指示（① 選擇地圖 → ② 選擇角色） */}
       <div className="flex flex-wrap items-center justify-center gap-3">
         <h1 className="text-3xl sm:text-5xl font-black italic tracking-tight">smash<span className="text-yellow-300">!!!</span></h1>
-        <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 shadow">
+        <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-black/50 p-1 text-xs font-black">
           <button
             type="button"
-            disabled={playerCount <= 2}
-            onClick={() => { sfx('ui'); setPlayerCount(playerCount - 1) }}
-            title="減少玩家人數（最少 2 人）"
-            className="h-7 w-7 rounded-full bg-white/15 text-base font-black hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            onClick={() => { sfx('ui'); setStep('stage') }}
+            className={`rounded-full px-3 py-1 transition ${step === 'stage' ? 'bg-yellow-300 text-black' : 'text-white/70 hover:text-white'}`}
           >
-            －
+            ① 選擇地圖
           </button>
-          <span className="min-w-[5.5rem] text-center text-xs font-black text-yellow-300">
-            👥 {playerCount} 人戰鬥
-          </span>
+          <span className="text-white/35">→</span>
           <button
             type="button"
-            disabled={playerCount >= 8}
-            onClick={() => { sfx('ui'); setPlayerCount(playerCount + 1) }}
-            title="增加玩家人數（最多 8 人）"
-            className="h-7 w-7 rounded-full bg-white/15 text-base font-black hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            onClick={() => { sfx('ui'); setStep('char') }}
+            className={`rounded-full px-3 py-1 transition ${step === 'char' ? 'bg-yellow-300 text-black' : 'text-white/70 hover:text-white'}`}
           >
-            ＋
+            ② 選擇角色
           </button>
         </div>
-        <span className="hidden md:inline text-[11px] text-white/60">
-          左鍵指派給 <strong style={{ color: PLAYER_COLORS[safePicker] }}>{safePicker.toUpperCase()}</strong>・右鍵直選 P2
-        </span>
-      </div>
 
-      {/* 6×2 大亂鬥角色選擇盤 */}
-      <div className="rounded-lg border-2 border-white/20 bg-black p-1 shadow-2xl">
-        <div className="flex justify-center">{row1.map(renderCell)}</div>
-        <div className="flex justify-center">{row2.map(renderCell)}</div>
-      </div>
-
-      {/* 2~8 人角色展示與控制面板 */}
-      <div className={playerCount <= 2
-        ? 'flex flex-wrap justify-center gap-3.5'
-        : 'grid grid-cols-2 md:grid-cols-4 gap-2 max-w-5xl w-full px-2'
-      }>
-        {activeIds.map((id) => {
-          const c = CHARACTERS[selection[id]]
-          const isActive = safePicker === id
-          const pCol = PLAYER_COLORS[id]
-          const compact = playerCount > 2
-          return (
-            <div
-              key={id}
-              onClick={() => setActivePicker(id)}
-              style={isActive ? { borderColor: pCol, boxShadow: `0 0 0 1px ${pCol}66` } : undefined}
-              className={`${compact ? 'w-full p-2' : 'w-[21rem] p-2.5'} rounded-xl border backdrop-blur-sm transition-all cursor-pointer ${
-                isActive ? 'bg-white/15' : 'border-white/15 bg-white/10 hover:border-white/30 opacity-90'
-              }`}
-            >
-              <div className="mb-1 flex items-center justify-between gap-1">
-                <span className="text-xs font-black tracking-wider" style={{ color: pCol }}>
-                  {id.toUpperCase()}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); sfx('ui'); onGuide(selection[id]) }}
-                    className="rounded-full bg-cyan-400/20 border border-cyan-300/35 px-2 py-0.5 text-[10px] font-bold text-cyan-200 hover:bg-cyan-400/35"
-                  >
-                    🎓 教學
-                  </button>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isActive ? 'bg-yellow-300 text-black' : 'bg-white/10 text-white/60'}`}>
-                    {isActive ? '🎯 選角中' : '選我'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className={`${compact ? 'h-11 w-11' : 'h-14 w-14'} shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black shadow-md`}>
-                  <CharacterPortrait id={selection[id]} className="h-full w-full" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className={`${compact ? 'text-xs' : 'text-sm'} font-black tracking-wide truncate`} style={{ color: c.color }}>
-                    {c.name}
-                  </div>
-                  {c.trait && (
-                    <div className={`mt-0.5 text-yellow-200/90 leading-snug ${compact ? 'text-[10px] line-clamp-1' : 'text-[11px] line-clamp-2'}`}>
-                      {c.trait}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <CpuPicker id={id} />
-              <ModelDrop id={id} compact={compact} />
-              <PadInfo id={id} onSetup={() => setWizard(id)} compact={compact} />
+        {step === 'char' && (
+          <>
+            <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 shadow">
+              <button
+                type="button"
+                disabled={playerCount <= 2}
+                onClick={() => { sfx('ui'); setPlayerCount(playerCount - 1) }}
+                title="減少玩家人數（最少 2 人）"
+                className="h-7 w-7 rounded-full bg-white/15 text-base font-black hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                －
+              </button>
+              <span className="min-w-[5.5rem] text-center text-xs font-black text-yellow-300">
+                👥 {playerCount} 人戰鬥
+              </span>
+              <button
+                type="button"
+                disabled={playerCount >= 8}
+                onClick={() => { sfx('ui'); setPlayerCount(playerCount + 1) }}
+                title="增加玩家人數（最多 8 人）"
+                className="h-7 w-7 rounded-full bg-white/15 text-base font-black hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                ＋
+              </button>
             </div>
-          )
-        })}
+            <button
+              type="button"
+              onClick={() => { sfx('ui'); setStep('stage') }}
+              className="rounded-full border border-amber-300/40 bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-200 hover:bg-amber-400/25 transition"
+              title="點擊返回更換對戰地圖"
+            >
+              🏟️ {currentStage.theme.name}（更換地圖）
+            </button>
+          </>
+        )}
       </div>
 
-      <StagePicker />
+      {step === 'stage' ? (
+        <>
+          <div className="text-xs text-white/75">先選擇對戰場地（可用鍵盤 WASD / 方向鍵或手把移動切換，再次點擊已選地圖或按「下一步」開始選角）</div>
+          <StagePicker onNext={() => setStep('char')} />
+          <div className="flex flex-col items-center gap-2 mt-1">
+            <button
+              type="button"
+              onClick={() => { sfx('ui'); setStep('char') }}
+              className="rounded-xl bg-yellow-300 px-10 py-2.5 text-lg font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
+            >
+              下一步：選擇角色 →
+            </button>
+            <div className="flex items-center gap-2.5 text-xs text-white/60">
+              <button
+                type="button"
+                onClick={() => setShowHelp(true)}
+                className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-white/80 hover:bg-white/20 hover:text-white transition-all border border-white/10"
+              >
+                <span>📖</span>
+                <span>操作指南 & 按鍵說明</span>
+              </button>
+              <span className="text-white/20">|</span>
+              <PadStatus />
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <span className="text-[11px] text-white/60">
+            左鍵指派給 <strong style={{ color: PLAYER_COLORS[safePicker] }}>{safePicker.toUpperCase()}</strong>・右鍵直選 P2（亦可用 WASD / 方向鍵或手把上下左右切換）
+          </span>
+
+          {/* 8×2 大亂鬥角色選擇盤 */}
+          <div className="rounded-lg border-2 border-white/20 bg-black p-1 shadow-2xl">
+            <div className="flex justify-center">{row1.map(renderCell)}</div>
+            <div className="flex justify-center">{row2.map(renderCell)}</div>
+          </div>
+
+          {/* 2~8 人角色展示與控制面板 */}
+          <div className={playerCount <= 2
+            ? 'flex flex-wrap justify-center gap-3.5'
+            : 'grid grid-cols-2 md:grid-cols-4 gap-2 max-w-5xl w-full px-2'
+          }>
+            {activeIds.map((id) => {
+              const c = CHARACTERS[selection[id]]
+              const isActive = safePicker === id
+              const pCol = PLAYER_COLORS[id]
+              const compact = playerCount > 2
+              return (
+                <div
+                  key={id}
+                  onClick={() => setActivePicker(id)}
+                  style={isActive ? { borderColor: pCol, boxShadow: `0 0 0 1px ${pCol}66` } : undefined}
+                  className={`${compact ? 'w-full p-2' : 'w-[21rem] p-2.5'} rounded-xl border backdrop-blur-sm transition-all cursor-pointer ${
+                    isActive ? 'bg-white/15' : 'border-white/15 bg-white/10 hover:border-white/30 opacity-90'
+                  }`}
+                >
+                  <div className="mb-1 flex items-center justify-between gap-1">
+                    <span className="text-xs font-black tracking-wider" style={{ color: pCol }}>
+                      {id.toUpperCase()}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); sfx('ui'); onGuide(selection[id]) }}
+                        className="rounded-full bg-cyan-400/20 border border-cyan-300/35 px-2 py-0.5 text-[10px] font-bold text-cyan-200 hover:bg-cyan-400/35"
+                      >
+                        🎓 教學
+                      </button>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isActive ? 'bg-yellow-300 text-black' : 'bg-white/10 text-white/60'}`}>
+                        {isActive ? '🎯 選角中' : '選我'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className={`${compact ? 'h-11 w-11' : 'h-14 w-14'} shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black shadow-md`}>
+                      <CharacterPortrait id={selection[id]} className="h-full w-full" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className={`${compact ? 'text-xs' : 'text-sm'} font-black tracking-wide truncate`} style={{ color: c.color }}>
+                        {c.name}
+                      </div>
+                      {c.trait && (
+                        <div className={`mt-0.5 text-yellow-200/90 leading-snug ${compact ? 'text-[10px] line-clamp-1' : 'text-[11px] line-clamp-2'}`}>
+                          {c.trait}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <CpuPicker id={id} />
+                  <ModelDrop id={id} compact={compact} />
+                  <PadInfo id={id} onSetup={() => setWizard(id)} compact={compact} />
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => { sfx('ui'); setStep('stage') }}
+                className="rounded-xl bg-white/15 border border-white/25 px-5 py-2 text-sm font-bold text-white hover:bg-white/25 transition-all"
+              >
+                ← 重選地圖
+              </button>
+              <button
+                onClick={() => { clearEntities(); resetSimStage(); start() }}
+                className="rounded-xl bg-yellow-300 px-12 py-2 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
+              >
+                START
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2.5 text-xs text-white/60">
+              <button
+                type="button"
+                onClick={() => { sfx('ui'); onGuide(selection[safePicker]) }}
+                className="flex items-center gap-1.5 rounded-full bg-cyan-500/20 px-3.5 py-1 text-cyan-200 hover:bg-cyan-500/35 hover:text-white transition-all border border-cyan-400/35"
+              >
+                <span>🎓</span>
+                <span>角色遊玩教學</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowHelp(true)}
+                className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-white/80 hover:bg-white/20 hover:text-white transition-all border border-white/10 hover:border-white/25"
+              >
+                <span>📖</span>
+                <span>操作指南 & 按鍵說明</span>
+              </button>
+              <span className="text-white/20">|</span>
+              <PadStatus />
+            </div>
+          </div>
+        </>
+      )}
 
       {wizard && <PadWizard id={wizard} onClose={() => setWizard(null)} />}
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-
-      <div className="flex flex-col items-center gap-1.5">
-        <button
-          onClick={() => { clearEntities(); resetSimStage(); start() }}
-          className="rounded-xl bg-yellow-300 px-12 py-2 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20"
-        >
-          START
-        </button>
-
-        <div className="flex flex-wrap items-center justify-center gap-2.5 text-xs text-white/60">
-          <button
-            type="button"
-            onClick={() => { sfx('ui'); onGuide(selection[safePicker]) }}
-            className="flex items-center gap-1.5 rounded-full bg-cyan-500/20 px-3.5 py-1 text-cyan-200 hover:bg-cyan-500/35 hover:text-white transition-all border border-cyan-400/35"
-          >
-            <span>🎓</span>
-            <span>角色遊玩教學</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowHelp(true)}
-            className="flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-white/80 hover:bg-white/20 hover:text-white transition-all border border-white/10 hover:border-white/25"
-          >
-            <span>📖</span>
-            <span>操作指南 & 按鍵說明</span>
-          </button>
-          <span className="text-white/20">|</span>
-          <PadStatus />
-        </div>
-      </div>
     </div>
   )
 }
