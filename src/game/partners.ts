@@ -387,7 +387,7 @@ export const PARTNERS: PartnerSpec[] = [
     kit: {
       a1: '居合白契流・抜刀', a2: '飛宗連斬', tilts: ['居合橫斬', '飛宗上挑', '逆袈裟下斬'],
       s1: { name: '飛宗「梟」黑羽斬波', projColor: '#f59e0b', pierce: true, speed: 24 },
-      side: '「鴉」羽化瞬移斬', up: '「鴉」黑羽翔空', down: '「雀」炎羽護身',
+      side: '居合白契流・一閃', up: '「鴉」黑羽翔空', down: '「雀」炎羽護身',
       s2: { name: '「梟」感知黑羽陣', kind: 'zone', color: '#d97706' },
       smashes: ['居合白契流・絕', '飛宗昇龍閃', '黑羽震地斬'],
       ult: { name: '飛宗・極「梟・鴉・雀」萬羽絕斬！', kind: 'omnislash', color: '#f59e0b' },

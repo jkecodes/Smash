@@ -2,6 +2,7 @@ import { registerSkill } from './registry'
 import { registerSmashes, registerTilts } from './directionalSkills'
 import { CHAR_PROFILES, applyJabTraitFx } from './charSkillProfiles'
 import { PARTNERS, partnerHas } from '../partners'
+import { getMechanic } from '../mechanics'
 import { resolveStage } from '../stages'
 import { useGameStore } from '../store'
 import type { SkillContext, SkillDef, Vec3 } from '../types'
@@ -429,7 +430,36 @@ function registerKit(k: KitSpec) {
       },
     })
   }
-  if (TELEPORT_SIDE_CHARS.has(p)) {
+  if (p === 'samura' || p === 'chihiro') {
+    reg({
+      id: `${p}.side`, name: k.side, energyCost: 0, cooldownMs: 1450, startupMs: 95, activeMs: 140, recoveryMs: 180,
+      hitbox: { offset: [0, 0.15, 0.4], radius: 1.65 }, damage: 11.5,
+      knockback: { dir: [0, 0.45, 1], base: 12.5, scaling: 13.5 },
+      hooks: {
+        onStart(c) {
+          c.fx({ kind: 'afterimage', pos: [...c.caster.pos], yaw: yawOf(c), color, ttl: 260 })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffffff', ttl: 180, radius: 1.0, plane: 'vertical' })
+        },
+        onActive(c) {
+          const m = getMechanic(c.caster.id)
+          const empowered = !!m && ((m.kind === 'awaken' && m.activeMs > 0) || (m.kind === 'limit' && m.gauge >= 95))
+          const startPos: Vec3 = [...c.caster.pos]
+          const dist = empowered ? 8.2 : 6.2
+          const dest = clampStageX(startPos[0] + c.forward[0] * dist)
+          c.fx({ kind: 'beam', pos: [startPos[0], startPos[1] + 0.15, 0], yaw: yawOf(c), length: Math.max(2, Math.abs(dest - startPos[0])), radius: empowered ? 0.34 : 0.18, color: empowered ? '#fde047' : color, ttl: empowered ? 320 : 200 })
+          c.teleport([dest, startPos[1], 0])
+          slash(c, empowered ? '#fde047' : color, { r: empowered ? 2.4 : 1.7 })
+          c.fx({ kind: 'ring', pos: [dest, startPos[1], 0], color, ttl: 280, radius: empowered ? 2.2 : 1.5, plane: 'vertical' })
+          c.fx({ kind: 'burst', pos: [dest, startPos[1], 0], color: empowered ? '#ffffff' : color, ttl: 260, count: empowered ? 18 : 10, speed: empowered ? 7.5 : 5, size: 0.16 })
+          if (empowered) {
+            c.strike({ offset: [0, 0.15, 0], radius: 2.3 })
+            c.spawnProjectile({ pos: [dest, startPos[1] + 0.15, 0], vel: [c.forward[0] * 26, 0, 0], radius: 0.55, ttlMs: 850, pierce: true, color })
+            c.shake(0.45)
+          }
+        },
+      },
+    })
+  } else if (TELEPORT_SIDE_CHARS.has(p)) {
     reg({
       id: `${p}.side`, name: k.side, energyCost: 0, cooldownMs: 1550, startupMs: 90, activeMs: 120, recoveryMs: 200,
       hitbox: { offset: [0, 0.15, 0.4], radius: 1.3 }, damage: 9,
@@ -927,7 +957,7 @@ const KITS: KitSpec[] = [
     p: 'chihiro', color: '#ef4444', a1: '淵天抜刀斬', a2: '千礦居合斬',
     tilts: ['黑金魚橫閃', '鯉刃上挑', '水墨下切'],
     s1: { name: '妖刀「黑」金魚斬波', projColor: '#ef4444', pierce: true, speed: 22 },
-    side: '妖刀「錦」極速突進', up: '涅・昇龍斬空', down: '淵天・水墨震斬',
+    side: '居合白契流・妖刀「錦」一閃', up: '涅・昇龍斬空', down: '淵天・水墨震斬',
     s2: { name: '赤金魚吸收反擊環', kind: 'ring', color: '#ef4444' },
     smashes: ['深淵黑閃重劈', '千礦破曉上斬', '金魚旋渦斬'],
     ult: { name: '妖刀「淵天」黑・錦・涅 三連奧義！', kind: 'omnislash', color: '#ef4444' },
