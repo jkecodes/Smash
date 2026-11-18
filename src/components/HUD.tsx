@@ -24,8 +24,41 @@ const SLOT_KEYS: Partial<Record<FighterId, Record<string, string>>> = {
   p2: { attack: '.', skill1: '/', skill2: "'", ult: ';' },
 }
 
+function PadSlotIcon({ kind, slot }: { kind: 'xbox' | 'ps' | 'nintendo' | 'generic'; slot: string }) {
+  if (slot === 'skill2') {
+    return (
+      <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/25 border border-blue-400/70 px-1.5 py-0 text-[9px] font-black text-blue-200" title="推右搖桿">
+        🕹️R
+      </span>
+    )
+  }
+  if (slot === 'ult') {
+    return (
+      <span className="inline-flex items-center justify-center rounded-full bg-purple-500/30 border border-purple-300/70 px-1.5 py-0 text-[9px] font-black text-purple-200" title="按下 L3/R3（或持有大招球時按特招）">
+        R3
+      </span>
+    )
+  }
+  if (slot === 'attack') {
+    const label = kind === 'ps' ? '○' : kind === 'nintendo' ? 'A' : 'B'
+    return (
+      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-600/80 border border-red-300 text-[9px] font-black text-white shadow-sm">
+        {label}
+      </span>
+    )
+  }
+  // skill1
+  const label = kind === 'ps' ? '✕' : kind === 'nintendo' ? 'B' : 'A'
+  return (
+    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-500/85 border border-yellow-200 text-[9px] font-black text-black shadow-sm">
+      {label}
+    </span>
+  )
+}
+
 function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact?: boolean }) {
   const charId = useGameStore((s) => s.selection[id])
+  const padInfo = describePad(id)
   if (!u) return null
   const isTetro = charId === 'tetro'
   const tb = isTetro ? getTetroBoard(id) : null
@@ -112,7 +145,11 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
             return (
               <div key={s.slot} className={`relative flex-1 overflow-hidden rounded px-1 py-1 text-center ${s.slot === 'ult' && !s.locked ? 'bg-yellow-400/40 ring-1 ring-yellow-300' : 'bg-white/10'} ${noEnergy || s.locked ? 'opacity-40' : ''}`}>
                 <div className="text-[10px] leading-tight">{s.name}</div>
-                <div className="font-mono text-[10px] text-white/60">{k ? `[${k}]` : ''}{s.cost ? ` ${s.cost}` : ''}{s.locked ? ' 需大招球' : ''}</div>
+                <div className="mt-0.5 flex items-center justify-center gap-1 font-mono text-[10px] text-white/70">
+                  {padInfo ? <PadSlotIcon kind={padInfo.kind} slot={s.slot} /> : (k ? <span>[{k}]</span> : null)}
+                  {s.cost ? <span>{s.cost}</span> : null}
+                  {s.locked ? <span className="text-[9px]">需大招球</span> : null}
+                </div>
                 <div className="absolute inset-x-0 bottom-0 bg-black/60" style={{ height: `${s.cd * 100}%` }} />
               </div>
             )
@@ -324,6 +361,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
     const next = pool[Math.floor(Math.random() * pool.length)] ?? STAGE_IDS[0]
     selectStage(next)
     sfx('ui')
+    onNext?.()
   }
 
   const stageCards: (StageId | 'random')[] = ['random', ...STAGE_IDS]
@@ -776,6 +814,8 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   const netErr = useNetStore((s) => s.error)
   const playerCount = useGameStore((s) => s.playerCount)
   const setPlayerCount = useGameStore((s) => s.setPlayerCount)
+  const stockCount = useGameStore((s) => s.stockCount)
+  const setStockCount = useGameStore((s) => s.setStockCount)
   const selection = useGameStore((s) => s.selection)
   const setPaused = useGameStore((s) => s.setPaused)
   const select = useGameStore((s) => s.select)
@@ -992,6 +1032,29 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
                 disabled={playerCount >= 8}
                 onClick={() => { sfx('ui'); setPlayerCount(playerCount + 1) }}
                 title="增加玩家人數（最多 8 人）"
+                className="h-7 w-7 rounded-full bg-white/15 text-base font-black hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                ＋
+              </button>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 shadow">
+              <button
+                type="button"
+                disabled={stockCount <= 1}
+                onClick={() => { sfx('ui'); setStockCount(stockCount - 1) }}
+                title="減少生命數（最少 1 命）"
+                className="h-7 w-7 rounded-full bg-white/15 text-base font-black hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                －
+              </button>
+              <span className="min-w-[4.5rem] text-center text-xs font-black text-rose-300">
+                ❤️ {stockCount} 條命
+              </span>
+              <button
+                type="button"
+                disabled={stockCount >= 9}
+                onClick={() => { sfx('ui'); setStockCount(stockCount + 1) }}
+                title="增加生命數（最多 9 命）"
                 className="h-7 w-7 rounded-full bg-white/15 text-base font-black hover:bg-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition"
               >
                 ＋

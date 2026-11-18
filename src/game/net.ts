@@ -114,6 +114,7 @@ function connectWs(onOpen: () => void) {
       if (msg.stageId) gs.selectStage(msg.stageId as StageId)
       if (msg.stageForm) gs.setStageForm(msg.stageForm as StageForm)
       if (msg.playerCount) gs.setPlayerCount(msg.playerCount)
+      if (msg.stockCount) gs.setStockCount(msg.stockCount)
       if (msg.selection) {
         for (const id of ALL_FIGHTER_IDS) {
           if (msg.selection[id]) gs.select(id, msg.selection[id])
@@ -131,6 +132,7 @@ function connectWs(onOpen: () => void) {
       if (msg.stageId) gs.selectStage(msg.stageId as StageId)
       if (msg.stageForm) gs.setStageForm(msg.stageForm as StageForm)
       if (msg.playerCount) gs.setPlayerCount(msg.playerCount)
+      if (msg.stockCount) gs.setStockCount(msg.stockCount)
       if (msg.selection) {
         for (const id of ALL_FIGHTER_IDS) {
           if (msg.selection[id]) gs.select(id, msg.selection[id])
@@ -246,6 +248,7 @@ export function broadcastLobby() {
     stageId: gs.stageId,
     stageForm: gs.stageForm,
     playerCount: gs.playerCount,
+    stockCount: gs.stockCount,
     selection: gs.selection,
     cpu: gs.cpu,
     guests: useNetStore.getState().guests,
@@ -260,6 +263,7 @@ export function broadcastStart() {
     stageId: gs.stageId,
     stageForm: gs.stageForm,
     playerCount: gs.playerCount,
+    stockCount: gs.stockCount,
     selection: gs.selection,
     cpu: gs.cpu,
   })

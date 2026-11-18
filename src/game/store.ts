@@ -21,11 +21,11 @@ const DEFAULT_CPU: Record<FighterId, 0 | 1 | 2 | 3> = {
   p1: 0, p2: 2, p3: 2, p4: 2, p5: 2, p6: 2, p7: 2, p8: 2,
 }
 
-export function createFighter(id: FighterId, character: CharacterId): FighterState {
+export function createFighter(id: FighterId, character: CharacterId, stocks = START_STOCKS): FighterState {
   const sx = (SPAWN_X as Record<string, number>)[id] ?? 0
   const faceRight = id === 'p1' || id === 'p3' || id === 'p5' || id === 'p7'
   return {
-    id, character, damage: 0, stocks: START_STOCKS, energy: ENERGY_MAX, shield: SHIELD_MAX,
+    id, character, damage: 0, stocks, energy: ENERGY_MAX, shield: SHIELD_MAX,
     fsm: 'IDLE', stateMs: 0, pos: [sx, 1, 0], vel: [0, 0, 0],
     facing: [faceRight ? 1 : -1, 0], grounded: false, jumpsLeft: 2, skill: null, cooldowns: {},
     comboBufferMs: 0, hitstunMs: 0, invulnMs: 0, respawnMs: 0, slowFactor: 1, flashMs: 0,
@@ -42,9 +42,9 @@ const emptyUi = (c: CharacterId): UiFighter => ({
   slots: [],
 })
 
-function buildFighters(sel: Record<FighterId, CharacterId>): Record<FighterId, FighterState> {
+function buildFighters(sel: Record<FighterId, CharacterId>, stocks = START_STOCKS): Record<FighterId, FighterState> {
   const out = {} as Record<FighterId, FighterState>
-  for (const id of ALL_FIGHTER_IDS) out[id] = createFighter(id, sel[id])
+  for (const id of ALL_FIGHTER_IDS) out[id] = createFighter(id, sel[id], stocks)
   return out
 }
 
@@ -59,6 +59,8 @@ interface GameStore {
   winner: FighterId | null
   playerCount: number
   setPlayerCount(n: number): void
+  stockCount: number
+  setStockCount(n: number): void
   selection: Record<FighterId, CharacterId>
   stageId: StageId
   selectStage(id: StageId): void
@@ -97,6 +99,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   winner: null,
   playerCount: 2,
   setPlayerCount: (n) => set({ playerCount: Math.max(2, Math.min(8, Math.round(n))) }),
+  stockCount: START_STOCKS,
+  setStockCount: (n) => set({ stockCount: Math.max(1, Math.min(9, Math.round(n))) }),
   stageId: 'reimu',
   selectStage: (stageId) => set({ stageId }),
   stageForm: 'normal',
@@ -134,11 +138,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
   select: (id, c) => set((s) => ({ selection: { ...s.selection, [id]: c } })),
   startMatch: () => {
-    const { selection } = get()
+    const { selection, stockCount } = get()
     set({
       phase: 'playing', winner: null, paused: false,
       ultCutin: null, fatalFlash: null,
-      fighters: buildFighters(selection),
+      fighters: buildFighters(selection, stockCount),
       ui: buildUi(selection),
     })
   },
