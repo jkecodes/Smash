@@ -463,14 +463,33 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
     }
   }
   const mechState = getMechanic(f.id)
-  if (mechState?.kind === 'awaken' && mechState.activeMs > 0) {
+  const isSpecial = slot === 'skill1' || slot === 'skill2'
+  const isAwakened = mechState?.kind === 'awaken' && mechState.activeMs > 0
+  const isLimitBurst = mechState?.kind === 'limit' && mechState.gauge >= 100 && isSpecial
+  const isKoBurst = mechState?.kind === 'ko' && mechState.gauge >= 100 && (isSpecial || slot === 'attack' || slot === 'smash')
+  const isManaBurst = mechState?.kind === 'mana' && mechState.gauge >= 75 && isSpecial
+  const isAuraSurge = mechState?.kind === 'aura' && mechState.gauge >= 60
+
+  if (mechState && (isAwakened || isLimitBurst || isKoBurst || isManaBurst || isAuraSurge)) {
     const baseHooks = activeDef.hooks
     const auraColor = mechState.color
     const isSamura = f.character === 'samura'
+    const tag = isSamura && isAwakened
+      ? '【雀・覺醒】'
+      : isAwakened
+        ? '【覺醒】'
+        : isLimitBurst
+          ? '【極限突破】'
+          : isKoBurst
+            ? '【K.O.必殺】'
+            : isManaBurst
+              ? '【魔力超載】'
+              : '【波導爆發】'
+    const rScale = isLimitBurst || isKoBurst ? 1.42 : isAwakened ? 1.35 : 1.28
     activeDef = {
       ...activeDef,
-      name: `${isSamura ? '【雀・覺醒】' : '【覺醒】'}${activeDef.name}`,
-      hitbox: activeDef.hitbox ? { ...activeDef.hitbox, radius: activeDef.hitbox.radius * 1.35 } : activeDef.hitbox,
+      name: `${tag}${activeDef.name}`,
+      hitbox: activeDef.hitbox ? { ...activeDef.hitbox, radius: activeDef.hitbox.radius * rScale } : activeDef.hitbox,
       hooks: {
         ...baseHooks,
         onActive(c) {
@@ -479,14 +498,17 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
           c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: auraColor, ttl: 260, radius: 1.05 })
           c.fx({ kind: 'afterimage', pos: [...c.caster.pos], yaw: c.caster.facing[0] >= 0 ? Math.PI / 2 : -Math.PI / 2, color: auraColor, ttl: 240 })
           c.fx({ kind: 'burst', pos: [...c.caster.pos], color: isSamura ? '#ef4444' : auraColor, ttl: 260, count: 14, speed: 6.5, size: 0.16 })
-          if (slot === 'skill1' || slot === 'skill2') {
-            if (isSamura) {
+          if (isSpecial) {
+            if (isSamura && isAwakened) {
               c.caster.damage = Math.max(0, c.caster.damage - 3)
               c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fbbf24', ttl: 320, radius: 2.3, plane: 'horizontal' })
               c.spawnProjectile({ pos: [c.caster.pos[0] + c.forward[0] * 0.8, c.caster.pos[1] + 0.25, 0], vel: [c.forward[0] * 24, 1.5, 0], radius: 0.52, ttlMs: 900, pierce: true, color: '#f59e0b' })
               c.spawnProjectile({ pos: [c.caster.pos[0] + c.forward[0] * 0.8, c.caster.pos[1] - 0.15, 0], vel: [c.forward[0] * 24, -1.5, 0], radius: 0.52, ttlMs: 900, pierce: true, color: '#ef4444' })
+            } else if (isLimitBurst || isKoBurst) {
+              c.spawnProjectile({ pos: [c.caster.pos[0] + c.forward[0] * 0.8, c.caster.pos[1] + 0.15, 0], vel: [c.forward[0] * 26, 0, 0], radius: 0.6, ttlMs: 900, pierce: true, color: auraColor })
+              c.shake(0.5)
             } else {
-              c.spawnProjectile({ pos: [c.caster.pos[0] + c.forward[0] * 0.8, c.caster.pos[1] + 0.1, 0], vel: [c.forward[0] * 22, 0, 0], radius: 0.46, ttlMs: 850, pierce: true, color: auraColor })
+              c.spawnProjectile({ pos: [c.caster.pos[0] + c.forward[0] * 0.8, c.caster.pos[1] + 0.1, 0], vel: [c.forward[0] * 22, 0, 0], radius: 0.48, ttlMs: 850, pierce: true, color: auraColor })
             }
           }
         },
@@ -1120,8 +1142,10 @@ function updateFighter(f: FighterState, dt: number) {
   updatePlatformCollision(f, rb, dt)
   const wasGrounded = f.grounded
   f.grounded = checkGround(f)
-  const samuraFlight = f.character === 'samura' && (getMechanic(f.id)?.activeMs ?? 0) > 0
-  const extraJumps = (CHARACTERS[f.character]?.extraJumps ?? 0) + (samuraFlight ? 5 : 0)
+  const mCur = getMechanic(f.id)
+  const samuraFlight = f.character === 'samura' && (mCur?.activeMs ?? 0) > 0
+  const awakenAirBoost = !samuraFlight && mCur?.kind === 'awaken' && mCur.activeMs > 0 ? 2 : 0
+  const extraJumps = (CHARACTERS[f.character]?.extraJumps ?? 0) + (samuraFlight ? 5 : awakenAirBoost)
   const maxJumps = MAX_JUMPS + extraJumps
   if (f.grounded) {
     if (!wasGrounded && f.vel[1] < -1.5) sfx('land', Math.min(1, Math.abs(f.vel[1]) / 20))

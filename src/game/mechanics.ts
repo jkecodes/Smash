@@ -1,4 +1,5 @@
 import { addFx } from './runtime'
+import { CHARACTERS } from './characters'
 import { useGameStore } from './store'
 import { ALL_FIGHTER_IDS, type CharacterId, type FighterId, type FighterState } from './types'
 
@@ -35,6 +36,38 @@ const CHAR_MECHANIC: Partial<Record<CharacterId, { kind: MechanicKind; label: st
   creeper: { kind: 'ko', label: '💥 高壓苦力怕', color: '#4ade80' },
   josuke: { kind: 'awaken', label: '💢 髮型暴怒覺醒', color: '#ec4899' },
   samura: { kind: 'awaken', label: '🪶 飛宗「雀」覺醒', color: '#f59e0b' },
+  reimu: { kind: 'mana', label: '☯️ 靈力夢想封印', color: '#ef4444' },
+  yugi: { kind: 'limit', label: '🃏 千年積木抽牌', color: '#facc15' },
+  kaiba: { kind: 'limit', label: '🐉 青眼強韌極限', color: '#38bdf8' },
+  hakuri: { kind: 'limit', label: '🌀 威葬・藏極限', color: '#38bdf8' },
+  sukuna: { kind: 'awaken', label: '👹 伏魔御廚子覺醒', color: '#ef4444' },
+  bakugo: { kind: 'ko', label: '💥 爆破汗液臨界', color: '#fb923c' },
+  angelo: { kind: 'mana', label: '💧 水項鍊侵蝕潮', color: '#06b6d4' },
+  steve: { kind: 'limit', label: '⛏️ 鑽石附魔極限', color: '#38bdf8' },
+  mario: { kind: 'awaken', label: '⭐ 無敵星覺醒', color: '#ef4444' },
+  luigi: { kind: 'ko', label: '💚 超級綠拳 K.O.', color: '#22c55e' },
+  chunli: { kind: 'ko', label: '⚡ 百裂腳連擊', color: '#38bdf8' },
+  hutao: { kind: 'aura', label: '🔥 蝶引來生背水', color: '#ef4444' },
+  stelle: { kind: 'limit', label: '⚾ 銀河球棒極限', color: '#facc15' },
+  lumine: { kind: 'mana', label: '✨ 七元素共鳴', color: '#5eead4' },
+  yodaka: { kind: 'awaken', label: '⚔️ 夜鷹極速覺醒', color: '#38bdf8' },
+  ruri: { kind: 'aura', label: '🐉 龍炎角覺醒波導', color: '#fde047' },
+  descara: { kind: 'mana', label: '🪶 深淵魔女魔力', color: '#a855f7' },
+  rapi: { kind: 'limit', label: '🔫 小紅帽模式極限', color: '#ef4444' },
+  anis: { kind: 'ko', label: '💥 蘇打榴彈臨界', color: '#fb923c' },
+  erika: { kind: 'awaken', label: '⚔️ 皇家疾馳覺醒', color: '#818cf8' },
+  hibari: { kind: 'awaken', label: '🕊️ 雲雀極速覺醒', color: '#94a3b8' },
+}
+
+const FALLBACK_KINDS: MechanicKind[] = ['limit', 'awaken', 'ko', 'mana', 'aura']
+
+export function getMechanicDef(charId: CharacterId) {
+  if (CHAR_MECHANIC[charId]) return CHAR_MECHANIC[charId]!
+  const ch = CHARACTERS[charId]
+  const sum = charId.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  const kind = FALLBACK_KINDS[sum % FALLBACK_KINDS.length]
+  const suffix = kind === 'awaken' ? '覺醒' : kind === 'limit' ? '極限' : kind === 'ko' ? 'K.O.' : kind === 'mana' ? '魔力' : '波導'
+  return { kind, label: `⚡ ${ch?.name.split(' ')[0] ?? charId}${suffix}`, color: ch?.color ?? '#fde047' }
 }
 
 const states: Record<FighterId, MechanicState | null> = Object.fromEntries(
@@ -44,8 +77,8 @@ const states: Record<FighterId, MechanicState | null> = Object.fromEntries(
 export function resetMechanics() {
   const sel = useGameStore.getState().selection
   for (const id of ALL_FIGHTER_IDS) {
-    const def = CHAR_MECHANIC[sel[id]]
-    states[id] = def ? { kind: def.kind, label: def.label, color: def.color, gauge: 0, activeMs: 0 } : null
+    const def = getMechanicDef(sel[id])
+    states[id] = { kind: def.kind, label: def.label, color: def.color, gauge: 0, activeMs: 0 }
   }
 }
 
@@ -70,10 +103,6 @@ export const MECHANIC_GUIDE: Record<MechanicKind, { title: string; desc: string 
     title: '魔力充能條（Mana）',
     desc: '隨時間自動恢復魔力；當魔力高於 75% 時施放特招會消耗魔力並獲得額外傷害與擊飛加成。',
   },
-}
-
-export function getMechanicDef(charId: CharacterId) {
-  return CHAR_MECHANIC[charId] ?? null
 }
 
 export function getMechanic(id: FighterId): MechanicState | null {
