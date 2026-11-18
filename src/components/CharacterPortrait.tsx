@@ -93,7 +93,10 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   anis: { bg: '#422006', hair: '#facc15', outfit: '#27272a', accent: '#fb923c', eye: '#f59e0b', bobHair: true },
   erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
   vaus: { bg: '#020617', hair: '#38bdf8', outfit: '#1e293b', accent: '#ef4444', eye: '#38bdf8', shortHair: true },
-  ...(Object.fromEntries(PARTNERS.map((p) => [p.id, p.portrait])) as Partial<Record<CharacterId, any>>),
+  ...(Object.fromEntries(
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh'].includes(p.id))
+      .map((p) => [p.id, p.portrait]),
+  ) as Partial<Record<CharacterId, any>>),
 }
 
 export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'random'; className?: string }) {
@@ -564,6 +567,104 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <ellipse cx="52" cy="60" rx="3.5" ry="5" fill="#10b981" />
           <ellipse cx="68" cy="60" rx="3.5" ry="5" fill="#10b981" />
           <path d="M34,82 L86,82 L94,120 L26,120 Z" fill="#10b981" stroke="#6ee7b7" strokeWidth="2" />
+        </>
+      )}
+
+      {id === 'mino' && (
+        <>
+          <rect width="120" height="120" fill="#1e1b4b" />
+          <rect x="44" y="24" width="32" height="32" rx="4" fill="#a855f7" stroke="#22d3ee" strokeWidth="3" />
+          <rect x="20" y="56" width="32" height="32" rx="4" fill="#7c3aed" stroke="#22d3ee" strokeWidth="2.5" />
+          <rect x="44" y="56" width="32" height="32" rx="4" fill="#9333ea" stroke="#22d3ee" strokeWidth="2.5" />
+          <rect x="68" y="56" width="32" height="32" rx="4" fill="#7c3aed" stroke="#22d3ee" strokeWidth="2.5" />
+          <rect x="50" y="34" width="6" height="9" fill="#22d3ee" />
+          <rect x="64" y="34" width="6" height="9" fill="#22d3ee" />
+        </>
+      )}
+      {id === 'ufo' && (
+        <>
+          <rect width="120" height="120" fill="#2b0909" />
+          <path d="M40,52 C40,28 80,28 80,52 Z" fill="#fde047" opacity="0.9" />
+          <ellipse cx="60" cy="60" rx="46" ry="16" fill="#dc2626" stroke="#fca5a5" strokeWidth="3" />
+          <circle cx="36" cy="60" r="4" fill="#4ade80" />
+          <circle cx="60" cy="63" r="4" fill="#4ade80" />
+          <circle cx="84" cy="60" r="4" fill="#4ade80" />
+          <polygon points="34,76 86,76 96,112 24,112" fill="#ef4444" opacity="0.22" />
+        </>
+      )}
+      {id === 'blackbomber' && (
+        <>
+          <rect width="120" height="120" fill="#18181b" />
+          <line x1="60" y1="24" x2="60" y2="10" stroke="#71717a" strokeWidth="4" />
+          <circle cx="60" cy="10" r="7" fill="#ec4899" />
+          <circle cx="60" cy="56" r="30" fill="#27272a" stroke="#52525b" strokeWidth="2" />
+          <rect x="38" y="42" width="44" height="26" rx="10" fill="#09090b" />
+          <rect x="46" y="49" width="7" height="13" rx="3" fill="#fde047" />
+          <rect x="67" y="49" width="7" height="13" rx="3" fill="#fde047" />
+          <path d="M36,86 L84,86 L92,120 L28,120 Z" fill="#18181b" />
+        </>
+      )}
+      {id === 'viper' && (
+        <>
+          <rect width="120" height="120" fill="#022c22" />
+          <path d="M24,96 C24,68 96,68 96,96" fill="none" stroke="#065f46" strokeWidth="18" strokeLinecap="round" />
+          <path d="M40,44 L80,44 L86,66 L60,78 L34,66 Z" fill="#10b981" stroke="#34d399" strokeWidth="2" />
+          <circle cx="48" cy="54" r="5" fill="#c084fc" />
+          <circle cx="72" cy="54" r="5" fill="#c084fc" />
+          <path d="M60,76 L60,94 L54,102 M60,94 L66,102" stroke="#ef4444" strokeWidth="3" fill="none" strokeLinecap="round" />
+        </>
+      )}
+      {id === 'ladyfrog' && (
+        <>
+          <rect width="120" height="120" fill="#4a044e" />
+          <ellipse cx="60" cy="70" rx="36" ry="28" fill="#ec4899" />
+          <ellipse cx="60" cy="78" rx="24" ry="16" fill="#fbcfe8" />
+          <circle cx="42" cy="40" r="13" fill="#ffffff" />
+          <circle cx="78" cy="40" r="13" fill="#ffffff" />
+          <circle cx="42" cy="40" r="6" fill="#111827" />
+          <circle cx="78" cy="40" r="6" fill="#111827" />
+          <polygon points="48,26 60,34 72,26 72,38 60,34 48,38" fill="#fde047" />
+        </>
+      )}
+      {id === 'paddle' && (
+        <>
+          <rect width="120" height="120" fill="#090d16" />
+          <line x1="60" y1="8" x2="60" y2="112" stroke="#334155" strokeWidth="4" strokeDasharray="8 8" />
+          <rect x="26" y="24" width="16" height="72" rx="4" fill="#f8fafc" stroke="#38bdf8" strokeWidth="3" />
+          <rect x="74" y="48" width="18" height="18" fill="#ffffff" stroke="#fde047" strokeWidth="2" />
+        </>
+      )}
+      {id === 'omnelle' && (
+        <>
+          <rect width="120" height="120" fill="#500724" />
+          <circle cx="60" cy="66" r="34" fill="#f472b6" />
+          <polygon points="44,24 60,34 76,24 76,38 60,34 44,38" fill="#be185d" />
+          <circle cx="46" cy="56" r="11" fill="#ffffff" />
+          <circle cx="74" cy="56" r="11" fill="#ffffff" />
+          <circle cx="47" cy="56" r="5" fill="#111827" />
+          <circle cx="73" cy="56" r="5" fill="#111827" />
+          <path d="M44,78 Q60,92 76,78 Z" fill="#831843" />
+        </>
+      )}
+      {id === 'ducky' && (
+        <>
+          <rect width="120" height="120" fill="#0c4a6e" />
+          <rect x="34" y="64" width="52" height="36" fill="#f8fafc" />
+          <rect x="38" y="28" width="44" height="40" fill="#fde047" />
+          <rect x="46" y="46" width="28" height="12" fill="#f97316" />
+          <rect x="42" y="36" width="6" height="6" fill="#111827" />
+          <rect x="72" y="36" width="6" height="6" fill="#111827" />
+        </>
+      )}
+      {id === 'doh' && (
+        <>
+          <rect width="120" height="120" fill="#291509" />
+          <rect x="30" y="18" width="60" height="86" rx="8" fill="#b45309" stroke="#f59e0b" strokeWidth="2.5" />
+          <rect x="26" y="30" width="68" height="12" fill="#78350f" />
+          <rect x="52" y="40" width="16" height="30" fill="#d97706" />
+          <rect x="36" y="46" width="14" height="8" fill="#ef4444" />
+          <rect x="70" y="46" width="14" height="8" fill="#ef4444" />
+          <rect x="42" y="80" width="36" height="9" fill="#451a03" />
         </>
       )}
 
