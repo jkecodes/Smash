@@ -325,10 +325,16 @@ reg({
   hooks: { onActive(c) { c.setLocalVelocity(0, null, 4); slash(c, Z, { r: 1.4 }) } },
 })
 reg({
-  id: 'zombie.claw2', name: '撕咬', energyCost: 0, startupMs: 110, activeMs: 100, recoveryMs: 320,
-  hitbox: { offset: [0, 0.1, 1.05], radius: 1.0 }, damage: 6,
+  id: 'zombie.claw2', name: '噬血撕咬', energyCost: 0, startupMs: 110, activeMs: 100, recoveryMs: 320,
+  hitbox: { offset: [0, 0.1, 1.05], radius: 1.05 }, damage: 6.5,
   knockback: { dir: [0, 0.3, 1], base: 9, scaling: 11 },
-  hooks: { onActive(c) { c.setLocalVelocity(0, null, 6); c.shake(0.15); slash(c, '#c8ffc8', { r: 1.7, tilt: -0.4, flip: true }) } },
+  hooks: {
+    onActive(c) { c.setLocalVelocity(0, null, 6); c.shake(0.15); slash(c, '#c8ffc8', { r: 1.7, tilt: -0.4, flip: true }) },
+    onHit(c) {
+      c.caster.damage = Math.max(0, c.caster.damage - 2)
+      c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#7fd67f', ttl: 260, radius: 1.2 })
+    },
+  },
 })
 reg({
   id: 'zombie.pounce', name: '撲咬', energyCost: 0, cooldownMs: 3000, startupMs: 220, activeMs: 320, recoveryMs: 380,

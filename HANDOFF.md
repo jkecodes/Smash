@@ -22,9 +22,9 @@
 | `src/game/sim.ts` | **主模擬**：`stepSimulation`、FSM、技能生命週期、命中結算、平台、抓邊、閃避、大招球、投射物、力場 |
 | `src/game/ai.ts` | 電腦玩家（產生與人類相同的 `InputFrame`） |
 | `src/game/audio.ts` | Web Audio 即時合成音效（無音檔）；`sfx(name, intensity)`；M 鍵靜音 |
-| `src/game/characters.ts` | 7 名角色與 loadout |
+| `src/game/characters.ts` | 8 名角色（含新增 `tetro` 方塊使）、專屬特色標語（`trait`）與 loadout |
 | `src/game/stages.ts` | 4 個對戰場地定義（尺寸、爆區、層板佈局、視覺主題配色、環境光與霧氣） |
-| `src/game/skills/` | `registry.ts`、`baseSkills.ts`、`novaSkills.ts`、`kenneySkills.ts`、`directionalSkills.ts`（tilt／方向特招／蓄力重擊） |
+| `src/game/skills/` | `registry.ts`、`baseSkills.ts`、`novaSkills.ts`、`kenneySkills.ts`、`directionalSkills.ts`、`tetroSkills.ts`（俄羅斯方塊矩陣與消行技能） |
 | `src/components/World.tsx` | 場景、平台、SimLoop、FighterView（方塊後備＋GLB、護盾、光環、頭上標記）、CameraRig |
 | `src/components/ModelAvatar.tsx` | GLB 載入、自動縮放、動畫 clip 對應、程序化姿勢後備 |
 | `src/components/Effects.tsx` | 斬擊、環、爆發、光束、投射物、力場、大招球、判定框除錯 |
@@ -41,7 +41,15 @@
 - **暫停**：`stepSimulation` 在 paused 時提早 return，且 `<Physics paused>`。
 
 ## 3. 目前已完成的功能
-- 7 角色：cube、nova（原創）、knight、robot、alien、soldier、zombie；每人皆有 普攻／特招／技能2 的 上、下、左右方向版本，以及蓄力重擊、大招。
+- 8 名角色（皆具備專屬特色機制）：
+  - `tetro`（**TETRO 方塊使**）：本體為動態變形的 7-Bag 俄羅斯方塊，背後懸浮 3D `4×6` 全息矩陣。**普攻與位移技自動在左 3 欄堆疊方塊（無須停下移動對位），按「特招(K)」或「下+特招」在右側第 4 欄井道落塊並觸發 1~4 行消行轟炸（SINGLE 飛彈 / DOUBLE 雙重爆破 / TRIPLE 三連轟雷 / ⚡TETRIS 4行全屏毀滅雷射）**；技能2(L) 可將矩陣內已堆方塊全數化為彈跳炸彈傾瀉而出。
+  - `cube`（格鬥家）：三連拳法（直拳→勾拳→爆裂旋風踢）命中快速回能。
+  - `nova`（星刃）：閃現留減速力場＋可蓄力貫穿雷射。
+  - `knight`（騎士）：原地特招「聖盾防反」自帶霸體無敵格擋與重擊。
+  - `robot`（機器人）：遠程飛彈空投＋EMP 電磁緩速力場。
+  - `alien`（外星人）：瞬移敵後背刺＋黑洞引力井持續吸敵。
+  - `soldier`（士兵）：三連點射、霰彈後座力跳、拋物線榴彈與蓄力貫穿狙擊。
+  - `zombie`（殭屍）：噬血撕咬與飛撲命中可回復自身損傷%＋劇毒腐蝕沼澤。
 - 蓄力重擊：普攻＋特招同按（僅近戰）。持有大招資格時按「特招」直接放大招。
 - 大招球（Smash Ball）：打破後取得大招資格。
 - 抓邊（ledge grab）、一次空中跳躍、空中上＋特招每次滯空只能用一次。
@@ -70,9 +78,9 @@
   - 角色**視覺**放大 1.4 倍（`World.tsx` 的 `CHAR_SCALE`），**碰撞體仍是 1×1×1**，招式射程、平台高度都沿用舊數值。
 
 ## 4. 操作
-- P1：WASD 移動、Space/W 跳、J 普攻、K 特招(skill1)、L 技能2、I 大招、LShift 防禦
-- P2：方向鍵、Enter/↑ 跳、`.` 普攻、`/` 特招、`'` 技能2、`;` 大招、RShift 防禦
-- 通用：Esc/P 暫停、H 判定框除錯、U 給予大招資格、M 靜音
+- P1：WASD 移動、Space/W 跳、J 普攻、K 特招(skill1)、L 技能2、I 大招、**O 或 Shift** 防禦／閃避
+- P2：方向鍵、Enter/↑ 跳、`.` 普攻、`/` 特招、`'` 技能2、`;` 大招、**`,` 或 右Shift** 防禦／閃避
+- 通用：Esc/P 暫停、H 判定框除錯、U 給予大招資格、M 總靜音、B 切換背景音樂
 
 ## 5. 驗證方式（無瀏覽器時）
 曾用無頭測試：寫暫時的 `_t.mjs`，以 `npx tsx` 執行；使用 `rapier3d-compat`、`globalThis.window = new EventTarget()`、假的 localStorage，以帶有 `.code` 的 `Event` 模擬按鍵，測完刪除。曾以此驗證各方向技能、CPU 對 CPU 整場、平台、閃避、暫停、跳躍與上特招限制。

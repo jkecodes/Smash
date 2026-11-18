@@ -1,15 +1,23 @@
+import { useGameStore } from './store'
 import type { Btn, FighterId } from './types'
 
 type Map_ = Record<'left' | 'right' | 'up' | 'down' | Btn, string[]>
 const KEYMAP: Record<FighterId, Map_> = {
   p1: {
     left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], down: ['KeyS'],
-    jump: ['Space', 'KeyW'], attack: ['KeyJ'], skill1: ['KeyK'], skill2: ['KeyL'], ult: ['KeyI'], shield: ['ShiftLeft'],
+    jump: ['Space', 'KeyW'], attack: ['KeyJ'], skill1: ['KeyK'], skill2: ['KeyL'], ult: ['KeyI'], shield: ['ShiftLeft', 'KeyO'],
   },
   p2: {
     left: ['ArrowLeft'], right: ['ArrowRight'], up: ['ArrowUp'], down: ['ArrowDown'],
-    jump: ['Enter', 'ArrowUp'], attack: ['Period'], skill1: ['Slash'], skill2: ['Quote'], ult: ['Semicolon'], shield: ['ShiftRight'],
+    jump: ['Enter', 'ArrowUp'], attack: ['Period'], skill1: ['Slash'], skill2: ['Quote'], ult: ['Semicolon'], shield: ['ShiftRight', 'Comma'],
   },
+}
+const KEY_FALLBACK: Record<string, string> = {
+  a: 'KeyA', d: 'KeyD', w: 'KeyW', s: 'KeyS',
+  j: 'KeyJ', k: 'KeyK', l: 'KeyL', i: 'KeyI', o: 'KeyO',
+  ' ': 'Space', enter: 'Enter',
+  arrowleft: 'ArrowLeft', arrowright: 'ArrowRight', arrowup: 'ArrowUp', arrowdown: 'ArrowDown',
+  '.': 'Period', '/': 'Slash', "'": 'Quote', ';': 'Semicolon', ',': 'Comma',
 }
 const BTNS: Btn[] = ['jump', 'attack', 'skill1', 'skill2', 'ult', 'shield']
 // 手把（大亂鬥配置，W3C 標準映射：0=下 1=右 2=左 3=上）
@@ -22,14 +30,28 @@ const keys = new Set<string>()
 export const debugKeys = { toggle: false, giveUlt: false, pause: false }
 if (typeof window !== 'undefined') {
   const prevent = new Set(Object.values(KEYMAP).flatMap((m) => Object.values(m).flat()))
+  const resolveCode = (e: KeyboardEvent): string => {
+    if (e.code) return e.code
+    if (e.key === 'Shift') return e.location === 2 ? 'ShiftRight' : 'ShiftLeft'
+    return KEY_FALLBACK[(e.key ?? '').toLowerCase()] ?? ''
+  }
   window.addEventListener('keydown', (e) => {
-    if (prevent.has(e.code)) e.preventDefault()
-    if ((e.code === 'Escape' || e.code === 'KeyP') && !e.repeat) debugKeys.pause = true
-    if (e.code === 'KeyH' && !e.repeat) debugKeys.toggle = true
-    if (e.code === 'KeyU' && !e.repeat) debugKeys.giveUlt = true // 測試用：雙方立即獲得大招
-    keys.add(e.code)
+    const code = resolveCode(e)
+    if (prevent.has(code) || e.key === 'Shift') e.preventDefault()
+    if ((code === 'Escape' || code === 'KeyP') && !e.repeat) debugKeys.pause = true
+    if (code === 'KeyH' && !e.repeat) debugKeys.toggle = true
+    if (code === 'KeyU' && !e.repeat) debugKeys.giveUlt = true // 測試用：雙方立即獲得大招
+    if (code) keys.add(code)
+    if (e.key === 'Shift') keys.add(e.location === 2 ? 'ShiftRight' : 'ShiftLeft')
   })
-  window.addEventListener('keyup', (e) => keys.delete(e.code))
+  window.addEventListener('keyup', (e) => {
+    const code = resolveCode(e)
+    if (code) keys.delete(code)
+    if (e.key === 'Shift') {
+      keys.delete('ShiftLeft')
+      keys.delete('ShiftRight')
+    }
+  })
   window.addEventListener('blur', () => keys.clear())
 }
 
@@ -90,6 +112,10 @@ export function readInput(id: FighterId): InputFrame {
   let moveY = (anyKey(m.up) ? 1 : 0) - (anyKey(m.down) ? 1 : 0)
   const held = {} as Record<Btn, boolean>
   for (const b of BTNS) held[b] = anyKey(m[b])
+  // 若另一位玩家是電腦，左右 Shift 皆可作為本機玩家的防禦／閃避鍵
+  const cpu = useGameStore.getState().cpu
+  if (id === 'p1' && cpu.p2 > 0 && keys.has('ShiftRight')) held.shield = true
+  if (id === 'p2' && cpu.p1 > 0 && keys.has('ShiftLeft')) held.shield = true
   const pad = padFor(id)
   if (pad) {
     const map = loadMap(pad)

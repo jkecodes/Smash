@@ -3,6 +3,7 @@ import { pollPause, captureAxis, captureBase, captureButton, clearMap, connected
 import { CHARACTERS, CHARACTER_IDS } from '../game/characters'
 import { clearEntities } from '../game/runtime'
 import { resetSimStage } from '../game/sim'
+import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { STAGES, STAGE_IDS } from '../game/stages'
 import { useGameStore } from '../game/store'
 import { FIGHTER_IDS, type Btn, type FighterId, type UiFighter } from '../game/types'
@@ -18,6 +19,11 @@ const SLOT_KEYS: Record<FighterId, Record<string, string>> = {
 }
 
 function Card({ id, u }: { id: FighterId; u: UiFighter }) {
+  const isTetro = useGameStore((s) => s.selection[id] === 'tetro')
+  const tb = isTetro ? getTetroBoard(id) : null
+  const readyLines = isTetro ? getReadyLines(id) : 0
+  const clearBanner = tb?.lastClear && performance.now() < tb.lastClear.until ? tb.lastClear : null
+
   return (
     <div className="relative w-72 rounded-xl bg-black/55 p-3 text-white backdrop-blur">
       {u.combo >= 2 && (
@@ -26,6 +32,14 @@ function Card({ id, u }: { id: FighterId; u: UiFighter }) {
           style={{ backgroundColor: u.color }}
         >
           🔥 {u.combo} HIT COMBO!
+        </div>
+      )}
+      {clearBanner && (
+        <div
+          className="-top-8 right-3 absolute animate-pulse rounded-full px-3 py-0.5 text-xs font-black text-black shadow-lg"
+          style={{ backgroundColor: clearBanner.color }}
+        >
+          {clearBanner.text}
         </div>
       )}
       <div className="flex items-baseline justify-between">
@@ -48,6 +62,28 @@ function Card({ id, u }: { id: FighterId; u: UiFighter }) {
       <div className="mt-1 h-1 overflow-hidden rounded bg-white/10" title="護盾">
         <div className="h-full bg-sky-300/80" style={{ width: `${u.shield}%` }} />
       </div>
+      {tb && (
+        <div className="mt-1.5 flex items-center justify-between rounded bg-white/10 px-2 py-1 text-[10px]">
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-cyan-300">🧩 待消行:</span>
+            <span className="flex gap-0.5">
+              {[0, 1, 2, 3].map((i) => (
+                <span
+                  key={i}
+                  className={`inline-block h-2.5 w-2.5 rounded-[2px] ${i < readyLines ? (readyLines >= 4 ? 'bg-yellow-300 animate-pulse' : 'bg-cyan-400') : 'bg-white/15'}`}
+                />
+              ))}
+            </span>
+            {readyLines >= 4 && <span className="font-black text-yellow-300">⚡TETRIS就緒!</span>}
+          </div>
+          <div className="flex items-center gap-1 font-mono text-white/70">
+            <span>HOLD:</span>
+            <span className="font-black" style={{ color: TETROMINOES[tb.current].color }}>{tb.current}</span>
+            <span className="text-white/40">→</span>
+            <span className="font-bold" style={{ color: TETROMINOES[tb.next].color }}>{tb.next}</span>
+          </div>
+        </div>
+      )}
       <div className="mt-2 flex gap-1.5">
         {u.slots.map((s) => {
           const noEnergy = u.energy < s.cost
@@ -300,13 +336,13 @@ function HelpModal({ onClose }: { onClose: () => void }) {
                 <span className="text-red-400 font-bold">P1：</span>
                 WASD 移動 / 跳躍 (亦可 Space)<br />
                 <span className="text-white/60">J</span> 攻擊 · <span className="text-white/60">K</span> 特招 · <span className="text-white/60">L</span> 技能2 · <span className="text-white/60">I</span> 大招<br />
-                <span className="text-white/60">LShift</span> 防禦 · <span className="text-white/60">S</span> 快速下墜 / 穿層板
+                <span className="text-yellow-300 font-bold">O 或 Shift</span> 防禦/閃避 · <span className="text-white/60">S</span> 快速下墜 / 穿層板
               </div>
               <div className="pt-1.5 border-t border-white/10">
                 <span className="text-blue-400 font-bold">P2：</span>
                 方向鍵 移動 / 跳躍 (亦可 Enter)<br />
                 <span className="text-white/60">.</span> 攻擊 · <span className="text-white/60">/</span> 特招 · <span className="text-white/60">'</span> 技能2 · <span className="text-white/60">;</span> 大招<br />
-                <span className="text-white/60">RShift</span> 防禦 · <span className="text-white/60">↓</span> 快速下墜 / 穿層板
+                <span className="text-yellow-300 font-bold">, 或 右Shift</span> 防禦/閃避 · <span className="text-white/60">↓</span> 快速下墜 / 穿層板
               </div>
             </div>
           </div>
@@ -381,6 +417,11 @@ function Menu() {
                   style={{ background: CHARACTERS[c].color, color: '#001' }}>{CHARACTERS[c].name}</button>
               ))}
             </div>
+            {CHARACTERS[selection[id]].trait && (
+              <div className="mt-2 rounded bg-black/35 px-2 py-1 text-[11px] text-yellow-200/90 leading-snug">
+                {CHARACTERS[selection[id]].trait}
+              </div>
+            )}
             <CpuPicker id={id} />
             <ModelDrop id={id} />
             <PadInfo id={id} onSetup={() => setWizard(id)} />

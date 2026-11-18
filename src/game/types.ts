@@ -2,7 +2,7 @@ import type { RapierRigidBody } from '@react-three/rapier'
 
 export type FighterId = 'p1' | 'p2'
 export const FIGHTER_IDS: FighterId[] = ['p1', 'p2']
-export type CharacterId = 'cube' | 'nova' | 'knight' | 'robot' | 'alien' | 'soldier' | 'zombie'
+export type CharacterId = 'cube' | 'nova' | 'knight' | 'robot' | 'alien' | 'soldier' | 'zombie' | 'tetro'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'
   | 'ATTACK_STARTUP' | 'ATTACK_ACTIVE' | 'ATTACK_RECOVERY'
@@ -90,6 +90,8 @@ export interface CharacterDef {
   id: CharacterId
   name: string
   color: string
+  /** 角色專屬戰鬥特色說明 */
+  trait?: string
   /** 鍵為 'skill1'，或帶方向的 'skill1:up' / 'skill1:down'（按住搖桿方向 + 該鍵時優先使用） */
   loadout: Partial<Record<string, string>>
   /** 模型動畫片段名稱覆寫（狀態 → clip 名稱） */

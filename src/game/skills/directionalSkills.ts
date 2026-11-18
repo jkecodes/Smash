@@ -110,10 +110,38 @@ function slamDown(id: string, name: string, color: string, o: { dmg: number; bas
 //  CUBE
 // =====================================================================
 reg({
-  id: 'cube.jab', name: '直拳', energyCost: 0, startupMs: 80, activeMs: 80, recoveryMs: 150,
-  hitbox: { offset: [0, 0, 0.95], radius: 0.8 }, damage: 3,
-  knockback: { dir: [0, 0.15, 1], base: 4, scaling: 5, hitstunMs: 240 },
-  hooks: { onActive(c) { c.setLocalVelocity(0, null, 3); slash(c, '#ff9a9a', { r: 1.2 }) } },
+  id: 'cube.jab', name: '直拳', energyCost: 0, startupMs: 75, activeMs: 80, recoveryMs: 150,
+  hitbox: { offset: [0, 0, 0.95], radius: 0.85 }, damage: 3,
+  knockback: { dir: [0, 0.15, 1], base: 3.5, scaling: 4, hitstunMs: 260 },
+  chain: 'cube.jab2',
+  hooks: {
+    onActive(c) { c.setLocalVelocity(0, null, 3); slash(c, '#ff9a9a', { r: 1.2 }) },
+    onHit(c) { c.caster.energy = Math.min(100, c.caster.energy + 5) },
+  },
+})
+reg({
+  id: 'cube.jab2', name: '勾拳', energyCost: 0, startupMs: 80, activeMs: 85, recoveryMs: 170,
+  hitbox: { offset: [0, 0.1, 1.0], radius: 0.9 }, damage: 4,
+  knockback: { dir: [0, 0.25, 1], base: 4, scaling: 5, hitstunMs: 280 },
+  chain: 'cube.jab3',
+  hooks: {
+    onActive(c) { c.setLocalVelocity(0, null, 4); slash(c, '#ffb84d', { r: 1.4, flip: true }) },
+    onHit(c) { c.caster.energy = Math.min(100, c.caster.energy + 6) },
+  },
+})
+reg({
+  id: 'cube.jab3', name: '爆裂旋風踢', energyCost: 0, startupMs: 95, activeMs: 110, recoveryMs: 280,
+  hitbox: { offset: [0, 0.15, 1.15], radius: 1.15 }, damage: 7,
+  knockback: { dir: [0, 0.4, 1], base: 10, scaling: 13 },
+  hooks: {
+    onActive(c) {
+      c.setLocalVelocity(0, null, 6)
+      c.shake(0.22)
+      slash(c, '#ff5d5d', { r: 1.85, tilt: 0.35 })
+      c.fx({ kind: 'ring', pos: at(c, 0.1, 1.0), color: '#ffb84d', ttl: 260, radius: 1.4, plane: 'vertical' })
+    },
+    onHit(c) { c.caster.energy = Math.min(100, c.caster.energy + 10) },
+  },
 })
 registerTilts('cube', { color: '#ff7a7a', names: ['衝拳', '上勾拳', '下掃腿'] })
 reg(dashSide('cube.slideKick', '滑鏟踢', '#ff7a7a', { speed: 18, dmg: 7, base: 9, scaling: 13, cd: 1800, lift: 0.5 }))
@@ -143,11 +171,22 @@ reg({ // 下：腳下裂隙，從地面向上轟出
 //  KNIGHT
 // =====================================================================
 registerTilts('knight', { color: '#d7e0ee', names: ['橫掃', '挑劍', '下刺'], dmg: 7 })
-reg({ // 原地特招改成「盾擊」：近身短促重推；左右特招沿用既有「盾衝」
-  id: 'knight.shieldSmash', name: '盾擊', energyCost: 0, cooldownMs: 1800, startupMs: 140, activeMs: 120, recoveryMs: 330,
-  hitbox: { offset: [0, 0, 1.0], radius: 1.1 }, damage: 7,
-  knockback: { dir: [0, 0.2, 1], base: 15, scaling: 12 },
-  hooks: { onActive(c) { c.shake(0.3); c.fx({ kind: 'ring', pos: at(c, 0, 1.0), color: '#d7e0ee', ttl: 300, radius: 1.3, plane: 'vertical' }) } },
+reg({ // 原地特招「聖盾防反」：舉盾期間具備無敵霸體，並以聖光重盾猛擊震飛敵人
+  id: 'knight.shieldSmash', name: '聖盾防反', energyCost: 0, cooldownMs: 1800, startupMs: 140, activeMs: 130, recoveryMs: 320,
+  hitbox: { offset: [0, 0, 1.05], radius: 1.2 }, damage: 8.5,
+  knockback: { dir: [0, 0.25, 1], base: 15, scaling: 13 },
+  hooks: {
+    onStart(c) {
+      c.setInvulnerable(240)
+      c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffe48a', ttl: 260, radius: 1.2, plane: 'vertical' })
+    },
+    onActive(c) {
+      c.shake(0.35)
+      c.setLocalVelocity(0, null, 5)
+      c.fx({ kind: 'ring', pos: at(c, 0, 1.0), color: '#ffe48a', ttl: 320, radius: 1.5, plane: 'vertical' })
+      c.fx({ kind: 'burst', pos: at(c, 0, 1.0), color: '#ffffff', ttl: 300, count: 14, speed: 6, size: 0.16 })
+    },
+  },
 })
 reg({ // 下：劍插地，周身震波
   id: 'knight.groundSlam', name: '劍插震地', energyCost: 0, cooldownMs: 2600, startupMs: 280, activeMs: 120, recoveryMs: 420,

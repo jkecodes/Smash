@@ -10,6 +10,7 @@ import { sfx } from './audio'
 import { debugKeys, readInput, rumble, type InputFrame } from './input'
 import { addFx, addProjectile, addZone, removeFx, removeProjectile, removeZone, runtime } from './runtime'
 import { getSkill } from './skills'
+import { resetTetroBoards } from './skills/tetroSkills'
 import { useGameStore } from './store'
 import type {
   ActiveSkill, FighterId, FighterState, FsmState, HitSource, HitboxDef, SkillContext, SkillDef, SkillSlot, UiFighter, Vec3,
@@ -119,6 +120,7 @@ export function resetSimStage() {
   lastGroups.clear()
   ledgeOwner['-1'] = null
   ledgeOwner['1'] = null
+  resetTetroBoards()
 }
 
 function tryGrabLedge(f: FighterState, inp: InputFrame): boolean {
@@ -189,9 +191,9 @@ function updateLedge(f: FighterState, dt: number, inp: InputFrame) {
 
 // ---------------------------------------------------------------- 閃避（翻滾 / 原地 / 空中）
 const DODGE = {
-  roll: { total: 440, invuln: 320, speed: 9.5, move: 300 },
-  spot: { total: 400, invuln: 280, speed: 0, move: 0 },
-  air: { total: 440, invuln: 320, speed: 9, move: 260 },
+  roll: { total: 420, invuln: 330, speed: 12.5, move: 290 },
+  spot: { total: 380, invuln: 300, speed: 0, move: 0 },
+  air: { total: 440, invuln: 330, speed: 10.5, move: 260 },
 } as const
 function startDodge(f: FighterState, kind: 'roll' | 'spot' | 'air', dx: number, dy: number) {
   const d = DODGE[kind]
@@ -200,12 +202,13 @@ function startDodge(f: FighterState, kind: 'roll' | 'spot' | 'air', dx: number, 
   f.dodgeMs = d.total
   f.dodgeDir = [dx, dy]
   f.invulnMs = Math.max(f.invulnMs, d.invuln)
-  if (kind === 'roll' && dx) f.facing = [dx, 0]
+  if (kind === 'roll' && dx) f.facing = [-dx as -1 | 1, 0] // 翻滾後轉身面向原本對手方向
   if (kind === 'air') { f.airDodgeUsed = true; rb.setGravityScale(0, true) }
   rb.setLinvel({ x: 0, y: 0, z: 0 }, true)
   setFsm(f, 'DODGE')
   sfx('dodge')
-  addFx({ kind: 'ring', pos: [f.pos[0], f.pos[1] - (kind === 'air' ? 0 : 0.45), 0], color: '#bfe6ff', ttl: 260, radius: 1.0 })
+  addFx({ kind: 'ring', pos: [f.pos[0], f.pos[1] - (kind === 'air' ? 0 : 0.45), 0], color: '#6cc8ff', ttl: 280, radius: 1.25 })
+  addFx({ kind: 'afterimage', pos: [f.pos[0], f.pos[1], 0], yaw: f.facing[0] >= 0 ? Math.PI / 2 : -Math.PI / 2, color: '#bfe6ff', ttl: 260 })
 }
 function updateDodge(f: FighterState, dt: number) {
   const rb = runtime.bodies[f.id]!
@@ -701,9 +704,9 @@ function updateFighter(f: FighterState, dt: number) {
       setFsm(f, 'JUMP')
       return
     }
-    if (f.grounded && f.stateMs > 60) {
-      if (Math.abs(inp.moveX) > 0.7) { startDodge(f, 'roll', Math.sign(inp.moveX), 0); return }
-      if (inp.moveY < -0.7) { startDodge(f, 'spot', 0, 0); return }
+    if (f.grounded) {
+      if (Math.abs(inp.moveX) > 0.5) { startDodge(f, 'roll', Math.sign(inp.moveX), 0); return }
+      if (inp.moveY < -0.5) { startDodge(f, 'spot', 0, 0); return }
     }
     f.shield -= 14 * dt
     rb.setLinvel({ x: lv.x * 0.7, y: lv.y, z: 0 }, true)
@@ -716,7 +719,15 @@ function updateFighter(f: FighterState, dt: number) {
 
   // ---- 自由狀態 IDLE / RUN / JUMP
   f.shield = Math.min(SHIELD_MAX, f.shield + 10 * dt)
-  if (inp.held.shield && f.grounded && f.shield > 5) { setFsm(f, 'SHIELD'); return }
+  if (f.grounded && inp.pressed.shield) {
+    if (Math.abs(inp.moveX) > 0.5) { startDodge(f, 'roll', Math.sign(inp.moveX), 0); return }
+    if (inp.moveY < -0.5) { startDodge(f, 'spot', 0, 0); return }
+  }
+  if (inp.held.shield && f.grounded && f.shield > 5) {
+    setFsm(f, 'SHIELD')
+    rb.setLinvel({ x: lv.x * 0.5, y: lv.y, z: 0 }, true)
+    return
+  }
   if (tryGrabLedge(f, inp)) return
   if (!f.grounded && inp.pressed.shield && !f.airDodgeUsed) { // 空中閃避（落地前只能一次）
     const m = Math.hypot(inp.moveX, inp.moveY > 0.5 ? inp.moveY : inp.moveY < -0.5 ? inp.moveY : 0)

@@ -6,6 +6,7 @@ import * as THREE from 'three'
 import { CHARACTERS } from '../game/characters'
 import { PLATFORM_THICKNESS } from '../game/constants'
 import { STAGES, getPlatformPos, type PlatformDef, type StageDef, type StageTheme } from '../game/stages'
+import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { runtime } from '../game/runtime'
 import { stepSimulation } from '../game/sim'
 import { useGameStore } from '../game/store'
@@ -230,15 +231,113 @@ function PlayerMarker({ id }: { id: FighterId }) {
   )
 }
 
+/** TETRO 專屬 3D 俄羅斯方塊戰士 ＋ 頭頂懸浮 4×6 即時方塊矩陣 */
+function TetroAvatar({ id }: { id: FighterId }) {
+  const bodyGroup = useRef<THREE.Group>(null)
+  const blockRefs = useRef<THREE.Mesh[]>([])
+  const blockMats = useRef<THREE.MeshStandardMaterial[]>([])
+  const cellRefs = useRef<THREE.Mesh[]>([])
+  const cellMats = useRef<THREE.MeshBasicMaterial[]>([])
+  const frameMat = useRef<THREE.MeshBasicMaterial>(null)
+
+  useFrame(() => {
+    const f = useGameStore.getState().fighters[id]
+    const b = getTetroBoard(id)
+    const piece = TETROMINOES[b.current]
+    const flash = f.flashMs > 0
+    const blink = f.invulnMs > 0 && Math.floor(performance.now() / 80) % 2 === 0
+
+    // 更新本體 4 顆俄羅斯方塊的位置與顏色
+    piece.blocks.forEach(([bx, by], i) => {
+      const m = blockRefs.current[i]
+      const mat = blockMats.current[i]
+      if (m) m.position.set(0, by * 0.36, bx * 0.36)
+      if (mat) {
+        mat.color.set(flash ? '#ffffff' : piece.color)
+        mat.emissive.set(piece.color).multiplyScalar(f.fsm === 'ATTACK_ACTIVE' ? 0.8 : 0.25)
+        mat.opacity = blink ? 0.45 : 1
+        mat.transparent = true
+      }
+    })
+
+    if (bodyGroup.current) {
+      if (f.fsm === 'DODGE' || f.fsm === 'ATTACK_ACTIVE') {
+        bodyGroup.current.rotation.x = (f.stateMs / 260) * Math.PI * 2
+      } else {
+        bodyGroup.current.rotation.x *= 0.75
+      }
+    }
+
+    // 更新背後的 6×4 全息俄羅斯方塊矩陣
+    for (let r = 0; r < 6; r++) {
+      for (let c = 0; c < 4; c++) {
+        const idx = r * 4 + c
+        const cm = cellRefs.current[idx]
+        const cmat = cellMats.current[idx]
+        const col = b.grid[r][c]
+        if (cm && cmat) {
+          cm.visible = !!col || c < 3
+          cmat.color.set(col ?? '#1e293b')
+          cmat.opacity = col ? 0.95 : 0.22
+        }
+      }
+    }
+    if (frameMat.current) {
+      const ready = getReadyLines(id)
+      frameMat.current.color.set(ready >= 4 ? '#ffe066' : ready >= 2 ? '#00e850' : '#00f0f0')
+    }
+  })
+
+  return (
+    <group>
+      {/* 動態變形的 4 格俄羅斯方塊本體 */}
+      <group ref={bodyGroup}>
+        {[0, 1, 2, 3].map((i) => (
+          <mesh key={i} ref={(el) => { if (el) blockRefs.current[i] = el }} castShadow>
+            <boxGeometry args={[0.34, 0.34, 0.34]} />
+            <meshStandardMaterial ref={(el) => { if (el) blockMats.current[i] = el }} roughness={0.25} metalness={0.2} />
+          </mesh>
+        ))}
+      </group>
+      {/* 懸浮於角色後上方的 4×6 迷你俄羅斯方塊矩陣（固定朝向鏡頭） */}
+      <group position={[0, 1.05, -0.65]} rotation={[0, -Math.PI / 2, 0]} scale={[0.75, 0.75, 0.75]}>
+        <mesh position={[0, 0, -0.04]}>
+          <planeGeometry args={[0.92, 1.32]} />
+          <meshBasicMaterial color="#090d16" transparent opacity={0.75} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh position={[0, 0, -0.05]}>
+          <planeGeometry args={[0.98, 1.38]} />
+          <meshBasicMaterial ref={frameMat} color="#00f0f0" transparent opacity={0.5} side={THREE.DoubleSide} />
+        </mesh>
+        {Array.from({ length: 24 }, (_, idx) => {
+          const r = Math.floor(idx / 4)
+          const c = idx % 4
+          return (
+            <mesh
+              key={idx}
+              ref={(el) => { if (el) cellRefs.current[idx] = el }}
+              position={[(c - 1.5) * 0.2, (r - 2.5) * 0.2, 0]}
+            >
+              <boxGeometry args={[0.17, 0.17, 0.06]} />
+              <meshBasicMaterial ref={(el) => { if (el) cellMats.current[idx] = el }} transparent />
+            </mesh>
+          )
+        })}
+      </group>
+    </group>
+  )
+}
+
 function FighterView({ id }: { id: FighterId }) {
   const group = useRef<THREE.Group>(null)
   const body = useRef<THREE.Mesh>(null)
   const nose = useRef<THREE.Mesh>(null)
   const orb = useRef<THREE.Mesh>(null)
-  const shield = useRef<THREE.Mesh>(null)
+  const shield = useRef<THREE.Group>(null)
   const aura = useRef<THREE.Mesh>(null)
   const mat = useRef<THREE.MeshStandardMaterial>(null)
-  const tint = useGameStore((s) => CHARACTERS[s.selection[id]].color)
+  const charId = useGameStore((s) => s.selection[id])
+  const tint = CHARACTERS[charId].color
   const modelUrl = useModelUrl(id)
   // 已載入完成的模型網址；與目前要顯示的網址相同才隱藏備用方塊（不依賴 effect 執行順序）
   const readyUrl = useRef<string | null>(null)
@@ -248,8 +347,12 @@ function FighterView({ id }: { id: FighterId }) {
     if (!group.current || !mat.current) return
     group.current.visible = f.alive
     const modelShown = !!modelUrl && readyUrl.current === modelUrl
-    if (body.current) body.current.visible = !modelShown
-    if (nose.current) nose.current.visible = !modelShown
+    const isTetro = f.character === 'tetro' && !modelShown
+    if (body.current) {
+      body.current.visible = !modelShown && !isTetro
+      body.current.rotation.x = f.fsm === 'DODGE' ? (f.stateMs / 340) * Math.PI * 2 : 0
+    }
+    if (nose.current) nose.current.visible = !modelShown && !isTetro
     group.current.rotation.y = f.facing[0] >= 0 ? Math.PI / 2 : -Math.PI / 2
     const flash = f.flashMs > 0
     const base = new THREE.Color(tint)
@@ -257,7 +360,7 @@ function FighterView({ id }: { id: FighterId }) {
     mat.current.emissive.copy(base).multiplyScalar(f.fsm === 'ATTACK_ACTIVE' ? 0.9 : f.fsm === 'HITSTUN' ? 0.5 : 0.12)
     mat.current.opacity = f.invulnMs > 0 && Math.floor(performance.now() / 80) % 2 === 0 ? 0.45 : 1
     mat.current.transparent = true
-    const squash = f.fsm === 'ATTACK_STARTUP' ? 0.85 : 1
+    const squash = f.fsm === 'ATTACK_STARTUP' ? 0.85 : f.fsm === 'SHIELD' ? 0.88 : 1
     group.current.scale.set(CHAR_SCALE, CHAR_SCALE * squash, CHAR_SCALE)
     const jitter = runtime.hitstopMs > 0 && f.fsm === 'HITSTUN' ? (Math.random() - 0.5) * 0.22 : 0
     group.current.position.set(jitter, (CHAR_SCALE - 1) * 0.5, 0) // 腳底維持貼地，受擊頓幀時震顫
@@ -268,7 +371,8 @@ function FighterView({ id }: { id: FighterId }) {
     }
     if (shield.current) {
       shield.current.visible = f.fsm === 'SHIELD'
-      shield.current.scale.setScalar(0.55 + 0.45 * Math.max(0, f.shield) / 100) // 護盾耐久越低越小
+      shield.current.scale.setScalar(0.65 + 0.45 * Math.max(0, f.shield) / 100) // 護盾耐久越低越小
+      shield.current.rotation.y = performance.now() / 600
     }
     if (orb.current) {
       const r = f.skill?.chargeRatio ?? 0
@@ -288,6 +392,7 @@ function FighterView({ id }: { id: FighterId }) {
           </Suspense>
         </ModelBoundary>
       )}
+      {charId === 'tetro' && !modelUrl && <TetroAvatar id={id} />}
       <mesh ref={body} castShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial ref={mat} color={tint} />
@@ -304,10 +409,16 @@ function FighterView({ id }: { id: FighterId }) {
         <sphereGeometry args={[0.8, 20, 20]} />
         <meshBasicMaterial color="#ffd24d" transparent opacity={0.35} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
-      <mesh ref={shield} visible={false}>
-        <sphereGeometry args={[0.95, 24, 24]} />
-        <meshBasicMaterial color="#6cc8ff" transparent opacity={0.3} />
-      </mesh>
+      <group ref={shield} position={[0, 0.1, 0]} visible={false}>
+        <mesh>
+          <sphereGeometry args={[1.02, 24, 24]} />
+          <meshBasicMaterial color="#38bdf8" transparent opacity={0.38} blending={THREE.AdditiveBlending} depthWrite={false} />
+        </mesh>
+        <mesh>
+          <icosahedronGeometry args={[1.05, 1]} />
+          <meshBasicMaterial color="#bae6fd" wireframe transparent opacity={0.7} depthWrite={false} />
+        </mesh>
+      </group>
     </group>
     </>
   )

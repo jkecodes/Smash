@@ -131,6 +131,24 @@ export function ModelAvatar({ id, url, onReady }: { id: FighterId; url: string; 
           anim.current = next
         }
       }
+      if (f.fsm === 'DODGE') {
+        if (f.dodgeKind === 'spot') {
+          holder.rotation.x += (-0.25 - holder.rotation.x) * 0.4
+          holder.position.x += (0.38 - holder.position.x) * 0.4
+          holder.scale.y += (0.82 - holder.scale.y) * 0.4
+        } else {
+          holder.rotation.x = (f.stateMs / 340) * Math.PI * 2
+          holder.scale.y += (0.75 - holder.scale.y) * 0.4
+        }
+      } else if (f.fsm === 'SHIELD') {
+        holder.rotation.x += (0.16 - holder.rotation.x) * 0.35
+        holder.position.x += (0 - holder.position.x) * 0.35
+        holder.scale.y += (0.82 - holder.scale.y) * 0.35
+      } else {
+        holder.rotation.x += (0 - holder.rotation.x) * 0.35
+        holder.position.x += (0 - holder.position.x) * 0.35
+        holder.scale.y += (1 - holder.scale.y) * 0.35
+      }
     } else {
       // 程序式姿態（靜態模型）
       let lean = 0, bob = 0, sy = 1, z = 0
