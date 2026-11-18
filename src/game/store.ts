@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { sfx } from './audio'
 import { CHARACTERS, CHARACTER_IDS } from './characters'
 import { ENERGY_MAX, SHIELD_MAX, SPAWN_X, START_STOCKS } from './constants'
-import type { StageForm, StageId } from './stages'
+import { STAGE_IDS, type StageForm, type StageId } from './stages'
 import { ALL_FIGHTER_IDS, type CharacterId, type FighterId, type FighterState, type UiFighter } from './types'
 
 export type Phase = 'menu' | 'playing' | 'ended'
@@ -65,7 +65,8 @@ interface GameStore {
   selection: Record<FighterId, CharacterId>
   randomSlots: Record<FighterId, boolean>
   stageId: StageId
-  selectStage(id: StageId): void
+  randomStage: boolean
+  selectStage(id: StageId, isRandom?: boolean): void
   stageForm: StageForm
   setStageForm(f: StageForm): void
   /** 核心戰鬥狀態：由模擬迴圈直接 mutate，React 不訂閱。 */
@@ -105,7 +106,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   stockCount: START_STOCKS,
   setStockCount: (n) => set({ stockCount: Math.max(1, Math.min(9, Math.round(n))) }),
   stageId: 'reimu',
-  selectStage: (stageId) => set({ stageId }),
+  randomStage: false,
+  selectStage: (stageId, isRandom = false) => set({ stageId, randomStage: isRandom }),
   stageForm: 'normal',
   setStageForm: (stageForm) => set({ stageForm }),
   selection: { ...DEFAULT_SELECTION },
@@ -146,7 +148,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     randomSlots: { ...s.randomSlots, [id]: isRandom },
   })),
   startMatch: () => {
-    const { selection, randomSlots, stockCount } = get()
+    const { selection, randomSlots, randomStage, stageId, stockCount } = get()
+    const nextStage = randomStage
+      ? (STAGE_IDS[Math.floor(Math.random() * STAGE_IDS.length)] ?? STAGE_IDS[0])
+      : stageId
     const nextSel = { ...selection }
     for (const id of ALL_FIGHTER_IDS) {
       if (randomSlots[id]) {
@@ -158,6 +163,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       phase: 'playing', winner: null, paused: false,
       ultCutin: null, fatalFlash: null, countdown: '3',
+      stageId: nextStage,
       selection: nextSel,
       fighters: buildFighters(nextSel, stockCount),
       ui: buildUi(nextSel),

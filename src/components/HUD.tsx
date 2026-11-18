@@ -379,21 +379,19 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
   const stageForm = useGameStore((s) => s.stageForm)
   const setStageForm = useGameStore((s) => s.setStageForm)
   const activeStage = STAGES[stageId] ?? STAGES.reimu
-  const btnRefs = useRef<Partial<Record<StageId, HTMLButtonElement>>>({})
+  const randomStage = useGameStore((s) => s.randomStage)
+  const btnRefs = useRef<Partial<Record<StageId | 'random', HTMLButtonElement>>>({})
 
   useEffect(() => {
-    btnRefs.current[stageId]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  }, [stageId])
-
-  const pickRandomStage = () => {
-    const pool = STAGE_IDS.filter((id) => id !== stageId)
-    const next = pool[Math.floor(Math.random() * pool.length)] ?? STAGE_IDS[0]
-    selectStage(next)
-    sfx('ui')
-    onNext?.()
-  }
-
+    const key: StageId | 'random' = randomStage ? 'random' : stageId
+    btnRefs.current[key]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [stageId, randomStage])
   const stageCards: (StageId | 'random')[] = ['random', ...STAGE_IDS]
+  const pickRandomStage = () => {
+    const next = STAGE_IDS[Math.floor(Math.random() * STAGE_IDS.length)] ?? STAGE_IDS[0]
+    selectStage(next, true)
+    sfx('ui')
+  }
 
   return (
     <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 max-w-6xl w-full px-3">
@@ -405,12 +403,12 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
             <span className="rounded bg-white/10 px-2 py-0.5 text-white/80">{activeStage.theme.subtitle}</span>
           </div>
           <div className="overflow-hidden rounded-xl border-2 border-white/25 bg-black shadow-lg">
-            <StagePreview id={stageId} form={stageForm} className="w-full aspect-[2/1]" />
+            <StagePreview id={randomStage ? 'random' : stageId} form={stageForm} className="w-full aspect-[2/1]" />
           </div>
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-xl font-black text-white truncate">{activeStage.theme.name}</h2>
+            <h2 className="text-xl font-black text-white truncate">{randomStage ? 'RANDOM 隨機地圖' : activeStage.theme.name}</h2>
           </div>
-          <p className="text-xs text-white/75 leading-relaxed">{activeStage.theme.desc}</p>
+          <p className="text-xs text-white/75 leading-relaxed">{randomStage ? '🎲 每次進入戰鬥都會從全部地圖中隨機抽出一張！' : activeStage.theme.desc}</p>
           {activeStage.gimmick ? (
             <div className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-[11px] font-bold text-white/90">
               <span>⚡</span>
@@ -466,11 +464,24 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
               return (
                 <button
                   key="random"
+                  ref={(el) => { if (el) btnRefs.current['random'] = el }}
                   type="button"
-                  onClick={pickRandomStage}
-                  className="relative overflow-hidden border-[1.5px] border-black bg-slate-900 group cursor-pointer focus:outline-none hover:ring-2 hover:ring-yellow-300/70"
+                  onClick={() => {
+                    if (randomStage && onNext) { onNext(); sfx('ui') }
+                    else pickRandomStage()
+                  }}
+                  onDoubleClick={() => onNext?.()}
+                  className={`relative overflow-hidden border-[1.5px] border-black bg-slate-900 group cursor-pointer focus:outline-none transition-transform ${randomStage
+                    ? 'ring-2 ring-inset ring-yellow-300 z-10 scale-[1.03]'
+                    : 'opacity-85 hover:opacity-100 hover:ring-1 hover:ring-white/50'
+                    }`}
                 >
                   <StagePreview id="random" className="w-full aspect-[2/1] object-cover transition-transform duration-150 group-hover:scale-105" />
+                  {randomStage && (
+                    <span className="absolute top-1 left-1 rounded bg-yellow-300 px-1 py-0 text-[9px] font-black text-black shadow">
+                      OK
+                    </span>
+                  )}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent px-1.5 pb-1 pt-2 text-center">
                     <div className="text-xs font-black text-yellow-300 leading-none" style={NAME_STROKE}>RANDOM 隨機</div>
                   </div>
@@ -478,7 +489,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
               )
             }
             const st = STAGES[item]
-            const active = stageId === item
+            const active = !randomStage && stageId === item
             return (
               <button
                 key={item}
@@ -887,16 +898,24 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     (id, dx, dy) => {
       if (step === 'stage') {
         if (netRole === 'guest') return
-        const cur = useGameStore.getState().stageId
-        selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 6))
+        const st = useGameStore.getState()
+        const curItem: StageId | 'random' = st.randomStage ? 'random' : st.stageId
+        const nextItem = stepListGrid(['random', ...STAGE_IDS] as (StageId | 'random')[], curItem, dx, dy, 6)
+        if (nextItem === 'random') selectStage(STAGE_IDS[0], true)
+        else selectStage(nextItem, false)
       } else {
         const target = netRole === 'guest' ? safePicker : id
         if (!canEditSlot(target)) return
-        const cur = useGameStore.getState().selection[target]
-        const nextChar = stepListGrid(CHARACTER_IDS, cur, dx, dy, 10)
-        select(target, nextChar)
-        if (netRole === 'guest') sendPick(nextChar)
-        else if (netRole === 'host') setTimeout(broadcastLobby, 0)
+        const st = useGameStore.getState()
+        const curItem: CharacterId | 'random' = st.randomSlots[target] ? 'random' : st.selection[target]
+        const nextItem = stepListGrid(['random', ...CHARACTER_IDS] as (CharacterId | 'random')[], curItem, dx, dy, 10)
+        if (nextItem === 'random') {
+          select(target, st.selection[target], true)
+        } else {
+          select(target, nextItem, false)
+          if (netRole === 'guest') sendPick(nextItem)
+          else if (netRole === 'host') setTimeout(broadcastLobby, 0)
+        }
       }
     },
   )
@@ -918,11 +937,23 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         e.preventDefault()
         sfx('ui')
         if (step === 'stage') {
-          const cur = useGameStore.getState().stageId
-          selectStage(stepListGrid(STAGE_IDS, cur, dx, dy, 6))
+          if (netRole === 'guest') return
+          const st = useGameStore.getState()
+          const curItem: StageId | 'random' = st.randomStage ? 'random' : st.stageId
+          const nextItem = stepListGrid(['random', ...STAGE_IDS] as (StageId | 'random')[], curItem, dx, dy, 6)
+          if (nextItem === 'random') selectStage(STAGE_IDS[0], true)
+          else selectStage(nextItem, false)
         } else {
-          const cur = useGameStore.getState().selection[safePicker]
-          select(safePicker, stepListGrid(CHARACTER_IDS, cur, dx, dy, 10))
+          const st = useGameStore.getState()
+          const curItem: CharacterId | 'random' = st.randomSlots[safePicker] ? 'random' : st.selection[safePicker]
+          const nextItem = stepListGrid(['random', ...CHARACTER_IDS] as (CharacterId | 'random')[], curItem, dx, dy, 10)
+          if (nextItem === 'random') {
+            select(safePicker, st.selection[safePicker], true)
+          } else {
+            select(safePicker, nextItem, false)
+            if (netRole === 'guest') sendPick(nextItem)
+            else if (netRole === 'host') setTimeout(broadcastLobby, 0)
+          }
         }
         return
       }
