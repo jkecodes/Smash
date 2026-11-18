@@ -380,14 +380,55 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
     const e = nearestEnemyOf(f.id)
     if (e && Math.abs(e.pos[0] - f.pos[0]) < 6) f.facing = [e.pos[0] >= f.pos[0] ? 1 : -1, 0]
   }
+  let activeDef = def
+  if (!f.grounded && slot === 'attack') {
+    if (inp.moveY < -0.5) {
+      activeDef = {
+        ...def,
+        name: '空中下擊・隕石扣殺',
+        startupMs: 110,
+        activeMs: 140,
+        recoveryMs: 210,
+        damage: Math.max(def.damage, 10),
+        hitbox: { offset: [0, -0.75, 0], radius: 1.45 },
+        knockback: { dir: [0, -1, 0.15], base: 10, scaling: 12 },
+        hooks: {
+          ...def.hooks,
+          onActive(c) {
+            def.hooks?.onActive?.(c)
+            c.fx({ kind: 'slash', pos: [c.caster.pos[0], c.caster.pos[1] - 0.6, 0], dir: -Math.PI / 2, color: '#f97316', ttl: 240, radius: 1.5 })
+            c.fx({ kind: 'ring', pos: [c.caster.pos[0], c.caster.pos[1] - 0.7, 0], color: '#fbbf24', ttl: 260, radius: 1.4, plane: 'horizontal' })
+          },
+        },
+      }
+    } else if (Math.abs(inp.moveX) < 0.35 && Math.abs(inp.moveY) < 0.35) {
+      activeDef = {
+        ...def,
+        name: '空中旋轉迴踢',
+        startupMs: 70,
+        activeMs: 190,
+        recoveryMs: 160,
+        damage: Math.max(def.damage, 8),
+        hitbox: { offset: [0, 0.1, 0], radius: 1.55 },
+        knockback: { dir: [0, 0.45, 0.85], base: 7, scaling: 8, radial: true },
+        hooks: {
+          ...def.hooks,
+          onActive(c) {
+            def.hooks?.onActive?.(c)
+            c.fx({ kind: 'ring', pos: [c.caster.pos[0], c.caster.pos[1] + 0.1, 0], color: '#38bdf8', ttl: 220, radius: 1.55, plane: 'vertical' })
+          },
+        },
+      }
+    }
+  }
   const mech = consumeSkillMechanic(f, slot)
   f.skill = {
-    def, slot, phase: 'startup', phaseMs: 0, hitSet: new Set(), kbMult: mech.kbMult, dmgMult: mech.dmgMult,
-    chargeMs: 0, chargeRatio: 0, released: !def.charge, ended: false, scratch: {},
+    def: activeDef, slot, phase: 'startup', phaseMs: 0, hitSet: new Set(), kbMult: mech.kbMult, dmgMult: mech.dmgMult,
+    chargeMs: 0, chargeRatio: 0, released: !activeDef.charge, ended: false, scratch: {},
   }
   f.comboBufferMs = 0
   setFsm(f, 'ATTACK_STARTUP')
-  def.hooks?.onStart?.(makeCtx(f, f.skill, 0))
+  activeDef.hooks?.onStart?.(makeCtx(f, f.skill, 0))
 }
 
 function guardUltBounds(f: FighterState, rb: NonNullable<typeof runtime.bodies['p1']>, onEnd = false) {
@@ -970,6 +1011,7 @@ function updateFighter(f: FighterState, dt: number) {
 
   f.stateMs += dtMs
   f.invulnMs = Math.max(0, f.invulnMs - dtMs)
+  f.reflectMs = Math.max(0, (f.reflectMs ?? 0) - dtMs)
   f.flashMs = Math.max(0, f.flashMs - dtMs)
   f.comboBufferMs = Math.max(0, f.comboBufferMs - dtMs)
   f.comboTimerMs = Math.max(0, f.comboTimerMs - dtMs)
@@ -1267,6 +1309,17 @@ function updateProjectiles(dt: number) {
       if (id === p.owner || p.source.hitSet.has(id)) continue
       const tgt = store().fighters[id]
       const att = store().fighters[p.owner]
+      if (tgt.alive && (tgt.reflectMs ?? 0) > 0) {
+        p.owner = tgt.id
+        p.vel[0] *= -1.4
+        p.vel[1] *= -1.1
+        p.source.hitSet.clear()
+        p.source.dmgMult *= 1.4
+        p.color = '#38bdf8'
+        sfx('perfect')
+        addFx({ kind: 'ring', pos: [...tgt.pos], color: '#38bdf8', ttl: 260, radius: 1.7, plane: 'vertical' })
+        break
+      }
       if (!tgt.alive || tgt.invulnMs > 0) continue
       if (p.explodeRadius > 0) { exploded = true; consumed = true; break }
       queueHit(att, tgt, p.source, p.pos)

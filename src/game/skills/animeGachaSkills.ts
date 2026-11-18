@@ -522,7 +522,11 @@ function registerKit(k: KitSpec) {
       hitbox: { offset: [0, 0.1, 0], radius: 2.3 }, damage: 10,
       knockback: { dir: [0, 0.65, 1], base: 13, scaling: 13.5, radial: true },
       hooks: {
-        onStart(c) { c.setInvulnerable(240) },
+        onStart(c) {
+          c.setInvulnerable(240)
+          c.caster.reflectMs = 380
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#38bdf8', ttl: 380, radius: 1.8, plane: 'vertical' })
+        },
         onActive(c) {
           c.fx({ kind: 'ring', pos: [...c.caster.pos], color, ttl: 340, radius: 2.3, plane: 'vertical' })
           c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#ffffff', ttl: 280, count: 12, speed: 6, size: 0.14 })

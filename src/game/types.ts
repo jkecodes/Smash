@@ -173,6 +173,8 @@ export interface FighterState {
   statusBy?: FighterId | null
   /** 復活暫時懸浮小平台剩餘時間 */
   revivalMs?: number
+  /** 投射物反射護盾剩餘時間（ms） */
+  reflectMs?: number
   damage: number
   stocks: number
   energy: number
