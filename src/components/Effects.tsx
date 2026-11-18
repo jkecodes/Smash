@@ -271,6 +271,104 @@ function SlingshotFx({ it }: { it: FxItem }) {
   )
 }
 
+function SummonFx({ it }: { it: FxItem }) {
+  const g = useRef<THREE.Group>(null)
+  const sub = useRef<THREE.Group>(null)
+  const dir = it.dir ?? 1
+  useFrame((_, dt) => {
+    const t = age01(it)
+    if (t >= 1) return removeFx(it.id)
+    if (!g.current) return
+    const fade = t > 0.8 ? 1 - (t - 0.8) / 0.2 : Math.min(1, t * 5)
+    g.current.scale.setScalar((it.size ?? 1) * fade)
+    if (it.model === 'ufo') {
+      g.current.position.x = it.pos[0] + Math.sin(t * Math.PI * 2) * 2.2 * dir
+      g.current.position.y = it.pos[1] + Math.sin(t * Math.PI * 4) * 0.25
+      if (sub.current) sub.current.rotation.y += dt * 4
+    } else if (it.model === 'goldfish') {
+      g.current.position.x = it.pos[0] + dir * t * 7.5
+      g.current.position.y = it.pos[1] + Math.sin(t * Math.PI * 3) * 0.45
+      if (sub.current) sub.current.rotation.y = Math.sin(t * 22) * 0.35
+    } else if (it.model === 'train') {
+      g.current.position.x = it.pos[0] + dir * (-6 + t * 18)
+    } else if (it.model === 'eagle') {
+      g.current.position.y = it.pos[1] + (1 - Math.sin(t * Math.PI)) * 6.5
+      g.current.position.x = it.pos[0] + dir * (t - 0.5) * 4
+    } else if (it.model === 'needle') {
+      g.current.position.y = it.pos[1] + Math.max(0, 1 - t * 3.5) * 7
+    } else {
+      g.current.position.x = it.pos[0] + dir * t * 3.5
+      if (sub.current) sub.current.rotation.z += dt * 3
+    }
+  })
+
+  return (
+    <group ref={g} position={it.pos} rotation={[0, dir < 0 ? Math.PI : 0, 0]}>
+      {it.model === 'ufo' && (
+        <group ref={sub}>
+          <mesh><cylinderGeometry args={[1.3, 1.8, 0.45, 16]} /><meshStandardMaterial color="#ec4899" emissive="#be185d" emissiveIntensity={0.6} /></mesh>
+          <mesh position={[0, 0.45, 0]}><sphereGeometry args={[0.85, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.5]} /><meshStandardMaterial color="#4ade80" emissive="#22c55e" emissiveIntensity={0.7} /></mesh>
+          <mesh position={[0, -2.2, 0]}><coneGeometry args={[1.5, 4.2, 16, 1, true]} /><meshBasicMaterial color="#4ade80" transparent opacity={0.28} blending={ADD} side={THREE.DoubleSide} depthWrite={false} /></mesh>
+        </group>
+      )}
+      {it.model === 'goldfish' && (
+        <>
+          <mesh scale={[1.4, 0.85, 0.7]}><sphereGeometry args={[0.7, 14, 14]} /><meshStandardMaterial color="#18181b" emissive="#ef4444" emissiveIntensity={0.45} /></mesh>
+          <mesh position={[0.45, 0.12, 0.45]}><sphereGeometry args={[0.1, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          <mesh position={[0.1, 0.7, 0]} rotation={[0, 0, -0.35]}><boxGeometry args={[0.7, 0.55, 0.08]} /><meshBasicMaterial color="#ef4444" transparent opacity={0.85} /></mesh>
+          <group ref={sub} position={[-0.95, 0, 0]}>
+            <mesh position={[-0.45, 0.2, 0]} rotation={[0, 0, 0.4]}><boxGeometry args={[0.95, 0.5, 0.06]} /><meshBasicMaterial color="#dc2626" transparent opacity={0.8} /></mesh>
+            <mesh position={[-0.45, -0.2, 0]} rotation={[0, 0, -0.4]}><boxGeometry args={[0.95, 0.5, 0.06]} /><meshBasicMaterial color="#18181b" transparent opacity={0.85} /></mesh>
+          </group>
+        </>
+      )}
+      {it.model === 'ghost' && (
+        <group ref={sub}>
+          <mesh><sphereGeometry args={[0.8, 16, 16]} /><meshStandardMaterial color="#ffffff" emissive="#f97316" emissiveIntensity={0.35} /></mesh>
+          <mesh position={[0.35, 0.15, 0.65]}><sphereGeometry args={[0.12, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          <mesh position={[-0.35, 0.15, 0.65]}><sphereGeometry args={[0.12, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          <mesh position={[0, -0.55, 0]}><cylinderGeometry args={[0.75, 0.9, 0.6, 12]} /><meshStandardMaterial color="#ffffff" /></mesh>
+        </group>
+      )}
+      {it.model === 'blueEyes' && (
+        <group ref={sub}>
+          <mesh position={[0.5, 0.2, 0]}><boxGeometry args={[1.4, 0.85, 0.9]} /><meshStandardMaterial color="#e0f2fe" emissive="#38bdf8" emissiveIntensity={0.55} /></mesh>
+          <mesh position={[-0.6, 0.7, 0.9]} rotation={[0.4, 0, 0.3]}><boxGeometry args={[1.6, 0.12, 1.8]} /><meshBasicMaterial color="#bae6fd" transparent opacity={0.85} /></mesh>
+          <mesh position={[-0.6, 0.7, -0.9]} rotation={[-0.4, 0, 0.3]}><boxGeometry args={[1.6, 0.12, 1.8]} /><meshBasicMaterial color="#bae6fd" transparent opacity={0.85} /></mesh>
+        </group>
+      )}
+      {it.model === 'train' && (
+        <group>
+          <mesh rotation={[0, 0, Math.PI / 2]}><capsuleGeometry args={[0.9, 4.2, 8, 16]} /><meshStandardMaterial color="#e2e8f0" emissive="#facc15" emissiveIntensity={0.35} /></mesh>
+          <mesh position={[2.2, 0, 0]}><sphereGeometry args={[0.95, 14, 14]} /><meshBasicMaterial color="#38bdf8" transparent opacity={0.85} /></mesh>
+        </group>
+      )}
+      {it.model === 'eagle' && (
+        <group>
+          <mesh><sphereGeometry args={[1.0, 14, 14]} /><meshStandardMaterial color="#78350f" /></mesh>
+          <mesh position={[0, 0.5, 0]}><sphereGeometry args={[0.7, 12, 12]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[0.7, 0.4, 0]} rotation={[0, 0, -Math.PI / 2]}><coneGeometry args={[0.25, 0.6, 6]} /><meshStandardMaterial color="#facc15" /></mesh>
+          <mesh position={[0, 0.2, 1.6]} rotation={[0.25, 0, 0]}><boxGeometry args={[1.2, 0.15, 2.8]} /><meshStandardMaterial color="#92400e" /></mesh>
+          <mesh position={[0, 0.2, -1.6]} rotation={[-0.25, 0, 0]}><boxGeometry args={[1.2, 0.15, 2.8]} /><meshStandardMaterial color="#92400e" /></mesh>
+        </group>
+      )}
+      {it.model === 'needle' && (
+        <group>
+          <mesh rotation={[Math.PI, 0, 0]}><coneGeometry args={[0.35, 3.8, 10]} /><meshStandardMaterial color="#e2e8f0" emissive="#e879f9" emissiveIntensity={0.6} /></mesh>
+          <mesh position={[0, 2.0, 0]}><torusGeometry args={[0.38, 0.09, 8, 18]} /><meshBasicMaterial color="#f0abfc" /></mesh>
+        </group>
+      )}
+      {it.model === 'hollow' && (
+        <group ref={sub}>
+          <mesh><sphereGeometry args={[1.1, 18, 18]} /><meshBasicMaterial color="#a855f7" transparent opacity={0.8} /></mesh>
+          <mesh><torusGeometry args={[1.7, 0.1, 10, 24]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+          <mesh rotation={[0.8, 0.4, 0]}><torusGeometry args={[1.9, 0.1, 10, 24]} /><meshBasicMaterial color="#ef4444" /></mesh>
+        </group>
+      )}
+    </group>
+  )
+}
+
 export function FxLayer() {
   useGameStore((s) => s.fxVersion)
   return (
@@ -284,6 +382,7 @@ export function FxLayer() {
           case 'beam': return <Beam key={it.id} it={it} />
           case 'pillar': return <Pillar key={it.id} it={it} />
           case 'slingshot': return <SlingshotFx key={it.id} it={it} />
+          case 'summon': return <SummonFx key={it.id} it={it} />
         }
       })}
     </>
@@ -428,7 +527,23 @@ function ProjectileView({ p }: { p: Projectile }) {
           ) : (
             <mesh><boxGeometry args={[r * 2.5, r * 0.35, r * 0.35]} /><meshStandardMaterial color="#a855f7" emissive="#c084fc" emissiveIntensity={0.65} /></mesh>
           )
-        ) : charId === 'arisa' || charId === 'nona' || charId === 'miyabi' || charId === 'chihiro' || charId === 'rover' ? (
+        ) : charId === 'chihiro' ? (
+          <>
+            <mesh scale={[1.4, 0.8, 0.7]}><sphereGeometry args={[r * 0.75, 12, 12]} /><meshStandardMaterial color="#18181b" emissive="#ef4444" emissiveIntensity={0.55} /></mesh>
+            <mesh position={[-r * 0.9, 0, 0]}><boxGeometry args={[r * 0.9, r * 0.7, r * 0.1]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          </>
+        ) : charId === 'hutao' ? (
+          <>
+            <mesh><sphereGeometry args={[r * 0.85, 14, 14]} /><meshStandardMaterial color="#ffffff" emissive="#f97316" emissiveIntensity={0.5} /></mesh>
+            <mesh position={[r * 0.35, r * 0.2, r * 0.5]}><sphereGeometry args={[r * 0.16, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+            <mesh position={[r * 0.35, r * 0.2, -r * 0.5]}><sphereGeometry args={[r * 0.16, 8, 8]} /><meshBasicMaterial color="#ef4444" /></mesh>
+          </>
+        ) : charId === 'kotone' ? (
+          <>
+            <mesh><octahedronGeometry args={[r * 1.05, 0]} /><meshStandardMaterial color="#fde047" emissive="#facc15" emissiveIntensity={0.85} /></mesh>
+            <mesh><torusGeometry args={[r * 1.15, r * 0.12, 8, 20]} /><meshBasicMaterial color="#ffffff" blending={ADD} /></mesh>
+          </>
+        ) : charId === 'arisa' || charId === 'nona' || charId === 'miyabi' || charId === 'rover' ? (
           <>
             <mesh><boxGeometry args={[r * 2.5, r * 0.38, r * 0.38]} /><meshBasicMaterial color="#ffffff" /></mesh>
             <mesh><sphereGeometry args={[r * 0.95, 12, 12]} /><meshBasicMaterial color={p.color} transparent opacity={0.5} blending={ADD} depthWrite={false} /></mesh>

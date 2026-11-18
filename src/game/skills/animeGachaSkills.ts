@@ -81,6 +81,14 @@ interface KitSpec {
   ult: { name: string; kind: 'beam' | 'rain' | 'burst'; color: string }
 }
 
+const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
+  chihiro: 'goldfish',
+  nona: 'needle',
+  gojo: 'hollow',
+  stelle: 'train',
+  hutao: 'ghost',
+}
+
 function registerKit(k: KitSpec) {
   const { p, color } = k
   reg({
@@ -139,6 +147,8 @@ function registerKit(k: KitSpec) {
       knockback: { dir: [0, 0.65, 1], base: 14, scaling: 14, radial: true },
       hooks: {
         onActive(c) {
+          const model = KIT_SUMMONS[p]
+          if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.4, 1.0), color: k.s2.color, ttl: 950, size: 1.0, dir: c.forward[0] })
           c.fx({ kind: 'ring', pos: [...c.caster.pos], color: k.s2.color, ttl: 380, radius: 3.0, plane: 'vertical' })
           c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffffff', ttl: 340, radius: 2.6 })
           c.shake(0.38)
@@ -179,6 +189,8 @@ function registerKit(k: KitSpec) {
         }
       },
       onActive(c) {
+        const model = KIT_SUMMONS[p]
+        if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.8, 1.4), color: k.ult.color, ttl: 1200, size: 1.45, dir: c.forward[0] })
         if (k.ult.kind === 'beam') {
           c.fx({ kind: 'beam', pos: at(c, 0.2, 0.8), yaw: yawOf(c), length: 27, radius: 2.2, color: k.ult.color, ttl: 550 })
         } else {

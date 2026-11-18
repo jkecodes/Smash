@@ -274,6 +274,7 @@ reg({
     onActive(c) {
       const p = at(c, -0.3, 2.8); p[1] = Math.max(0, p[1])
       c.spawnZone(p, { radius: 2.5, durationMs: 2200, slowFactor: 0.65, color: '#ef4444', pull: 18, damagePerSec: 3 })
+      c.fx({ kind: 'summon', model: 'ufo', pos: [p[0], p[1] + 4.2, 0], color: '#ec4899', ttl: 1500, size: 1.0, dir: c.forward[0] })
       c.fx({ kind: 'pillar', pos: p, color: '#ef4444', ttl: 420, radius: 1.3 })
       c.fx({ kind: 'ring', pos: p, color: INV, ttl: 400, radius: 2.5 })
     },
@@ -1337,6 +1338,7 @@ reg({
       for (const vy of [-3.5, 0, 3.5]) {
         c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 25, vy, 0], radius: 0.8, ttlMs: 1250, color: '#e0f2fe', explodeRadius: 2.5 })
       }
+      c.fx({ kind: 'summon', model: 'blueEyes', pos: at(c, 1.2, 1.5), color: '#e0f2fe', ttl: 1100, size: 1.5, dir: c.forward[0] })
       c.fx({ kind: 'beam', pos: at(c, 0.2, 0.9), yaw: yawOf(c), length: 26, radius: 2.1, color: '#e0f2fe', ttl: 550 })
       c.fx({ kind: 'burst', pos: [...c.caster.pos], color: KIB, ttl: 700, count: 60, speed: 12, size: 0.24 })
       c.shake(1.3)
@@ -1673,6 +1675,7 @@ reg({
     onTick(c) { if (c.phase !== 'recovery') c.setInvulnerable(140) },
     onActive(c) {
       c.setVelocity(c.forward[0] * 18, -14, 0)
+      c.fx({ kind: 'summon', model: 'eagle', pos: [...c.caster.pos], color: '#78350f', ttl: 1100, size: 1.4, dir: c.forward[0] })
       c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: '#fde047', ttl: 550, radius: 3.0 })
       c.fx({ kind: 'ring', pos: [...c.caster.pos], color: RED, ttl: 500, radius: 4.5, plane: 'vertical' })
       c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#ffffff', ttl: 600, count: 55, speed: 12, size: 0.22 })

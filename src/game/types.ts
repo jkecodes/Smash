@@ -217,7 +217,8 @@ export interface SkillContext {
   shake(amount: number): void
 }
 
-export type FxKind = 'slash' | 'ring' | 'burst' | 'afterimage' | 'beam' | 'pillar' | 'slingshot'
+export type FxKind = 'slash' | 'ring' | 'burst' | 'afterimage' | 'beam' | 'pillar' | 'slingshot' | 'summon'
+export type SummonModel = 'ufo' | 'goldfish' | 'blueEyes' | 'ghost' | 'train' | 'eagle' | 'needle' | 'hollow'
 export interface FxSpec {
   kind: FxKind
   pos: Vec3
@@ -234,6 +235,8 @@ export interface FxSpec {
   flip?: boolean
   shape?: 'box' | 'sphere'
   char?: CharacterId
+  model?: SummonModel
+  dir?: number
 }
 export interface FxItem extends FxSpec { id: number; createdAt: number }
 
