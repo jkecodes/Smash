@@ -4,55 +4,163 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { ModelAvatar, ModelBoundary, useModelUrl } from './ModelAvatar'
 import * as THREE from 'three'
 import { CHARACTERS } from '../game/characters'
-import { PLATFORMS, PLATFORM_THICKNESS, STAGE_HALF } from '../game/constants'
+import { PLATFORM_THICKNESS } from '../game/constants'
+import { STAGES, type StageDef } from '../game/stages'
 import { runtime } from '../game/runtime'
 import { stepSimulation } from '../game/sim'
 import { useGameStore } from '../game/store'
 import { FIGHTER_IDS, type FighterId } from '../game/types'
 
-/** 場地：懸空平台（碰撞群組 0，只與角色群組 1 碰撞） */
+/** 各場地獨特風格與裝飾結構 */
+function StageDecor({ stage }: { stage: StageDef }) {
+  const { theme, half: h } = stage
+  switch (stage.id) {
+    case 'battlefield':
+      return (
+        <>
+          <mesh position={[0, -3.2, 0]}>
+            <coneGeometry args={[4, 5, 6]} />
+            <meshStandardMaterial color="#1c2238" roughness={0.6} />
+          </mesh>
+          <mesh position={[0, -2.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[3.2, 0.08, 16, 32]} />
+            <meshBasicMaterial color={theme.accentColor} />
+          </mesh>
+          <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
+        </>
+      )
+    case 'destination':
+      return (
+        <>
+          <mesh position={[0, -4.5, 0]} rotation={[0, Math.PI / 4, 0]}>
+            <octahedronGeometry args={[3.6, 0]} />
+            <meshStandardMaterial color="#2b143d" roughness={0.3} metalness={0.7} />
+          </mesh>
+          {[-1, 1].map((s) => (
+            <group key={s} position={[s * 8, -5.5, -1]}>
+              <mesh rotation={[0.4, s * 0.5, 0.2]}>
+                <octahedronGeometry args={[1.5, 0]} />
+                <meshStandardMaterial color="#421a60" roughness={0.2} metalness={0.8} />
+              </mesh>
+              <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[1.8, 0.04, 12, 24]} />
+                <meshBasicMaterial color="#e066ff" transparent opacity={0.6} />
+              </mesh>
+            </group>
+          ))}
+          <mesh position={[0, -3.6, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[8.5, 0.1, 16, 48]} />
+            <meshBasicMaterial color="#ff2a85" />
+          </mesh>
+          <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
+        </>
+      )
+    case 'cyberpunk':
+      return (
+        <>
+          <mesh position={[0, -8.5, 0]}>
+            <boxGeometry args={[h.x * 1.8, 16, h.z * 1.8]} />
+            <meshStandardMaterial color="#0c171e" roughness={0.8} />
+          </mesh>
+          {[-1, 1].map((s) => (
+            <group key={s} position={[s * (h.x - 0.8), -0.2, -1.8]}>
+              <mesh position={[0, 1.2, 0]}>
+                <cylinderGeometry args={[0.1, 0.1, 2.4, 8]} />
+                <meshStandardMaterial color="#1a2e38" />
+              </mesh>
+              <mesh position={[0, 2.4, 0]}>
+                <sphereGeometry args={[0.18, 8, 8]} />
+                <meshBasicMaterial color={s === -1 ? '#00ffee' : '#ff00aa'} />
+              </mesh>
+            </group>
+          ))}
+          <mesh position={[0, -0.6, h.z + 0.02]}>
+            <boxGeometry args={[h.x * 1.9, 0.08, 0.05]} />
+            <meshBasicMaterial color="#00ffee" />
+          </mesh>
+          <mesh position={[0, -0.9, h.z + 0.02]}>
+            <boxGeometry args={[h.x * 1.7, 0.06, 0.05]} />
+            <meshBasicMaterial color="#ff00aa" />
+          </mesh>
+          <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
+        </>
+      )
+    case 'skyruins':
+      return (
+        <>
+          <mesh position={[0, -1.8, 0]}>
+            <boxGeometry args={[h.x * 1.6, 2.4, h.z * 1.5]} />
+            <meshStandardMaterial color="#2a251e" roughness={0.9} />
+          </mesh>
+          <mesh position={[0, -3.8, 0]}>
+            <boxGeometry args={[h.x * 1.1, 2.2, h.z * 1.2]} />
+            <meshStandardMaterial color="#221e18" roughness={0.95} />
+          </mesh>
+          {[-9.5, 9.5].map((px, i) => (
+            <group key={i} position={[px, 1.5, -4]}>
+              <mesh>
+                <cylinderGeometry args={[0.7, 0.8, 6.5, 12]} />
+                <meshStandardMaterial color="#3d372e" roughness={0.9} />
+              </mesh>
+              <mesh position={[0, 3.4, 0]}>
+                <boxGeometry args={[1.8, 0.5, 1.8]} />
+                <meshStandardMaterial color="#4a4237" roughness={0.8} />
+              </mesh>
+            </group>
+          ))}
+          <mesh position={[0, -4.8, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[5.5, 0.08, 12, 32]} />
+            <meshBasicMaterial color="#ffd76a" />
+          </mesh>
+          <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
+        </>
+      )
+  }
+}
+
+/** 場地：動態載入懸空主平台與穿透式層板 */
 export function Arena() {
-  const h = STAGE_HALF
+  const stageId = useGameStore((s) => s.stageId)
+  const stage = STAGES[stageId] ?? STAGES.battlefield
+  const h = stage.half
+  const theme = stage.theme
+
   return (
-    <>
+    <group key={stage.id}>
       <RigidBody type="fixed" colliders={false} friction={0} collisionGroups={interactionGroups(0, [1])}>
         <CuboidCollider args={[h.x, h.y, h.z]} position={[0, -h.y, 0]} friction={0} />
       </RigidBody>
       <mesh position={[0, -h.y, 0]} receiveShadow castShadow>
         <boxGeometry args={[h.x * 2, h.y * 2, h.z * 2]} />
-        <meshStandardMaterial color="#2b3350" />
+        <meshStandardMaterial color={theme.mainColor} />
       </mesh>
       <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[h.x * 2, h.z * 2]} />
-        <meshStandardMaterial color="#3a4570" />
+        <meshStandardMaterial color={theme.surfaceColor} />
       </mesh>
-      {PLATFORMS.map((p, i) => (
-        <group key={`plat${i}`}>
+      {stage.platforms.map((p, i) => (
+        <group key={`plat-${stage.id}-${i}`}>
           <RigidBody type="fixed" colliders={false} friction={0} collisionGroups={interactionGroups(2 + i, [1])}>
             <CuboidCollider args={[p.w / 2, PLATFORM_THICKNESS / 2, h.z]} position={[p.x, p.y - PLATFORM_THICKNESS / 2, 0]} friction={0} />
           </RigidBody>
           <mesh position={[p.x, p.y - PLATFORM_THICKNESS / 2, 0]} castShadow receiveShadow>
             <boxGeometry args={[p.w, PLATFORM_THICKNESS, h.z * 2]} />
-            <meshStandardMaterial color="#3a4a7e" />
+            <meshStandardMaterial color={p.color ?? theme.platColor} />
           </mesh>
           <mesh position={[p.x, p.y + 0.01, h.z]}>
             <boxGeometry args={[p.w, 0.04, 0.06]} />
-            <meshBasicMaterial color="#8fc0ff" />
+            <meshBasicMaterial color={p.edgeColor ?? theme.platEdgeColor} />
           </mesh>
         </group>
       ))}
       {[-1, 1].map((s) => (
         <mesh key={s} position={[s * (h.x + 0.04), -0.06, 0]}>
           <boxGeometry args={[0.12, 0.14, h.z * 2 + 0.02]} />
-          <meshBasicMaterial color="#ffe066" />
+          <meshBasicMaterial color={theme.edgeColor} />
         </mesh>
       ))}
-      <mesh position={[0, -3.2, 0]}>
-        <coneGeometry args={[4, 5, 6]} />
-        <meshStandardMaterial color="#1c2238" />
-      </mesh>
-      <gridHelper args={[80, 40, '#243055', '#1a2140']} position={[0, -14, 0]} />
-    </>
+      <StageDecor stage={stage} />
+    </group>
   )
 }
 
@@ -215,6 +323,9 @@ export function Fighters() {
 export function CameraRig() {
   const { camera } = useThree()
   const look = useRef(new THREE.Vector3(0, 2, 0))
+  const stageId = useGameStore((s) => s.stageId)
+  const stage = STAGES[stageId] ?? STAGES.battlefield
+
   useFrame((_, dt) => {
     const fs = useGameStore.getState().fighters
     const pts = FIGHTER_IDS.map((i) => fs[i]).filter((f) => f.alive).map((f) => f.pos)
@@ -225,8 +336,9 @@ export function CameraRig() {
       cy = (Math.min(...ys) + Math.max(...ys)) / 2
       spread = Math.max(8, Math.max(...xs) - Math.min(...xs) + 6, (Math.max(...ys) - Math.min(...ys)) * 1.6 + 6)
     }
-    cx = THREE.MathUtils.clamp(cx, -10, 10)
-    cy = THREE.MathUtils.clamp(cy, -2, 12)
+    const boundX = stage.half.x + 2
+    cx = THREE.MathUtils.clamp(cx, -boundX, boundX)
+    cy = THREE.MathUtils.clamp(cy, -2, 13)
     const k = 1 - Math.pow(0.02, dt)
     const sh = runtime.shake
     const target = new THREE.Vector3(cx * 0.8 + (Math.random() - 0.5) * sh, cy + 4 + (Math.random() - 0.5) * sh, 12 + spread * 1.05)

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { CHARACTERS } from './characters'
 import { ENERGY_MAX, SHIELD_MAX, SPAWN_X, START_STOCKS } from './constants'
+import type { StageId } from './stages'
 import type { CharacterId, FighterId, FighterState, UiFighter } from './types'
 
 export type Phase = 'menu' | 'playing' | 'ended'
@@ -23,6 +24,8 @@ interface GameStore {
   phase: Phase
   winner: FighterId | null
   selection: Record<FighterId, CharacterId>
+  stageId: StageId
+  selectStage(id: StageId): void
   /** 核心戰鬥狀態：由模擬迴圈直接 mutate，React 不訂閱。 */
   fighters: Record<FighterId, FighterState>
   /** 低頻（~12Hz）發布給 React UI 的快照。 */
@@ -50,6 +53,8 @@ interface GameStore {
 export const useGameStore = create<GameStore>((set, get) => ({
   phase: 'menu',
   winner: null,
+  stageId: 'battlefield',
+  selectStage: (stageId) => set({ stageId }),
   selection: { p1: 'knight', p2: 'robot' },
   fighters: { p1: createFighter('p1', 'knight'), p2: createFighter('p2', 'robot') },
   ui: { p1: emptyUi('knight'), p2: emptyUi('robot') },

@@ -4,6 +4,7 @@ import {
   AIR_ACCEL, AIR_SPEED, BLAST, COOLDOWN_SCALE, LEDGE_HANG_MS, LEDGE_REGRAB_MS, LEDGE_X, ENERGY_MAX, ENERGY_REGEN, GRAVITY, GROUND_ACCEL, HALF, JUMP_VEL,
   MAX_DAMAGE, MAX_JUMPS, DROP_THROUGH_MS, PLATFORMS, RUN_SPEED, SHIELD_MAX, SPAWN_X, STAGE_HALF,
 } from './constants'
+import { STAGES } from './stages'
 import { cpuInput, resetCpu } from './ai'
 import { sfx } from './audio'
 import { debugKeys, readInput, rumble, type InputFrame } from './input'
@@ -20,6 +21,7 @@ const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 const store = () => useGameStore.getState()
 const other = (id: FighterId): FighterId => (id === 'p1' ? 'p2' : 'p1')
+const getStage = () => STAGES[store().stageId] ?? STAGES.battlefield
 
 // ---------------------------------------------------------------- FSM
 function setFsm(f: FighterState, s: FsmState) {
@@ -56,7 +58,7 @@ function updatePlatformCollision(f: FighterState, rb: any) {
   const prev = lastGroups.get(f.id) ?? []
   const groups = [0]
   if (f.dropMs <= 0 && f.vel[1] <= 1) {
-    PLATFORMS.forEach((p, i) => {
+    getStage().platforms.forEach((p, i) => {
       // 遲滯：已經在碰撞中的層板，腳在頂面下 0.5 內都維持碰撞，避免高速落下時一幀就穿過去
       const thr = prev.includes(2 + i) ? p.y - 0.5 : p.y - 0.12
       if (feet >= thr) groups.push(2 + i)
@@ -85,15 +87,24 @@ function facingWorld(f: FighterState, local: Vec3): Vec3 {
 
 // ---------------------------------------------------------------- 抓邊
 const ledgeOwner: Record<string, FighterId | null> = { '-1': null, '1': null }
-const hangPos = (side: number): [number, number] => [side * (LEDGE_X + 0.55), -0.5]
+const hangPos = (side: number, ledgeX = getStage().ledgeX): [number, number] => [side * (ledgeX + 0.55), -0.5]
 function releaseLedge(f: FighterState) {
   if (f.ledgeSide !== 0 && ledgeOwner[String(f.ledgeSide)] === f.id) ledgeOwner[String(f.ledgeSide)] = null
   f.ledgeSide = 0
 }
+
+export function resetSimStage() {
+  lastMask.clear()
+  lastGroups.clear()
+  ledgeOwner['-1'] = null
+  ledgeOwner['1'] = null
+}
+
 function tryGrabLedge(f: FighterState, inp: InputFrame): boolean {
   if (f.grounded || f.ledgeCd > 0 || f.vel[1] > 2) return false
+  const ledgeX = getStage().ledgeX
   for (const side of [-1, 1] as const) {
-    const dx = (f.pos[0] - side * LEDGE_X) * side // >0 = 在平台外側
+    const dx = (f.pos[0] - side * ledgeX) * side // >0 = 在平台外側
     if (dx < -0.4 || dx > 2.3 || f.pos[1] > 0.4 || f.pos[1] < -2.6) continue
     if (ledgeOwner[String(side)]) continue // 已被占用
     if (inp.moveY < -0.5) continue // 按住「下」= 刻意不抓邊
@@ -108,8 +119,8 @@ function tryGrabLedge(f: FighterState, inp: InputFrame): boolean {
     rb.setGravityScale(0, true)
     rb.setLinvel({ x: 0, y: 0, z: 0 }, true)
     setFsm(f, 'LEDGE')
-    addFx({ kind: 'ring', pos: [side * LEDGE_X, 0, 0], color: '#ffe066', ttl: 350, radius: 1.2 })
-    addFx({ kind: 'burst', pos: [side * LEDGE_X, 0, 0], color: '#ffe066', ttl: 300, count: 8, speed: 3, size: 0.12 })
+    addFx({ kind: 'ring', pos: [side * ledgeX, 0, 0], color: '#ffe066', ttl: 350, radius: 1.2 })
+    addFx({ kind: 'burst', pos: [side * ledgeX, 0, 0], color: '#ffe066', ttl: 300, count: 8, speed: 3, size: 0.12 })
     rumble(f.id, 0.25, 60)
     sfx('ledge')
     return true
@@ -119,7 +130,8 @@ function tryGrabLedge(f: FighterState, inp: InputFrame): boolean {
 function updateLedge(f: FighterState, dt: number, inp: InputFrame) {
   const rb = runtime.bodies[f.id]!
   const side = f.ledgeSide || 1
-  const [hx, hy] = hangPos(side)
+  const ledgeX = getStage().ledgeX
+  const [hx, hy] = hangPos(side, ledgeX)
   f.ledgeMs += dt * 1000
   f.invulnMs = Math.max(f.invulnMs, 120) // 懸掛期間無敵
   f.facing = [-side, 0]
@@ -140,7 +152,7 @@ function updateLedge(f: FighterState, dt: number, inp: InputFrame) {
   } else if (toward > 0.5 || inp.pressed.attack) { // 爬上平台（按攻擊則起身攻擊）
     const wantAttack = inp.pressed.attack
     leave(0, 0, 400)
-    const cx = side * (LEDGE_X - 0.6)
+    const cx = side * (ledgeX - 0.6)
     rb.setTranslation({ x: cx, y: 0.55, z: 0 }, true)
     f.pos = [cx, 0.55, 0]
     f.grounded = true
@@ -379,12 +391,13 @@ function hitBallIfOverlap(att: FighterState, src: HitSource, center: Vec3, r: nu
 }
 function updateBall(dt: number) {
   const b = runtime.ball
+  const stage = getStage()
   if (!b) {
     ballTimer -= dt
     if (ballTimer <= 0) {
       addFx({ kind: 'ring', pos: [0, 7, 0], color: '#ffe066', ttl: 700, radius: 3 })
       sfx('ballSpawn')
-    runtime.ball = { pos: [(Math.random() - 0.5) * 12, 7, 0], vel: [0, 0, 0], hp: 7, maxHp: 7, radius: 0.6, ttlMs: 20000, turnMs: 0, flashMs: 0 }
+      runtime.ball = { pos: [(Math.random() - 0.5) * (stage.half.x * 1.3), 7, 0], vel: [0, 0, 0], hp: 7, maxHp: 7, radius: 0.6, ttlMs: 20000, turnMs: 0, flashMs: 0 }
     }
     return
   }
@@ -396,7 +409,8 @@ function updateBall(dt: number) {
     b.vel = [Math.cos(a) * 4.2, Math.sin(a) * 2.6, 0]
   }
   b.pos = [b.pos[0] + b.vel[0] * dt, b.pos[1] + b.vel[1] * dt, 0]
-  if (Math.abs(b.pos[0]) > 11) { b.pos[0] = Math.sign(b.pos[0]) * 11; b.vel[0] *= -1 }
+  const maxBallX = stage.half.x + 2
+  if (Math.abs(b.pos[0]) > maxBallX) { b.pos[0] = Math.sign(b.pos[0]) * maxBallX; b.vel[0] *= -1 }
   if (b.pos[1] < 2.5 || b.pos[1] > 9) { b.pos[1] = clamp(b.pos[1], 2.5, 9); b.vel[1] *= -1 }
   if (b.ttlMs <= 0) { addFx({ kind: 'burst', pos: [...b.pos], color: '#999999', ttl: 500, count: 20, speed: 4, size: 0.15 }); runtime.ball = null; ballTimer = 12 }
 }
@@ -551,10 +565,12 @@ function ko(f: FighterState) {
 function respawn(f: FighterState) {
   const rb = runtime.bodies[f.id]!
   const first = f.firstSpawn
+  const stage = getStage()
+  const sx = stage.spawnX[f.id] ?? SPAWN_X[f.id]
   f.firstSpawn = false
   rb.setEnabled(true)
   if (first) resetCpu(f.id)
-  rb.setTranslation({ x: first ? SPAWN_X[f.id] : 0, y: first ? 1 : 9, z: 0 }, true)
+  rb.setTranslation({ x: first ? sx : 0, y: first ? 1 : 9, z: 0 }, true)
   rb.setLinvel({ x: 0, y: 0, z: 0 }, true)
   rb.setGravityScale(1, true)
   f.alive = true
@@ -567,7 +583,7 @@ function respawn(f: FighterState) {
   f.ledgeCd = 0
   f.upSpecialUsed = false
   f.airDodgeUsed = false
-  f.pos = [first ? SPAWN_X[f.id] : 0, first ? 1 : 9, 0]
+  f.pos = [first ? sx : 0, first ? 1 : 9, 0]
   setFsm(f, 'JUMP')
   if (!first) sfx('respawn')
 }
@@ -584,7 +600,8 @@ function updateFighter(f: FighterState, dt: number) {
   const t = rb.translation(), lv = rb.linvel()
   f.pos = [t.x, t.y, 0]
   f.vel = [lv.x, lv.y, 0]
-  if (t.x < -BLAST.x || t.x > BLAST.x || t.y < BLAST.minY || t.y > BLAST.maxY) { ko(f); return }
+  const blast = getStage().blast ?? BLAST
+  if (t.x < -blast.x || t.x > blast.x || t.y < blast.minY || t.y > blast.maxY) { ko(f); return }
 
   f.stateMs += dtMs
   f.invulnMs = Math.max(0, f.invulnMs - dtMs)
@@ -716,11 +733,13 @@ function updateProjectiles(dt: number) {
       if (!p.pierce) { consumed = true; break }
     }
     // 落地（碰到平台頂面）
-    if (!consumed && p.gravity !== 0 && p.vel[1] < 0 && p.pos[1] <= p.radius && Math.abs(p.pos[0]) <= STAGE_HALF.x) { consumed = true; exploded = true }
+    const stage = getStage()
+    if (!consumed && p.gravity !== 0 && p.vel[1] < 0 && p.pos[1] <= p.radius && Math.abs(p.pos[0]) <= stage.half.x) { consumed = true; exploded = true }
     if (!consumed && p.ttlMs <= 0 && p.explodeRadius > 0) { consumed = true; exploded = true }
     if (exploded && p.explodeRadius > 0) explodeProjectile(p)
     else if (consumed) addFx({ kind: 'burst', pos: [...p.pos], color: p.color, ttl: 400, count: 16, speed: 6, size: 0.18 })
-    if (consumed || p.ttlMs <= 0 || Math.abs(p.pos[0]) > BLAST.x || p.pos[1] < BLAST.minY || p.pos[1] > BLAST.maxY) removeProjectile(p.id)
+    const blast = stage.blast ?? BLAST
+    if (consumed || p.ttlMs <= 0 || Math.abs(p.pos[0]) > blast.x || p.pos[1] < blast.minY || p.pos[1] > blast.maxY) removeProjectile(p.id)
   }
 }
 

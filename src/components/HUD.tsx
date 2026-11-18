@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { pollPause, captureAxis, captureBase, captureButton, clearMap, connectedPadCount, describePad, getPad, loadMap, readMenuPad, saveMap, type PadMap } from '../game/input'
 import { CHARACTERS, CHARACTER_IDS } from '../game/characters'
 import { clearEntities } from '../game/runtime'
+import { resetSimStage } from '../game/sim'
+import { STAGES, STAGE_IDS } from '../game/stages'
 import { useGameStore } from '../game/store'
 import { FIGHTER_IDS, type Btn, type FighterId, type UiFighter } from '../game/types'
 import { useAudioStore } from '../game/audio'
@@ -199,15 +201,62 @@ function CpuPicker({ id }: { id: FighterId }) {
   )
 }
 
+function StagePicker() {
+  const stageId = useGameStore((s) => s.stageId)
+  const selectStage = useGameStore((s) => s.selectStage)
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="text-xs font-bold tracking-wider text-white/80">
+        🏟️ 選擇對戰場地
+      </div>
+      <div className="grid grid-cols-4 gap-3">
+        {STAGE_IDS.map((id) => {
+          const st = STAGES[id]
+          const active = stageId === id
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => selectStage(id)}
+              className={`flex flex-col items-start rounded-xl p-2.5 transition-all w-44 text-left border ${
+                active
+                  ? 'border-yellow-300 bg-white/20 shadow-lg shadow-yellow-500/10 scale-105 ring-1 ring-yellow-300'
+                  : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30 opacity-75 hover:opacity-100'
+              }`}
+            >
+              <div className="flex w-full items-center justify-between">
+                <span className="text-xs font-black text-white">{st.theme.name}</span>
+                <span
+                  className="rounded px-1.5 py-0.5 text-[9px] font-bold"
+                  style={{ backgroundColor: st.theme.accentColor + '33', color: st.theme.accentColor }}
+                >
+                  {st.theme.tag}
+                </span>
+              </div>
+              <div className="mt-1 text-[10px] text-white/50 leading-tight">
+                {st.theme.subtitle}
+              </div>
+            </button>
+          )
+        })}
+      </div>
+      <div className="text-[11px] text-yellow-200/80 text-center max-w-xl">
+        {STAGES[stageId].theme.desc}
+      </div>
+    </div>
+  )
+}
+
 function Menu() {
   const [wizard, setWizard] = useState<FighterId | null>(null)
-  usePadMenu(wizard === null, () => { clearEntities(); useGameStore.getState().startMatch() })
+  usePadMenu(wizard === null, () => { clearEntities(); resetSimStage(); useGameStore.getState().startMatch() })
   const selection = useGameStore((s) => s.selection)
   const select = useGameStore((s) => s.select)
   const start = useGameStore((s) => s.startMatch)
   return (
-    <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-6 bg-black/70 text-white">
-      <h1 className="text-7xl font-black italic tracking-tight">smash<span className="text-yellow-300">!!!</span></h1>
+    <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-5 bg-black/70 text-white">
+      <h1 className="text-6xl font-black italic tracking-tight">smash<span className="text-yellow-300">!!!</span></h1>
       <div className="flex gap-10">
         {FIGHTER_IDS.map((id) => (
           <div key={id} className="w-72 rounded-xl bg-white/10 p-4">
@@ -225,8 +274,9 @@ function Menu() {
           </div>
         ))}
       </div>
+      <StagePicker />
       {wizard && <PadWizard id={wizard} onClose={() => setWizard(null)} />}
-      <button onClick={() => { clearEntities(); start() }} className="rounded-lg bg-yellow-300 px-10 py-3 text-xl font-black text-black hover:bg-yellow-200">START</button>
+      <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded-lg bg-yellow-300 px-10 py-2.5 text-xl font-black text-black hover:bg-yellow-200">START</button>
       <div className="grid grid-cols-2 gap-x-12 text-xs text-white/70">
         <div>P1　A/D 移動　W/Space 跳　S 快速下墜　Shift 防禦<br />J 攻擊　K 技能1　L 技能2　I 大招</div>
         <div>P2　←/→ 移動　↑/Enter 跳　↓ 快速下墜　右Shift 防禦<br />. 攻擊　/ 技能1　' 技能2　; 大招　（亦支援手把）</div>
@@ -264,12 +314,18 @@ function PauseOverlay() {
   const setPaused = useGameStore((s) => s.setPaused)
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
+  const stageId = useGameStore((s) => s.stageId)
+  const currentStage = STAGES[stageId] ?? STAGES.battlefield
   return (
     <div className="pointer-events-auto absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/70 text-white">
       <div className="text-5xl font-black tracking-widest">暫停</div>
+      <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs text-white/80">
+        <span>🏟️ {currentStage.theme.name}</span>
+        <span className="text-yellow-300">· {currentStage.theme.tag}</span>
+      </div>
       <div className="flex gap-3">
         <button onClick={() => setPaused(false)} className="rounded bg-yellow-300 px-6 py-2 font-bold text-black">繼續</button>
-        <button onClick={() => { clearEntities(); start() }} className="rounded bg-white/20 px-6 py-2 font-bold">重新開始</button>
+        <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded bg-white/20 px-6 py-2 font-bold">重新開始</button>
         <button onClick={toMenu} className="rounded bg-white/20 px-6 py-2 font-bold">回選單</button>
       </div>
       <div className="text-xs text-white/60">按 Esc / P / 手把 Start 或 A、B 繼續</div>
@@ -322,7 +378,7 @@ export function HUD() {
   const winner = useGameStore((s) => s.winner)
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
-  usePadMenu(phase === 'ended', () => { clearEntities(); start() })
+  usePadMenu(phase === 'ended', () => { clearEntities(); resetSimStage(); start() })
   return (
     <div className="pointer-events-none absolute inset-0">
       <div className="pointer-events-auto absolute top-4 right-4 z-30">
@@ -340,7 +396,7 @@ export function HUD() {
         <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/60 text-white">
           <div className="text-6xl font-black" style={{ color: ui[winner].color }}>{winner.toUpperCase()} WINS!</div>
           <div className="flex gap-3">
-            <button onClick={() => { clearEntities(); start() }} className="rounded bg-yellow-300 px-6 py-2 font-bold text-black">再來一場</button>
+            <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded bg-yellow-300 px-6 py-2 font-bold text-black">再來一場</button>
             <button onClick={toMenu} className="rounded bg-white/20 px-6 py-2 font-bold">回選單</button>
           </div>
         </div>

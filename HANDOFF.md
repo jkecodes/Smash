@@ -23,6 +23,7 @@
 | `src/game/ai.ts` | 電腦玩家（產生與人類相同的 `InputFrame`） |
 | `src/game/audio.ts` | Web Audio 即時合成音效（無音檔）；`sfx(name, intensity)`；M 鍵靜音 |
 | `src/game/characters.ts` | 7 名角色與 loadout |
+| `src/game/stages.ts` | 4 個對戰場地定義（尺寸、爆區、層板佈局、視覺主題配色、環境光與霧氣） |
 | `src/game/skills/` | `registry.ts`、`baseSkills.ts`、`novaSkills.ts`、`kenneySkills.ts`、`directionalSkills.ts`（tilt／方向特招／蓄力重擊） |
 | `src/components/World.tsx` | 場景、平台、SimLoop、FighterView（方塊後備＋GLB、護盾、光環、頭上標記）、CameraRig |
 | `src/components/ModelAvatar.tsx` | GLB 載入、自動縮放、動畫 clip 對應、程序化姿勢後備 |
@@ -50,7 +51,13 @@
 - 技能冷卻減半（`COOLDOWN_SCALE`）。
 - 手把支援：A(下)=特招、B(右)=普攻、X/Y 跳、右搖桿=技能2、RT/R3 大招、LB/RB/LT 防禦、Start 暫停。
 - 玩家頭上標記（P1 紅／P2 藍，CPU 會加註 "CPU"）。
-- **音效**：全部 Web Audio 合成（命中、揮招、射擊、爆炸、跳、閃避、防禦、完美防禦、破盾、抓邊、KO、重生、大招球、開始／暫停／勝利）；瀏覽器需先有使用者操作才會出聲。
+- 4 個獨特對戰場地（選單即時預覽切換，無倒數計時限制）：
+  - **浮空戰場（Battlefield）**：經典左右對稱 3 層板對稱競技場。
+  - **終點星雲（Final Destination）**：零層板純平面死鬥場，純立回走位，深紫星雲黑曜石主題。
+  - **賽博天台（Cyber Rooftop）**：中央高台制空＋兩側低空外飄浮板，未來高樓霓虹天際線主題。
+  - **天空聖域（Floating Shrine）**：非對稱雙階梯神殿，古代浮石、大理石與暖陽主題。
+- 物理與 AI 自動適應各場地：層板穿透碰撞組動態裝卸、場地邊緣抓邊（Ledge Grab）座標自適應、大招球巡弋邊界自適應、AI 回場邊界自適應。
+- **音效與音量**：全部 Web Audio 合成（命中、揮招、射擊、爆炸、跳、落地、閃避、防禦、完美防禦、破盾、抓邊、KO、重生、大招球、蓄力、瞬移、力場、開始／暫停／勝利）；畫面右上角常駐音量條與靜音開關。
 - GLB 模型匯入：選單可拖放自己的 .glb（使用者之後打算用 Tripo AI 生成角色）。
 - 最近調整（尚未實機確認手感）：
   - 大招球更難打：hp 7、半徑 0.6、移動更快、被打後 450ms 無敵、存在 20 秒（`sim.ts` 的 `updateBall`／`hitBallIfOverlap`）。
@@ -68,14 +75,13 @@
 ## 6. 已知議題／注意事項
 - 角色視覺放大但碰撞體未放大：可能有輕微穿牆感。若使用者要求，需一併放大碰撞體並重調招式射程、平台間距、抓邊位置。
 - 方塊後備（cube fallback）曾出現「角色偶爾變方塊」的問題，已用 `readyUrl` ref 比對修正，但使用者尚未回報是否解決。
-- 音效有幾個已定義但尚未接上的名稱：`land`、`zone`、`charge`、`warp`。
 - 數值（傷害、擊退、冷卻、AI 強度、音量）皆憑手感調整，使用者可能繼續要求微調。
 - Kenney GLB 內部引用外部 `Textures/colormap.png`，移動模型檔時必須一併帶走該貼圖。
-- 專案目前不是 git repository。
+- （已解決）land/zone/charge/warp 音效已接上；HUD 音量滑桿與靜音已加上；Git 已初始化；4 場地已實作完成。
 
 ## 7. 可能的下一步
-1. 等使用者回報大招球難度、角色大小是否合適。
+1. 等使用者回報各場地遊玩手感、大招球難度、角色大小是否合適。
 2. 視需求把碰撞體與角色視覺比例統一。
 3. 使用者的 Tripo AI 自製角色：以 GLB 放入 `public/models/` 或拖放匯入，並在 `characters.ts` 新增角色與 `clips` 對應；技能可沿用 `registry.ts` 註冊流程。
-4. 補上尚未接線的音效、加入背景音樂或音量控制 UI。
-5. 更多場地、角色、勝負規則（時間制等）。
+4. 加入 Web Audio 背景音樂（BGM）。
+5. 更多角色或機制擴充。

@@ -1,4 +1,5 @@
 import { CHARACTERS } from './characters'
+import { STAGES } from './stages'
 import type { InputFrame } from './input'
 import { runtime } from './runtime'
 import { getSkill } from './skills'
@@ -161,7 +162,8 @@ export function cpuInput(id: FighterId, dt: number): InputFrame {
   const start = (a: Act | null) => { if (a) m.act = a; return !!a }
 
   // ---- 3. 場外回場
-  const offstage = Math.abs(x) > 8.6 || y < -0.4
+  const stage = STAGES[useGameStore.getState().stageId] ?? STAGES.battlefield
+  const offstage = Math.abs(x) > (stage.half.x - 0.4) || y < -0.4
   if (offstage && !busy) {
     mx = homeDir
     const falling = f.vel[1] < 0
