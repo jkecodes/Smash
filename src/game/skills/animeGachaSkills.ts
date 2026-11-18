@@ -563,11 +563,14 @@ function registerKit(k: KitSpec) {
         if (k.ult.kind === 'rain') {
           c.scratch.rn = (c.scratch.rn ?? 0) - c.dt * 1000
           if (c.scratch.rn <= 0) {
-            c.scratch.rn = 175
+            c.scratch.rn = 115
             const tgt = c.nearestEnemy()
             const anchorX = tgt ? tgt.pos[0] : c.caster.pos[0] + c.forward[0] * 4
-            const x = clampStageX(anchorX + (Math.random() - 0.5) * 10)
-            c.spawnProjectile({ pos: [x, 13.5, 0], vel: [0, -20, 0], radius: 0.62, ttlMs: 1500, color: k.ult.color, gravity: -14, explodeRadius: 2.4 })
+            for (let i = 0; i < 2; i++) {
+              const x = clampStageX(anchorX + (Math.random() - 0.5) * 11)
+              c.fx({ kind: 'ring', pos: [x, 12.8, 0], color: k.ult.color, ttl: 240, radius: 1.4 })
+              c.spawnProjectile({ pos: [x, 13.2, 0], vel: [(Math.random() - 0.5) * 3, -21, 0], radius: 0.62, ttlMs: 1500, color: k.ult.color, gravity: -14, explodeRadius: 2.5 })
+            }
           }
         } else if (k.ult.kind === 'omnislash') {
           // 大亂鬥超究武神霸斬式：瞬移圍繞最近敵人多段斬擊＋最終擊飛
@@ -600,12 +603,21 @@ function registerKit(k: KitSpec) {
             c.strike({ offset: [0, 0.2, 0.5], radius: 2.3 })
           }
         } else if (k.ult.kind === 'barrage') {
-          // 全彈發射：連射扇形高爆導彈
+          // 全彈發射：雙連發扇形高爆導彈＋終結雷射光束
           c.scratch.ba = (c.scratch.ba ?? 0) - c.dt * 1000
           if (c.scratch.ba <= 0) {
-            c.scratch.ba = 145
-            const vy = (Math.random() - 0.35) * 9
-            c.spawnProjectile({ pos: at(c, 0.3, 1.0), vel: [c.forward[0] * 21, vy, 0], radius: 0.48, ttlMs: 1350, color: k.ult.color, explodeRadius: 2.5 })
+            c.scratch.ba = 115
+            for (let i = 0; i < 2; i++) {
+              const vy = (Math.random() - 0.35) * 10
+              c.spawnProjectile({ pos: at(c, 0.3, 1.0), vel: [c.forward[0] * (20 + Math.random() * 4), vy, 0], radius: 0.48, ttlMs: 1350, color: k.ult.color, explodeRadius: 2.5 })
+            }
+            c.fx({ kind: 'ring', pos: at(c, 0.3, 1.0), color: '#fde047', ttl: 180, radius: 1.2, plane: 'vertical' })
+          }
+          if (c.phaseMs >= 800 && !c.scratch.barrageBeam) {
+            c.scratch.barrageBeam = true
+            c.fx({ kind: 'beam', pos: at(c, 0.3, 1.0), yaw: yawOf(c), length: 18, radius: 0.85, color: k.ult.color, ttl: 380 })
+            c.spawnProjectile({ pos: at(c, 0.3, 1.1), vel: [c.forward[0] * 28, 0, 0], radius: 0.85, ttlMs: 900, color: '#ffffff', pierce: true })
+            c.shake(0.95)
           }
         } else if (p === 'sukuna') {
           // 伏魔御廚子：領域內高頻率四方「解・捌」紅色斬擊連發！
@@ -646,11 +658,41 @@ function registerKit(k: KitSpec) {
           // 九霄雷炎吐息：斜向火球掃射＋落雷
           c.scratch.dr = (c.scratch.dr ?? 0) - c.dt * 1000
           if (c.scratch.dr <= 0) {
-            c.scratch.dr = 175
-            const vx = c.forward[0] * (12 + Math.random() * 8)
-            c.spawnProjectile({ pos: at(c, 0.5, 0.9), vel: [vx, -6 - Math.random() * 6, 0], radius: 0.58, ttlMs: 1300, color: '#f97316', gravity: -8, explodeRadius: 2.6 })
-            const lx = clampStageX(c.caster.pos[0] + c.forward[0] * (2 + Math.random() * 8))
-            c.fx({ kind: 'pillar', pos: [lx, 0, 0], color: '#34d399', ttl: 260, radius: 1.0 })
+            c.scratch.dr = 135
+            const vx = c.forward[0] * (12 + Math.random() * 9)
+            c.spawnProjectile({ pos: at(c, 0.5, 0.9), vel: [vx, -6 - Math.random() * 6, 0], radius: 0.58, ttlMs: 1300, color: '#f97316', gravity: -8, explodeRadius: 2.7 })
+            const lx = clampStageX(c.caster.pos[0] + c.forward[0] * (2 + Math.random() * 9))
+            c.fx({ kind: 'pillar', pos: [lx, 0, 0], color: '#34d399', ttl: 280, radius: 1.15 })
+            c.fx({ kind: 'ring', pos: [lx, 0.2, 0], color: '#fde047', ttl: 240, radius: 1.8 })
+          }
+        } else if (k.ult.kind === 'timestop') {
+          // 時停結界：週期性金環閃耀＋多段定身判定
+          c.scratch.ts = (c.scratch.ts ?? 0) - c.dt * 1000
+          if (c.scratch.ts <= 0) {
+            c.scratch.ts = 220
+            c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fde047', ttl: 280, radius: 4.5 })
+            c.strike({ offset: [0, 0.2, 0], radius: 4.8 })
+          }
+        } else if (k.ult.kind === 'burst') {
+          // 蓄力爆發型大招（綠谷／流螢／苦力怕／炸彈人等）：先聚能多段震波，再引爆 5.6m 終極大爆炸！
+          if (c.phaseMs < 560) {
+            c.scratch.bu = (c.scratch.bu ?? 0) - c.dt * 1000
+            if (c.scratch.bu <= 0) {
+              c.scratch.bu = 120
+              c.fx({ kind: 'ring', pos: [...c.caster.pos], color: k.ult.color, ttl: 240, radius: 2.8, plane: 'vertical' })
+              c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#ffffff', ttl: 220, count: 14, speed: 6, size: 0.18 })
+              c.strike({ offset: [0, 0.2, 0], radius: 3.4 })
+              c.shake(0.35)
+            }
+          } else if (!c.scratch.burstFinisher) {
+            c.scratch.burstFinisher = true
+            if (p === 'deku' || p === 'firefly') c.setLocalVelocity(0, 2, 16)
+            c.fx({ kind: 'ring', pos: [...c.caster.pos], color: k.ult.color, ttl: 580, radius: 5.8 })
+            c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffffff', ttl: 480, radius: 4.6, plane: 'vertical' })
+            c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: k.ult.color, ttl: 600, radius: 3.2 })
+            c.fx({ kind: 'burst', pos: [...c.caster.pos], color: k.ult.color, ttl: 740, count: 75, speed: 14, size: 0.26 })
+            c.strike({ offset: [0, 0.2, 0], radius: 5.6 })
+            c.shake(1.3)
           }
         }
       },
@@ -676,9 +718,10 @@ function registerKit(k: KitSpec) {
           }
           c.fx({ kind: 'summon', model: 'ghost', pos: at(c, 1.0, 0.8), color: '#ef4444', ttl: 1200, size: 1.75, dir: c.forward[0] })
         } else if (k.ult.kind === 'timestop') {
-          // 時停光刃：環繞自身放射 4 把貫穿光刃
-          for (const [vx, vy] of [[18, 0], [-18, 0], [14, 10], [-14, 10]]) {
-            c.spawnProjectile({ pos: [...c.caster.pos], vel: [vx, vy, 0], radius: 0.65, ttlMs: 1200, color: '#fde047', pierce: true })
+          // 時停光刃：環繞自身放射 8 把貫穿光刃
+          for (let i = 0; i < 8; i++) {
+            const a = (i / 8) * Math.PI * 2
+            c.spawnProjectile({ pos: [...c.caster.pos], vel: [Math.cos(a) * 19, Math.sin(a) * 19, 0], radius: 0.62, ttlMs: 1200, color: '#fde047', pierce: true })
           }
         } else {
           const model = KIT_SUMMONS[p]
