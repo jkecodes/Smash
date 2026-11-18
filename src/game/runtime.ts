@@ -4,6 +4,7 @@ import type { FxSpec, Runtime, Projectile, Zone, ZoneDef, FighterId, Vec3, HitSo
 /** 60FPS 會變動、但 React 不需要訂閱的資料（剛體參考、投射物、特效清單）。 */
 export const runtime: Runtime = {
   bodies: { p1: null, p2: null },
+  platformBodies: [],
   handles: new Map(),
   physics: null,
   projectiles: [],
@@ -12,6 +13,8 @@ export const runtime: Runtime = {
   ball: null,
   debugSpheres: [],
   shake: 0,
+  stageTime: 0,
+  hitstopMs: 0,
 }
 
 let uid = 1
@@ -48,6 +51,8 @@ export function clearEntities() {
   runtime.zones.length = 0
   runtime.fx.length = 0
   runtime.ball = null
+  runtime.stageTime = 0
+  runtime.hitstopMs = 0
   bump('projVersion'); bump('zoneVersion'); bump('fxVersion')
 }
 export type { HitSource }

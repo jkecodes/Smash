@@ -114,6 +114,14 @@ export interface ActiveSkill extends HitSource {
   scratch: Record<string, any>
 }
 
+export interface FighterStats {
+  kos: number
+  damageDealt: number
+  damageTaken: number
+  maxCombo: number
+  perfectShields: number
+}
+
 export interface FighterState {
   id: FighterId
   character: CharacterId
@@ -150,6 +158,9 @@ export interface FighterState {
   ledgeSide: -1 | 1 | 0
   ledgeMs: number
   ledgeCd: number
+  comboCount: number
+  comboTimerMs: number
+  stats: FighterStats
 }
 
 export interface SkillContext {
@@ -235,6 +246,8 @@ export interface UiFighter {
   fsm: FsmState
   charge: number
   ultReady: boolean
+  combo: number
+  stats: FighterStats
   slots: { slot: SkillSlot; name: string; cd: number; cost: number; locked: boolean }[]
 }
 
@@ -252,6 +265,7 @@ export interface SmashBall {
 export interface Runtime {
   ball: SmashBall | null
   bodies: Record<FighterId, RapierRigidBody | null>
+  platformBodies: (RapierRigidBody | null)[]
   handles: Map<number, FighterId>
   physics: { world: any; rapier: any } | null
   projectiles: Projectile[]
@@ -259,4 +273,6 @@ export interface Runtime {
   fx: FxItem[]
   debugSpheres: { pos: Vec3; r: number; ttl: number }[]
   shake: number
+  stageTime: number
+  hitstopMs: number
 }

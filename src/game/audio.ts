@@ -7,20 +7,23 @@ import { useGameStore } from './store'
  */
 interface AudioStore {
   muted: boolean
+  bgmMuted: boolean
   volume: number
   setMuted(m: boolean): void
+  setBgmMuted(m: boolean): void
   setVolume(v: number): void
 }
 const KEY = 'smash.audio'
-const load = (): { muted: boolean; volume: number } => {
-  try { return { muted: false, volume: 0.6, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') } } catch { return { muted: false, volume: 0.6 } }
+const load = (): { muted: boolean; bgmMuted: boolean; volume: number } => {
+  try { return { muted: false, bgmMuted: false, volume: 0.6, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') } } catch { return { muted: false, bgmMuted: false, volume: 0.6 } }
 }
-const save = (s: { muted: boolean; volume: number }) => { try { localStorage.setItem(KEY, JSON.stringify(s)) } catch { /* ignore */ } }
+const save = (s: { muted: boolean; bgmMuted: boolean; volume: number }) => { try { localStorage.setItem(KEY, JSON.stringify(s)) } catch { /* ignore */ } }
 
 export const useAudioStore = create<AudioStore>((set, get) => ({
   ...load(),
-  setMuted: (muted) => { set({ muted }); save({ muted, volume: get().volume }); applyVolume() },
-  setVolume: (volume) => { set({ volume }); save({ muted: get().muted, volume }); applyVolume() },
+  setMuted: (muted) => { set({ muted }); save({ muted, bgmMuted: get().bgmMuted, volume: get().volume }); applyVolume() },
+  setBgmMuted: (bgmMuted) => { set({ bgmMuted }); save({ muted: get().muted, bgmMuted, volume: get().volume }) },
+  setVolume: (volume) => { set({ volume }); save({ muted: get().muted, bgmMuted: get().bgmMuted, volume }); applyVolume() },
 }))
 
 let ctx: AudioContext | null = null
@@ -59,6 +62,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('gamepadconnected', unlock)
   window.addEventListener('keydown', (e) => {
     if (e.code === 'KeyM' && !e.repeat) { const s = useAudioStore.getState(); s.setMuted(!s.muted) }
+    if (e.code === 'KeyB' && !e.repeat) { const s = useAudioStore.getState(); s.setBgmMuted(!s.bgmMuted) }
   })
 }
 
@@ -165,3 +169,48 @@ useGameStore.subscribe((s, prev) => {
   }
   if (s.paused !== prev.paused) sfx('pause')
 })
+
+// ---------------------------------------------------------------- 程序化背景音樂（Web Audio 即時合成 BGM）
+const MENU_BASS = [110, 87.31, 130.81, 98] // A2, F2, C3, G2
+const MENU_ARP = [220, 261.63, 329.63, 392, 329.63, 261.63, 246.94, 196]
+const BATTLE_BASS = [82.41, 65.41, 73.42, 61.74] // E2, C2, D2, B1
+const BATTLE_MELODY = [
+  329.63, 0, 392, 440, 493.88, 0, 392, 329.63,
+  293.66, 329.63, 392, 0, 440, 392, 329.63, 246.94,
+]
+
+let bgmStep = 0
+if (typeof window !== 'undefined') {
+  setInterval(() => {
+    if (!ctx || ctx.state !== 'running') return
+    const { muted, bgmMuted } = useAudioStore.getState()
+    if (muted || bgmMuted) return
+    const gs = useGameStore.getState()
+    if (gs.paused || gs.phase === 'ended') return
+
+    const step = bgmStep++
+    if (gs.phase === 'menu') {
+      if (step % 2 !== 0) return
+      const s = Math.floor(step / 2)
+      const root = MENU_BASS[Math.floor(s / 8) % MENU_BASS.length]
+      if (s % 4 === 0) tone(root, 0.45, { type: 'triangle', gain: 0.055, attack: 0.02 })
+      const arp = MENU_ARP[s % MENU_ARP.length]
+      tone(arp, 0.2, { type: 'sine', gain: 0.035, attack: 0.01 })
+    } else if (gs.phase === 'playing') {
+      const bar = Math.floor(step / 16) % BATTLE_BASS.length
+      const root = BATTLE_BASS[bar]
+      const bassNote = step % 2 === 0 ? root : root * 2
+      tone(bassNote, 0.11, { type: 'triangle', gain: 0.065, attack: 0.005 })
+
+      const mel = BATTLE_MELODY[step % BATTLE_MELODY.length]
+      if (mel > 0) {
+        tone(mel, 0.14, { type: 'triangle', gain: 0.05, attack: 0.006 })
+        const climax = gs.fighters.p1.ultReady || gs.fighters.p2.ultReady || gs.fighters.p1.stocks === 1 || gs.fighters.p2.stocks === 1
+        if (climax) tone(mel * 2, 0.12, { type: 'sine', gain: 0.03, attack: 0.006 })
+      }
+      if (step % 4 === 2) {
+        noise(0.03, { type: 'highpass', from: 6000, gain: 0.02 })
+      }
+    }
+  }, 135)
+}

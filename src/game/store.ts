@@ -13,11 +13,15 @@ export function createFighter(id: FighterId, character: CharacterId): FighterSta
     facing: [id === 'p1' ? 1 : -1, 0], grounded: false, jumpsLeft: 2, skill: null, cooldowns: {},
     comboBufferMs: 0, hitstunMs: 0, invulnMs: 0, respawnMs: 0, slowFactor: 1, flashMs: 0,
     alive: false, firstSpawn: true, ultReady: false, dodgeMs: 0, dodgeKind: null, dodgeDir: [0, 0], airDodgeUsed: false, upSpecialUsed: false, dropMs: 0, downMs: 0, ledgeSide: 0, ledgeMs: 0, ledgeCd: 0,
+    comboCount: 0, comboTimerMs: 0,
+    stats: { kos: 0, damageDealt: 0, damageTaken: 0, maxCombo: 0, perfectShields: 0 },
   }
 }
 const emptyUi = (c: CharacterId): UiFighter => ({
   name: CHARACTERS[c].name, color: CHARACTERS[c].color, damage: 0, stocks: START_STOCKS,
-  energy: ENERGY_MAX, shield: SHIELD_MAX, fsm: 'IDLE', charge: 0, ultReady: false, slots: [],
+  energy: ENERGY_MAX, shield: SHIELD_MAX, fsm: 'IDLE', charge: 0, ultReady: false,
+  combo: 0, stats: { kos: 0, damageDealt: 0, damageTaken: 0, maxCombo: 0, perfectShields: 0 },
+  slots: [],
 })
 
 interface GameStore {

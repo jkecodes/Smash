@@ -5,7 +5,7 @@ import { ModelAvatar, ModelBoundary, useModelUrl } from './ModelAvatar'
 import * as THREE from 'three'
 import { CHARACTERS } from '../game/characters'
 import { PLATFORM_THICKNESS } from '../game/constants'
-import { STAGES, type StageDef } from '../game/stages'
+import { STAGES, getPlatformPos, type PlatformDef, type StageDef, type StageTheme } from '../game/stages'
 import { runtime } from '../game/runtime'
 import { stepSimulation } from '../game/sim'
 import { useGameStore } from '../game/store'
@@ -118,12 +118,49 @@ function StageDecor({ stage }: { stage: StageDef }) {
   }
 }
 
+function PlatformView({ p, i, h, theme }: { p: PlatformDef; i: number; h: { x: number; y: number; z: number }; theme: StageTheme }) {
+  const visRef = useRef<THREE.Group>(null)
+  useFrame(() => {
+    if (!p.move || !visRef.current) return
+    const pos = getPlatformPos(p, runtime.stageTime)
+    visRef.current.position.set(pos.x, pos.y, 0)
+  })
+  return (
+    <group>
+      <RigidBody
+        ref={(rb: RapierRigidBody | null) => { runtime.platformBodies[i] = rb }}
+        type="fixed"
+        position={[p.x, p.y - PLATFORM_THICKNESS / 2, 0]}
+        colliders={false}
+        friction={0}
+        collisionGroups={interactionGroups(2 + i, [1])}
+      >
+        <CuboidCollider args={[p.w / 2, PLATFORM_THICKNESS / 2, h.z]} friction={0} />
+      </RigidBody>
+      <group ref={visRef} position={[p.x, p.y, 0]}>
+        <mesh position={[0, -PLATFORM_THICKNESS / 2, 0]} castShadow receiveShadow>
+          <boxGeometry args={[p.w, PLATFORM_THICKNESS, h.z * 2]} />
+          <meshStandardMaterial color={p.color ?? theme.platColor} />
+        </mesh>
+        <mesh position={[0, 0.01, h.z]}>
+          <boxGeometry args={[p.w, 0.04, 0.06]} />
+          <meshBasicMaterial color={p.edgeColor ?? theme.platEdgeColor} />
+        </mesh>
+      </group>
+    </group>
+  )
+}
+
 /** 場地：動態載入懸空主平台與穿透式層板 */
 export function Arena() {
   const stageId = useGameStore((s) => s.stageId)
   const stage = STAGES[stageId] ?? STAGES.battlefield
   const h = stage.half
   const theme = stage.theme
+
+  useEffect(() => {
+    return () => { runtime.platformBodies = [] }
+  }, [stage.id])
 
   return (
     <group key={stage.id}>
@@ -139,19 +176,7 @@ export function Arena() {
         <meshStandardMaterial color={theme.surfaceColor} />
       </mesh>
       {stage.platforms.map((p, i) => (
-        <group key={`plat-${stage.id}-${i}`}>
-          <RigidBody type="fixed" colliders={false} friction={0} collisionGroups={interactionGroups(2 + i, [1])}>
-            <CuboidCollider args={[p.w / 2, PLATFORM_THICKNESS / 2, h.z]} position={[p.x, p.y - PLATFORM_THICKNESS / 2, 0]} friction={0} />
-          </RigidBody>
-          <mesh position={[p.x, p.y - PLATFORM_THICKNESS / 2, 0]} castShadow receiveShadow>
-            <boxGeometry args={[p.w, PLATFORM_THICKNESS, h.z * 2]} />
-            <meshStandardMaterial color={p.color ?? theme.platColor} />
-          </mesh>
-          <mesh position={[p.x, p.y + 0.01, h.z]}>
-            <boxGeometry args={[p.w, 0.04, 0.06]} />
-            <meshBasicMaterial color={p.edgeColor ?? theme.platEdgeColor} />
-          </mesh>
-        </group>
+        <PlatformView key={`plat-${stage.id}-${i}`} p={p} i={i} h={h} theme={theme} />
       ))}
       {[-1, 1].map((s) => (
         <mesh key={s} position={[s * (h.x + 0.04), -0.06, 0]}>
@@ -234,7 +259,8 @@ function FighterView({ id }: { id: FighterId }) {
     mat.current.transparent = true
     const squash = f.fsm === 'ATTACK_STARTUP' ? 0.85 : 1
     group.current.scale.set(CHAR_SCALE, CHAR_SCALE * squash, CHAR_SCALE)
-    group.current.position.y = (CHAR_SCALE - 1) * 0.5 // 腳底維持貼地
+    const jitter = runtime.hitstopMs > 0 && f.fsm === 'HITSTUN' ? (Math.random() - 0.5) * 0.22 : 0
+    group.current.position.set(jitter, (CHAR_SCALE - 1) * 0.5, 0) // 腳底維持貼地，受擊頓幀時震顫
     if (aura.current) {
       aura.current.visible = f.ultReady
       aura.current.scale.setScalar(1.35 + 0.12 * Math.sin(performance.now() / 120))

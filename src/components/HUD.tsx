@@ -19,7 +19,15 @@ const SLOT_KEYS: Record<FighterId, Record<string, string>> = {
 
 function Card({ id, u }: { id: FighterId; u: UiFighter }) {
   return (
-    <div className="w-72 rounded-xl bg-black/55 p-3 text-white backdrop-blur">
+    <div className="relative w-72 rounded-xl bg-black/55 p-3 text-white backdrop-blur">
+      {u.combo >= 2 && (
+        <div
+          className=" -top-8 left-3 absolute animate-bounce rounded-full px-3 py-0.5 text-xs font-black text-black shadow-lg"
+          style={{ backgroundColor: u.color }}
+        >
+          🔥 {u.combo} HIT COMBO!
+        </div>
+      )}
       <div className="flex items-baseline justify-between">
         <span className="text-sm font-bold tracking-widest" style={{ color: u.color }}>{id.toUpperCase()} · {u.name}</span>
         <span className="font-mono text-[10px] text-white/60">{u.fsm}</span>
@@ -223,11 +231,10 @@ function StagePicker() {
               key={id}
               type="button"
               onClick={() => selectStage(id)}
-              className={`flex flex-col items-start rounded-xl p-2.5 transition-all w-44 text-left border ${
-                active
+              className={`flex flex-col items-start rounded-xl p-2.5 transition-all w-44 text-left border ${active
                   ? 'border-yellow-300 bg-white/20 shadow-lg shadow-yellow-500/10 scale-105 ring-1 ring-yellow-300'
                   : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30 opacity-75 hover:opacity-100'
-              }`}
+                }`}
             >
               <div className="flex w-full items-center justify-between">
                 <span className="text-xs font-black text-white">{st.theme.name}</span>
@@ -454,17 +461,27 @@ function PauseOverlay() {
 
 function AudioControl() {
   const muted = useAudioStore((s) => s.muted)
+  const bgmMuted = useAudioStore((s) => s.bgmMuted)
   const volume = useAudioStore((s) => s.volume)
   const setMuted = useAudioStore((s) => s.setMuted)
+  const setBgmMuted = useAudioStore((s) => s.setBgmMuted)
   const setVolume = useAudioStore((s) => s.setVolume)
 
   return (
     <div className="flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-xs text-white/90 backdrop-blur shadow-md ring-1 ring-white/10 select-none">
       <button
         type="button"
+        onClick={() => setBgmMuted(!bgmMuted)}
+        className={`text-sm hover:scale-110 active:scale-95 transition-all ${bgmMuted || muted ? 'opacity-40 line-through' : ''}`}
+        title="切換背景音樂 BGM（亦可按鍵盤 B）"
+      >
+        🎵
+      </button>
+      <button
+        type="button"
         onClick={() => setMuted(!muted)}
         className="text-sm hover:scale-110 active:scale-95 transition-transform"
-        title="切換靜音（亦可按鍵盤 M）"
+        title="切換總靜音（亦可按鍵盤 M）"
       >
         {muted || volume === 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}
       </button>
@@ -512,11 +529,48 @@ export function HUD() {
       {phase === 'menu' && <Menu />}
       {phase === 'playing' && paused && <PauseOverlay />}
       {phase === 'ended' && winner && (
-        <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/60 text-white">
-          <div className="text-6xl font-black" style={{ color: ui[winner].color }}>{winner.toUpperCase()} WINS!</div>
+        <div className="pointer-events-auto absolute inset-0 flex flex-col items-center justify-center gap-5 bg-black/75 backdrop-blur-sm text-white">
+          <div className="text-center">
+            <div className="text-xs font-bold tracking-[0.3em] text-yellow-300/80 uppercase">GAME SET</div>
+            <div className="text-6xl font-black italic" style={{ color: ui[winner].color }}>
+              {winner.toUpperCase()} · {ui[winner].name} WINS!
+            </div>
+          </div>
+
+          {/* 賽後戰報數據 */}
+          <div className="w-full max-w-md rounded-2xl bg-white/10 border border-white/15 p-4 text-xs shadow-xl">
+            <div className="mb-2.5 flex justify-between border-b border-white/10 pb-2 font-black text-sm">
+              <span style={{ color: ui.p1.color }}>P1 · {ui.p1.name}</span>
+              <span className="text-white/50 text-xs">對戰統計</span>
+              <span style={{ color: ui.p2.color }}>P2 · {ui.p2.name}</span>
+            </div>
+            <div className="space-y-2 text-center font-mono">
+              <div className="grid grid-cols-3 items-center">
+                <span className="text-left text-sm font-bold">{ui.p1.stats.kos}</span>
+                <span className="text-white/60 font-sans text-[11px]">擊墜數 (KOs)</span>
+                <span className="text-right text-sm font-bold">{ui.p2.stats.kos}</span>
+              </div>
+              <div className="grid grid-cols-3 items-center">
+                <span className="text-left text-sm font-bold">{ui.p1.stats.damageDealt}%</span>
+                <span className="text-white/60 font-sans text-[11px]">輸出傷害</span>
+                <span className="text-right text-sm font-bold">{ui.p2.stats.damageDealt}%</span>
+              </div>
+              <div className="grid grid-cols-3 items-center">
+                <span className="text-left text-sm font-bold">{ui.p1.stats.maxCombo}</span>
+                <span className="text-white/60 font-sans text-[11px]">最高連段</span>
+                <span className="text-right text-sm font-bold">{ui.p2.stats.maxCombo}</span>
+              </div>
+              <div className="grid grid-cols-3 items-center">
+                <span className="text-left text-sm font-bold">{ui.p1.stats.perfectShields}</span>
+                <span className="text-white/60 font-sans text-[11px]">完美防禦</span>
+                <span className="text-right text-sm font-bold">{ui.p2.stats.perfectShields}</span>
+              </div>
+            </div>
+          </div>
+
           <div className="flex gap-3">
-            <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded bg-yellow-300 px-6 py-2 font-bold text-black">再來一場</button>
-            <button onClick={toMenu} className="rounded bg-white/20 px-6 py-2 font-bold">回選單</button>
+            <button onClick={() => { clearEntities(); resetSimStage(); start() }} className="rounded-xl bg-yellow-300 px-8 py-2.5 font-black text-black hover:bg-yellow-200 transition-colors">再來一場</button>
+            <button onClick={toMenu} className="rounded-xl bg-white/20 px-8 py-2.5 font-bold hover:bg-white/30 transition-colors">回選單</button>
           </div>
         </div>
       )}

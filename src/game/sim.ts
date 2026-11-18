@@ -2,9 +2,9 @@ import { interactionGroups } from '@react-three/rapier'
 import { CHARACTERS } from './characters'
 import {
   AIR_ACCEL, AIR_SPEED, BLAST, COOLDOWN_SCALE, LEDGE_HANG_MS, LEDGE_REGRAB_MS, LEDGE_X, ENERGY_MAX, ENERGY_REGEN, GRAVITY, GROUND_ACCEL, HALF, JUMP_VEL,
-  MAX_DAMAGE, MAX_JUMPS, DROP_THROUGH_MS, PLATFORMS, RUN_SPEED, SHIELD_MAX, SPAWN_X, STAGE_HALF,
+  MAX_DAMAGE, MAX_JUMPS, DROP_THROUGH_MS, PLATFORMS, PLATFORM_THICKNESS, RUN_SPEED, SHIELD_MAX, SPAWN_X, STAGE_HALF,
 } from './constants'
-import { STAGES } from './stages'
+import { STAGES, getPlatformPos } from './stages'
 import { cpuInput, resetCpu } from './ai'
 import { sfx } from './audio'
 import { debugKeys, readInput, rumble, type InputFrame } from './input'
@@ -50,18 +50,39 @@ function queryBall(center: Vec3, r: number): FighterId[] {
   return out
 }
 
+/** 推進動態移動層板的剛體位置 */
+function stepPlatforms(dt: number) {
+  runtime.stageTime += dt
+  getStage().platforms.forEach((p, i) => {
+    if (!p.move) return
+    const pb = runtime.platformBodies[i]
+    if (!pb) return
+    const pos = getPlatformPos(p, runtime.stageTime)
+    pb.setTranslation({ x: pos.x, y: pos.y - PLATFORM_THICKNESS / 2, z: 0 }, true)
+  })
+}
+
 /** 穿透式層板：腳在頂面之上且不在上衝時才與該層板碰撞（每片層板各一個碰撞群組） */
 const lastMask = new Map<FighterId, number>()
 const lastGroups = new Map<FighterId, number[]>()
-function updatePlatformCollision(f: FighterState, rb: any) {
+function updatePlatformCollision(f: FighterState, rb: any, dt: number) {
   const feet = f.pos[1] - HALF
   const prev = lastGroups.get(f.id) ?? []
   const groups = [0]
   if (f.dropMs <= 0 && f.vel[1] <= 1) {
     getStage().platforms.forEach((p, i) => {
-      // 遲滯：已經在碰撞中的層板，腳在頂面下 0.5 內都維持碰撞，避免高速落下時一幀就穿過去
-      const thr = prev.includes(2 + i) ? p.y - 0.5 : p.y - 0.12
-      if (feet >= thr) groups.push(2 + i)
+      const pos = getPlatformPos(p, runtime.stageTime)
+      // 遲滯：已經在碰撞中的層板，腳在頂面下 0.55 內都維持碰撞，避免高速落下或升降時穿過去
+      const thr = prev.includes(2 + i) ? pos.y - 0.55 : pos.y - 0.14
+      if (feet >= thr) {
+        groups.push(2 + i)
+        if (p.move && f.grounded && Math.abs(feet - pos.y) < 0.3 && Math.abs(f.pos[0] - pos.x) <= p.w / 2 + 0.4) {
+          const nx = f.pos[0] + pos.vx * dt
+          const ny = f.pos[1] + pos.vy * dt
+          rb.setTranslation({ x: nx, y: ny, z: 0 }, true)
+          f.pos = [nx, ny, 0]
+        }
+      }
     })
   }
   lastGroups.set(f.id, groups)
@@ -517,6 +538,7 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
       addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1], 0], color: '#ffe066', ttl: 350, radius: 1.8 })
       addFx({ kind: 'burst', pos: [tgt.pos[0], tgt.pos[1], 0], color: '#ffe066', ttl: 300, count: 14, speed: 6, size: 0.14 })
       tgt.energy = Math.min(ENERGY_MAX, tgt.energy + 8)
+      tgt.stats.perfectShields += 1
       sfx('perfect')
       rumble(tgt.id, 0.5, 80)
     }
@@ -525,7 +547,16 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
     if (tgt.shield <= 0) { tgt.shield = 0; tgt.hitstunMs = 1500; endSkill(tgt); setFsm(tgt, 'HITSTUN'); sfx('shieldBreak') }
     return
   }
+  const wasInHitstun = tgt.fsm === 'HITSTUN'
   tgt.damage = Math.min(MAX_DAMAGE, tgt.damage + dmg)
+  att.stats.damageDealt += dmg
+  tgt.stats.damageTaken += dmg
+  att.comboCount = wasInHitstun || att.comboTimerMs > 0 ? att.comboCount + 1 : 1
+  att.comboTimerMs = 1600
+  att.stats.maxCombo = Math.max(att.stats.maxCombo, att.comboCount)
+  tgt.comboCount = 0
+  tgt.comboTimerMs = 0
+
   const speed = (kb.base + kb.scaling * (tgt.damage / 100)) * src.kbMult
   if (tgt.skill) endSkill(tgt) // 受擊打斷施放
   trb.setGravityScale(1, true)
@@ -537,6 +568,10 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   att.energy = Math.min(ENERGY_MAX, att.energy + dmg * 1.2)
   tgt.energy = Math.min(ENERGY_MAX, tgt.energy + dmg * 0.6)
   runtime.shake = Math.max(runtime.shake, Math.min(0.9, speed * 0.02))
+  if (speed >= 18) {
+    runtime.hitstopMs = Math.max(runtime.hitstopMs, clamp((speed - 14) * 3.5, 45, 120))
+    addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1], 0], color: speed >= 26 ? '#ff3366' : '#ffe066', ttl: 280, radius: 1.4 + speed * 0.04, plane: 'vertical' })
+  }
   rumble(tgt.id, 0.3 + speed * 0.02, 100 + speed * 5)
   rumble(att.id, 0.2, 60)
   addFx({ kind: 'burst', pos: [tgt.pos[0], tgt.pos[1], 0], color: '#ffffff', ttl: 350, count: 10 + Math.min(20, Math.round(speed)), speed: 3 + speed * 0.25, size: 0.14 })
@@ -547,19 +582,31 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
 function ko(f: FighterState) {
   const rb = runtime.bodies[f.id]!
   const p = f.pos
-  addFx({ kind: 'burst', pos: [clamp(p[0], -BLAST.x + 1, BLAST.x - 1), clamp(p[1], BLAST.minY + 1, BLAST.maxY - 1), 0], color: CHARACTERS[f.character].color, ttl: 900, count: 70, speed: 14, size: 0.35 })
-  runtime.shake = 1
+  const blast = getStage().blast ?? BLAST
+  const ex = clamp(p[0], -blast.x + 1, blast.x - 1)
+  const ey = clamp(p[1], blast.minY + 1, blast.maxY - 1)
+  const col = CHARACTERS[f.character].color
+  addFx({ kind: 'burst', pos: [ex, ey, 0], color: col, ttl: 900, count: 70, speed: 14, size: 0.35 })
+  addFx({ kind: 'ring', pos: [ex, ey, 0], color: col, ttl: 650, radius: 5.5, plane: 'vertical' })
+  addFx({ kind: 'pillar', pos: [ex, ey - 10, 0], color: col, ttl: 750, radius: 2.2 })
+  runtime.shake = 1.2
   sfx('ko')
   rumble(f.id, 1, 400)
   if (f.skill) endSkill(f)
   releaseLedge(f)
+  store().fighters[other(f.id)].stats.kos += 1
+  f.comboCount = 0
+  f.comboTimerMs = 0
   f.stocks -= 1
   f.ultReady = false
   f.damage = 0
   f.alive = false
   f.respawnMs = 1300
   rb.setEnabled(false)
-  if (f.stocks <= 0) store().endMatch(other(f.id))
+  if (f.stocks <= 0) {
+    publishUi(0, true)
+    store().endMatch(other(f.id))
+  }
 }
 
 function respawn(f: FighterState) {
@@ -607,11 +654,13 @@ function updateFighter(f: FighterState, dt: number) {
   f.invulnMs = Math.max(0, f.invulnMs - dtMs)
   f.flashMs = Math.max(0, f.flashMs - dtMs)
   f.comboBufferMs = Math.max(0, f.comboBufferMs - dtMs)
+  f.comboTimerMs = Math.max(0, f.comboTimerMs - dtMs)
+  if (f.comboTimerMs <= 0) f.comboCount = 0
   f.ledgeCd = Math.max(0, f.ledgeCd - dtMs)
   for (const k in f.cooldowns) f.cooldowns[k] = Math.max(0, f.cooldowns[k] - dtMs)
   f.energy = Math.min(ENERGY_MAX, f.energy + ENERGY_REGEN * dt)
   f.dropMs = Math.max(0, f.dropMs - dtMs)
-  updatePlatformCollision(f, rb)
+  updatePlatformCollision(f, rb, dt)
   const wasGrounded = f.grounded
   f.grounded = checkGround(f)
   if (f.grounded) {
@@ -633,6 +682,13 @@ function updateFighter(f: FighterState, dt: number) {
     f.hitstunMs -= dtMs
     const k = Math.pow(f.grounded ? 0.9 : 0.995, dt * 60)
     rb.setLinvel({ x: lv.x * k, y: lv.y, z: 0 }, true)
+    if (Math.hypot(lv.x, lv.y) > 15) {
+      f.scratchTrail = (f.scratchTrail ?? 0) - dtMs
+      if (f.scratchTrail <= 0) {
+        f.scratchTrail = 45
+        addFx({ kind: 'afterimage', pos: [t.x, t.y, 0], color: CHARACTERS[f.character].color, ttl: 240, shape: 'sphere', size: 0.45 })
+      }
+    }
     if (f.hitstunMs <= 0) setFsm(f, f.grounded ? 'IDLE' : 'JUMP')
     return
   }
@@ -780,6 +836,7 @@ function publishUi(dt: number, force = false) {
       name: c.name, color: c.color, damage: Math.round(f.damage), stocks: f.stocks,
       energy: Math.round(f.energy), shield: Math.round(f.shield), fsm: f.fsm,
       charge: f.skill?.chargeRatio ?? 0, ultReady: f.ultReady,
+      combo: f.comboCount, stats: { ...f.stats, damageDealt: Math.round(f.stats.damageDealt), damageTaken: Math.round(f.stats.damageTaken) },
       slots: (['attack', 'skill1', 'skill2', 'ult'] as SkillSlot[]).flatMap((slot) => {
         const d = getSkill(c.loadout[slot])
         if (!d) return []
@@ -795,6 +852,8 @@ function publishUi(dt: number, force = false) {
 export function stepSimulation(rawDt: number) {
   if (store().paused) return // 暫停：整個模擬凍結
   const dt = Math.min(rawDt, 1 / 30)
+  runtime.hitstopMs = Math.max(0, runtime.hitstopMs - dt * 1000)
+  stepPlatforms(dt)
   if (debugKeys.toggle) { debugKeys.toggle = false; store().toggleDebug() }
   const s = store()
   if (debugKeys.giveUlt) { debugKeys.giveUlt = false; for (const id of FIGHTER_IDS) s.fighters[id].ultReady = true }

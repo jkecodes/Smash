@@ -6,6 +6,23 @@ export interface PlatformDef {
   w: number
   color?: string
   edgeColor?: string
+  /** 動態移動層板設定：水平/垂直擺幅與角速度 */
+  move?: { ampX?: number; ampY?: number; speed: number; phase?: number }
+}
+
+/** 計算層板在指定時間點的座標與瞬時速度 */
+export function getPlatformPos(p: PlatformDef, tSec: number): { x: number; y: number; vx: number; vy: number } {
+  if (!p.move) return { x: p.x, y: p.y, vx: 0, vy: 0 }
+  const { ampX = 0, ampY = 0, speed, phase = 0 } = p.move
+  const angle = tSec * speed + phase
+  const s = Math.sin(angle)
+  const c = Math.cos(angle)
+  return {
+    x: p.x + ampX * s,
+    y: p.y + ampY * s,
+    vx: ampX * speed * c,
+    vy: ampY * speed * c,
+  }
 }
 
 export interface StageTheme {
@@ -110,15 +127,15 @@ export const STAGES: Record<StageId, StageDef> = {
     ledgeX: 8,
     spawnX: { p1: -3.5, p2: 3.5 },
     platforms: [
-      { x: 0, y: 3.2, w: 5.4, color: '#16333c', edgeColor: '#00ffee' },
-      { x: -5.8, y: 2.0, w: 2.6, color: '#381630', edgeColor: '#ff00aa' },
-      { x: 5.8, y: 2.0, w: 2.6, color: '#381630', edgeColor: '#ff00aa' },
+      { x: 0, y: 3.3, w: 5.0, color: '#16333c', edgeColor: '#00ffee', move: { ampX: 2.2, speed: 1.1 } },
+      { x: -5.8, y: 2.1, w: 2.6, color: '#381630', edgeColor: '#ff00aa', move: { ampY: 0.65, speed: 1.6, phase: 0 } },
+      { x: 5.8, y: 2.1, w: 2.6, color: '#381630', edgeColor: '#ff00aa', move: { ampY: 0.65, speed: 1.6, phase: Math.PI } },
     ],
     theme: {
       name: '賽博天台',
       subtitle: 'Cyber Rooftop',
-      tag: '高台制空＋外飄浮板',
-      desc: '中央寬闊高台易守難攻，兩側懸空浮板適合邊緣埋伏與奇襲。',
+      tag: '動態巡弋浮板',
+      desc: '中央高台左右巡弋、兩側懸空浮板上下升降，充滿立體動感。',
       bg: '#050f14',
       fog: '#050f14',
       ambientColor: '#4da6aa',
