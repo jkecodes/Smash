@@ -251,9 +251,9 @@ function TetroAvatar({ id }: { id: FighterId }) {
         const cmat = cellMats.current[idx]
         const col = b.grid[r][c]
         if (cm && cmat) {
-          cm.visible = !!col || c < 3
+          cm.visible = true
           cmat.color.set(col ?? '#1e293b')
-          cmat.opacity = col ? 0.95 : 0.22
+          cmat.opacity = col ? 0.95 : 0.25
         }
       }
     }

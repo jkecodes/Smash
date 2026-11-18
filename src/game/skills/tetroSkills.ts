@@ -83,21 +83,61 @@ export function getReadyLines(id: FighterId): number {
 }
 
 /**
- * 邊移動邊堆疊：將 count 顆方塊自動填入左方 3 欄（保留第 4 欄作為 Tetris 井道）。
- * 普攻與位移技會呼叫此函式，完全不需要停下腳步對位！
+ * 邊移動邊堆疊：將目前手中的真實俄羅斯方塊形狀（I/O/T/S/Z/J/L）
+ * 從上方落入 4×6 迷你棋盤並貼合底部/既有方塊。
  */
-function stackBlocks(c: SkillContext, count: number) {
+function stackBlocks(c: SkillContext, _count: number) {
   const b = boards[c.caster.id]
   const piece = advancePiece(b)
-  let left = count
-  for (let r = 0; r < 6 && left > 0; r++) {
-    for (let col = 0; col < 3 && left > 0; col++) {
-      if (!b.grid[r][col]) {
+
+  // 將 piece.blocks 正規化為整數局部座標 (dx >= 0, dy >= 0)
+  const minX = Math.min(...piece.blocks.map(([x]) => x))
+  const minY = Math.min(...piece.blocks.map(([, y]) => y))
+  const cells = piece.blocks.map(([x, y]) => [Math.round(x - minX), Math.round(y - minY)] as [number, number])
+  const width = Math.max(...cells.map(([x]) => x)) + 1
+
+  // 嘗試不同水平偏移 ox，優先選能落得最低且不超出 4×6 棋盤的位置
+  let bestOx = 0
+  let bestRow = 99
+  for (let ox = 0; ox <= Math.max(0, 4 - width); ox++) {
+    let row = 5
+    while (row >= 0) {
+      const collides = cells.some(([dx, dy]) => {
+        const r = row + dy
+        const col = ox + dx
+        if (r < 0 || col < 0 || col >= 4) return true
+        return r < 6 && b.grid[r][col] !== null
+      })
+      if (collides) break
+      row--
+    }
+    const landRow = row + 1
+    if (landRow < bestRow) {
+      bestRow = landRow
+      bestOx = ox
+    }
+  }
+
+  let placed = false
+  if (bestRow < 6) {
+    for (const [dx, dy] of cells) {
+      const r = bestRow + dy
+      const col = bestOx + dx
+      if (r >= 0 && r < 6 && col >= 0 && col < 4 && !b.grid[r][col]) {
         b.grid[r][col] = piece.color
-        left--
+        placed = true
       }
     }
   }
+  // 若棋盤已滿無法整塊放入，退回補滿空位
+  if (!placed) {
+    for (let r = 0; r < 6; r++) {
+      for (let col = 0; col < 3; col++) {
+        if (!b.grid[r][col]) { b.grid[r][col] = piece.color; break }
+      }
+    }
+  }
+
   c.fx({
     kind: 'burst',
     pos: [c.caster.pos[0], c.caster.pos[1] + 1.1, 0],
