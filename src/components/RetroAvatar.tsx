@@ -87,16 +87,40 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
     const flash = f.flashMs > 0
     const blink = f.invulnMs > 0 && Math.floor(performance.now() / 80) % 2 === 0
 
-    // 閃避旋轉 ＋ 奔跑前傾 ＋ 呼吸浮動
+    // 閃避旋轉、受擊後仰、跳躍伸展、防禦蹲姿與奔跑前傾擺動
+    const hitstun = f.fsm === 'HITSTUN'
+    const shielding = f.fsm === 'SHIELD'
+    const jumping = f.fsm === 'JUMP'
+    const startup = f.fsm === 'ATTACK_STARTUP'
+    const active = f.fsm === 'ATTACK_ACTIVE'
+    let targetScaleY = 1
+    let targetRotZ = 0
     if (f.fsm === 'DODGE') {
       root.current.rotation.x = (f.stateMs / 360) * Math.PI * 2
+      root.current.position.y = 0
+    } else if (hitstun) {
+      root.current.rotation.x = THREE.MathUtils.lerp(root.current.rotation.x % (Math.PI * 2), -0.45, 0.35)
+      targetRotZ = Math.sin(t * 36) * 0.24
+      root.current.position.y = Math.sin(t * 28) * 0.04
+    } else if (shielding) {
+      root.current.rotation.x = THREE.MathUtils.lerp(root.current.rotation.x % (Math.PI * 2), 0.25, 0.35)
+      root.current.position.y = -0.09
+      targetScaleY = 0.9
+    } else if (f.fsm === 'LEDGE') {
+      root.current.rotation.x = THREE.MathUtils.lerp(root.current.rotation.x % (Math.PI * 2), 0.22, 0.3)
+      root.current.position.y = Math.sin(t * 4) * 0.04
     } else {
-      const targetLean = running ? 0.14 : f.fsm === 'ATTACK_ACTIVE' ? 0.18 : 0
-      root.current.rotation.x = THREE.MathUtils.lerp(root.current.rotation.x % (Math.PI * 2), targetLean, 0.25)
+      const jumpLean = jumping ? (f.vel[1] > 2 ? -0.18 : f.vel[1] < -4 ? 0.2 : 0) : 0
+      const targetLean = running ? 0.22 : startup ? -0.16 : active ? 0.28 : jumpLean
+      root.current.rotation.x = THREE.MathUtils.lerp(root.current.rotation.x % (Math.PI * 2), targetLean, 0.28)
+      targetRotZ = running ? Math.sin(t * 14) * 0.09 : Math.sin(t * 2.2) * 0.035
+      if (jumping) targetScaleY = f.vel[1] > 4 ? 1.09 : f.vel[1] < -6 ? 0.92 : 1
+      const bobSpeed = running ? 14 : 4.2
+      const bobAmp = running ? 0.065 : jumping ? 0.015 : 0.035
+      root.current.position.y = Math.sin(t * bobSpeed) * bobAmp
     }
-    const bobSpeed = running ? 14 : 4.2
-    const bobAmp = running ? 0.055 : 0.03
-    root.current.position.y = Math.sin(t * bobSpeed) * bobAmp
+    root.current.rotation.z = THREE.MathUtils.lerp(root.current.rotation.z, targetRotZ, 0.3)
+    root.current.scale.y = THREE.MathUtils.lerp(root.current.scale.y, targetScaleY, 0.25)
 
     // 受擊閃白與無敵閃爍
     for (const s of matsRef.current) {
@@ -120,9 +144,10 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
       if (animA.current) animA.current.rotation.x = -chomp
       if (animB.current) animB.current.rotation.x = chomp
     } else if (charId === 'mario' || charId === 'bomber' || charId === 'kong') {
-      const swing = running ? Math.sin(t * 14) * 0.65 : attacking ? -0.9 : Math.sin(t * 3) * 0.1
+      const swing = shielding ? -1.15 : running ? Math.sin(t * 14) * 0.72 : startup ? 0.7 : active ? -1.25 : Math.sin(t * 3) * 0.12
       if (animA.current) animA.current.rotation.x = swing
-      if (animB.current) animB.current.rotation.x = -swing
+      if (animB.current) animB.current.rotation.x = shielding ? -1.15 : active ? 0.45 : -swing
+      root.current.rotation.y = THREE.MathUtils.lerp(root.current.rotation.y, startup ? -0.32 : active ? 0.38 : 0, 0.3)
       if (charId === 'bomber' && animC.current) {
         animC.current.scale.setScalar(1 + Math.sin(t * 18) * 0.22)
       }
@@ -164,9 +189,10 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
       }
       if (animB.current) animB.current.rotation.x = Math.sin(t * 4) * 0.08
     } else if (charId === 'ryu' || charId === 'chunli') {
-      const kick = running ? Math.sin(t * 15) * 0.65 : attacking ? -0.95 : Math.sin(t * 4) * 0.12
+      const kick = shielding ? -1.15 : running ? Math.sin(t * 15) * 0.75 : startup ? 0.75 : active ? -1.35 + Math.sin(t * 28) * 0.35 : Math.sin(t * 4) * 0.14
       if (animA.current) animA.current.rotation.x = kick
-      if (animB.current) animB.current.rotation.x = -kick
+      if (animB.current) animB.current.rotation.x = shielding ? -1.15 : active ? -1.1 - Math.sin(t * 28) * 0.35 : -kick
+      root.current.rotation.y = THREE.MathUtils.lerp(root.current.rotation.y, startup ? -0.35 : active ? 0.42 : 0, 0.32)
       if (charId === 'ryu' && animC.current) animC.current.scale.setScalar(attacking ? 1.45 : 0.8 + Math.sin(t * 6) * 0.15)
     } else if (charId === 'yugi' || charId === 'kaiba') {
       if (animA.current) animA.current.rotation.y = t * (attacking ? 7 : 2.2)
@@ -174,43 +200,53 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
     } else if (charId === 'omnom' || charId === 'red') {
       if (animA.current) animA.current.rotation.x = running ? Math.sin(t * 14) * 0.25 : Math.sin(t * 4) * 0.08
     } else if (ANIME_PRESETS[charId]) {
-      const style = ANIME_PRESETS[charId]!.style ?? 'martial'
-      const startup = f.fsm === 'ATTACK_STARTUP'
-      const active = f.fsm === 'ATTACK_ACTIVE'
-      const sw = running ? Math.sin(t * 14) * 0.65 : Math.sin(t * 3.5) * 0.1
+      const pr = ANIME_PRESETS[charId]!
+      const style = pr.style ?? 'martial'
+      const sw = running ? Math.sin(t * 14) * 0.7 : Math.sin(t * 3.5) * 0.12
+      const flipCombo = (f.comboCount % 2) === 1
       let targetYaw = 0
-      if (style === 'sword') {
-        if (startup) { targetYaw = -0.35; if (animA.current) { animA.current.rotation.set(0.85, 0, 0.3) } }
-        else if (active) { targetYaw = 0.45; if (animA.current) { animA.current.rotation.set(-1.65, 0, -0.65) } }
+      if (shielding) {
+        if (animA.current) animA.current.rotation.set(-1.1, 0, -0.35)
+        if (animB.current) animB.current.rotation.set(-1.1, 0, 0.35)
+      } else if (style === 'sword') {
+        if (startup) { targetYaw = flipCombo ? 0.4 : -0.4; if (animA.current) { animA.current.rotation.set(0.95, 0, flipCombo ? -0.35 : 0.35) } }
+        else if (active) { targetYaw = flipCombo ? -0.5 : 0.5; if (animA.current) { animA.current.rotation.set(-1.75, 0, flipCombo ? 0.75 : -0.75) } }
         else if (animA.current) { animA.current.rotation.set(sw, 0, 0) }
-        if (animB.current) animB.current.rotation.x = active ? 0.5 : -sw
+        if (animB.current) {
+          if (pr.dualSword && active) animB.current.rotation.set(-1.55, 0, flipCombo ? -0.65 : 0.65)
+          else if (pr.dualSword && startup) animB.current.rotation.set(0.75, 0, -0.3)
+          else animB.current.rotation.set(active ? 0.55 : -sw, 0, 0)
+        }
       } else if (style === 'spear') {
-        if (startup) { targetYaw = -0.45; if (animA.current) animA.current.rotation.set(0.6, 0, 0) }
+        if (startup) { targetYaw = -0.45; if (animA.current) animA.current.rotation.set(0.65, 0, 0) }
         else if (active) { targetYaw = Math.sin(t * 22) * 0.55; if (animA.current) animA.current.rotation.set(-1.45 + Math.sin(t * 28) * 0.45, 0, -0.35) }
         else if (animA.current) animA.current.rotation.set(sw, 0, 0)
-        if (animB.current) animB.current.rotation.x = active ? -1.0 : -sw
+        if (animB.current) animB.current.rotation.set(active ? -1.0 : -sw, 0, 0)
       } else if (style === 'gun') {
-        const recoil = active ? Math.sin(t * 40) * 0.15 : 0
+        const recoil = active ? Math.sin(t * 40) * 0.18 : 0
         if (animA.current) animA.current.rotation.set(attacking ? -1.45 + recoil : sw * 0.4, 0, 0)
         if (animB.current) animB.current.rotation.set(attacking ? -1.25 + recoil : -sw * 0.4, 0, 0)
       } else if (style === 'idol') {
-        if (active) targetYaw = (f.stateMs * 0.015) % (Math.PI * 2)
-        if (animA.current) animA.current.rotation.set(attacking ? -1.8 : sw, 0, active ? -0.4 : 0)
-        if (animB.current) animB.current.rotation.set(attacking ? -1.8 : -sw, 0, active ? 0.4 : 0)
+        if (active) targetYaw = (f.stateMs * 0.016) % (Math.PI * 2)
+        if (animA.current) animA.current.rotation.set(attacking ? -1.85 : sw, 0, active ? -0.45 : 0)
+        if (animB.current) animB.current.rotation.set(attacking ? -1.85 : -sw, 0, active ? 0.45 : 0)
       } else if (style === 'mage') {
-        if (animA.current) animA.current.rotation.set(attacking ? -1.95 : sw, 0, attacking ? -0.3 : 0)
-        if (animB.current) animB.current.rotation.set(attacking ? -1.95 : -sw, 0, attacking ? 0.3 : 0)
+        if (active) targetYaw = Math.sin(t * 16) * 0.28
+        if (animA.current) animA.current.rotation.set(attacking ? -1.95 : sw, 0, attacking ? -0.35 : 0)
+        if (animB.current) animB.current.rotation.set(attacking ? -1.95 : -sw, 0, attacking ? 0.35 : 0)
       } else {
         // martial: 快速交替連拳
         const flurry = Math.sin(t * 32) * 1.15
-        if (animA.current) animA.current.rotation.set(active ? -1.1 + flurry : startup ? 0.6 : sw, 0, 0)
-        if (animB.current) animB.current.rotation.set(active ? -1.1 - flurry : startup ? 0.4 : -sw, 0, 0)
+        if (active) targetYaw = Math.sin(t * 18) * 0.35
+        if (animA.current) animA.current.rotation.set(active ? -1.1 + flurry : startup ? 0.65 : sw, 0, 0)
+        if (animB.current) animB.current.rotation.set(active ? -1.1 - flurry : startup ? 0.45 : -sw, 0, 0)
       }
       root.current.rotation.y = THREE.MathUtils.lerp(root.current.rotation.y, targetYaw, 0.35)
     } else if (charId === 'tom' || charId === 'ben' || charId === 'steve' || charId === 'crossy' || charId === 'arisa') {
-      const sw = running ? Math.sin(t * 14) * 0.65 : attacking ? -0.9 : Math.sin(t * 3.5) * 0.1
+      const sw = shielding ? -1.15 : running ? Math.sin(t * 14) * 0.72 : startup ? 0.65 : active ? -1.3 : Math.sin(t * 3.5) * 0.12
       if (animA.current) animA.current.rotation.x = sw
-      if (animB.current) animB.current.rotation.x = -sw
+      if (animB.current) animB.current.rotation.x = shielding ? -1.15 : active ? 0.5 : -sw
+      root.current.rotation.y = THREE.MathUtils.lerp(root.current.rotation.y, startup ? -0.3 : active ? 0.35 : 0, 0.3)
     }
   })
 
