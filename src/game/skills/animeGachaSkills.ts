@@ -298,76 +298,114 @@ function registerKit(k: KitSpec) {
     })
   }
   registerTilts(p, { color, names: k.tilts, ranged: isGun, style: tiltStyle })
-  reg({
-    id: `${p}.s1`, name: k.s1.name, energyCost: 0, cooldownMs: 1200, startupMs: 135, activeMs: 50, recoveryMs: 215,
-    damage: 9.5, knockback: { dir: [0, 0.45, 1], base: 11, scaling: 11.5 },
-    hooks: {
-      onActive(c) {
-        const baseVel = p === 'paddle' ? 26 : p === 'sukuna' || p === 'jinhsi' ? 24 : (k.s1.speed ?? 19)
-        const spawnMain = (vx: number, vy: number) => c.spawnProjectile({
-          pos: at(c, 0.15, 0.9),
-          vel: [vx, vy, 0],
-          radius: p === 'doh' ? 0.65 : 0.48,
-          ttlMs: 1250,
-          color: k.s1.projColor,
-          pierce: k.s1.pierce || p === 'sukuna' || p === 'jinhsi' || p === 'paddle',
-          gravity: k.s1.explode ? -16 : 0,
-          explodeRadius: k.s1.explode,
-          steerable: k.s1.steerable,
-        })
-        if (p === 'deku') {
-          c.setLocalVelocity(0, null, -3.5)
-        }
-        if (p === 'nona' || p === 'akira' || p === 'hibari' || p === 'ducky') {
-          const spread = p === 'nona' ? [-2.4, 0, 2.4] : [-1.5, 0, 1.5]
-          for (const vy of spread) spawnMain(c.forward[0] * baseVel, vy)
-        } else if (p === 'rapi' || p === 'anis' || p === 'diddy') {
-          for (const [m, vy] of [[1.15, 0.8], [1.0, 0], [0.85, -0.8]] as const) {
-            spawnMain(c.forward[0] * (baseVel * m), vy)
-          }
-          c.fx({ kind: 'burst', pos: at(c, 0.2, 0.9), color: k.s1.projColor, ttl: 180, count: 8, speed: 5, size: 0.14 })
-        } else if (p === 'ufo' || p === 'viper') {
-          for (const vy of [-0.9, 0.9]) spawnMain(c.forward[0] * baseVel, vy)
-        } else if (p === 'bakugo') {
-          // 爆豪：AP Shot 貫穿爆破彈 ＋ 雙發手榴彈弧線齊射
-          c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 25, 0, 0], radius: 0.44, ttlMs: 1100, color: '#fde047', pierce: true })
-          for (const vy of [2.8, -0.8]) {
-            c.spawnProjectile({ pos: at(c, 0.25, 0.85), vel: [c.forward[0] * 17, vy, 0], radius: 0.42, ttlMs: 1150, color: '#f97316', gravity: -16, explodeRadius: 2.3 })
-          }
-          c.fx({ kind: 'burst', pos: at(c, 0.2, 0.9), color: '#fb923c', ttl: 220, count: 12, speed: 6, size: 0.16 })
-        } else if (p === 'sukuna') {
-          spawnMain(c.forward[0] * baseVel, 0.7)
-          spawnMain(c.forward[0] * (baseVel * 1.08), -0.7)
-        } else if (p === 'seija') {
-          spawnMain(c.forward[0] * baseVel, 0)
-          spawnMain(-c.forward[0] * (baseVel * 0.8), 1.8)
-        } else if (p === 'youmu') {
-          spawnMain(c.forward[0] * baseVel, 0)
-          spawnMain(c.forward[0] * (baseVel * 1.18), 1.2)
-        } else if (p === 'deku') {
-          spawnMain(c.forward[0] * baseVel, 0)
-          spawnMain(c.forward[0] * (baseVel * 0.9), 2.5)
-        } else if (p === 'chuck' || p === 'hajime' || p === 'jinhsi' || p === 'vaus' || p === 'paddle') {
-          // 超高速貫穿彈／光束
-          c.spawnProjectile({ pos: at(c, 0.15, 0.9), vel: [c.forward[0] * 29, 0, 0], radius: 0.46, ttlMs: 1150, color: k.s1.projColor, pierce: true })
-          c.fx({ kind: 'beam', pos: at(c, 0.15, 0.9), yaw: yawOf(c), length: 3.5, radius: 0.14, color: k.s1.projColor, ttl: 140 })
-        } else if (p === 'blinky' || p === 'lumine' || p === 'descara') {
-          // 可控追蹤魔彈（笛絲卡菈絲額外附帶多色魔石連射）
-          c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 17, 0, 0], radius: 0.52, ttlMs: 1500, color: k.s1.projColor, steerable: 5.0, explodeRadius: k.s1.explode })
-          if (p === 'descara') {
-            c.spawnProjectile({ pos: at(c, 0.45, 0.8), vel: [c.forward[0] * 19, 2.2, 0], radius: 0.36, ttlMs: 1100, color: '#fde047', explodeRadius: 1.8 })
-            c.spawnProjectile({ pos: at(c, -0.05, 0.8), vel: [c.forward[0] * 19, -2.0, 0], radius: 0.36, ttlMs: 1100, color: '#38bdf8', explodeRadius: 1.8 })
-          }
-        } else if (p === 'hakuri') {
-          // 漣伯理：威葬大口徑衝擊波
-          c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 21, 0, 0], radius: 0.72, ttlMs: 1100, color: '#38bdf8', pierce: true })
-          c.fx({ kind: 'ring', pos: at(c, 0.2, 0.9), color: '#38bdf8', ttl: 240, radius: 1.5, plane: 'vertical' })
-        } else {
-          spawnMain(c.forward[0] * baseVel, k.s1.explode ? 3 : 0)
-        }
+  if (p === 'deku' || p === 'hakuri' || p === 'rintaro' || p === 'stelle') {
+    // 近戰重擊型 S1：不再是發射飛彈，而是大威力近身拳擊／威葬／球棒全壘打！
+    reg({
+      id: `${p}.s1`, name: k.s1.name, energyCost: 0, cooldownMs: 1350, startupMs: 130, activeMs: 140, recoveryMs: 220,
+      charge: { maxMs: 650, damageMult: [1, 1.9], knockbackMult: [1, 1.65] },
+      hitbox: { offset: [0, 0.2, 1.35], radius: p === 'hakuri' ? 2.1 : 1.55 }, damage: 13,
+      knockback: { dir: [0, 0.45, 1], base: 14, scaling: 14.5 },
+      hooks: {
+        onActive(c) {
+          c.setLocalVelocity(0, null, 7)
+          c.fx({ kind: 'ring', pos: at(c, 0.2, 1.2), color, ttl: 280, radius: p === 'hakuri' ? 2.2 : 1.7, plane: 'vertical' })
+          c.fx({ kind: 'burst', pos: at(c, 0.2, 1.2), color: k.s1.projColor, ttl: 240, count: 16, speed: 7, size: 0.18 })
+          c.shake(0.4)
+        },
       },
-    },
-  })
+    })
+  } else if (p === 'ladyfrog' || p === 'omnelle') {
+    // 舌鞭／糖絲拉扯型 S1：遠距離命中將對手拉回自己身邊！
+    reg({
+      id: `${p}.s1`, name: k.s1.name, energyCost: 0, cooldownMs: 1400, startupMs: 100, activeMs: 130, recoveryMs: 210,
+      hitbox: { offset: [0, 0.2, 2.2], radius: 1.45 }, damage: 8,
+      knockback: { dir: [0, 0.45, -0.85], base: 9, scaling: 6 },
+      hooks: {
+        onActive(c) {
+          c.fx({ kind: 'beam', pos: at(c, 0.2, 0.5), yaw: yawOf(c), length: 3.8, radius: 0.16, color, ttl: 190 })
+        },
+      },
+    })
+  } else if (p === 'chuck') {
+    // Chuck S1：音速貫穿閃擊（直接衝穿敵人）
+    reg({
+      id: `${p}.s1`, name: k.s1.name, energyCost: 0, cooldownMs: 1200, startupMs: 60, activeMs: 180, recoveryMs: 180,
+      hitbox: { offset: [0, 0.15, 0.5], radius: 1.2 }, damage: 9,
+      knockback: { dir: [0, 0.5, 1], base: 11, scaling: 12 },
+      hooks: {
+        onTick(c) {
+          if (c.phase === 'active') { c.setLocalVelocity(0, 0.4, 34); trail(c, 25, '#fde047', 200) }
+        },
+      },
+    })
+  } else {
+    reg({
+      id: `${p}.s1`, name: k.s1.name, energyCost: 0, cooldownMs: 1200, startupMs: 135, activeMs: 50, recoveryMs: 215,
+      damage: 9.5, knockback: { dir: [0, 0.45, 1], base: 11, scaling: 11.5 },
+      hooks: {
+        onActive(c) {
+          const baseVel = p === 'paddle' ? 26 : p === 'sukuna' || p === 'jinhsi' ? 24 : (k.s1.speed ?? 19)
+          const spawnMain = (vx: number, vy: number) => c.spawnProjectile({
+            pos: at(c, 0.15, 0.9),
+            vel: [vx, vy, 0],
+            radius: p === 'doh' ? 0.65 : 0.48,
+            ttlMs: 1250,
+            color: k.s1.projColor,
+            pierce: k.s1.pierce || p === 'sukuna' || p === 'jinhsi' || p === 'paddle',
+            gravity: k.s1.explode ? -16 : 0,
+            explodeRadius: k.s1.explode,
+            steerable: k.s1.steerable,
+          })
+          if (p === 'mino' || p === 'doh' || p === 'jinhsi') {
+            // 天降攻擊型 S1：鎖定最近敵人頭頂從高空落下！
+            const tgt = c.nearestEnemy()
+            const tx = tgt ? tgt.pos[0] : clampStageX(c.caster.pos[0] + c.forward[0] * 5)
+            c.fx({ kind: 'ring', pos: [tx, 11.5, 0], color: k.s1.projColor, ttl: 260, radius: 1.4 })
+            c.spawnProjectile({ pos: [tx, 12, 0], vel: [0, -21, 0], radius: p === 'doh' ? 0.72 : 0.56, ttlMs: 1400, color: k.s1.projColor, gravity: -12, explodeRadius: 2.5 })
+            if (p === 'jinhsi') c.fx({ kind: 'pillar', pos: [tx, 0, 0], color: '#fde047', ttl: 320, radius: 1.1 })
+          } else if (p === 'blackbomber') {
+            // 原地放置定時炸彈
+            c.spawnProjectile({ pos: at(c, 0.1, 0.8), vel: [c.forward[0] * 3, 2.5, 0], radius: 0.52, ttlMs: 950, color: '#ec4899', gravity: -18, explodeRadius: 3.1 })
+          } else if (p === 'nona' || p === 'akira' || p === 'hibari' || p === 'ducky') {
+            const spread = p === 'nona' ? [-2.4, 0, 2.4] : [-1.5, 0, 1.5]
+            for (const vy of spread) spawnMain(c.forward[0] * baseVel, vy)
+          } else if (p === 'rapi' || p === 'anis' || p === 'diddy') {
+            for (const [m, vy] of [[1.15, 0.8], [1.0, 0], [0.85, -0.8]] as const) {
+              spawnMain(c.forward[0] * (baseVel * m), vy)
+            }
+            c.fx({ kind: 'burst', pos: at(c, 0.2, 0.9), color: k.s1.projColor, ttl: 180, count: 8, speed: 5, size: 0.14 })
+          } else if (p === 'ufo' || p === 'viper') {
+            for (const vy of [-0.9, 0.9]) spawnMain(c.forward[0] * baseVel, vy)
+          } else if (p === 'bakugo') {
+            // 爆豪：AP Shot 貫穿爆破彈 ＋ 雙發手榴彈弧線齊射
+            c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 25, 0, 0], radius: 0.44, ttlMs: 1100, color: '#fde047', pierce: true })
+            for (const vy of [2.8, -0.8]) {
+              c.spawnProjectile({ pos: at(c, 0.25, 0.85), vel: [c.forward[0] * 17, vy, 0], radius: 0.42, ttlMs: 1150, color: '#f97316', gravity: -16, explodeRadius: 2.3 })
+            }
+            c.fx({ kind: 'burst', pos: at(c, 0.2, 0.9), color: '#fb923c', ttl: 220, count: 12, speed: 6, size: 0.16 })
+          } else if (p === 'sukuna') {
+            spawnMain(c.forward[0] * baseVel, 0.7)
+            spawnMain(c.forward[0] * (baseVel * 1.08), -0.7)
+          } else if (p === 'seija') {
+            spawnMain(c.forward[0] * baseVel, 0)
+            spawnMain(-c.forward[0] * (baseVel * 0.8), 1.8)
+          } else if (p === 'youmu') {
+            spawnMain(c.forward[0] * baseVel, 0)
+            spawnMain(c.forward[0] * (baseVel * 1.18), 1.2)
+          } else if (p === 'blinky' || p === 'lumine' || p === 'descara') {
+            // 可控追蹤魔彈（笛絲卡菈絲額外附帶多色魔石連射）
+            c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 17, 0, 0], radius: 0.52, ttlMs: 1500, color: k.s1.projColor, steerable: 5.0, explodeRadius: k.s1.explode })
+            if (p === 'descara') {
+              c.spawnProjectile({ pos: at(c, 0.45, 0.8), vel: [c.forward[0] * 19, 2.2, 0], radius: 0.36, ttlMs: 1100, color: '#fde047', explodeRadius: 1.8 })
+              c.spawnProjectile({ pos: at(c, -0.05, 0.8), vel: [c.forward[0] * 19, -2.0, 0], radius: 0.36, ttlMs: 1100, color: '#38bdf8', explodeRadius: 1.8 })
+            }
+          } else {
+            spawnMain(c.forward[0] * baseVel, k.s1.explode ? 3 : 0)
+          }
+        },
+      },
+    })
+  }
   if (TELEPORT_SIDE_CHARS.has(p)) {
     reg({
       id: `${p}.side`, name: k.side, energyCost: 0, cooldownMs: 1550, startupMs: 90, activeMs: 120, recoveryMs: 200,
@@ -561,20 +599,47 @@ function registerKit(k: KitSpec) {
         },
       },
     })
+  } else if (p === 'ellen') {
+    // 艾蓮：鯊捲風高速旋轉龍捲連斬（多段拉扯斬擊）
+    reg({
+      id: `${p}.s2`, name: k.s2.name, energyCost: 0, cooldownMs: 2200, startupMs: 110, activeMs: 440, recoveryMs: 220,
+      hitbox: { offset: [0, 0.2, 0.4], radius: 2.5, manual: true }, damage: 3.2,
+      knockback: { dir: [0, 0.55, 0.6], base: 8, scaling: 9, radial: true },
+      hooks: {
+        onTick(c) {
+          if (c.phase !== 'active') return
+          c.setLocalVelocity(0, 0.6, 12)
+          c.scratch.sh = (c.scratch.sh ?? 0) - c.dt * 1000
+          if (c.scratch.sh <= 0) {
+            c.scratch.sh = 110
+            c.strike()
+            c.fx({ kind: 'slash', pos: [...c.caster.pos], yaw: c.phaseMs * 0.02, plane: 'horizontal', tilt: 0.25, color: '#38bdf8', ttl: 200, radius: 2.5 })
+          }
+        },
+      },
+    })
   } else if (k.s2.kind === 'ring') {
     const isCreeper = p === 'creeper'
+    const isBakugo = p === 'bakugo'
     reg({
       id: `${p}.s2`, name: k.s2.name, energyCost: 18, cooldownMs: 2100, startupMs: 140, activeMs: 130, recoveryMs: 240,
-      hitbox: { offset: [0, 0.1, 0], radius: isCreeper ? 3.6 : 3.0 }, damage: isCreeper ? 14 : 10,
-      knockback: { dir: [0, 0.65, 1], base: isCreeper ? 16 : 14, scaling: isCreeper ? 15.5 : 14, radial: true },
+      hitbox: { offset: [0, 0.1, 0], radius: isCreeper ? 3.6 : 3.0 }, damage: isCreeper ? 14 : isBakugo ? 8 : 10,
+      knockback: {
+        dir: [0, 0.65, 1], base: isCreeper ? 16 : isBakugo ? 9 : 14, scaling: isCreeper ? 15.5 : isBakugo ? 9 : 14, radial: true,
+        ...(isBakugo ? { hitstunMs: 950 } : {}),
+      },
       hooks: {
         onActive(c) {
           const model = KIT_SUMMONS[p]
           if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.4, 1.0), color: k.s2.color, ttl: 950, size: 1.0, dir: c.forward[0] })
-          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: isCreeper ? '#38bdf8' : k.s2.color, ttl: 380, radius: isCreeper ? 3.6 : 3.0, plane: 'vertical' })
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: isCreeper ? '#38bdf8' : isBakugo ? '#ffffff' : k.s2.color, ttl: 380, radius: isCreeper ? 3.6 : 3.0, plane: 'vertical' })
           c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ffffff', ttl: 340, radius: isCreeper ? 3.2 : 2.6 })
           if (isCreeper) c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#f97316', ttl: 420, count: 30, speed: 9.5, size: 0.24 })
+          if (isBakugo) c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#fef08a', ttl: 360, count: 28, speed: 9, size: 0.24 })
           c.shake(isCreeper ? 0.6 : 0.38)
+        },
+        onHit(_c, tgt) {
+          if (p === 'seija') tgt.facing = [tgt.facing[0] === 1 ? -1 : 1, 0]
         },
       },
     })
