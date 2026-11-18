@@ -170,10 +170,13 @@ function registerKit(k: KitSpec) {
       onActive(c) {
         if (p === 'ichi') {
           c.fx({ kind: 'summon', model: 'thunderFox', pos: at(c, 0.3, 0.9), color: '#facc15', ttl: 850, size: 0.95, dir: c.forward[0] })
+        } else if (p === 'chihiro') {
+          c.fx({ kind: 'summon', model: 'goldfish', pos: at(c, 0.25, 0.9), color: '#ef4444', ttl: 850, size: 0.9, dir: c.forward[0] })
         }
-        c.spawnProjectile({
+        const baseVel = k.s1.speed ?? 19
+        const spawnMain = (vx: number, vy: number) => c.spawnProjectile({
           pos: at(c, 0.15, 0.9),
-          vel: [c.forward[0] * (k.s1.speed ?? 19), k.s1.explode ? 3 : 0, 0],
+          vel: [vx, vy, 0],
           radius: 0.48,
           ttlMs: 1250,
           color: k.s1.projColor,
@@ -182,6 +185,20 @@ function registerKit(k: KitSpec) {
           explodeRadius: k.s1.explode,
           steerable: k.s1.steerable,
         })
+        if (p === 'nona') {
+          for (const vy of [-2.4, 0, 2.4]) spawnMain(c.forward[0] * baseVel, vy)
+        } else if (p === 'seija') {
+          spawnMain(c.forward[0] * baseVel, 0)
+          spawnMain(-c.forward[0] * (baseVel * 0.8), 1.8)
+        } else if (p === 'youmu') {
+          spawnMain(c.forward[0] * baseVel, 0)
+          spawnMain(c.forward[0] * (baseVel * 1.18), 1.2)
+        } else if (p === 'deku') {
+          spawnMain(c.forward[0] * baseVel, 0)
+          spawnMain(c.forward[0] * (baseVel * 0.9), 2.5)
+        } else {
+          spawnMain(c.forward[0] * baseVel, k.s1.explode ? 3 : 0)
+        }
       },
     },
   })
@@ -193,7 +210,14 @@ function registerKit(k: KitSpec) {
       hooks: {
         onStart(c) { c.fx({ kind: 'afterimage', pos: [...c.caster.pos], color, ttl: 260, size: 0.7 }) },
         onActive(c) {
-          const dest = clampStageX(c.caster.pos[0] + c.forward[0] * 5.2)
+          let dest = clampStageX(c.caster.pos[0] + c.forward[0] * 5.2)
+          if (p === 'seija') {
+            const tgt = c.nearestEnemy()
+            if (tgt) {
+              dest = clampStageX(tgt.pos[0] - tgt.facing[0] * 1.5)
+              c.caster.facing[0] = tgt.facing[0]
+            }
+          }
           c.teleport([dest, c.caster.pos[1], 0])
           c.fx({ kind: 'ring', pos: [dest, c.caster.pos[1], 0], color, ttl: 280, radius: 1.5, plane: 'vertical' })
           c.fx({ kind: 'burst', pos: [dest, c.caster.pos[1], 0], color, ttl: 260, count: 10, speed: 5, size: 0.14 })
@@ -209,6 +233,9 @@ function registerKit(k: KitSpec) {
         onActive(c) {
           c.setVelocity(c.forward[0] * 17, 2.5, 0)
           c.spawnProjectile({ pos: at(c, 0.15, 0.8), vel: [c.forward[0] * 21, 0, 0], radius: 0.42, ttlMs: 950, color })
+        },
+        onHit(c) {
+          if (p === 'hutao') c.caster.damage = Math.max(0, c.caster.damage - 3)
         },
       },
     })
@@ -270,6 +297,9 @@ function registerKit(k: KitSpec) {
           c.setVelocity(-c.forward[0] * 4, 6.5, 0)
           c.spawnProjectile({ pos: [c.caster.pos[0], c.caster.pos[1] - 0.2, 0], vel: [0, -8, 0], radius: 0.5, ttlMs: 1500, color, gravity: -18, explodeRadius: 2.5 })
         },
+        onHit(_c, tgt) {
+          if (p === 'seija') tgt.facing = [tgt.facing[0] === 1 ? -1 : 1, 0]
+        },
       },
     })
   } else {
@@ -287,6 +317,12 @@ function registerKit(k: KitSpec) {
           const pos: Vec3 = [c.caster.pos[0], Math.max(0, c.caster.pos[1] - 0.35), 0]
           c.spawnZone(pos, { radius: 3.1, durationMs: 3400, slowFactor: 0.52, color: k.s2.color, damagePerSec: 6.5 })
           c.fx({ kind: 'ring', pos, color: k.s2.color, ttl: 420, radius: 3.1 })
+          if (p === 'ruri') c.fx({ kind: 'pillar', pos, color: '#34d399', ttl: 420, radius: 1.4 })
+          if (p === 'lumine') {
+            for (const vx of [-7, 7]) {
+              c.spawnProjectile({ pos: [pos[0], pos[1] + 0.8, 0], vel: [vx, 7, 0], radius: 0.45, ttlMs: 1100, color: '#4ade80', gravity: -18, explodeRadius: 2.0 })
+            }
+          }
         },
       },
     })
@@ -311,7 +347,16 @@ function registerKit(k: KitSpec) {
       damage: 14, knockback: { dir: [0, 0.58, 1], base: 15, scaling: 15.5, radial: true },
       hooks: {
         onActive(c) {
-          c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 20, 0, 0], radius: 0.58, ttlMs: 1350, color: k.s2.color, explodeRadius: 2.3 })
+          if (p === 'gojo') {
+            c.fx({ kind: 'summon', model: 'hollow', pos: at(c, 0.2, 0.9), color: '#a855f7', ttl: 1000, size: 1.15, dir: c.forward[0] })
+            c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 17, 0, 0], radius: 0.85, ttlMs: 1450, color: '#a855f7', pierce: true })
+          } else if (p === 'rapi') {
+            for (const vy of [-1.2, 2.6]) {
+              c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 21, vy, 0], radius: 0.48, ttlMs: 1300, color: k.s2.color, explodeRadius: 2.3 })
+            }
+          } else {
+            c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 20, 0, 0], radius: 0.58, ttlMs: 1350, color: k.s2.color, explodeRadius: 2.3 })
+          }
         },
       },
     })
