@@ -179,18 +179,18 @@ export function SimLoop() {
 
 const CHAR_SCALE = 1.4 // 角色視覺放大倍率（碰撞體不變）
 function makeMarkTexture(label: string, color: string) {
-  const c = document.createElement('canvas'); c.width = 320; c.height = 128
+  const c = document.createElement('canvas'); c.width = 512; c.height = 192
   const g = c.getContext('2d')!
   // 真正的任天堂明星大亂鬥頭上 Tag：半透明深灰圓角標籤 ＋ 下方玩家色小三角形
-  g.fillStyle = 'rgba(15, 23, 42, 0.78)'
-  g.beginPath(); g.roundRect(24, 14, 272, 66, 14); g.fill()
-  g.lineWidth = 3; g.strokeStyle = 'rgba(255, 255, 255, 0.25)'; g.stroke()
-  g.fillStyle = '#ffffff'; g.font = 'bold 34px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'
-  g.fillText(label.slice(0, 12), 160, 48)
+  g.fillStyle = 'rgba(15, 23, 42, 0.8)'
+  g.beginPath(); g.roundRect(16, 10, 480, 112, 22); g.fill()
+  g.lineWidth = 4; g.strokeStyle = 'rgba(255, 255, 255, 0.28)'; g.stroke()
+  g.fillStyle = '#ffffff'; g.font = '900 68px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'
+  g.fillText(label.slice(0, 12), 256, 68, 448)
   // 下方玩家代表色倒三角形
   g.fillStyle = color
-  g.beginPath(); g.moveTo(160, 118); g.lineTo(138, 86); g.lineTo(182, 86); g.closePath(); g.fill()
-  g.lineWidth = 3; g.strokeStyle = '#000000'; g.stroke()
+  g.beginPath(); g.moveTo(256, 178); g.lineTo(226, 132); g.lineTo(286, 132); g.closePath(); g.fill()
+  g.lineWidth = 4; g.strokeStyle = '#000000'; g.stroke()
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace
   return t
 }
@@ -209,7 +209,7 @@ function PlayerMarker({ id }: { id: FighterId }) {
   useFrame(() => { if (ref.current) ref.current.position.y = 1.9 * charScale + 0.1 + Math.sin(performance.now() / 300) * 0.06 })
   if (!tex.t) return null
   return (
-    <sprite ref={ref} position={[0, 1.9 * charScale + 0.1, 0]} scale={[1.5, 0.75, 1]} renderOrder={10}>
+    <sprite ref={ref} position={[0, 1.9 * charScale + 0.15, 0]} scale={[2.4, 0.9, 1]} renderOrder={10}>
       <spriteMaterial map={tex.t} transparent depthTest={false} />
     </sprite>
   )
