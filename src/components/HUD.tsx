@@ -6,6 +6,7 @@ import { resetSimStage } from '../game/sim'
 import { getSkill } from '../game/skills'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { TIER_COLORS, getSteveInv } from '../game/skills/steveBlocks'
+import { getMechanic } from '../game/mechanics'
 import { STAGES, STAGE_IDS, type StageForm, type StageId } from '../game/stages'
 import { useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
@@ -64,6 +65,7 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
   const isTetro = charId === 'tetro'
   const tb = isTetro ? getTetroBoard(id) : null
   const steveInv = charId === 'steve' ? getSteveInv(id) : null
+  const mech = getMechanic(id)
   const readyLines = isTetro ? getReadyLines(id) : 0
   const clearBanner = tb?.lastClear && performance.now() < tb.lastClear.until ? tb.lastClear : null
   const pColor = PLAYER_COLORS[id]
@@ -145,6 +147,19 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
           <span className="font-bold" style={{ color: TIER_COLORS[steveInv.tier].top }}>
             {TIER_COLORS[steveInv.tier].label}
           </span>
+        </div>
+      )}
+      {mech && (
+        <div className="mt-1 space-y-0.5 rounded bg-white/10 px-1.5 py-0.5 text-[10px]">
+          <div className="flex items-center justify-between font-bold">
+            <span style={{ color: mech.color }}>{mech.label}</span>
+            <span className={mech.gauge >= 100 || mech.activeMs > 0 ? 'text-yellow-300 animate-pulse' : 'text-white/75'}>
+              {mech.activeMs > 0 ? `覺醒 ${(mech.activeMs / 1000).toFixed(1)}s` : mech.gauge >= 100 ? 'MAX!!' : `${Math.round(mech.gauge)}%`}
+            </span>
+          </div>
+          <div className="h-1 w-full overflow-hidden rounded-full bg-black/50">
+            <div className="h-full transition-all duration-100" style={{ width: `${mech.gauge}%`, backgroundColor: mech.color }} />
+          </div>
         </div>
       )}
       {!compact && (

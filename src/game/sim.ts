@@ -14,6 +14,7 @@ import { addFx, addProjectile, addZone, removeFx, removeProjectile, removeZone, 
 import { getSkill } from './skills'
 import { resetTetroBoards } from './skills/tetroSkills'
 import { getSteveBlocks, resetSteveBlocks, stepSteveBlocks } from './skills/steveBlocks'
+import { consumeSkillMechanic, onMechanicHit, resetMechanics, stepMechanics } from './mechanics'
 import { getActiveFighterIds, useGameStore } from './store'
 import type {
   ActiveSkill, FighterId, FighterState, FsmState, HitSource, HitboxDef, SkillContext, SkillDef, SkillSlot, UiFighter, Vec3,
@@ -163,6 +164,7 @@ export function resetSimStage() {
   ledgeOwner['1'] = null
   resetTetroBoards()
   resetSteveBlocks()
+  resetMechanics()
   resetGimmicks()
 }
 
@@ -356,8 +358,9 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
     const e = nearestEnemyOf(f.id)
     if (e && Math.abs(e.pos[0] - f.pos[0]) < 6) f.facing = [e.pos[0] >= f.pos[0] ? 1 : -1, 0]
   }
+  const mech = consumeSkillMechanic(f, slot)
   f.skill = {
-    def, slot, phase: 'startup', phaseMs: 0, hitSet: new Set(), kbMult: 1, dmgMult: 1,
+    def, slot, phase: 'startup', phaseMs: 0, hitSet: new Set(), kbMult: mech.kbMult, dmgMult: mech.dmgMult,
     chargeMs: 0, chargeRatio: 0, released: !def.charge, ended: false, scratch: {},
   }
   f.comboBufferMs = 0
@@ -639,6 +642,7 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   tgt.damage = Math.min(MAX_DAMAGE, tgt.damage + dmg)
   att.stats.damageDealt += dmg
   tgt.stats.damageTaken += dmg
+  onMechanicHit(att, tgt, dmg)
   att.comboCount = wasInHitstun || att.comboTimerMs > 0 ? att.comboCount + 1 : 1
   att.comboTimerMs = 1600
   att.stats.maxCombo = Math.max(att.stats.maxCombo, att.comboCount)
@@ -1055,6 +1059,7 @@ export function stepSimulation(rawDt: number) {
   updateZones(dt)
   stepGimmicks(dt)
   stepSteveBlocks(dt)
+  stepMechanics(dt, s.fighters)
   publishUi(dt)
   broadcastStateIfHost()
 }
