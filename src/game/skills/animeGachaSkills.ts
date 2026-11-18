@@ -281,6 +281,13 @@ function registerKit(k: KitSpec) {
         }
         if (p === 'nona') {
           for (const vy of [-2.4, 0, 2.4]) spawnMain(c.forward[0] * baseVel, vy)
+        } else if (p === 'bakugo') {
+          // 爆豪：AP Shot 貫穿爆破彈 ＋ 雙發手榴彈弧線齊射
+          c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 25, 0, 0], radius: 0.44, ttlMs: 1100, color: '#fde047', pierce: true })
+          for (const vy of [2.8, -0.8]) {
+            c.spawnProjectile({ pos: at(c, 0.25, 0.85), vel: [c.forward[0] * 17, vy, 0], radius: 0.42, ttlMs: 1150, color: '#f97316', gravity: -16, explodeRadius: 2.3 })
+          }
+          c.fx({ kind: 'burst', pos: at(c, 0.2, 0.9), color: '#fb923c', ttl: 220, count: 12, speed: 6, size: 0.16 })
         } else if (p === 'sukuna') {
           spawnMain(c.forward[0] * baseVel, 0.7)
           spawnMain(c.forward[0] * (baseVel * 1.08), -0.7)
@@ -600,6 +607,41 @@ function registerKit(k: KitSpec) {
             const vy = (Math.random() - 0.35) * 9
             c.spawnProjectile({ pos: at(c, 0.3, 1.0), vel: [c.forward[0] * 21, vy, 0], radius: 0.48, ttlMs: 1350, color: k.ult.color, explodeRadius: 2.5 })
           }
+        } else if (p === 'sukuna') {
+          // 伏魔御廚子：領域內高頻率四方「解・捌」紅色斬擊連發！
+          c.scratch.sk = (c.scratch.sk ?? 0) - c.dt * 1000
+          if (c.scratch.sk <= 0) {
+            c.scratch.sk = 115
+            const rx = (Math.random() - 0.5) * 6.5
+            const ry = (Math.random() - 0.2) * 3.0
+            c.fx({ kind: 'slash', pos: [c.caster.pos[0] + rx, c.caster.pos[1] + ry, 0], yaw: Math.random() * Math.PI * 2, plane: Math.random() < 0.5 ? 'horizontal' : 'vertical', tilt: (Math.random() - 0.5) * 1.6, color: '#ef4444', ttl: 200, radius: 2.6 })
+            c.strike({ offset: [0, 0.2, 0], radius: 5.5 })
+            c.shake(0.25)
+          }
+        } else if (p === 'bakugo') {
+          // 爆豪榴彈砲撞擊（Howitzer Impact）：空中高速旋轉火焰龍捲風 → 俯衝核爆！
+          trail(c, 28, '#f97316', 240)
+          if (c.phaseMs < 620) {
+            const ang = c.phaseMs * 0.024
+            c.setVelocity(Math.cos(ang) * 7 + c.forward[0] * 5, 5.5 + Math.sin(ang) * 2.5, 0)
+            c.scratch.bk = (c.scratch.bk ?? 0) - c.dt * 1000
+            if (c.scratch.bk <= 0) {
+              c.scratch.bk = 95
+              c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fb923c', ttl: 240, radius: 2.8 })
+              c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#fde047', ttl: 220, count: 14, speed: 7, size: 0.18 })
+              c.strike({ offset: [0, 0.2, 0], radius: 3.2 })
+            }
+          } else if (!c.scratch.howitzerBoom) {
+            c.scratch.howitzerBoom = true
+            c.setGravityScale(1)
+            c.setVelocity(c.forward[0] * 14, -22, 0)
+            c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#ef4444', ttl: 620, radius: 6.2 })
+            c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fde047', ttl: 540, radius: 5.2, plane: 'vertical' })
+            c.fx({ kind: 'pillar', pos: [...c.caster.pos], color: '#f97316', ttl: 640, radius: 3.2 })
+            c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#f97316', ttl: 760, count: 80, speed: 15, size: 0.28 })
+            c.strike({ offset: [0, 0, 0], radius: 5.8 })
+            c.shake(1.4)
+          }
         } else if (k.ult.kind === 'dragonBreath') {
           // 九霄雷炎吐息：斜向火球掃射＋落雷
           c.scratch.dr = (c.scratch.dr ?? 0) - c.dt * 1000
@@ -613,11 +655,13 @@ function registerKit(k: KitSpec) {
         }
       },
       onActive(c) {
-        if (p === 'ichi') {
+        if (p === 'bakugo') {
+          c.setVelocity(c.forward[0] * 3, 7.5, 0)
+        } else if (p === 'ichi') {
           c.fx({ kind: 'summon', model: 'thunderFox', pos: at(c, 0.8, 1.2), color: '#facc15', ttl: 1200, size: 1.25, dir: c.forward[0] })
           c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, -0.4, 2.2), color: '#38bdf8', ttl: 1200, size: 1.25, dir: c.forward[0] })
           c.fx({ kind: 'summon', model: 'baku', pos: at(c, 0.2, 0.6), color: '#a855f7', ttl: 1200, size: 1.25, dir: -c.forward[0] })
-        } else if (k.ult.kind === 'hollow') {
+        } else if (k.ult.kind === 'hollow' && p !== 'sukuna') {
           // 虛式「茈」：發射巨大貫穿紫球＋召喚3D虛式
           c.spawnProjectile({ pos: at(c, 0.3, 1.2), vel: [c.forward[0] * 20, 0, 0], radius: 1.85, ttlMs: 1600, color: '#a855f7', pierce: true, maxRange: 28 })
           c.fx({ kind: 'summon', model: 'hollow', pos: at(c, 0.3, 1.2), color: '#a855f7', ttl: 1350, size: 1.85, dir: c.forward[0] })
