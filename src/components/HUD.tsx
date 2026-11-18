@@ -902,7 +902,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
     wizard === null && !showHelp && !guideOpen,
     () => {
       if (step === 'stage') { sfx('ui'); setStep('char') }
-      else if (netRole !== 'guest') { clearEntities(); resetSimStage(); broadcastStart(); useGameStore.getState().startMatch() }
+      else if (netRole !== 'guest') { clearEntities(); resetSimStage(); useGameStore.getState().startMatch(); broadcastStart() }
     },
     (id, dx, dy) => {
       if (step === 'stage') {
@@ -951,7 +951,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
         e.preventDefault()
         sfx('ui')
         if (step === 'stage') setStep('char')
-        else if (netRole !== 'guest') { clearEntities(); resetSimStage(); broadcastStart(); useGameStore.getState().startMatch() }
+        else if (netRole !== 'guest') { clearEntities(); resetSimStage(); useGameStore.getState().startMatch(); broadcastStart() }
       } else if (code === 'Escape' || code === 'Backspace') {
         if (step === 'char') { e.preventDefault(); sfx('ui'); setStep('stage') }
       } else if (code === 'KeyQ' || code === 'KeyE') {
@@ -1308,7 +1308,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
               </button>
               <button
                 disabled={netRole === 'guest'}
-                onClick={() => { clearEntities(); resetSimStage(); broadcastStart(); start() }}
+                onClick={() => { clearEntities(); resetSimStage(); start(); broadcastStart() }}
                 className="rounded-xl bg-yellow-300 px-12 py-2 text-xl font-black text-black hover:bg-yellow-200 active:scale-95 transition-all shadow-lg shadow-yellow-500/20 disabled:opacity-45 disabled:cursor-not-allowed"
               >
                 {netRole === 'guest' ? '等待房主開始...' : 'START'}

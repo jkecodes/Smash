@@ -135,7 +135,12 @@ function connectWs(onOpen: () => void) {
       if (msg.stockCount) gs.setStockCount(msg.stockCount)
       if (msg.selection) {
         for (const id of ALL_FIGHTER_IDS) {
-          if (msg.selection[id]) gs.select(id, msg.selection[id])
+          if (msg.selection[id]) gs.select(id, msg.selection[id], false)
+        }
+      }
+      if (msg.cpu) {
+        for (const id of ALL_FIGHTER_IDS) {
+          if (msg.cpu[id] !== undefined) gs.setCpu(id, msg.cpu[id])
         }
       }
       gs.startMatch()
@@ -174,11 +179,29 @@ function connectWs(onOpen: () => void) {
 
 function applySnapshot(msg: any) {
   const gs = useGameStore.getState()
+  if (msg.phase === 'playing' && gs.phase !== 'playing') {
+    if (msg.stageId) gs.selectStage(msg.stageId as StageId)
+    if (msg.stageForm) gs.setStageForm(msg.stageForm as StageForm)
+    if (msg.playerCount) gs.setPlayerCount(msg.playerCount)
+    if (msg.stockCount) gs.setStockCount(msg.stockCount)
+    if (msg.selection) {
+      for (const id of ALL_FIGHTER_IDS) {
+        if (msg.selection[id]) gs.select(id, msg.selection[id], false)
+      }
+    }
+    gs.startMatch()
+  } else if (msg.phase === 'menu' && gs.phase !== 'menu') {
+    gs.toMenu()
+    return
+  } else if (msg.phase === 'ended' && msg.winner && gs.phase !== 'ended') {
+    gs.endMatch(msg.winner)
+  }
+  const nextGs = useGameStore.getState()
   if (typeof msg.stageTime === 'number') runtime.stageTime = msg.stageTime
   if (msg.fighters) {
     for (const id of ALL_FIGHTER_IDS) {
       const snap = msg.fighters[id]
-      const f = gs.fighters[id]
+      const f = nextGs.fighters[id]
       if (!snap || !f) continue
       f.pos = snap.pos
       f.vel = snap.vel
@@ -304,6 +327,11 @@ export function broadcastStateIfHost() {
     })),
     phase: gs.phase,
     winner: gs.winner,
+    stageId: gs.stageId,
+    stageForm: gs.stageForm,
+    playerCount: gs.playerCount,
+    stockCount: gs.stockCount,
+    selection: gs.selection,
   })
 }
 
