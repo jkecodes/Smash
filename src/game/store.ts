@@ -22,11 +22,11 @@ const DEFAULT_CPU: Record<FighterId, number> = {
   p1: 0, p2: 5, p3: 5, p4: 5, p5: 5, p6: 5, p7: 5, p8: 5,
 }
 
-export function createFighter(id: FighterId, character: CharacterId, stocks = START_STOCKS): FighterState {
+export function createFighter(id: FighterId, character: CharacterId, stocks = START_STOCKS, startDamage = 0): FighterState {
   const sx = (SPAWN_X as Record<string, number>)[id] ?? 0
   const faceRight = id === 'p1' || id === 'p3' || id === 'p5' || id === 'p7'
   return {
-    id, character, damage: 0, stocks, energy: ENERGY_MAX, shield: SHIELD_MAX,
+    id, character, damage: startDamage, stocks, energy: ENERGY_MAX, shield: SHIELD_MAX,
     fsm: 'IDLE', stateMs: 0, pos: [sx, 1, 0], vel: [0, 0, 0],
     facing: [faceRight ? 1 : -1, 0], grounded: false, jumpsLeft: 2, skill: null, cooldowns: {},
     comboBufferMs: 0, hitstunMs: 0, invulnMs: 0, respawnMs: 0, slowFactor: 1, flashMs: 0,
@@ -62,6 +62,17 @@ interface GameStore {
   setPlayerCount(n: number): void
   stockCount: number
   setStockCount(n: number): void
+  teamMode: boolean
+  setTeamMode(v: boolean): void
+  teamCount: number
+  setTeamCount(n: number): void
+  randomTeams: boolean
+  setRandomTeams(v: boolean): void
+  teams: Record<FighterId, number>
+  setTeam(id: FighterId, team: number): void
+  randomizeTeams(): void
+  suddenDeath: boolean
+  setSuddenDeath(v: boolean): void
   selection: Record<FighterId, CharacterId>
   randomSlots: Record<FighterId, boolean>
   stageId: StageId
@@ -108,6 +119,30 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setPlayerCount: (n) => set({ playerCount: Math.max(2, Math.min(8, Math.round(n))) }),
   stockCount: START_STOCKS,
   setStockCount: (n) => set({ stockCount: Math.max(1, Math.min(9, Math.round(n))) }),
+  teamMode: false,
+  setTeamMode: (teamMode) => set({ teamMode }),
+  teamCount: 2,
+  setTeamCount: (n) => {
+    const tc = Math.max(2, Math.min(4, Math.round(n)))
+    set((s) => {
+      const next = { ...s.teams }
+      for (const id of ALL_FIGHTER_IDS) next[id] = next[id] % tc
+      return { teamCount: tc, teams: next }
+    })
+  },
+  randomTeams: false,
+  setRandomTeams: (randomTeams) => set({ randomTeams }),
+  teams: { p1: 0, p2: 1, p3: 0, p4: 1, p5: 0, p6: 1, p7: 0, p8: 1 },
+  setTeam: (id, team) => set((s) => ({ teams: { ...s.teams, [id]: Math.max(0, Math.min(s.teamCount - 1, team)) } })),
+  randomizeTeams: () => set((s) => {
+    const active = ALL_FIGHTER_IDS.slice(0, s.playerCount)
+    const shuffled = [...active].sort(() => Math.random() - 0.5)
+    const next = { ...s.teams }
+    shuffled.forEach((id, i) => { next[id] = i % s.teamCount })
+    return { teams: next }
+  }),
+  suddenDeath: false,
+  setSuddenDeath: (suddenDeath) => set({ suddenDeath }),
   stageId: 'reimu',
   randomStage: false,
   selectStage: (stageId, isRandom = false) => set({ stageId, randomStage: isRandom }),
@@ -153,7 +188,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     randomSlots: { ...s.randomSlots, [id]: isRandom },
   })),
   startMatch: () => {
-    const { selection, randomSlots, randomStage, stageId, stockCount } = get()
+    const { selection, randomSlots, randomStage, stageId, stockCount, teamMode, randomTeams, teamCount, playerCount, suddenDeath } = get()
+    let nextTeams = get().teams
+    if (teamMode && randomTeams) {
+      const active = ALL_FIGHTER_IDS.slice(0, playerCount)
+      const shuffled = [...active].sort(() => Math.random() - 0.5)
+      nextTeams = { ...nextTeams }
+      shuffled.forEach((id, i) => { nextTeams[id] = i % teamCount })
+    }
     const nextStage = randomStage
       ? (STAGE_IDS[Math.floor(Math.random() * STAGE_IDS.length)] ?? STAGE_IDS[0])
       : stageId
@@ -165,12 +207,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
     const matchSeq = Date.now()
       ; (useGameStore as any)._matchSeq = matchSeq
+    const initDmg = suddenDeath ? 300 : 0
+    const nextFighters = Object.fromEntries(
+      ALL_FIGHTER_IDS.map((id) => [id, createFighter(id, nextSel[id], stockCount, initDmg)]),
+    ) as Record<FighterId, FighterState>
     set({
       phase: 'playing', winner: null, paused: false,
       ultCutin: null, fatalFlash: null, countdown: '3', gameFinish: null,
       stageId: nextStage,
       selection: nextSel,
-      fighters: buildFighters(nextSel, stockCount),
+      teams: nextTeams,
+      fighters: nextFighters,
       ui: buildUi(nextSel),
     })
     sfx('ui')
@@ -187,4 +234,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
 export function getActiveFighterIds(): FighterId[] {
   return ALL_FIGHTER_IDS.slice(0, useGameStore.getState().playerCount)
+}
+
+export function isAlly(a: FighterId, b: FighterId): boolean {
+  if (a === b) return true
+  const s = useGameStore.getState()
+  return s.teamMode && s.teams[a] === s.teams[b]
 }

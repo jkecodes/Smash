@@ -13,10 +13,10 @@ import { debugKeys, readInput, rumble, stopAllRumble, type InputFrame } from './
 import { addFx, addProjectile, addSummon, addZone, removeFx, removeProjectile, removeSummon, removeZone, runtime } from './runtime'
 import { getSkill } from './skills'
 import { resetTetroBoards } from './skills/tetroSkills'
-import { getSteveBlocks, resetSteveBlocks, stepSteveBlocks } from './skills/steveBlocks'
+import { getSteveBlocks, getSteveSwordMult, resetSteveBlocks, stepSteveBlocks } from './skills/steveBlocks'
 import { consumeSkillMechanic, getMechanic, onMechanicHit, resetMechanics, stepMechanics } from './mechanics'
 import { CHAR_ELEMENT, ELEMENT_INFO, STATUS_COLOR, elementChance, statusDuration } from './elements'
-import { getActiveFighterIds, useGameStore } from './store'
+import { getActiveFighterIds, isAlly, useGameStore } from './store'
 import type {
   ActiveSkill, FighterId, FighterState, FsmState, HitSource, HitboxDef, SkillContext, SkillDef, SkillSlot, UiFighter, Vec3,
 } from './types'
@@ -28,13 +28,22 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 const store = () => useGameStore.getState()
 const getStage = () => resolveStage(store().stageId, store().stageForm)
 
+export const GROUP_FIGHTER_IDS = new Set([
+  'bomber', 'blackbomber', 'reimu', 'marisa', 'nona', 'jinhsi', 'angelo',
+  'bakugo', 'sukuna', 'ruri', 'anis', 'vaus', 'doh', 'firefly', 'omnom', 'creeper', 'desscaras', 'gojo',
+])
+export const DUEL_FIGHTER_IDS = new Set([
+  'chihiro', 'samura', 'miyabi', 'youmu', 'yodaka', 'hibari', 'erika',
+  'ryu', 'chunli', 'ellen', 'josuke', 'hakuri', 'deku', 'spe', 'suzuka', 'seija', 'rover',
+])
+
 function nearestEnemyOf(id: FighterId): FighterState | null {
   const fs = store().fighters
   const me = fs[id]
   let best: FighterState | null = null
   let bestD = Infinity
   for (const oid of getActiveFighterIds()) {
-    if (oid === id) continue
+    if (oid === id || isAlly(id, oid)) continue
     const e = fs[oid]
     if (!e?.alive) continue
     const d = Math.hypot(e.pos[0] - me.pos[0], e.pos[1] - me.pos[1])
@@ -521,9 +530,19 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
   if (!mechState && activeDef.hitbox) {
     activeDef = { ...activeDef, hitbox: { ...activeDef.hitbox, radius: activeDef.hitbox.radius * 1.12 } }
   }
+  const isGroupChar = GROUP_FIGHTER_IDS.has(f.character)
+  const isDuelChar = DUEL_FIGHTER_IDS.has(f.character)
+  if (isGroupChar && activeDef.hitbox) {
+    activeDef = { ...activeDef, hitbox: { ...activeDef.hitbox, radius: activeDef.hitbox.radius * 1.22 } }
+  }
+  if (isDuelChar && getActiveFighterIds().length === 2) {
+    activeDef = { ...activeDef, startupMs: Math.max(40, Math.round(activeDef.startupMs * 0.88)) }
+  }
   const mech = consumeSkillMechanic(f, slot)
-  const slotDmgBoost = slot === 'attack' ? 1.12 : 1.25
-  const slotKbBoost = slot === 'attack' ? 1.1 : 1.18
+  const steveSword = f.character === 'steve' ? getSteveSwordMult(f.id) : null
+  const duelMult = isDuelChar && getActiveFighterIds().length === 2 ? 1.16 : 1
+  const slotDmgBoost = (slot === 'attack' ? 1.12 : 1.25) * (steveSword?.dmgMult ?? 1) * duelMult
+  const slotKbBoost = (slot === 'attack' ? 1.1 : 1.18) * (steveSword?.kbMult ?? 1)
   f.skill = {
     def: activeDef, slot, phase: 'startup', phaseMs: 0, hitSet: new Set(),
     kbMult: mech.kbMult * slotKbBoost, dmgMult: mech.dmgMult * slotDmgBoost,
@@ -625,6 +644,7 @@ function runHitbox(f: FighterState, sk: HitSource, hb: HitboxDef) {
 interface PendingHit { att: FighterState; tgt: FighterState; src: HitSource; center: Vec3 }
 let pending: PendingHit[] = []
 function queueHit(att: FighterState, tgt: FighterState, src: HitSource, center: Vec3) {
+  if (isAlly(att.id, tgt.id)) return
   src.hitSet.add(tgt.id)
   pending.push({ att, tgt, src, center })
 }
@@ -676,7 +696,7 @@ function hitBallIfOverlap(att: FighterState, src: HitSource, center: Vec3, r: nu
 function hitSummonsIfOverlap(att: FighterState, src: HitSource, center: Vec3, r: number): boolean {
   let hitAny = false
   for (const s of runtime.summons) {
-    if (s.owner === att.id || src.hitSet.has(`sum_${s.id}`)) continue
+    if (isAlly(att.id, s.owner) || src.hitSet.has(`sum_${s.id}`)) continue
     if (Math.hypot(center[0] - s.pos[0], center[1] - s.pos[1]) > r + s.radius) continue
     src.hitSet.add(`sum_${s.id}`)
     hitAny = true
@@ -1062,12 +1082,15 @@ function ko(f: FighterState) {
   f.comboTimerMs = 0
   f.stocks -= 1
   f.ultReady = false
-  f.damage = 0
+  f.damage = store().suddenDeath ? 300 : 0
   f.alive = false
   f.respawnMs = 1300
   rb.setEnabled(false)
   const aliveIds = getActiveFighterIds().filter((id) => fs[id].stocks > 0)
-  if (aliveIds.length <= 1 && !store().gameFinish) {
+  const { teamMode, teams } = store()
+  const aliveTeams = teamMode ? new Set(aliveIds.map((id) => teams[id])) : null
+  const matchOver = teamMode ? (aliveTeams?.size ?? 0) <= 1 : aliveIds.length <= 1
+  if (matchOver && !store().gameFinish) {
     const winId = aliveIds[0] ?? killerId ?? f.id
     publishUi(0, true)
     store().triggerGameFinish(winId, ex, ey)
@@ -1087,7 +1110,16 @@ function respawn(f: FighterState) {
   const sx = active.length <= 2
     ? ((stage.spawnX as Partial<Record<FighterId, number>>)[f.id] ?? (SPAWN_X as Partial<Record<FighterId, number>>)[f.id] ?? (idx === 0 ? -span * 0.5 : span * 0.5))
     : -span + (2 * span * idx) / Math.max(1, active.length - 1)
-  const rx = first ? sx : 0
+  let rx = first ? sx : 0
+  if (!first) {
+    const fs = store().fighters
+    const reviving = getActiveFighterIds()
+      .filter((oid) => oid !== f.id && fs[oid].alive && (fs[oid].revivalMs ?? 0) > 0)
+      .map((oid) => fs[oid].pos[0])
+    const maxRx = Math.max(2, stage.half.x - 1.2)
+    const candidates = [0, -2.8, 2.8, -5.6, 5.6, -8.2, 8.2, sx].map((x) => clamp(x, -maxRx, maxRx))
+    rx = candidates.find((cx) => reviving.every((ox) => Math.abs(cx - ox) >= 2.4)) ?? candidates[idx % candidates.length]
+  }
   const ry = first ? 1 : 6.2
   f.firstSpawn = false
   rb.setEnabled(true)
@@ -1362,7 +1394,7 @@ function updateFighter(f: FighterState, dt: number) {
   if ((f.grounded || coyotePre) && (inp.pressed.jump || (f.jumpBufferMs ?? 0) > 0) && inp.pressed.attack) {
     rb.setLinvel({ x: lv.x, y: JUMP_VEL * 0.72 * jumpMult, z: 0 }, true)
     f.grounded = false
-    f.jumpsLeft = MAX_JUMPS - 1
+    f.jumpsLeft = 1 + extraJumps
     f.jumpBufferMs = 0
     f.coyoteMs = 0
     sfx('jump', 0)
@@ -1381,7 +1413,7 @@ function updateFighter(f: FighterState, dt: number) {
   if (wantJump && (f.jumpsLeft > 0 || coyote)) {
     const groundJump = f.grounded || coyote
     vy = JUMP_VEL * jumpMult
-    f.jumpsLeft = groundJump ? MAX_JUMPS - 1 : Math.max(0, f.jumpsLeft - 1)
+    f.jumpsLeft = groundJump ? 1 + extraJumps : Math.max(0, f.jumpsLeft - 1)
     f.jumpBufferMs = 0
     f.coyoteMs = 0
     sfx('jump', groundJump ? 0 : 1)
@@ -1449,7 +1481,7 @@ function updateProjectiles(dt: number) {
     if (hitBallIfOverlap(store().fighters[p.owner], p.source, p.pos, p.radius) && !p.pierce) consumed = true
     if (!consumed && hitSummonsIfOverlap(store().fighters[p.owner], p.source, p.pos, p.radius) && !p.pierce) consumed = true
     for (const id of consumed ? [] : queryBall(p.pos, p.radius)) {
-      if (id === p.owner || p.source.hitSet.has(id)) continue
+      if (isAlly(p.owner, id) || p.source.hitSet.has(id)) continue
       const tgt = store().fighters[id]
       const att = store().fighters[p.owner]
       if (tgt.alive && (tgt.reflectMs ?? 0) > 0) {

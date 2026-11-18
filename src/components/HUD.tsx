@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { pollPause, captureAxis, captureBase, captureButton, clearMap, connectedPadCount, describePad, getPad, loadMap, readMenuPad, saveMap, type PadMap } from '../game/input'
 import { CHARACTERS, CHARACTER_IDS } from '../game/characters'
 import { clearEntities } from '../game/runtime'
-import { resetSimStage } from '../game/sim'
+import { DUEL_FIGHTER_IDS, GROUP_FIGHTER_IDS, resetSimStage } from '../game/sim'
 import { getSkill } from '../game/skills'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { TIER_COLORS, getSteveInv } from '../game/skills/steveBlocks'
@@ -61,8 +61,18 @@ function PadSlotIcon({ kind, slot }: { kind: 'xbox' | 'ps' | 'nintendo' | 'gener
   )
 }
 
+const TEAM_META = [
+  { name: 'A隊', color: '#ef4444' },
+  { name: 'B隊', color: '#3b82f6' },
+  { name: 'C隊', color: '#eab308' },
+  { name: 'D隊', color: '#22c55e' },
+] as const
+
 function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact?: boolean }) {
   const charId = useGameStore((s) => s.selection[id])
+  const teamMode = useGameStore((s) => s.teamMode)
+  const teamIdx = useGameStore((s) => s.teams[id])
+  const teamInfo = TEAM_META[teamIdx % TEAM_META.length]
   if (!u) return null
   const fullCharName = CHARACTERS[charId]?.name ?? charId.toUpperCase()
   const charName = (fullCharName.match(/^[A-Za-z0-9.'&!\- ]+/)?.[0] ?? fullCharName).trim()
@@ -93,6 +103,11 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
           <span className={`font-bold tracking-wide truncate ${compact ? 'text-[11px]' : 'text-sm'}`} style={{ color: pColor }}>
             {id.toUpperCase()} · {useGameStore.getState().cpu[id] > 0 ? '電腦' : id === (useNetStore.getState().mySlot ?? 'p1') ? useProfileStore.getState().nickname : u.name}
           </span>
+          {teamMode && (
+            <span className="shrink-0 rounded px-1 py-0.5 text-[9px] font-black text-white" style={{ backgroundColor: teamInfo.color }}>
+              {teamInfo.name}
+            </span>
+          )}
         </div>
         <span className={`shrink-0 truncate font-bold text-white/75 ${compact ? 'max-w-[74px] text-[9px]' : 'max-w-[115px] text-[11px]'}`} title={charName}>
           {charName}
@@ -107,9 +122,9 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
             {eliminated ? <span className={compact ? 'text-lg' : 'text-2xl'}>OUT</span> : <>{u.damage}<span className={compact ? 'text-lg' : 'text-2xl'}>%</span></>}
           </span>
         </div>
-        <span className="flex gap-1 pb-1.5">
+        <span className="grid grid-cols-3 gap-1 pb-1 shrink-0">
           {Array.from({ length: Math.max(0, u.stocks) }, (_, i) => (
-            <span key={i} className={`inline-block rounded-sm ${compact ? 'h-2.5 w-2.5' : 'h-3.5 w-3.5'}`} style={{ background: pColor }} />
+            <span key={i} className={`inline-block rounded-sm ${compact ? 'h-2 w-2' : 'h-3 w-3'}`} style={{ background: pColor }} />
           ))}
         </span>
       </div>
@@ -137,8 +152,8 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
       {steveInv && (
         <div className="mt-1 flex items-center justify-between rounded bg-white/10 px-1.5 py-0.5 text-[10px]">
           <span className="font-bold text-emerald-300">⛏️ 方塊：{steveInv.count}/16</span>
-          <span className="font-bold" style={{ color: TIER_COLORS[steveInv.tier].top }}>
-            {TIER_COLORS[steveInv.tier].label}
+          <span className="font-black" style={{ color: steveInv.sword.color }}>
+            🗡️ {steveInv.sword.label}
           </span>
         </div>
       )}
@@ -153,11 +168,6 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/50">
             <div className="h-full transition-all duration-100" style={{ width: `${mech.gauge}%`, backgroundColor: mech.color }} />
           </div>
-        </div>
-      )}
-      {u.charge > 0 && (
-        <div className="mt-1 h-1.5 overflow-hidden rounded bg-white/10">
-          <div className="h-full bg-white" style={{ width: `${u.charge * 100}%` }} />
         </div>
       )}
     </div>
@@ -847,6 +857,19 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
                 <span className="rounded bg-white/10 px-2 py-0.5 text-[11px] text-amber-200">
                   主場地圖：{resolveStage(cid).theme.name}
                 </span>
+                {GROUP_FIGHTER_IDS.has(cid) ? (
+                  <span className="rounded bg-purple-500/20 border border-purple-400/40 px-2 py-0.5 text-[11px] font-bold text-purple-200">
+                    👥 群戰專精（判定範圍 +22%）
+                  </span>
+                ) : DUEL_FIGHTER_IDS.has(cid) ? (
+                  <span className="rounded bg-rose-500/20 border border-rose-400/40 px-2 py-0.5 text-[11px] font-bold text-rose-200">
+                    ⚔️ 單挑專精（1v1 傷害 +16% / 出招快 12%）
+                  </span>
+                ) : (
+                  <span className="rounded bg-sky-500/20 border border-sky-400/40 px-2 py-0.5 text-[11px] font-bold text-sky-200">
+                    ⚖️ 全能平衡型
+                  </span>
+                )}
               </div>
               {c.trait && <div className="text-xs font-bold text-yellow-300">{c.trait}</div>}
               {mechDef ? (
@@ -977,6 +1000,17 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   const setPlayerCount = useGameStore((s) => s.setPlayerCount)
   const stockCount = useGameStore((s) => s.stockCount)
   const setStockCount = useGameStore((s) => s.setStockCount)
+  const teamMode = useGameStore((s) => s.teamMode)
+  const setTeamMode = useGameStore((s) => s.setTeamMode)
+  const teamCount = useGameStore((s) => s.teamCount)
+  const setTeamCount = useGameStore((s) => s.setTeamCount)
+  const randomTeams = useGameStore((s) => s.randomTeams)
+  const setRandomTeams = useGameStore((s) => s.setRandomTeams)
+  const teams = useGameStore((s) => s.teams)
+  const setTeam = useGameStore((s) => s.setTeam)
+  const randomizeTeams = useGameStore((s) => s.randomizeTeams)
+  const suddenDeath = useGameStore((s) => s.suddenDeath)
+  const setSuddenDeath = useGameStore((s) => s.setSuddenDeath)
   const selection = useGameStore((s) => s.selection)
   const randomSlots = useGameStore((s) => s.randomSlots)
   const setPaused = useGameStore((s) => s.setPaused)
@@ -1267,6 +1301,53 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
             </div>
             <button
               type="button"
+              onClick={() => { sfx('ui'); setSuddenDeath(!suddenDeath) }}
+              className={`rounded-full border px-3 py-1 text-xs font-black transition ${suddenDeath ? 'border-red-400 bg-red-500/30 text-red-200' : 'border-white/15 bg-white/10 text-white/70 hover:bg-white/20'}`}
+              title="每條命皆以 300% 傷害開始！"
+            >
+              💀 Sudden Death {suddenDeath ? 'ON (300%)' : 'OFF'}
+            </button>
+            <div className="flex items-center gap-1.5 rounded-full border border-white/15 bg-black/50 px-2.5 py-1">
+              <button
+                type="button"
+                onClick={() => { sfx('ui'); setTeamMode(!teamMode) }}
+                className={`rounded-full px-2.5 py-0.5 text-xs font-black transition ${teamMode ? 'bg-indigo-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}
+              >
+                🤝 {teamMode ? '團體戰 ON' : '個人混戰'}
+              </button>
+              {teamMode && (
+                <>
+                  {[2, 3, 4].map((tc) => (
+                    <button
+                      key={tc}
+                      type="button"
+                      onClick={() => { sfx('ui'); setTeamCount(tc) }}
+                      className={`rounded-full px-2 py-0.5 text-[11px] font-black transition ${teamCount === tc ? 'bg-yellow-300 text-black' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}
+                    >
+                      {tc}隊
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => { sfx('ui'); setRandomTeams(!randomTeams) }}
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-black transition ${randomTeams ? 'bg-emerald-400 text-black' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}
+                    title="開戰時自動隨機分配隊伍"
+                  >
+                    🎲 {randomTeams ? '開戰隨機' : '手動分隊'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { sfx('ui'); randomizeTeams() }}
+                    className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-white/25 transition"
+                    title="立即隨機重新洗牌分隊"
+                  >
+                    洗牌
+                  </button>
+                </>
+              )}
+            </div>
+            <button
+              type="button"
               onClick={() => { sfx('ui'); setStep('stage') }}
               className="rounded-full border border-amber-300/40 bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-200 hover:bg-amber-400/25 transition"
               title="點擊返回更換對戰地圖"
@@ -1386,9 +1467,22 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
                     }`}
                 >
                   <div className="mb-1 flex items-center justify-between gap-1">
-                    <span className="text-xs font-black tracking-wider" style={{ color: pCol }}>
-                      {id.toUpperCase()}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-black tracking-wider" style={{ color: pCol }}>
+                        {id.toUpperCase()}
+                      </span>
+                      {teamMode && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); sfx('ui'); setTeam(id, (teams[id] + 1) % teamCount) }}
+                          className="rounded px-1.5 py-0.5 text-[10px] font-black text-white shadow transition hover:brightness-110"
+                          style={{ backgroundColor: TEAM_META[teams[id] % TEAM_META.length].color }}
+                          title="點擊切換隊伍"
+                        >
+                          {TEAM_META[teams[id] % TEAM_META.length].name}
+                        </button>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1">
                       {!isRand && (
                         <button

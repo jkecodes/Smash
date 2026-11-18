@@ -1,4 +1,4 @@
-import type { SkillContext, Vec3 } from '../types'
+﻿import type { SkillContext, Vec3 } from '../types'
 
 export interface CharSkillProfile {
   /** 普攻啟動／收招速度倍率（<1 更快，>1 更重） */
@@ -34,7 +34,7 @@ export const CHAR_PROFILES: Record<string, CharSkillProfile> = {
   chihiro: { speed: 0.85, reach: 1.15, lunge: 3.2, jabTrait: 'ink', sideSpeed: 28, sideColor: '#ef4444', upRise: 19, downRadius: 2.4 },
   hakuri: { speed: 0.92, reach: 1.05, lunge: 2.2, jabTrait: 'spark', sideSpeed: 24, sideColor: '#38bdf8', upRise: 18.5, s2Scale: 1.2 },
   ichi: { speed: 0.95, reach: 1.0, lunge: 1.5, jabTrait: 'spark', sideSpeed: 24, sideColor: '#facc15', upRise: 19, s2Scale: 1.15 },
-  descara: { speed: 0.9, reach: 1.15, lunge: 2.0, jabTrait: 'ink', sideSpeed: 26, sideColor: '#eab308', upRise: 19.5, downMeteor: true },
+  desscaras: { speed: 0.9, reach: 1.15, lunge: 2.0, jabTrait: 'ink', sideSpeed: 26, sideColor: '#eab308', upRise: 19.5, downMeteor: true },
   ruri: { speed: 1.02, reach: 1.05, lunge: 1.0, jabTrait: 'spark', sideSpeed: 22, sideColor: '#34d399', upRise: 18.5, s2Scale: 1.2 },
   umi: { speed: 1.05, reach: 0.95, lunge: 1.2, jabTrait: 'heal', sideSpeed: 21, sideColor: '#fbbf24', upRise: 17.5, downRadius: 2.4 },
   nona: { speed: 0.92, reach: 1.1, lunge: -1.8, upPop: 0.58, jabTrait: 'kite', sideSpeed: 23, sideColor: '#e879f9', upRise: 19.5 },

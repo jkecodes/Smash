@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+﻿import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { runtime } from '../game/runtime'
@@ -49,7 +49,7 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   anis: { body: '#18181b', hair: '#eab308', accent: '#f97316', prop: 'rifle', style: 'gun' },
   erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'bakugo', 'sukuna'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'bakugo', 'sukuna'].includes(p.id))
       .map((p) => [p.id, p.preset]),
   ) as Record<string, AnimePreset>),
 }
@@ -1157,7 +1157,7 @@ export function RetroAvatar({ id, charId, hideProps = false }: { id: FighterId; 
         </group>
       )}
 
-      {charId === 'descara' && (
+      {charId === 'desscaras' && (
         <group>
           {/* 魔男的伊奇 笛絲卡菈絲：深褐膚色＋三段泡泡黑馬尾＋白衣金領＋細劍 */}
           <mesh position={[0, -0.16, 0]} castShadow><cylinderGeometry args={[0.19, 0.3, 0.54, 12]} /><meshStandardMaterial color="#f8fafc" /></mesh>

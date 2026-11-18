@@ -22,6 +22,14 @@ export const TIER_COLORS: Record<BlockTier, { top: string; side: string; label: 
   diamond: { top: '#22d3ee', side: '#0891b2', label: '鑽石' },
 }
 
+export const SWORD_TIERS = [
+  { label: '木劍', color: '#d97706', dmgMult: 1.0, kbMult: 1.0 },
+  { label: '石劍', color: '#94a3b8', dmgMult: 1.12, kbMult: 1.08 },
+  { label: '鐵劍', color: '#e2e8f0', dmgMult: 1.24, kbMult: 1.16 },
+  { label: '金劍', color: '#facc15', dmgMult: 1.36, kbMult: 1.24 },
+  { label: '鑽石劍', color: '#22d3ee', dmgMult: 1.5, kbMult: 1.35 },
+] as const
+
 const TIER_ORDER: BlockTier[] = ['dirt', 'wood', 'stone', 'iron', 'diamond']
 const MAX_MATERIALS = 16
 const MAX_BLOCKS_PER_PLAYER = 8
@@ -29,14 +37,14 @@ const BLOCK_TTL_MS = 6500
 
 let nextId = 1
 let blocks: SteveBlock[] = []
-const inv: Record<FighterId, { count: number; tierIdx: number; mineMs: number }> = Object.fromEntries(
-  ALL_FIGHTER_IDS.map((id) => [id, { count: 6, tierIdx: 1, mineMs: 0 }])
+const inv: Record<FighterId, { count: number; tierIdx: number; mineMs: number; swordTier: number; minesForSword: number }> = Object.fromEntries(
+  ALL_FIGHTER_IDS.map((id) => [id, { count: 6, tierIdx: 1, mineMs: 0, swordTier: 0, minesForSword: 0 }])
 ) as any
 
 export function resetSteveBlocks() {
   blocks = []
   for (const id of ALL_FIGHTER_IDS) {
-    inv[id] = { count: 6, tierIdx: 1, mineMs: 0 }
+    inv[id] = { count: 6, tierIdx: 1, mineMs: 0, swordTier: 0, minesForSword: 0 }
   }
 }
 
@@ -44,9 +52,13 @@ export function getSteveBlocks(): readonly SteveBlock[] {
   return blocks
 }
 
-export function getSteveInv(id: FighterId): { count: number; tier: BlockTier } {
+export function getSteveInv(id: FighterId): { count: number; tier: BlockTier; sword: (typeof SWORD_TIERS)[number] } {
   const st = inv[id]
-  return { count: st.count, tier: TIER_ORDER[st.tierIdx % TIER_ORDER.length] }
+  return { count: st.count, tier: TIER_ORDER[st.tierIdx % TIER_ORDER.length], sword: SWORD_TIERS[st.swordTier] }
+}
+
+export function getSteveSwordMult(id: FighterId) {
+  return SWORD_TIERS[inv[id]?.swordTier ?? 0]
 }
 
 export function mineSteveStep(id: FighterId, dtMs: number, pos: Vec3) {
@@ -55,7 +67,15 @@ export function mineSteveStep(id: FighterId, dtMs: number, pos: Vec3) {
   if (st.mineMs < 420) return
   st.mineMs -= 420
   st.count = Math.min(MAX_MATERIALS, st.count + 1)
-  st.tierIdx = (st.tierIdx + 1) % TIER_ORDER.length
+  st.tierIdx = Math.min(TIER_ORDER.length - 1, st.tierIdx + 1)
+  st.minesForSword += 1
+  if (st.minesForSword >= 2 && st.swordTier < SWORD_TIERS.length - 1) {
+    st.minesForSword = 0
+    st.swordTier += 1
+    const sw = SWORD_TIERS[st.swordTier]
+    sfx('perfect')
+    addFx({ kind: 'ring', pos: [pos[0], pos[1] + 0.2, 0], color: sw.color, ttl: 360, radius: 1.8, plane: 'vertical' })
+  }
   const tier = TIER_ORDER[st.tierIdx]
   sfx('block')
   addFx({ kind: 'burst', pos: [pos[0], Math.max(0, pos[1] - 0.3), 0], color: TIER_COLORS[tier].top, ttl: 260, count: 8, speed: 4.5, size: 0.14 })

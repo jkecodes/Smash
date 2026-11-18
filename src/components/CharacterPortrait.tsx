@@ -1,4 +1,4 @@
-import { useId } from 'react'
+﻿import { useId } from 'react'
 import { PARTNERS } from '../game/partners'
 import type { CharacterId } from '../game/types'
 
@@ -87,7 +87,7 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   anis: { bg: '#422006', hair: '#facc15', outfit: '#27272a', accent: '#fb923c', eye: '#f59e0b', bobHair: true },
   erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'descara', 'miramira', 'bakugo', 'sukuna'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'miramira', 'bakugo', 'sukuna'].includes(p.id))
       .map((p) => [p.id, p.portrait]),
   ) as Partial<Record<CharacterId, any>>),
 }
@@ -722,7 +722,7 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M24,116 L36,74 Q42,60 52,68" fill="none" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" />
         </>
       )}
-      {id === 'descara' && (
+      {id === 'desscaras' && (
         <>
           <rect width="120" height="120" fill="#eab308" />
           <circle cx="60" cy="60" r="52" fill="#facc15" opacity="0.4" />

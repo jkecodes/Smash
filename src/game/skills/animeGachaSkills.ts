@@ -1,4 +1,4 @@
-import { registerSkill } from './registry'
+﻿import { registerSkill } from './registry'
 import { registerSmashes, registerTilts } from './directionalSkills'
 import { CHAR_PROFILES, applyJabTraitFx } from './charSkillProfiles'
 import { PARTNERS, partnerHas } from '../partners'
@@ -106,7 +106,7 @@ function upRise(id: string, name: string, color: string, o: { dmg: number; base:
           c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#f97316', ttl: 340, count: 20, speed: 8, size: 0.22 })
           c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fde047', ttl: 280, radius: 1.8 })
           c.shake(0.3)
-        } else if (id.startsWith('ellen.') || id.startsWith('chihiro.') || id.startsWith('erika.') || id.startsWith('hakuri.') || id.startsWith('descara.')) {
+        } else if (id.startsWith('ellen.') || id.startsWith('chihiro.') || id.startsWith('erika.') || id.startsWith('hakuri.') || id.startsWith('desscaras.')) {
           c.fx({ kind: 'slash', pos: at(c, 0.5, 0.4), yaw: yawOf(c), plane: 'vertical', tilt: 0.2, color, ttl: 280, radius: 2.1 })
           c.fx({ kind: 'beam', pos: [...c.caster.pos], yaw: yawOf(c), length: 4.5, radius: 0.25, color, ttl: 220 })
         } else {
@@ -245,7 +245,7 @@ function registerKit(k: KitSpec) {
           // 伊奇普攻 a1：召喚「雷狐」電光斬擊
           c.fx({ kind: 'summon', model: 'thunderFox', pos: at(c, 0.25, 1.05), color: '#facc15', ttl: 420, size: 0.72, dir: c.forward[0] })
           c.fx({ kind: 'burst', pos: at(c, 0.2, 1.0), color: '#facc15', ttl: 200, count: 10, speed: 5.5, size: 0.14 })
-        } else if (p === 'descara') {
+        } else if (p === 'desscaras') {
           // 笛絲卡菈絲普攻 a1：釋放「金色束縛魔石」
           c.fx({ kind: 'ring', pos: at(c, 0.2, 1.0), color: '#fde047', ttl: 260, radius: 1.45, plane: 'vertical' })
           c.fx({ kind: 'burst', pos: at(c, 0.2, 1.0), color: '#eab308', ttl: 200, count: 8, speed: 4.5, size: 0.14 })
@@ -261,7 +261,7 @@ function registerKit(k: KitSpec) {
       },
     },
   })
-  const hasJab3 = CHARGE_ATTACK_CHARS.has(p) || p === 'spe' || p === 'saki' || p === 'kotone' || p === 'yodaka' || p === 'ichi' || p === 'descara' || EXPLODE_CHARS.has(p)
+  const hasJab3 = CHARGE_ATTACK_CHARS.has(p) || p === 'spe' || p === 'saki' || p === 'kotone' || p === 'yodaka' || p === 'ichi' || p === 'desscaras' || EXPLODE_CHARS.has(p)
   reg({
     id: `${p}.a2`, name: k.a2, energyCost: 0, ...(hasJab3 ? { chain: `${p}.a3` } : {}),
     startupMs: Math.round((isFast || isMartial ? 55 : 65) * spd), activeMs: 90, recoveryMs: Math.round((isFast ? 155 : 175) * spd),
@@ -278,7 +278,7 @@ function registerKit(k: KitSpec) {
           // 伊奇普攻 a2：召喚「冰鯊」撕咬斬擊
           c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, 0.2, 1.15), color: '#38bdf8', ttl: 460, size: 0.78, dir: c.forward[0] })
           c.fx({ kind: 'burst', pos: at(c, 0.2, 1.1), color: '#bae6fd', ttl: 220, count: 12, speed: 6, size: 0.15 })
-        } else if (p === 'descara') {
+        } else if (p === 'desscaras') {
           // 笛絲卡菈絲普攻 a2：釋放「深淵雷電魔石」
           c.fx({ kind: 'pillar', pos: at(c, 0.1, 1.15), color: '#a855f7', ttl: 240, radius: 0.85 })
           c.fx({ kind: 'burst', pos: at(c, 0.2, 1.15), color: '#c084fc', ttl: 220, count: 12, speed: 6, size: 0.15 })
@@ -301,7 +301,7 @@ function registerKit(k: KitSpec) {
           if (p === 'ichi') {
             // 伊奇終結 a3：召喚「夢貘 × 烏洛洛」王之魔法重擊
             c.fx({ kind: 'summon', model: 'baku', pos: at(c, 0.3, 1.25), color: '#a855f7', ttl: 540, size: 0.9, dir: c.forward[0] })
-          } else if (p === 'descara') {
+          } else if (p === 'desscaras') {
             // 笛絲卡菈絲終結 a3：萬魔石共鳴「封魔石化」貫穿細劍！
             c.fx({ kind: 'beam', pos: at(c, 0.2, 1.0), yaw: yawOf(c), length: 4.5, radius: 0.22, color: '#fde047', ttl: 220 })
             c.fx({ kind: 'ring', pos: at(c, 0.2, 1.2), color: '#a855f7', ttl: 280, radius: 1.8 })
@@ -416,10 +416,10 @@ function registerKit(k: KitSpec) {
           } else if (p === 'youmu') {
             spawnMain(c.forward[0] * baseVel, 0)
             spawnMain(c.forward[0] * (baseVel * 1.18), 1.2)
-          } else if (p === 'blinky' || p === 'lumine' || p === 'descara') {
+          } else if (p === 'blinky' || p === 'lumine' || p === 'desscaras') {
             // 可控追蹤魔彈（笛絲卡菈絲額外附帶多色魔石連射）
             c.spawnProjectile({ pos: at(c, 0.2, 0.9), vel: [c.forward[0] * 17, 0, 0], radius: 0.52, ttlMs: 1500, color: k.s1.projColor, steerable: 5.0, explodeRadius: k.s1.explode })
-            if (p === 'descara') {
+            if (p === 'desscaras') {
               c.spawnProjectile({ pos: at(c, 0.45, 0.8), vel: [c.forward[0] * 19, 2.2, 0], radius: 0.36, ttlMs: 1100, color: '#fde047', explodeRadius: 1.8 })
               c.spawnProjectile({ pos: at(c, -0.05, 0.8), vel: [c.forward[0] * 19, -2.0, 0], radius: 0.36, ttlMs: 1100, color: '#38bdf8', explodeRadius: 1.8 })
             }
@@ -505,7 +505,51 @@ function registerKit(k: KitSpec) {
     reg(dashMove(`${p}.side`, k.side, prof.sideColor ?? color, { speed: prof.sideSpeed ?? 24, dmg: 9.5, base: 12, scaling: 13 }))
   }
 
-  if (TELEPORT_UP_CHARS.has(p)) {
+  if (p === 'nona') {
+    reg({
+      id: `${p}.up`, name: '魔絲針線・場邊鉤索回場', energyCost: 0, cooldownMs: 1300, startupMs: 65, activeMs: 320, recoveryMs: 140,
+      hitbox: { offset: [0, 0.3, 0], radius: 1.45 }, damage: 8,
+      knockback: { dir: [0, 0.85, 0.4], base: 11, scaling: 12, radial: true },
+      hooks: {
+        onActive(c) {
+          const s = useGameStore.getState()
+          const hx = resolveStage(s.stageId, s.stageForm).half.x
+          const side = c.caster.pos[0] >= 0 ? 1 : -1
+          const ledgePos: Vec3 = [side * hx, 0.25, 0]
+          const dx = ledgePos[0] - c.caster.pos[0]
+          const dy = ledgePos[1] - c.caster.pos[1]
+          const dist = Math.hypot(dx, dy)
+          c.scratch.hooked = false
+          if (dist < 14 && (Math.abs(c.caster.pos[0]) > hx - 2.2 || c.caster.pos[1] < 0.8)) {
+            c.scratch.hooked = true
+            c.scratch.dest = [side * (hx - 0.85), 1.05, 0]
+            c.scratch.side = side
+            const yaw = Math.atan2(dx, 0)
+            c.fx({ kind: 'beam', pos: [...c.caster.pos], yaw, length: dist, radius: 0.14, color: '#e879f9', ttl: 320 })
+            c.fx({ kind: 'ring', pos: ledgePos, color: '#e879f9', ttl: 320, radius: 1.2, plane: 'vertical' })
+            c.setGravityScale(0)
+            c.setVelocity(0, 1.5, 0)
+          } else {
+            c.teleport([c.caster.pos[0] + c.forward[0] * 1.2, c.caster.pos[1] + 5.0, 0])
+            c.setVelocity(c.forward[0] * 3, 4.5, 0)
+            c.fx({ kind: 'ring', pos: [...c.caster.pos], color, ttl: 320, radius: 1.8 })
+          }
+        },
+        onTick(c) {
+          if (c.scratch.hooked && c.phase === 'active' && c.phaseMs >= 190 && !c.scratch.reeled) {
+            c.scratch.reeled = true
+            c.teleport(c.scratch.dest)
+            c.setGravityScale(1)
+            c.setVelocity(-c.scratch.side * 2.2, 7.2, 0)
+            c.fx({ kind: 'burst', pos: [...c.caster.pos], color: '#e879f9', ttl: 260, count: 12, speed: 5, size: 0.14 })
+          }
+        },
+        onEnd(c) {
+          c.setGravityScale(1)
+        },
+      },
+    })
+  } else if (TELEPORT_UP_CHARS.has(p)) {
     reg({
       id: `${p}.up`, name: k.up, energyCost: 0, cooldownMs: 1400, startupMs: 85, activeMs: 130, recoveryMs: 240,
       hitbox: { offset: [0, 0.3, 0], radius: 1.45 }, damage: 8,

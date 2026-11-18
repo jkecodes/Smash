@@ -1,4 +1,4 @@
-import { registerSkill } from './registry'
+﻿import { registerSkill } from './registry'
 import type { SkillContext, SkillDef } from '../types'
 
 /**
@@ -54,7 +54,7 @@ export function registerTilts(p: string, o: TiltOpts) {
           c.shake((isHeavy ? 0.22 : 0.12) + c.chargeRatio * 0.22)
           if (p === 'ichi') {
             c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, 0.15, 1.25), color: '#38bdf8', ttl: 420, size: 0.72, dir: c.forward[0] })
-          } else if (p === 'descara') {
+          } else if (p === 'desscaras') {
             c.fx({ kind: 'beam', pos: at(c, 0.15, 0.9), yaw: yawOf(c), length: 3.6, radius: 0.18, color: '#fde047', ttl: 190 })
           }
           if (isCaster) {
@@ -84,7 +84,7 @@ export function registerTilts(p: string, o: TiltOpts) {
           c.shake(0.1 + c.chargeRatio * 0.22)
           if (p === 'ichi') {
             c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, 0.15, 1.25), color: '#38bdf8', ttl: 420, size: 0.72, dir: c.forward[0] })
-          } else if (p === 'descara') {
+          } else if (p === 'desscaras') {
             c.fx({ kind: 'beam', pos: at(c, 0.15, 0.9), yaw: yawOf(c), length: 3.6, radius: 0.18, color: '#fde047', ttl: 190 })
           }
           if (isCaster) {
@@ -110,7 +110,7 @@ export function registerTilts(p: string, o: TiltOpts) {
         onActive(c) {
           if (p === 'ichi') {
             c.fx({ kind: 'summon', model: 'baku', pos: at(c, -0.1, 0.9), color: '#a855f7', ttl: 420, size: 0.7, dir: c.forward[0] })
-          } else if (p === 'descara') {
+          } else if (p === 'desscaras') {
             c.fx({ kind: 'ring', pos: at(c, -0.35, 0.9), color: '#fde047', ttl: 260, radius: 1.7 })
           }
           if (!isCaster && !isMartial) slash(c, o.color, { y: -0.4, d: 1.0, r: 1.5, tilt: -0.1, flip: true })

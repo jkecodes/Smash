@@ -3,7 +3,7 @@ import { resolveStage } from './stages'
 import type { InputFrame } from './input'
 import { runtime } from './runtime'
 import { getSkill } from './skills'
-import { getActiveFighterIds, useGameStore } from './store'
+import { getActiveFighterIds, isAlly, useGameStore } from './store'
 import { ALL_FIGHTER_IDS, type Btn, type FighterId, type FighterState, type SkillDef, type SkillSlot } from './types'
 
 /**
@@ -36,8 +36,10 @@ interface Mem {
   dodge: 'none' | 'roll' | 'spot'
   rollDir: number
   dropT: number
+  lastX: number
+  stuckT: number
 }
-const fresh = (): Mem => ({ prev: noBtns(), think: 400, act: null, shield: 0, jumpCd: 0, ledgeT: 0, ledgeWait: 500, ledgeChoice: 0, enemyAtkSeen: false, idle: 0, strafe: 0, ballT: 0, ballIgnore: 0, shieldTotal: 0, dodge: 'none', rollDir: 0, dropT: 0 })
+const fresh = (): Mem => ({ prev: noBtns(), think: 400, act: null, shield: 0, jumpCd: 0, ledgeT: 0, ledgeWait: 500, ledgeChoice: 0, enemyAtkSeen: false, idle: 0, strafe: 0, ballT: 0, ballIgnore: 0, shieldTotal: 0, dodge: 'none', rollDir: 0, dropT: 0, lastX: 0, stuckT: 0 })
 const mem = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, fresh()])) as Record<FighterId, Mem>
 export function resetCpu(id: FighterId) { mem[id] = fresh() }
 
@@ -108,7 +110,7 @@ function pickAttack(f: FighterState, e: FighterState): Act | null {
 export function cpuInput(id: FighterId, dt: number): InputFrame {
   const S = useGameStore.getState()
   const f = S.fighters[id]
-  const others = getActiveFighterIds().filter((oid) => oid !== id).map((oid) => S.fighters[oid])
+  const others = getActiveFighterIds().filter((oid) => !isAlly(id, oid)).map((oid) => S.fighters[oid])
   const living = others.filter((o) => o.alive)
   const pool = living.length ? living : others
   let e = pool[0] ?? S.fighters.p1
@@ -124,6 +126,21 @@ export function cpuInput(id: FighterId, dt: number): InputFrame {
   let mx = 0, my = 0
 
   const finish = (): InputFrame => {
+    if (f.grounded && !f.fsm.startsWith('ATTACK') && Math.abs(mx) > 0.3) {
+      if (Math.abs(f.pos[0] - m.lastX) < 0.08) {
+        m.stuckT += dtMs
+        if (m.stuckT > 480 && m.jumpCd <= 0) {
+          held.jump = true
+          m.jumpCd = 420
+          m.stuckT = 0
+        }
+      } else {
+        m.stuckT = 0
+      }
+    } else {
+      m.stuckT = 0
+    }
+    m.lastX = f.pos[0]
     const pressed = noBtns()
     for (const b of BTNS) { pressed[b] = held[b] && !m.prev[b]; m.prev[b] = held[b] }
     return { moveX: mx, moveY: my, held, pressed }
@@ -197,14 +214,16 @@ export function cpuInput(id: FighterId, dt: number): InputFrame {
     m.think = rnd(200, 400)
     return finish()
   }
-  // 大招球：只追「構得到」的球（二段跳 + 上攻擊約可到 y≈7.5），單次最多追 4 秒，放棄後 8 秒內不再追
+  // 大招球：只追在場地內且構得到的球（禁止追出場外），單次最多追 4 秒，放棄後 8 秒內不再追
   const ball = runtime.ball
-  const chaseBall = !!ball && m.ballIgnore <= 0 && ball.pos[1] < 7.5 && (adx > 3.5 || !e.alive)
+  const ballInBounds = !!ball && Math.abs(ball.pos[0]) <= stage.half.x - 0.8 && ball.pos[1] >= 0 && ball.pos[1] < 7.5
+  const chaseBall = ballInBounds && m.ballIgnore <= 0 && (adx > 3.5 || !e.alive)
   if (chaseBall && ball && !busy) {
     m.ballT += dtMs
     if (m.ballT > 4000) { m.ballIgnore = 8000; m.ballT = 0; return finish() }
     const bdx = ball.pos[0] - x, bdy = ball.pos[1] - y
-    mx = Math.abs(bdx) > 1.2 ? sign(bdx) : 0
+    const atEdge = Math.abs(x) >= stage.half.x - 0.9 && sign(bdx) === sign(x)
+    mx = atEdge ? 0 : Math.abs(bdx) > 1.2 ? sign(bdx) : 0
     if (m.jumpCd <= 0 && Math.abs(bdx) < 2.5) {
       if (grounded && bdy > 1.2) { held.jump = true; m.jumpCd = 600 }
       else if (!grounded && f.jumpsLeft > 0 && bdy > 2.0 && f.vel[1] < 1) { held.jump = true; m.jumpCd = 400 }

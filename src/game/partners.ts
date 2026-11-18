@@ -4,7 +4,7 @@
  */
 export const PARTNER_IDS = [
   'mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky',
-  'hakuri', 'descara', 'umi', 'miramira', 'sukuna', 'bakugo', 'hibari', 'rintaro', 'hajime', 'doh',
+  'hakuri', 'desscaras', 'umi', 'miramira', 'sukuna', 'bakugo', 'hibari', 'rintaro', 'hajime', 'doh',
   'josuke', 'angelo', 'samura',
 ] as const
 export type PartnerId = typeof PARTNER_IDS[number]
@@ -203,7 +203,7 @@ export const PARTNERS: PartnerSpec[] = [
     flags: ['martial', 'tpSide', 'tpUp', 'counter'],
   },
   {
-    id: 'descara', name: 'DESCARA 笛絲卡菈絲', short: 'DESCARA', color: '#7c3aed', partnerOf: 'ichi',
+    id: 'desscaras', name: 'DESSCARAS 笛絲卡菈絲', short: 'DESSCARAS', color: '#7c3aed', partnerOf: 'ichi',
     scale: 0.98, speedMult: 1.04, damageMult: 1.06, weightMult: 0.96, extraJumps: 4,
     trait: '🪶 魔男的伊奇・深淵的魔女！烏鴉瞬移與深淵魔法。',
     portrait: { bg: '#2e1065', hair: '#18181b', outfit: '#4c1d95', accent: '#c4b5fd', eye: '#e879f9', bobHair: true, witchHat: true },
@@ -380,7 +380,7 @@ export const PARTNERS: PartnerSpec[] = [
   },
   {
     id: 'samura', name: 'SAMURA 座村清市', short: 'SAMURA', color: '#f59e0b', partnerOf: 'chihiro',
-    scale: 1.0, speedMult: 1.14, damageMult: 1.14, weightMult: 0.98, extraJumps: 2,
+    scale: 1.0, speedMult: 1.14, damageMult: 1.14, weightMult: 0.98,
     trait: '🪶 神樂缽・妖刀「飛宗」盲劍客！居合白契流、鴉羽瞬移斬與「雀」覺醒。',
     portrait: { bg: '#1c1917', hair: '#18181b', outfit: '#0f172a', accent: '#f59e0b', eye: '#fbbf24', shortHair: true, scar: true, blindfold: true },
     preset: { body: '#0f172a', hair: '#18181b', accent: '#f59e0b', bladeColor: '#09090b', prop: 'katana', style: 'sword', shortHair: true },

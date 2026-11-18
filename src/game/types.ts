@@ -1,4 +1,4 @@
-import type { RapierRigidBody } from '@react-three/rapier'
+﻿import type { RapierRigidBody } from '@react-three/rapier'
 
 export type FighterId = 'p1' | 'p2' | 'p3' | 'p4' | 'p5' | 'p6' | 'p7' | 'p8'
 export const ALL_FIGHTER_IDS: FighterId[] = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8']
@@ -26,7 +26,7 @@ export type CharacterId =
   | 'luigi' | 'blinky' | 'diddy' | 'creeper' | 'chuck' | 'suzuka'
   | 'firefly' | 'ellen' | 'jinhsi' | 'anis' | 'erika' | 'vaus'
   | 'mino' | 'ufo' | 'blackbomber' | 'viper' | 'ladyfrog' | 'paddle' | 'omnelle' | 'ducky'
-  | 'hakuri' | 'descara' | 'umi' | 'miramira' | 'sukuna' | 'bakugo' | 'hibari' | 'rintaro' | 'hajime' | 'doh'
+  | 'hakuri' | 'desscaras' | 'umi' | 'miramira' | 'sukuna' | 'bakugo' | 'hibari' | 'rintaro' | 'hajime' | 'doh'
   | 'josuke' | 'angelo' | 'samura'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'

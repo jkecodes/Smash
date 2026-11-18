@@ -1,4 +1,4 @@
-import { useFrame } from '@react-three/fiber'
+﻿import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { removeFx, runtime } from '../game/runtime'
@@ -12,7 +12,7 @@ const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
 type FxStyle = 'pixel' | 'katana' | 'magic' | 'martial' | 'cute'
 const PIXEL_CHARS = new Set<CharacterId>(['tetro', 'pong', 'invader', 'snake', 'crossy', 'steve', 'frogger', 'pacman'])
 const KATANA_CHARS = new Set<CharacterId>(['chihiro', 'miyabi', 'yodaka', 'rover', 'samura', 'youmu', 'erika', 'hibari', 'lumine'])
-const MAGIC_CHARS = new Set<CharacterId>(['reimu', 'marisa', 'nona', 'ichi', 'arisa', 'yugi', 'kaiba', 'angelo', 'descara', 'jinhsi'])
+const MAGIC_CHARS = new Set<CharacterId>(['reimu', 'marisa', 'nona', 'ichi', 'arisa', 'yugi', 'kaiba', 'angelo', 'desscaras', 'jinhsi'])
 const MARTIAL_CHARS = new Set<CharacterId>(['ryu', 'chunli', 'deku', 'gojo', 'kong', 'red', 'josuke', 'sukuna', 'bakugo', 'hakuri'])
 
 function fxStyleOf(c?: CharacterId): FxStyle {
@@ -903,11 +903,11 @@ function ProjectileView({ p }: { p: Projectile }) {
             <mesh rotation={[0, Math.PI / 2, 0]}><torusGeometry args={[r * 0.95, r * 0.16, 8, 20]} /><meshBasicMaterial color={p.color} /></mesh>
             <mesh><sphereGeometry args={[r * 0.55, 10, 10]} /><meshBasicMaterial color="#ffffff" /></mesh>
           </>
-        ) : charId === 'descara' || charId === 'miramira' ? (
+        ) : charId === 'desscaras' || charId === 'miramira' ? (
           <>
             {/* 深淵／沉降魔法：雙色魔導法球 */}
-            <mesh><sphereGeometry args={[r * 0.85, 12, 12]} /><meshStandardMaterial color={charId === 'descara' ? '#09090b' : '#14b8a6'} emissive={p.color} emissiveIntensity={0.75} /></mesh>
-            <mesh rotation={[Math.PI / 3, 0, 0]}><torusGeometry args={[r * 1.15, r * 0.12, 8, 18]} /><meshBasicMaterial color={charId === 'descara' ? '#fde047' : '#a855f7'} /></mesh>
+            <mesh><sphereGeometry args={[r * 0.85, 12, 12]} /><meshStandardMaterial color={charId === 'desscaras' ? '#09090b' : '#14b8a6'} emissive={p.color} emissiveIntensity={0.75} /></mesh>
+            <mesh rotation={[Math.PI / 3, 0, 0]}><torusGeometry args={[r * 1.15, r * 0.12, 8, 18]} /><meshBasicMaterial color={charId === 'desscaras' ? '#fde047' : '#a855f7'} /></mesh>
           </>
         ) : charId === 'hibari' ? (
           <>
