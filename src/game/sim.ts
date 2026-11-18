@@ -558,8 +558,9 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
   const k = Math.pow(0.8, dt * 60)
   rb.setLinvel({ x: v.x * k, y: v.y, z: 0 }, true)
 
-  // 連段輸入緩衝
-  if (sk.def.chain && inp.pressed.attack && sk.phase !== 'recovery') f.comboBufferMs = 250
+  // 連段輸入緩衝（連按或長按普攻皆可順暢接續下一段）
+  const atkHoldReady = inp.held.attack && (!sk.def.charge || sk.released)
+  if (sk.def.chain && (inp.pressed.attack || atkHoldReady) && sk.phase !== 'recovery') f.comboBufferMs = 280
 
   // 同按升級：先按普攻/特招，約 0.1 秒內補按另一個 → 改成蓄力重擊（僅限地面，退還原招式的消耗）
   if (f.grounded && sk.phase === 'startup' && sk.phaseMs < 110 && (sk.slot === 'attack' || sk.slot === 'skill1')) {
@@ -605,15 +606,15 @@ function updateSkill(f: FighterState, dt: number, inp: InputFrame) {
     sk.phaseMs += dtMs
     sk.def.hooks?.onTick?.(makeCtx(f, sk, dt))
     const next = getSkill(sk.def.chain)
-    if (next && (inp.pressed.attack || f.comboBufferMs > 0)) {
+    if (next && (inp.pressed.attack || f.comboBufferMs > 0 || atkHoldReady)) {
       endSkill(f)
       startSkill(f, next, 'attack', inp)
       return
     }
-    // 普攻接招延伸：收招達 55ms 後可快速銜接方向攻擊（上A/橫A/下A）或跳躍取消
+    // 普攻接招延伸：收招達 55ms 後可快速銜接方向攻擊（上A/橫A/下A）、連打續接或跳躍取消
     if (sk.slot === 'attack' && sk.phaseMs >= 55) {
       const hasDir = Math.abs(inp.moveX) > 0.6 || Math.abs(inp.moveY) > 0.6
-      if (hasDir && inp.pressed.attack) {
+      if ((hasDir && inp.pressed.attack) || inp.pressed.attack || (atkHoldReady && sk.phaseMs >= sk.def.recoveryMs * 0.72)) {
         endSkill(f)
         tryStartSkill(f, 'attack', inp)
         return

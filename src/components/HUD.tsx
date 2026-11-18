@@ -911,7 +911,9 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
   useEffect(() => {
     if (wizard !== null || showHelp || guideOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      const target = (e.target as HTMLElement | null) ?? (document.activeElement as HTMLElement | null)
+      const tag = target?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) return
       const code = e.code
       let dx = 0, dy = 0
       if (code === 'ArrowLeft' || code === 'KeyA') dx = -1
@@ -1761,6 +1763,9 @@ export function HUD() {
   useEffect(() => {
     if (guideChar || showProfile) return
     const onKey = (e: KeyboardEvent) => {
+      const target = (e.target as HTMLElement | null) ?? (document.activeElement as HTMLElement | null)
+      const tag = target?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) return
       if (phase === 'ended') {
         if (e.code === 'Enter' || e.code === 'Space' || e.code === 'KeyJ') {
           e.preventDefault()

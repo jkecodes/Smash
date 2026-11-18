@@ -47,6 +47,9 @@ if (typeof window !== 'undefined') {
     return KEY_FALLBACK[(e.key ?? '').toLowerCase()] ?? ''
   }
   window.addEventListener('keydown', (e) => {
+    const t = (e.target as HTMLElement | null) ?? (document.activeElement as HTMLElement | null)
+    const tag = t?.tagName
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || t?.isContentEditable) return
     const code = resolveCode(e)
     if (prevent.has(code) || e.key === 'Shift') e.preventDefault()
     if ((code === 'Escape' || code === 'KeyP') && !e.repeat) debugKeys.pause = true
