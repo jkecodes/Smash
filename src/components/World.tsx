@@ -11,6 +11,7 @@ import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroS
 import { TIER_COLORS, getSteveBlocks } from '../game/skills/steveBlocks'
 import { StageDecor, StageParticles, useStageSurfaceTexture } from './StageArt'
 import { StageGimmickView } from './StageGimmicks'
+import { getMechanic } from '../game/mechanics'
 import { runtime } from '../game/runtime'
 import { stepSimulation } from '../game/sim'
 import { getActiveFighterIds, useGameStore } from '../game/store'
@@ -310,6 +311,7 @@ function FighterView({ id }: { id: FighterId }) {
   const orb = useRef<THREE.Group>(null)
   const shield = useRef<THREE.Group>(null)
   const aura = useRef<THREE.Mesh>(null)
+  const mechAura = useRef<THREE.Group>(null)
   const mat = useRef<THREE.MeshStandardMaterial>(null)
   const charId = useGameStore((s) => s.selection[id])
   const tint = CHARACTERS[charId].color
@@ -345,6 +347,26 @@ function FighterView({ id }: { id: FighterId }) {
       aura.current.visible = f.ultReady
       aura.current.scale.setScalar(1.35 + 0.12 * Math.sin(performance.now() / 120))
       ;(aura.current.material as THREE.MeshBasicMaterial).color.setHSL((performance.now() / 1500) % 1, 1, 0.6)
+    }
+    if (mechAura.current) {
+      const m = getMechanic(id)
+      const ready = !!m && (
+        (m.kind === 'awaken' && m.activeMs > 0) ||
+        (m.kind === 'mana' && m.gauge >= 75) ||
+        ((m.kind === 'limit' || m.kind === 'ko' || m.kind === 'aura') && m.gauge >= 100)
+      )
+      mechAura.current.visible = ready
+      if (ready && m) {
+        const now = performance.now()
+        const pulse = 1.0 + 0.14 * Math.sin(now / 110)
+        mechAura.current.scale.setScalar(pulse)
+        mechAura.current.rotation.y = now / 280
+        mechAura.current.rotation.z = Math.sin(now / 360) * 0.25
+        mechAura.current.children.forEach((ch) => {
+          const mat = (ch as THREE.Mesh).material as THREE.MeshBasicMaterial | undefined
+          if (mat?.color) mat.color.set(m.color)
+        })
+      }
     }
     if (shield.current) {
       shield.current.visible = f.fsm === 'SHIELD'
@@ -395,6 +417,16 @@ function FighterView({ id }: { id: FighterId }) {
         <sphereGeometry args={[0.8, 20, 20]} />
         <meshBasicMaterial color="#ffd24d" transparent opacity={0.35} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
+      <group ref={mechAura} visible={false}>
+        <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.35, 0]}>
+          <torusGeometry args={[0.78, 0.06, 8, 28]} />
+          <meshBasicMaterial color="#fde047" transparent opacity={0.85} blending={THREE.AdditiveBlending} depthWrite={false} />
+        </mesh>
+        <mesh rotation={[0.45, 0.3, 0]}>
+          <torusGeometry args={[0.92, 0.045, 8, 28]} />
+          <meshBasicMaterial color="#fde047" transparent opacity={0.7} blending={THREE.AdditiveBlending} depthWrite={false} />
+        </mesh>
+      </group>
       <group ref={shield} position={[0, 0.1, 0]} visible={false}>
         <mesh>
           <sphereGeometry args={[1.02, 24, 24]} />

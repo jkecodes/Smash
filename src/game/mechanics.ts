@@ -44,8 +44,12 @@ export function getMechanic(id: FighterId): MechanicState | null {
   return states[id]
 }
 
+let auraFxTimer = 0
 export function stepMechanics(dt: number, fighters: Record<FighterId, FighterState>) {
   const dtMs = dt * 1000
+  auraFxTimer -= dtMs
+  const emitSpark = auraFxTimer <= 0
+  if (emitSpark) auraFxTimer = 420
   for (const id of ALL_FIGHTER_IDS) {
     const m = states[id]
     const f = fighters[id]
@@ -57,6 +61,14 @@ export function stepMechanics(dt: number, fighters: Record<FighterId, FighterSta
     } else if (m.kind === 'awaken' && m.activeMs > 0) {
       m.activeMs = Math.max(0, m.activeMs - dtMs)
       m.gauge = Math.round((m.activeMs / 6500) * 100)
+    }
+    const ready =
+      f.alive &&
+      ((m.kind === 'awaken' && m.activeMs > 0) ||
+        (m.kind === 'mana' && m.gauge >= 75) ||
+        ((m.kind === 'limit' || m.kind === 'ko' || m.kind === 'aura') && m.gauge >= 100))
+    if (emitSpark && ready) {
+      addFx({ kind: 'burst', pos: [f.pos[0], f.pos[1], 0], color: m.color, ttl: 260, count: 4, speed: 2.8, size: 0.1 })
     }
   }
 }
