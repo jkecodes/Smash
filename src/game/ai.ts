@@ -13,7 +13,7 @@ import { ALL_FIGHTER_IDS, type Btn, type FighterId, type FighterState, type Skil
  * 難度 1~3：反應時間、防禦機率、回場技巧不同。
  */
 const BTNS: Btn[] = ['jump', 'attack', 'skill1', 'skill2', 'ult', 'shield']
-const noBtns = (): Record<Btn, boolean> => ({ jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false })
+const noBtns = (): Record<Btn, boolean> => ({ jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false, grab: false })
 const rnd = (a: number, b: number) => a + Math.random() * (b - a)
 const sign = (n: number) => (n > 0 ? 1 : n < 0 ? -1 : 0)
 

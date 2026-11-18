@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { runtime } from '../game/runtime'
+import { PARTNERS, PARTNER_IDS } from '../game/partners'
 import { useGameStore } from '../game/store'
 import type { CharacterId, FighterId } from '../game/types'
 
@@ -13,6 +14,7 @@ const RETRO_IDS = new Set<CharacterId>([
   'chihiro', 'ichi', 'ruri', 'nona', 'gojo', 'deku', 'yodaka', 'saki', 'spe', 'kaoruko',
   'stelle', 'lumine', 'miyabi', 'rover', 'rapi', 'akira', 'kotone', 'hutao', 'seija', 'youmu',
   'luigi', 'blinky', 'diddy', 'creeper', 'chuck', 'suzuka', 'firefly', 'ellen', 'jinhsi', 'anis', 'erika', 'vaus',
+  ...PARTNER_IDS,
 ])
 
 type AnimePreset = {
@@ -54,6 +56,7 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   anis: { body: '#27272a', hair: '#facc15', accent: '#fb923c', prop: 'rifle', style: 'gun' },
   erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
   vaus: { body: '#1e293b', hair: '#38bdf8', accent: '#ef4444', prop: 'orb', style: 'gun', shortHair: true },
+  ...(Object.fromEntries(PARTNERS.map((p) => [p.id, p.preset])) as Record<string, AnimePreset>),
 }
 
 export function isRetroAvatar(c: CharacterId): boolean {

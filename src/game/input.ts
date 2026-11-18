@@ -4,16 +4,16 @@ import { ALL_FIGHTER_IDS, type Btn, type FighterId } from './types'
 type Map_ = Record<'left' | 'right' | 'up' | 'down' | Btn, string[]>
 const emptyKeyMap = (): Map_ => ({
   left: [], right: [], up: [], down: [],
-  jump: [], attack: [], skill1: [], skill2: [], ult: [], shield: [],
+  jump: [], attack: [], skill1: [], skill2: [], ult: [], shield: [], grab: [],
 })
 const KEYMAP: Record<FighterId, Map_> = {
   p1: {
     left: ['KeyA'], right: ['KeyD'], up: ['KeyW'], down: ['KeyS'],
-    jump: ['Space', 'KeyW'], attack: ['KeyJ'], skill1: ['KeyK'], skill2: ['KeyL'], ult: ['KeyI'], shield: ['ShiftLeft', 'KeyO'],
+    jump: ['Space', 'KeyW'], attack: ['KeyJ'], skill1: ['KeyK'], skill2: ['KeyL'], ult: ['KeyI'], shield: ['ShiftLeft', 'KeyO'], grab: ['KeyE'],
   },
   p2: {
     left: ['ArrowLeft'], right: ['ArrowRight'], up: ['ArrowUp'], down: ['ArrowDown'],
-    jump: ['Enter', 'ArrowUp'], attack: ['Period'], skill1: ['Slash'], skill2: ['Quote'], ult: ['Semicolon'], shield: ['ShiftRight', 'Comma'],
+    jump: ['Enter', 'ArrowUp'], attack: ['Period'], skill1: ['Slash'], skill2: ['Quote'], ult: ['Semicolon'], shield: ['ShiftRight', 'Comma'], grab: ['BracketLeft'],
   },
   p3: emptyKeyMap(),
   p4: emptyKeyMap(),
@@ -24,16 +24,16 @@ const KEYMAP: Record<FighterId, Map_> = {
 }
 const KEY_FALLBACK: Record<string, string> = {
   a: 'KeyA', d: 'KeyD', w: 'KeyW', s: 'KeyS',
-  j: 'KeyJ', k: 'KeyK', l: 'KeyL', i: 'KeyI', o: 'KeyO',
+  j: 'KeyJ', k: 'KeyK', l: 'KeyL', i: 'KeyI', o: 'KeyO', e: 'KeyE',
   ' ': 'Space', enter: 'Enter',
   arrowleft: 'ArrowLeft', arrowright: 'ArrowRight', arrowup: 'ArrowUp', arrowdown: 'ArrowDown',
-  '.': 'Period', '/': 'Slash', "'": 'Quote', ';': 'Semicolon', ',': 'Comma',
+  '.': 'Period', '/': 'Slash', "'": 'Quote', ';': 'Semicolon', ',': 'Comma', '[': 'BracketLeft',
 }
-const BTNS: Btn[] = ['jump', 'attack', 'skill1', 'skill2', 'ult', 'shield']
+const BTNS: Btn[] = ['jump', 'attack', 'skill1', 'skill2', 'ult', 'shield', 'grab']
 // 手把（大亂鬥配置，W3C 標準映射：0=下 1=右 2=左 3=上）
 //  A(右,1)=攻擊  B(下,0)=技能1  X/Y(3,2)=跳躍  左搖桿上推=跳躍
-//  右搖桿(任一方向)=技能2（按住蓄力）  L3/R3(10,11)=大招  LB/RB/LT/RT(4,5,6,7)=防禦
-const PAD_BTN: Record<Btn, number[]> = { jump: [2, 3], attack: [1], skill1: [0], skill2: [], ult: [10, 11], shield: [4, 5, 6, 7] }
+//  右搖桿(任一方向)=技能2（按住蓄力）  L3/R3(10,11)=大招  LT/RT(6,7)=防禦  LB/RB(4,5)=抓取
+const PAD_BTN: Record<Btn, number[]> = { jump: [2, 3], attack: [1], skill1: [0], skill2: [], ult: [10, 11], shield: [6, 7], grab: [4, 5] }
 const DEADZONE = 0.22
 
 const keys = new Set<string>()
@@ -82,7 +82,7 @@ export interface InputFrame {
   held: Record<Btn, boolean>
   pressed: Record<Btn, boolean>
 }
-const emptyBtns = (): Record<Btn, boolean> => ({ jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false })
+const emptyBtns = (): Record<Btn, boolean> => ({ jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false, grab: false })
 const prev = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, emptyBtns()])) as Record<FighterId, Record<Btn, boolean>>
 /** 圓形死區，並重新縮放讓類比輸出平滑 */
 function radial(x: number, y: number): [number, number] {
@@ -103,6 +103,7 @@ export function connectedPadCount(): number {
 }
 /** 手把震動（受擊回饋） */
 export function rumble(id: FighterId, strength: number, ms = 120) {
+  if (useGameStore.getState().cpu[id] > 0) return
   const pad: any = padFor(id)
   const act = pad?.vibrationActuator
   if (!act?.playEffect) return
@@ -134,7 +135,7 @@ const anyKey = (list: string[]) => list.some((c) => keys.has(c))
 export const touchInput: { moveX: number; moveY: number; held: Record<Btn, boolean> } = {
   moveX: 0,
   moveY: 0,
-  held: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false },
+  held: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false, grab: false },
 }
 
 export function readInput(id: FighterId): InputFrame {
@@ -260,7 +261,7 @@ export function captureAxis(id: FighterId, base: CaptureBase): { i: number; s: n
   for (let i = 0; i < p.axes.length; i++) {
     if (skipHat && i === 9) continue
     const d = p.axes[i] - (base.axes[i] ?? 0)
-    if (Math.abs(d) > 0.7) return { i, s: Math.sign(d) }
+    if (Math.abs(d) > 0.5) return { i, s: Math.sign(d) }
   }
   return null
 }

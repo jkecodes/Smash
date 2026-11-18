@@ -253,7 +253,7 @@ export function useStageSurfaceTexture(stageId: StageId): THREE.CanvasTexture {
         g.beginPath(); g.ellipse(w / 2, h / 2, 95, 62, 0, 0, Math.PI * 2); g.stroke()
         g.beginPath(); g.ellipse(w / 2, h / 2, 55, 36, 0, 0, Math.PI * 2); g.stroke()
       } else {
-        const th = STAGES[stageId].theme
+        const th = (STAGES[stageId] ?? STAGES.reimu)!.theme
         g.fillStyle = th.surfaceColor; g.fillRect(0, 0, w, h)
         g.strokeStyle = th.accentColor + '44'; g.lineWidth = 2
         for (let x = 0; x <= w; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke() }

@@ -1,5 +1,6 @@
 import { registerSkill } from './registry'
 import { registerSmashes, registerTilts } from './directionalSkills'
+import { PARTNERS, partnerHas } from '../partners'
 import { resolveStage } from '../stages'
 import { useGameStore } from '../store'
 import type { SkillContext, SkillDef, Vec3 } from '../types'
@@ -94,16 +95,16 @@ const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
   hutao: 'ghost',
 }
 
-const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover', 'youmu', 'firefly', 'ellen', 'erika'])
-const TELEPORT_SIDE_CHARS = new Set(['gojo', 'yodaka', 'miyabi', 'rover', 'seija', 'youmu', 'blinky', 'ellen', 'erika'])
-const RANGED_SIDE_CHARS = new Set(['rapi', 'hutao', 'nona', 'kotone', 'saki', 'anis', 'vaus'])
-const TELEPORT_UP_CHARS = new Set(['gojo', 'yodaka', 'nona', 'miyabi', 'youmu', 'blinky', 'jinhsi'])
-const WIND_UP_CHARS = new Set(['lumine', 'ruri', 'ichi', 'akira', 'diddy', 'firefly'])
-const COUNTER_DOWN_CHARS = new Set(['chihiro', 'gojo', 'kaoruko', 'kotone', 'luigi', 'erika'])
-const TRAP_DOWN_CHARS = new Set(['rapi', 'ichi', 'hutao', 'nona', 'seija', 'diddy', 'creeper', 'anis'])
-const GUN_CHARS = new Set(['rapi', 'anis', 'diddy', 'vaus'])
-const MARTIAL_CHARS = new Set(['gojo', 'deku', 'spe', 'luigi', 'creeper', 'chuck', 'suzuka'])
-const CASTER_CHARS = new Set(['ichi', 'ruri', 'nona', 'saki', 'kaoruko', 'akira', 'kotone', 'blinky', 'jinhsi'])
+const CHARGE_ATTACK_CHARS = new Set(['chihiro', 'gojo', 'deku', 'miyabi', 'stelle', 'hutao', 'rover', 'youmu', 'firefly', 'ellen', 'erika', ...partnerHas('charge')])
+const TELEPORT_SIDE_CHARS = new Set(['gojo', 'yodaka', 'miyabi', 'rover', 'seija', 'youmu', 'blinky', 'ellen', 'erika', ...partnerHas('tpSide')])
+const RANGED_SIDE_CHARS = new Set(['rapi', 'hutao', 'nona', 'kotone', 'saki', 'anis', 'vaus', ...partnerHas('ranged')])
+const TELEPORT_UP_CHARS = new Set(['gojo', 'yodaka', 'nona', 'miyabi', 'youmu', 'blinky', 'jinhsi', ...partnerHas('tpUp')])
+const WIND_UP_CHARS = new Set(['lumine', 'ruri', 'ichi', 'akira', 'diddy', 'firefly', ...partnerHas('windUp')])
+const COUNTER_DOWN_CHARS = new Set(['chihiro', 'gojo', 'kaoruko', 'kotone', 'luigi', 'erika', ...partnerHas('counter')])
+const TRAP_DOWN_CHARS = new Set(['rapi', 'ichi', 'hutao', 'nona', 'seija', 'diddy', 'creeper', 'anis', ...partnerHas('trap')])
+const GUN_CHARS = new Set(['rapi', 'anis', 'diddy', 'vaus', ...partnerHas('gun')])
+const MARTIAL_CHARS = new Set(['gojo', 'deku', 'spe', 'luigi', 'creeper', 'chuck', 'suzuka', ...partnerHas('martial')])
+const CASTER_CHARS = new Set(['ichi', 'ruri', 'nona', 'saki', 'kaoruko', 'akira', 'kotone', 'blinky', 'jinhsi', ...partnerHas('caster')])
 
 function hitVfx(c: any, color: string, p: string, r: number, flip = false) {
   if (GUN_CHARS.has(p)) {
@@ -781,3 +782,4 @@ const KITS: KitSpec[] = [
 ]
 
 for (const k of KITS) registerKit(k)
+for (const p of PARTNERS) registerKit({ p: p.id, color: p.color, ...p.kit })

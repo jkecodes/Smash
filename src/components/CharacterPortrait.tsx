@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { PARTNERS } from '../game/partners'
 import type { CharacterId } from '../game/types'
 
 export const SHORT_NAMES: Record<CharacterId, string> = {
@@ -56,6 +57,7 @@ export const SHORT_NAMES: Record<CharacterId, string> = {
   anis: 'ANIS',
   erika: 'ERIKA',
   vaus: 'VAUS',
+  ...(Object.fromEntries(PARTNERS.map((p) => [p.id, p.short])) as Record<(typeof PARTNERS)[number]['id'], string>),
 }
 
 const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; outfit: string; accent: string; eye: string; blindfold?: boolean; ears?: boolean; horns?: boolean; shortHair?: boolean; bobHair?: boolean; scar?: boolean; twintails?: boolean; huTaoHat?: boolean; witchHat?: boolean }>> = {
@@ -91,6 +93,7 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   anis: { bg: '#422006', hair: '#facc15', outfit: '#27272a', accent: '#fb923c', eye: '#f59e0b', bobHair: true },
   erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
   vaus: { bg: '#020617', hair: '#38bdf8', outfit: '#1e293b', accent: '#ef4444', eye: '#38bdf8', shortHair: true },
+  ...(Object.fromEntries(PARTNERS.map((p) => [p.id, p.portrait])) as Partial<Record<CharacterId, any>>),
 }
 
 export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'random'; className?: string }) {

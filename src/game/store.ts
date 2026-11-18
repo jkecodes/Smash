@@ -163,7 +163,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
     const matchSeq = Date.now()
-    ;(useGameStore as any)._matchSeq = matchSeq
+      ; (useGameStore as any)._matchSeq = matchSeq
     set({
       phase: 'playing', winner: null, paused: false,
       ultCutin: null, fatalFlash: null, countdown: '3', gameFinish: null,

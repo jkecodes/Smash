@@ -31,8 +31,8 @@ export const useNetStore = create<NetStore>((set) => ({
 const emptyInput = (): InputFrame => ({
   moveX: 0,
   moveY: 0,
-  held: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false },
-  pressed: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false },
+  held: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false, grab: false },
+  pressed: { jump: false, attack: false, skill1: false, skill2: false, ult: false, shield: false, grab: false },
 })
 
 export const netRuntime = {
@@ -222,6 +222,9 @@ function applySnapshot(msg: any) {
       f.comboCount = snap.comboCount
       f.flashMs = snap.flashMs
       f.invulnMs = snap.invulnMs
+      f.statusKind = snap.statusKind ?? null
+      f.statusMs = snap.statusMs ?? 0
+      f.revivalMs = snap.revivalMs ?? 0
       f.stats = snap.stats
       const rb = runtime.bodies[id]
       if (rb) {
@@ -339,7 +342,9 @@ export function broadcastStateIfHost(force = false) {
       pos: f.pos, vel: f.vel, facing: f.facing, fsm: f.fsm,
       damage: f.damage, stocks: f.stocks, energy: f.energy, shield: f.shield,
       ultReady: f.ultReady, alive: f.alive, comboCount: f.comboCount,
-      flashMs: f.flashMs, invulnMs: f.invulnMs, stats: f.stats,
+      flashMs: f.flashMs, invulnMs: f.invulnMs,
+      statusKind: f.statusKind ?? null, statusMs: f.statusMs ?? 0, revivalMs: f.revivalMs ?? 0,
+      stats: f.stats,
     }
   }
   const fxBatch = pendingNetFx.splice(0, 40)

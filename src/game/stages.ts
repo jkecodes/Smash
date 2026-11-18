@@ -1,3 +1,4 @@
+import { PARTNER_STAGE_OF, type PartnerId } from './partners'
 import type { CharacterId } from './types'
 
 export type StageId = CharacterId
@@ -87,7 +88,7 @@ export interface StageDef {
   gimmick?: StageGimmickDef
 }
 
-export const STAGES: Record<StageId, StageDef> = {
+export const STAGES: Partial<Record<StageId, StageDef>> = {
   reimu: {
     id: 'reimu',
     half: { x: 9.5, y: 0.5, z: 2.5 },
@@ -461,9 +462,9 @@ export const STAGES: Record<StageId, StageDef> = {
   },
   ryu: {
     id: 'ryu',
-    half: { x: 36, y: 0.5, z: 2.5 },
-    blast: { x: 31, minY: -14, maxY: 28 },
-    ledgeX: 36,
+    half: { x: 28, y: 0.5, z: 2.5 },
+    blast: { x: 25, minY: -14, maxY: 26 },
+    ledgeX: 28,
     walkOff: true,
     spawnX: { p1: -4.2, p2: 4.2 },
     platforms: [
@@ -495,9 +496,9 @@ export const STAGES: Record<StageId, StageDef> = {
   },
   chunli: {
     id: 'chunli',
-    half: { x: 36, y: 0.5, z: 2.5 },
-    blast: { x: 31, minY: -14, maxY: 28 },
-    ledgeX: 36,
+    half: { x: 28, y: 0.5, z: 2.5 },
+    blast: { x: 25, minY: -14, maxY: 26 },
+    ledgeX: 28,
     walkOff: true,
     spawnX: { p1: -4.2, p2: 4.2 },
     platforms: [
@@ -771,6 +772,10 @@ export const STAGES: Record<StageId, StageDef> = {
       { x: 2.4, y: 4.5, w: 2.6, color: '#312e81', edgeColor: '#a855f7' },
       { x: 6.2, y: 2.6, w: 2.8, color: '#475569', edgeColor: '#38bdf8' },
     ],
+    solids: [
+      { x: -7.5, y: 0.75, w: 1.6, h: 1.5, color: '#78350f', edgeColor: '#4ade80' },
+      { x: 7.4, y: 1.0, w: 1.7, h: 2.0, color: '#475569', edgeColor: '#38bdf8' },
+    ],
     theme: {
       name: '麥塊平原村莊',
       subtitle: 'Minecraft Plains',
@@ -849,6 +854,7 @@ export const STAGES: Record<StageId, StageDef> = {
   gojo: {
     id: 'gojo', half: { x: 10.5, y: 0.5, z: 2.5 }, blast: { x: 26, minY: -14, maxY: 26 }, ledgeX: 10.5, spawnX: { p1: -4.8, p2: 4.8 },
     platforms: [{ x: -6.4, y: 4.4, w: 2.8, color: '#1e1b4b', edgeColor: '#818cf8' }, { x: 6.4, y: 4.4, w: 2.8, color: '#312e81', edgeColor: '#c084fc' }],
+    solids: [{ x: -3.2, y: 0.65, w: 1.4, h: 1.3, color: '#312e81', edgeColor: '#818cf8' }, { x: 3.2, y: 0.65, w: 1.4, h: 1.3, color: '#312e81', edgeColor: '#c084fc' }],
     theme: { name: '涉谷地下鐵站台', subtitle: 'Shibuya Station', tag: '五條悟主場・寬闊月台＋雙浮石', desc: '《咒術迴戰》寬闊開放的涉谷月台，只有兩側邊緣高懸的結界碎石！', bg: '#09091a', fog: '#09091a', ambientColor: '#a5b4fc', ambientIntensity: 0.8, dirLightColor: '#e0e7ff', dirLightIntensity: 1.75, dirLightPos: [6, 22, 12], mainColor: '#1e1b4b', surfaceColor: '#312e81', edgeColor: '#818cf8', gridColor1: '#4338ca', gridColor2: '#0f102b', platColor: '#1e1b4b', platEdgeColor: '#818cf8', accentColor: '#a855f7' },
   },
   deku: {
@@ -867,7 +873,7 @@ export const STAGES: Record<StageId, StageDef> = {
     theme: { name: '初星學園 LIVE 舞台', subtitle: 'Hatsuboshi Stage', tag: '咲季主場・雙側音響升降台', desc: '《学マス》寬廣主舞台搭配兩側邊緣隨節拍交替升降的音響高台！', bg: '#1e0b18', fog: '#1e0b18', ambientColor: '#fda4af', ambientIntensity: 0.88, dirLightColor: '#fff1f2', dirLightIntensity: 1.85, dirLightPos: [0, 22, 12], mainColor: '#4c0519', surfaceColor: '#881337', edgeColor: '#f43f5e', gridColor1: '#9f1239', gridColor2: '#2e0512', platColor: '#881337', platEdgeColor: '#fb7185', accentColor: '#f43f5e' },
   },
   spe: {
-    id: 'spe', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -5.5, p2: 5.5 },
+    id: 'spe', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 26, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -5.5, p2: 5.5 },
     solids: [{ x: -5.5, y: 0, w: 1.0, h: 1.1, color: '#581c87', edgeColor: '#c084fc' }, { x: 5.5, y: 0, w: 1.0, h: 1.1, color: '#581c87', edgeColor: '#c084fc' }],
     platforms: [{ x: -3.5, y: 1.5, w: 1.8, color: '#581c87', edgeColor: '#c084fc' }, { x: 3.5, y: 1.5, w: 1.8, color: '#581c87', edgeColor: '#c084fc' }],
     theme: { name: '東京競馬場終點線', subtitle: 'Tokyo Racecourse', tag: '特別週主場・超寬直線障礙賽', desc: '《賽馬娘》超寬日本ダービー草地大直道與兩座低矮障礙跳欄！', bg: '#0c2419', fog: '#0c2419', ambientColor: '#bbf7d0', ambientIntensity: 0.9, dirLightColor: '#ffffff', dirLightIntensity: 1.85, dirLightPos: [10, 22, 12], mainColor: '#14532d', surfaceColor: '#16a34a', edgeColor: '#c084fc', gridColor1: '#15803d', gridColor2: '#052e16', platColor: '#581c87', platEdgeColor: '#c084fc', accentColor: '#c084fc' },
@@ -898,7 +904,7 @@ export const STAGES: Record<StageId, StageDef> = {
     theme: { name: '瑝瓏今州城', subtitle: 'Jinzhou Wuthering', tag: '漂泊者主場・中空雙翼飛簷', desc: '《鳴潮》中央完全留空、左右兩翼寬闊平展的瑝瓏古風飛簷雙台！', bg: '#141721', fog: '#141721', ambientColor: '#fef08a', ambientIntensity: 0.85, dirLightColor: '#fffbeb', dirLightIntensity: 1.8, dirLightPos: [8, 22, 12], mainColor: '#1e293b', surfaceColor: '#334155', edgeColor: '#facc15', gridColor1: '#ca8a04', gridColor2: '#0f172a', platColor: '#334155', platEdgeColor: '#facc15', accentColor: '#facc15' },
   },
   rapi: {
-    id: 'rapi', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -4.2, p2: 4.2 },
+    id: 'rapi', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -4.2, p2: 4.2 },
     solids: [{ x: -6.5, y: 0, w: 2.0, h: 1.2, color: '#27272a', edgeColor: '#ef4444' }, { x: 6.5, y: 0, w: 2.0, h: 1.2, color: '#27272a', edgeColor: '#ef4444' }],
     platforms: [{ x: -5.2, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 5.2, y: 1.8, w: 2.8, color: '#450a0a', edgeColor: '#ef4444' }, { x: 0, y: 4.6, w: 3.4, color: '#1e293b', edgeColor: '#f97316', move: { ampX: 3.6, speed: 1.1 } }],
     theme: { name: '地面奪回戰壕', subtitle: 'Surface Outpost', tag: '拉毗主場・3掩體＋補給', desc: '《NIKKE》妮姬地面奪回戰線！下層三座防禦掩體與高空巡弋補給台。', bg: '#170a0a', fog: '#170a0a', ambientColor: '#fca5a5', ambientIntensity: 0.82, dirLightColor: '#fee2e2', dirLightIntensity: 1.8, dirLightPos: [0, 22, 12], mainColor: '#27272a', surfaceColor: '#3f3f46', edgeColor: '#ef4444', gridColor1: '#991b1b', gridColor2: '#18181b', platColor: '#450a0a', platEdgeColor: '#ef4444', accentColor: '#ef4444' },
@@ -928,7 +934,7 @@ export const STAGES: Record<StageId, StageDef> = {
     theme: { name: '輝針城・逆轉天守', subtitle: 'Shining Needle Castle', tag: '正邪主場・逆轉浮動層板', desc: '《東方輝針城》上下顛倒的天邪鬼天守閣，中央赤藍層板不斷上下反轉浮動！', bg: '#1a0914', fog: '#1a0914', ambientColor: '#fda4af', ambientIntensity: 0.85, dirLightColor: '#e0f2fe', dirLightIntensity: 1.8, dirLightPos: [6, 22, 12], mainColor: '#311022', surfaceColor: '#4c0519', edgeColor: '#e11d48', gridColor1: '#be123c', gridColor2: '#1e1b4b', platColor: '#9f1239', platEdgeColor: '#38bdf8', accentColor: '#e11d48' },
   },
   youmu: {
-    id: 'youmu', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -4.8, p2: 4.8 },
+    id: 'youmu', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -4.8, p2: 4.8 },
     solids: [
       { x: -7.5, y: 0, w: 2.2, h: 1.3, color: '#065f46', edgeColor: '#34d399' },
       { x: 7.5, y: 0, w: 2.2, h: 1.3, color: '#065f46', edgeColor: '#34d399' },
@@ -962,13 +968,13 @@ export const STAGES: Record<StageId, StageDef> = {
     theme: { name: 'Minecraft 地底礦坑', subtitle: 'Creeper Cavern', tag: '苦力怕主場・方塊岩階', desc: '深邃方塊洞窟與兩側實心草地礦階，小心腳下的高壓爆炸！', bg: '#06140c', fog: '#06140c', ambientColor: '#bbf7d0', ambientIntensity: 0.84, dirLightColor: '#dcfce7', dirLightIntensity: 1.78, dirLightPos: [6, 22, 12], mainColor: '#1e293b', surfaceColor: '#16a34a', edgeColor: '#4ade80', gridColor1: '#15803d', gridColor2: '#052e16', platColor: '#334155', platEdgeColor: '#4ade80', accentColor: '#4ade80' },
   },
   chuck: {
-    id: 'chuck', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -4.5, p2: 4.5 },
+    id: 'chuck', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 25, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -4.5, p2: 4.5 },
     solids: [{ x: 0, y: 0, w: 2.4, h: 1.5, color: '#92400e', edgeColor: '#facc15' }],
     platforms: [{ x: -5.4, y: 2.5, w: 3.2, color: '#78350f', edgeColor: '#facc15' }, { x: 5.4, y: 2.5, w: 3.2, color: '#78350f', edgeColor: '#facc15' }],
     theme: { name: '豬豬木頭堡壘', subtitle: 'Wood Fortress', tag: '飛鏢黃主場・中央木堡平地', desc: '《Angry Birds》寬闊草地平地與正中央可站立的實心木塊堡壘！', bg: '#0c1b29', fog: '#0c1b29', ambientColor: '#fef08a', ambientIntensity: 0.9, dirLightColor: '#ffffff', dirLightIntensity: 1.85, dirLightPos: [10, 22, 12], mainColor: '#15803d', surfaceColor: '#22c55e', edgeColor: '#facc15', gridColor1: '#16a34a', gridColor2: '#052e16', platColor: '#78350f', platEdgeColor: '#facc15', accentColor: '#facc15' },
   },
   suzuka: {
-    id: 'suzuka', half: { x: 36, y: 0.5, z: 2.5 }, blast: { x: 31, minY: -14, maxY: 28 }, ledgeX: 36, walkOff: true, spawnX: { p1: -5.5, p2: 5.5 },
+    id: 'suzuka', half: { x: 28, y: 0.5, z: 2.5 }, blast: { x: 26, minY: -14, maxY: 26 }, ledgeX: 28, walkOff: true, spawnX: { p1: -5.5, p2: 5.5 },
     platforms: [{ x: -4.8, y: 2.2, w: 3.4, color: '#14532d', edgeColor: '#22c55e' }, { x: 4.8, y: 2.2, w: 3.4, color: '#14532d', edgeColor: '#22c55e' }],
     theme: { name: '阪神競馬場彎道', subtitle: 'Hanshin Turf', tag: '無聲鈴鹿主場・極速草地直道', desc: '一望無際的綠色草地大直道，專為異次元大逃げ打造的高速戰場！', bg: '#061a12', fog: '#061a12', ambientColor: '#bbf7d0', ambientIntensity: 0.9, dirLightColor: '#ffffff', dirLightIntensity: 1.85, dirLightPos: [10, 22, 12], mainColor: '#14532d', surfaceColor: '#16a34a', edgeColor: '#22c55e', gridColor1: '#15803d', gridColor2: '#052e16', platColor: '#14532d', platEdgeColor: '#22c55e', accentColor: '#22c55e' },
   },
@@ -1004,7 +1010,7 @@ export const STAGES: Record<StageId, StageDef> = {
   },
 }
 
-export const STAGE_GIMMICKS: Record<StageId, StageGimmickDef> = {
+export const STAGE_GIMMICKS: Partial<Record<StageId, StageGimmickDef>> = {
   reimu: { kind: 'pickup', name: '賽錢箱祈願（回血）', color: '#fde047', pos: [0, 5.2], radius: 0.9, power: 10, interval: 10, mode: 'heal' },
   marisa: { kind: 'wind', name: '魔法森林上升氣流', color: '#facc15', pos: [0, 0.5], radius: 4.5, power: 14, mode: 'up' },
   tetro: { kind: 'portal', name: '方塊邊界傳送門', color: '#22d3ee', pos: [-8.2, 1.4], pos2: [8.2, 1.4], radius: 0.9, power: 0 },
@@ -1067,8 +1073,9 @@ export type StageForm = 'normal' | 'battlefield' | 'omega'
 
 /** 依場地型態（一般 / 戰場化 / 終點化）解析實際層板配置，保留原有美術主題與背景 */
 export function resolveStage(id: StageId, form: StageForm = 'normal'): StageDef {
-  const base = STAGES[id] ?? STAGES.reimu
-  if (form === 'normal') return { ...base, gimmick: base.gimmick ?? STAGE_GIMMICKS[id] }
+  const mappedId = (PARTNER_STAGE_OF[id as PartnerId] as StageId | undefined) ?? id
+  const base = STAGES[mappedId] ?? STAGES.reimu!
+  if (form === 'normal') return { ...base, gimmick: base.gimmick ?? STAGE_GIMMICKS[mappedId] }
   const stdHalf = base.walkOff ? { x: 9.5, y: 0.5, z: 2.5 } : base.half
   const stdLedge = base.walkOff ? 9.5 : base.ledgeX
   if (form === 'omega') return { ...base, half: stdHalf, ledgeX: stdLedge, walkOff: false, solids: undefined, platforms: [], gimmick: undefined }

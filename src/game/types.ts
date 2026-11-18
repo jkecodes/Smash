@@ -25,13 +25,15 @@ export type CharacterId =
   | 'kotone' | 'hutao'
   | 'luigi' | 'blinky' | 'diddy' | 'creeper' | 'chuck' | 'suzuka'
   | 'firefly' | 'ellen' | 'jinhsi' | 'anis' | 'erika' | 'vaus'
+  | 'mino' | 'ufo' | 'blackbomber' | 'viper' | 'ladyfrog' | 'paddle' | 'omnelle' | 'ducky'
+  | 'hakuri' | 'descara' | 'umi' | 'lovi' | 'sukuna' | 'bakugo' | 'hibari' | 'rintaro' | 'hajime' | 'doh'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'
   | 'ATTACK_STARTUP' | 'ATTACK_ACTIVE' | 'ATTACK_RECOVERY'
   | 'HITSTUN' | 'SHIELD' | 'LEDGE' | 'DODGE'
 export type SkillSlot = 'attack' | 'skill1' | 'skill2' | 'ult' | 'smash'
 export type Vec3 = [number, number, number]
-export type Btn = 'jump' | 'attack' | 'skill1' | 'skill2' | 'ult' | 'shield'
+export type Btn = 'jump' | 'attack' | 'skill1' | 'skill2' | 'ult' | 'shield' | 'grab'
 
 /** 局部座標：x=角色右側(2.5D 中不用)、y=上、z=面向前方 */
 export interface HitboxDef {
@@ -124,6 +126,10 @@ export interface CharacterDef {
   damageMult?: number
   /** 重量倍率（影響抗擊飛能力，大隻角色 > 1.0） */
   weightMult?: number
+  /** 額外空中跳躍次數（專精回場角色可 > 1） */
+  extraJumps?: number
+  /** 上特回場推力倍率（預設 1.0） */
+  upSpecialBoost?: number
   /** 鍵為 'skill1'，或帶方向的 'skill1:up' / 'skill1:down'（按住搖桿方向 + 該鍵時優先使用） */
   loadout: Partial<Record<string, string>>
   /** 模型動畫片段名稱覆寫（狀態 → clip 名稱） */
@@ -156,9 +162,17 @@ export interface FighterStats {
   perfectShields: number
 }
 
+export type StatusKind = 'freeze' | 'burn' | 'shock' | 'poison'
+
 export interface FighterState {
   id: FighterId
   character: CharacterId
+  /** 屬性異常狀態（冰凍 / 燃燒 / 感電 / 中毒） */
+  statusKind?: StatusKind | null
+  statusMs?: number
+  statusBy?: FighterId | null
+  /** 復活暫時懸浮小平台剩餘時間 */
+  revivalMs?: number
   damage: number
   stocks: number
   energy: number

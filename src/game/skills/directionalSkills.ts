@@ -58,7 +58,8 @@ export function registerTilts(p: string, o: TiltOpts) {
         onStart(c) { if (!c.caster.grounded && c.caster.skill) c.caster.skill.released = true },
         onActive(c) {
           c.shake(0.1 + c.chargeRatio * 0.22)
-          slash(c, o.color, { y: 1.0, d: 0.3, r: 1.7 + c.chargeRatio * 0.45, tilt: Math.PI / 4 })
+          c.fx({ kind: 'slash', pos: at(c, 1.05, 0.25), yaw: yawOf(c), plane: 'vertical', tilt: 0.15, color: o.color, ttl: 240, radius: 1.75 + c.chargeRatio * 0.45 })
+          c.fx({ kind: 'pillar', pos: at(c, 0.2, 0.25), color: o.color, ttl: 220, radius: 0.75 })
           if (c.chargeRatio > 0.35) c.fx({ kind: 'ring', pos: at(c, 1.0, 0.2), color: o.color, ttl: 260, radius: 1.6 })
         },
       },
@@ -67,7 +68,12 @@ export function registerTilts(p: string, o: TiltOpts) {
       id: `${p}.dTilt`, name: nd, energyCost: 0, startupMs: 80, activeMs: 100, recoveryMs: 230,
       hitbox: { offset: [0, -0.35, 1.25], radius: 0.95 }, damage: dmg * 0.85,
       knockback: { dir: [0, 0.7, 0.6], base: 6, scaling: 8, hitstunMs: 320 },
-      hooks: { onActive(c) { slash(c, o.color, { y: -0.4, d: 1.0, r: 1.5, tilt: -0.1, flip: true }) } },
+      hooks: {
+        onActive(c) {
+          slash(c, o.color, { y: -0.4, d: 1.0, r: 1.5, tilt: -0.1, flip: true })
+          c.fx({ kind: 'ring', pos: at(c, -0.42, 0.9), color: o.color, ttl: 220, radius: 1.15 })
+        },
+      },
     })
   } else {
     const shoot = (c: SkillContext, vx: number, vy: number, r: number, color: string, y = 0.15) =>

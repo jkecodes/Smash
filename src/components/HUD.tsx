@@ -7,7 +7,7 @@ import { getSkill } from '../game/skills'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { TIER_COLORS, getSteveInv } from '../game/skills/steveBlocks'
 import { getMechanic } from '../game/mechanics'
-import { STAGES, STAGE_IDS, type StageForm, type StageId } from '../game/stages'
+import { STAGES, STAGE_IDS, resolveStage, type StageForm, type StageId } from '../game/stages'
 import { useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
 import { sfx, useAudioStore } from '../game/audio'
@@ -70,9 +70,10 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
   const readyLines = isTetro ? getReadyLines(id) : 0
   const clearBanner = tb?.lastClear && performance.now() < tb.lastClear.until ? tb.lastClear : null
   const pColor = PLAYER_COLORS[id]
+  const eliminated = u.stocks <= 0
 
   return (
-    <div className={`relative rounded-xl bg-black/60 text-white backdrop-blur border border-white/10 ${compact ? 'w-44 p-2' : 'w-72 p-3'}`}>
+    <div className={`relative rounded-xl bg-black/60 text-white backdrop-blur border border-white/10 transition-all duration-500 ${eliminated ? 'opacity-30 grayscale' : ''} ${compact ? 'w-44 p-2' : 'w-72 p-3'}`}>
       {u.combo >= 2 && (
         <div
           className="-top-7 left-2 absolute animate-bounce rounded-full px-2.5 py-0.5 text-[11px] font-black text-black shadow-lg"
@@ -107,8 +108,8 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
           <div className={`${compact ? 'h-9 w-9' : 'h-12 w-12'} shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black/50 shadow-inner`}>
             <CharacterPortrait id={charId} className="h-full w-full" />
           </div>
-          <span className={`${compact ? 'text-3xl' : 'text-5xl'} font-black italic tracking-tight leading-none tabular-nums`} style={{ color: damageColor(u.damage), textShadow: '0 2px 0 #000' }}>
-            {u.damage}<span className={compact ? 'text-lg' : 'text-2xl'}>%</span>
+          <span className={`${compact ? 'text-3xl' : 'text-5xl'} font-black italic tracking-tight leading-none tabular-nums`} style={{ color: eliminated ? '#94a3b8' : damageColor(u.damage), textShadow: '0 2px 0 #000' }}>
+            {eliminated ? <span className={compact ? 'text-lg' : 'text-2xl'}>OUT</span> : <>{u.damage}<span className={compact ? 'text-lg' : 'text-2xl'}>%</span></>}
           </span>
         </div>
         <span className="flex gap-1 pb-1.5">
@@ -260,19 +261,34 @@ const STEPS: Step[] = [
   { label: '按下「技能2」鍵（可按住蓄力）', kind: 'button', btn: 'skill2' },
   { label: '按下「大招」鍵', kind: 'button', btn: 'ult' },
   { label: '按下「防禦」鍵', kind: 'button', btn: 'shield' },
+  { label: '按下「抓人」鍵', kind: 'button', btn: 'grab' },
 ]
 
 /** 手把按鍵綁定精靈：適用任何手把（含非標準映射的單支 Joy-Con） */
 function PadWizard({ id, onClose }: { id: FighterId; onClose: () => void }) {
   const [step, setStep] = useState(0)
+  const [padFound, setPadFound] = useState(() => !!getPad(id))
   useEffect(() => {
-    if (!getPad(id)) return
     const map: PadMap = { btn: {} }
     let i = 0
-    let base = captureBase(id)
-    let wait = performance.now() + 400
+    let base: ReturnType<typeof captureBase> | null = getPad(id) ? captureBase(id) : null
+    let wait = performance.now() + 350
     let raf = 0
     const loop = () => {
+      const p = getPad(id)
+      if (!p) {
+        setPadFound(false)
+        base = null
+        raf = requestAnimationFrame(loop)
+        return
+      }
+      if (!base) {
+        setPadFound(true)
+        base = captureBase(id)
+        wait = performance.now() + 350
+        raf = requestAnimationFrame(loop)
+        return
+      }
       const st = STEPS[i]
       if (performance.now() > wait) {
         let ok = false
@@ -281,8 +297,8 @@ function PadWizard({ id, onClose }: { id: FighterId; onClose: () => void }) {
         else { const r = captureButton(id, base); if (r !== null) { map.btn![st.btn!] = r; ok = true } }
         if (ok) {
           i++
-          if (i >= STEPS.length) { const p = getPad(id); if (p) saveMap(p, map); onClose(); return }
-          setStep(i); base = captureBase(id); wait = performance.now() + 450
+          if (i >= STEPS.length) { saveMap(p, map); onClose(); return }
+          setStep(i); base = captureBase(id); wait = performance.now() + 400
         }
       }
       raf = requestAnimationFrame(loop)
@@ -290,10 +306,9 @@ function PadWizard({ id, onClose }: { id: FighterId; onClose: () => void }) {
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
   }, [id, onClose])
-  const pad = getPad(id)
   return (
     <div className="pointer-events-auto absolute inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-black/85 text-white">
-      <div className="text-lg font-bold">{id.toUpperCase()} 手把設定 {pad ? '' : '（找不到手把，請先接上並按任一鍵）'}</div>
+      <div className="text-lg font-bold">{id.toUpperCase()} 手把設定 {padFound ? '' : '（找不到手把，請先接上並按任一鍵）'}</div>
       <div className="text-3xl font-black text-yellow-300">{STEPS[step].label}</div>
       <div className="text-sm text-white/60">{step + 1} / {STEPS.length}</div>
       <div className="flex gap-3">
@@ -379,7 +394,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
   const selectStage = useGameStore((s) => s.selectStage)
   const stageForm = useGameStore((s) => s.stageForm)
   const setStageForm = useGameStore((s) => s.setStageForm)
-  const activeStage = STAGES[stageId] ?? STAGES.reimu
+  const activeStage = resolveStage(stageId, stageForm)
   const randomStage = useGameStore((s) => s.randomStage)
   const btnRefs = useRef<Partial<Record<StageId | 'random', HTMLButtonElement>>>({})
 
@@ -489,7 +504,7 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
                 </button>
               )
             }
-            const st = STAGES[item]
+            const st = STAGES[item]!
             const active = !randomStage && stageId === item
             return (
               <button
@@ -785,7 +800,7 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
               <div className="flex flex-wrap items-baseline gap-2.5">
                 <span className="text-xl font-black" style={{ color: c.color }}>{c.name}</span>
                 <span className="rounded bg-white/10 px-2 py-0.5 text-[11px] text-amber-200">
-                  主場地圖：{STAGES[cid].theme.name}
+                  主場地圖：{resolveStage(cid).theme.name}
                 </span>
               </div>
               {c.trait && <div className="text-xs font-bold text-yellow-300">{c.trait}</div>}
@@ -888,7 +903,7 @@ function Menu({ onGuide, guideOpen }: { onGuide: (c: CharacterId) => void; guide
       : activeIds.includes(activePicker) && canEditSlot(activePicker)
         ? activePicker
         : 'p1'
-  const currentStage = STAGES[stageId] ?? STAGES.reimu
+  const currentStage = resolveStage(stageId)
   const charBtnRefs = useRef<Partial<Record<CharacterId | 'random', HTMLButtonElement>>>({})
 
   useEffect(() => {
@@ -1392,7 +1407,7 @@ function PauseOverlay({ onGuide, active }: { onGuide: () => void; active: boolea
   const start = useGameStore((s) => s.startMatch)
   const toMenu = useGameStore((s) => s.toMenu)
   const stageId = useGameStore((s) => s.stageId)
-  const currentStage = STAGES[stageId] ?? STAGES.reimu
+  const currentStage = resolveStage(stageId)
   const [focusIdx, setFocusIdx] = useState(0)
   const [ready, setReady] = useState(false)
 
@@ -1787,8 +1802,14 @@ export function HUD() {
     return (ui[b]?.stats.kos ?? 0) - (ui[a]?.stats.kos ?? 0)
   })
 
+  const [podiumFocusIdx, setPodiumFocusIdx] = useState(1)
+  const podiumActions = [
+    () => { sfx('ui'); setResultStep('stats'); setEndFocusIdx(1) },
+    () => { clearEntities(); start(); resetSimStage(); broadcastStart() },
+    toMenu,
+  ]
   const endActions = [
-    () => { sfx('ui'); setResultStep('podium') },
+    () => { sfx('ui'); setResultStep('podium'); setPodiumFocusIdx(1) },
     () => { clearEntities(); start(); resetSimStage(); broadcastStart() },
     toMenu,
   ]
@@ -1798,17 +1819,16 @@ export function HUD() {
     () => {
       sfx('ui')
       if (resultStep === 'podium') {
-        setResultStep('stats')
-        setEndFocusIdx(1)
+        podiumActions[podiumFocusIdx]?.()
       } else {
         endActions[endFocusIdx]?.()
       }
     },
     (_id, dx, dy) => {
-      if (resultStep !== 'stats') return
       const step = dx || dy
       if (!step) return
-      setEndFocusIdx((i) => (i + step + 3) % 3)
+      if (resultStep === 'podium') setPodiumFocusIdx((i) => (i + step + 3) % 3)
+      else setEndFocusIdx((i) => (i + step + 3) % 3)
     },
   )
 
@@ -1819,12 +1839,19 @@ export function HUD() {
       const tag = target?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) return
       if (phase === 'ended') {
-        if (e.code === 'Enter' || e.code === 'Space' || e.code === 'KeyJ') {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+          e.preventDefault(); sfx('ui')
+          if (resultStep === 'podium') setPodiumFocusIdx((i) => (i + 2) % 3)
+          else setEndFocusIdx((i) => (i + 2) % 3)
+        } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+          e.preventDefault(); sfx('ui')
+          if (resultStep === 'podium') setPodiumFocusIdx((i) => (i + 1) % 3)
+          else setEndFocusIdx((i) => (i + 1) % 3)
+        } else if (e.code === 'Enter' || e.code === 'Space' || e.code === 'KeyJ') {
           e.preventDefault()
           sfx('ui')
           if (resultStep === 'podium') {
-            setResultStep('stats')
-            setEndFocusIdx(1)
+            podiumActions[podiumFocusIdx]?.()
           } else {
             endActions[endFocusIdx]?.()
           }
@@ -1836,7 +1863,7 @@ export function HUD() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [phase, guideChar, showProfile, resultStep, endFocusIdx, start, toMenu])
+  }, [phase, guideChar, showProfile, resultStep, podiumFocusIdx, endFocusIdx, start, toMenu])
 
   return (
     <div className="pointer-events-none absolute inset-0">
@@ -2122,15 +2149,15 @@ export function HUD() {
               <div className="flex gap-2.5">
                 <button
                   type="button"
-                  onClick={() => { sfx('ui'); setResultStep('stats') }}
-                  className="rounded-xl bg-cyan-400 px-5 py-2.5 text-base font-black text-black hover:bg-cyan-300 transition-colors shadow-xl"
+                  onClick={podiumActions[0]}
+                  className={`rounded-xl bg-cyan-400 px-5 py-2.5 text-base font-black text-black hover:bg-cyan-300 transition shadow-xl ${podiumFocusIdx === 0 ? 'ring-4 ring-white scale-105' : 'opacity-85'}`}
                 >
                   📊 詳細戰績
                 </button>
-                <button onClick={() => { clearEntities(); start(); resetSimStage(); broadcastStart() }} className="rounded-xl bg-yellow-300 px-7 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition-colors shadow-xl">
+                <button onClick={podiumActions[1]} className={`rounded-xl bg-yellow-300 px-7 py-2.5 text-base font-black text-black hover:bg-yellow-200 transition shadow-xl ${podiumFocusIdx === 1 ? 'ring-4 ring-white scale-105' : 'opacity-85'}`}>
                   再來一場
                 </button>
-                <button onClick={toMenu} className="rounded-xl bg-white/20 border border-white/30 px-6 py-2.5 text-base font-bold hover:bg-white/30 transition-colors shadow-xl">
+                <button onClick={podiumActions[2]} className={`rounded-xl bg-white/20 border border-white/30 px-6 py-2.5 text-base font-bold hover:bg-white/30 transition shadow-xl ${podiumFocusIdx === 2 ? 'ring-4 ring-yellow-300 scale-105' : 'opacity-85'}`}>
                   回選單
                 </button>
               </div>

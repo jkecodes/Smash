@@ -12,7 +12,7 @@ export default function App() {
   const paused = useGameStore((s) => s.paused)
   const ultCutin = useGameStore((s) => s.ultCutin)
   const stageId = useGameStore((s) => s.stageId)
-  const stage = STAGES[stageId] ?? STAGES.reimu
+  const stage = (STAGES[stageId] ?? STAGES.reimu)!
   const theme = stage.theme
 
   return (

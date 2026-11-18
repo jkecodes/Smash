@@ -15,6 +15,7 @@ import { getSkill } from './skills'
 import { resetTetroBoards } from './skills/tetroSkills'
 import { getSteveBlocks, resetSteveBlocks, stepSteveBlocks } from './skills/steveBlocks'
 import { consumeSkillMechanic, onMechanicHit, resetMechanics, stepMechanics } from './mechanics'
+import { CHAR_ELEMENT, ELEMENT_INFO, STATUS_COLOR, elementChance, statusDuration } from './elements'
 import { getActiveFighterIds, useGameStore } from './store'
 import type {
   ActiveSkill, FighterId, FighterState, FsmState, HitSource, HitboxDef, SkillContext, SkillDef, SkillSlot, UiFighter, Vec3,
@@ -387,7 +388,7 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
 
 function guardUltBounds(f: FighterState, rb: NonNullable<typeof runtime.bodies['p1']>, onEnd = false) {
   const stage = getStage()
-  const safeX = Math.min(18, stage.half.x - 0.8)
+  const blast = stage.blast ?? BLAST
   const p = rb.translation()
   const v = rb.linvel()
   let nx = p.x
@@ -396,14 +397,18 @@ function guardUltBounds(f: FighterState, rb: NonNullable<typeof runtime.bodies['
   let vy = v.y
   let changed = false
 
-  if (Math.abs(nx) > safeX) {
-    nx = clamp(nx, -safeX, safeX)
-    vx = -Math.sign(p.x) * Math.min(Math.abs(vx), 6)
+  if (Math.abs(nx) > blast.x - 1.5) {
+    nx = clamp(nx, -(blast.x - 1.5), blast.x - 1.5)
+    vx = -Math.sign(p.x) * Math.min(Math.abs(vx), 4)
     changed = true
   }
-  if (ny < -0.5 || (onEnd && (Math.abs(p.x) > safeX || ny < 0.2))) {
-    ny = Math.max(ny, onEnd ? 1.5 : 0.2)
-    vy = Math.max(vy, 2.5)
+  if (ny < blast.minY + 2.5) {
+    ny = blast.minY + 2.5
+    vy = Math.max(vy, 2)
+    changed = true
+  }
+  if (!onEnd && vy < -1.5) {
+    vy = -1.5
     changed = true
   }
   if (changed) {
@@ -523,23 +528,28 @@ function updateBall(dt: number) {
   if (!b) {
     ballTimer -= dt
     if (ballTimer <= 0) {
-      addFx({ kind: 'ring', pos: [0, 7, 0], color: '#ffe066', ttl: 700, radius: 3 })
+      const side = Math.random() < 0.5 ? -1 : 1
+      const spawnX = side * (Math.min(stage.half.x, 14) + 8)
+      addFx({ kind: 'ring', pos: [spawnX, 6.5, 0], color: '#ffe066', ttl: 700, radius: 3 })
       sfx('ballSpawn')
-      runtime.ball = { pos: [(Math.random() - 0.5) * (stage.half.x * 1.3), 7, 0], vel: [0, 0, 0], hp: 40, maxHp: 40, radius: 0.6, ttlMs: 20000, turnMs: 0, flashMs: 0 }
+      runtime.ball = { pos: [spawnX, 6.5, 0], vel: [-side * 5.2, 0, 0], hp: 40, maxHp: 40, radius: 0.6, ttlMs: 20000, turnMs: 1400, flashMs: 0 }
     }
     return
   }
   const ms = dt * 1000
   b.ttlMs -= ms; b.flashMs = Math.max(0, b.flashMs - ms); b.turnMs -= ms
   if (b.ttlMs > 0) {
-    if (b.turnMs <= 0) {
+    const maxBallX = Math.min(stage.half.x, 14) + 2
+    const inside = Math.abs(b.pos[0]) <= maxBallX
+    if (b.turnMs <= 0 && inside) {
       b.turnMs = 1500 + Math.random() * 1500
       const a = Math.random() * Math.PI * 2
       b.vel = [Math.cos(a) * 4.2, Math.sin(a) * 2.6, 0]
+    } else if (!inside) {
+      b.vel[0] = -Math.sign(b.pos[0]) * 5.2
     }
     b.pos = [b.pos[0] + b.vel[0] * dt, b.pos[1] + b.vel[1] * dt, 0]
-    const maxBallX = stage.half.x + 2
-    if (Math.abs(b.pos[0]) > maxBallX) { b.pos[0] = Math.sign(b.pos[0]) * maxBallX; b.vel[0] *= -1 }
+    if (inside && Math.abs(b.pos[0]) > maxBallX) { b.pos[0] = Math.sign(b.pos[0]) * maxBallX; b.vel[0] *= -1 }
     if (b.pos[1] < 2.5 || b.pos[1] > 9) { b.pos[1] = clamp(b.pos[1], 2.5, 9); b.vel[1] *= -1 }
   } else {
     // 太久沒人打破時不再折返，而是斜上方緩緩飄出畫面外
@@ -713,11 +723,44 @@ function applyHit(att: FighterState, tgt: FighterState, src: HitSource, center: 
   tgt.comboCount = 0
   tgt.comboTimerMs = 0
 
-  const speed = ((kb.base + kb.scaling * (tgt.damage / 100)) * src.kbMult) / (tgtChar?.weightMult ?? 1)
+  let speed = ((kb.base + kb.scaling * (tgt.damage / 100)) * src.kbMult) / (tgtChar?.weightMult ?? 1)
+  if (tgt.statusKind === 'freeze') {
+    tgt.statusKind = null
+    tgt.statusMs = 0
+    speed *= 1.22 // 破冰追加擊飛！
+    addFx({ kind: 'burst', pos: [tgt.pos[0], tgt.pos[1], 0], color: '#bae6fd', ttl: 320, count: 14, speed: 7, size: 0.16 })
+  }
   if (tgt.skill) endSkill(tgt) // 受擊打斷施放
   trb.setGravityScale(1, true)
   trb.setLinvel({ x: dir[0] * speed, y: dir[1] * speed, z: 0 }, true)
-  tgt.hitstunMs = kb.hitstunMs ?? clamp(120 + speed * 22, 160, 2200)
+  let hitstun = kb.hitstunMs ?? clamp(120 + speed * 22, 160, 2200)
+  // 屬性傷害異常狀態判定
+  const elem = CHAR_ELEMENT[att.character]
+  if (elem && Math.random() < elementChance(dmg, !!def.requiresUlt)) {
+    const info = ELEMENT_INFO[elem]
+    tgt.statusKind = info.status
+    tgt.statusMs = statusDuration(info.status, dmg, !!def.requiresUlt)
+    tgt.statusBy = att.id
+    if (info.status === 'shock') hitstun += 140
+    addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1], 0], color: info.color, ttl: 340, radius: 1.5, plane: 'vertical' })
+  }
+  // 持有大招球資格被打重擊時有機會掉出大招球
+  if (tgt.ultReady && !runtime.ball && (speed >= 14 || dmg >= 10) && Math.random() < (speed >= 20 ? 0.55 : 0.3)) {
+    tgt.ultReady = false
+    runtime.ball = {
+      pos: [tgt.pos[0], tgt.pos[1] + 0.9, 0],
+      vel: [-dir[0] * 6, 5.5, 0],
+      hp: 25,
+      maxHp: 25,
+      radius: 0.6,
+      ttlMs: 14000,
+      turnMs: 900,
+      flashMs: 250,
+    }
+    sfx('ballSpawn')
+    addFx({ kind: 'ring', pos: [tgt.pos[0], tgt.pos[1] + 0.9, 0], color: '#fde047', ttl: 420, radius: 2.2 })
+  }
+  tgt.hitstunMs = hitstun
   setFsm(tgt, 'HITSTUN')
   tgt.flashMs = 160
   sfx('hit', speed / 40)
@@ -789,8 +832,8 @@ function respawn(f: FighterState) {
   const sx = active.length <= 2
     ? ((stage.spawnX as Partial<Record<FighterId, number>>)[f.id] ?? (SPAWN_X as Partial<Record<FighterId, number>>)[f.id] ?? (idx === 0 ? -span * 0.5 : span * 0.5))
     : -span + (2 * span * idx) / Math.max(1, active.length - 1)
-  const rx = first ? sx : (Math.random() - 0.5) * 3
-  const ry = first ? 1 : 9
+  const rx = first ? sx : 0
+  const ry = first ? 1 : 6.2
   f.firstSpawn = false
   rb.setEnabled(true)
   if (first) resetCpu(f.id)
@@ -798,6 +841,10 @@ function respawn(f: FighterState) {
   rb.setLinvel({ x: 0, y: 0, z: 0 }, true)
   rb.setGravityScale(1, true)
   f.alive = true
+  f.revivalMs = first ? 0 : 3000
+  f.statusKind = null
+  f.statusMs = 0
+  f.statusBy = null
   f.invulnMs = first ? 300 : 2500
   f.hitstunMs = 0
   f.lastHitBy = null
@@ -845,13 +892,15 @@ function updateFighter(f: FighterState, dt: number) {
   updatePlatformCollision(f, rb, dt)
   const wasGrounded = f.grounded
   f.grounded = checkGround(f)
+  const maxJumps = MAX_JUMPS + (CHARACTERS[f.character]?.extraJumps ?? 0)
   if (f.grounded) {
     if (!wasGrounded && f.vel[1] < -1.5) sfx('land', Math.min(1, Math.abs(f.vel[1]) / 20))
-    f.jumpsLeft = MAX_JUMPS; f.airDodgeUsed = false; f.upSpecialUsed = false
+    f.jumpsLeft = maxJumps; f.airDodgeUsed = false; f.upSpecialUsed = false
     f.coyoteMs = 110 // 土狼時間：剛離開平台邊緣的一瞬間仍視為接地起跳
   } else {
     f.coyoteMs = Math.max(0, (f.coyoteMs ?? 0) - dtMs)
-    if (f.coyoteMs <= 0 && f.jumpsLeft > 1) f.jumpsLeft = 1 // 滯空時最多只能再跳一次（走下平台、被擊飛也一樣）
+    const maxAir = 1 + (CHARACTERS[f.character]?.extraJumps ?? 0)
+    if (f.coyoteMs <= 0 && f.jumpsLeft > maxAir) f.jumpsLeft = maxAir
   }
 
   // 減速力場（只影響敵方）
@@ -871,6 +920,39 @@ function updateFighter(f: FighterState, dt: number) {
   }
   latestInputs[f.id] = inp
   if (store().phase !== 'playing') return
+
+  // 復活暫時懸浮小平台：開始移動／跳躍／出招就立刻消失，否則最多停留 3 秒
+  if ((f.revivalMs ?? 0) > 0) {
+    const moved = Math.abs(inp.moveX) > 0.25 || inp.moveY < -0.5 || inp.pressed.jump || inp.pressed.attack || inp.pressed.skill1 || inp.pressed.skill2 || inp.pressed.grab
+    if (moved) {
+      f.revivalMs = 0
+    } else {
+      f.revivalMs = Math.max(0, (f.revivalMs ?? 0) - dtMs)
+      rb.setTranslation({ x: t.x, y: 6.2, z: 0 }, true)
+      rb.setLinvel({ x: 0, y: 0, z: 0 }, true)
+      f.pos = [t.x, 6.2, 0]
+      f.grounded = true
+      f.jumpsLeft = maxJumps
+      return
+    }
+  }
+
+  // 屬性異常狀態推進（冰凍定身 / 燃燒・中毒持續扣血）
+  if (f.statusKind && (f.statusMs ?? 0) > 0) {
+    f.statusMs = Math.max(0, (f.statusMs ?? 0) - dtMs)
+    if (f.statusKind === 'burn' || f.statusKind === 'poison') {
+      const rate = f.statusKind === 'burn' ? 2.2 : 2.6
+      f.damage = Math.min(MAX_DAMAGE, f.damage + rate * dt)
+      if (Math.random() < dt * 4) {
+        addFx({ kind: 'burst', pos: [t.x, t.y, 0], color: STATUS_COLOR[f.statusKind], ttl: 240, count: 3, speed: 2.2, size: 0.1 })
+      }
+    } else if (f.statusKind === 'freeze') {
+      rb.setLinvel({ x: lv.x * 0.86, y: Math.min(0, lv.y), z: 0 }, true)
+      if (f.statusMs <= 0) f.statusKind = null
+      return
+    }
+    if (f.statusMs <= 0) f.statusKind = null
+  }
 
   // 跳躍輸入緩衝（150ms）：避免跑步換手、剛結束硬直或起跳前一刻按跳沒反應
   f.jumpBufferMs = Math.max(0, (f.jumpBufferMs ?? 0) - dtMs)
@@ -930,6 +1012,36 @@ function updateFighter(f: FighterState, dt: number) {
     const m = Math.hypot(inp.moveX, inp.moveY > 0.5 ? inp.moveY : inp.moveY < -0.5 ? inp.moveY : 0)
     startDodge(f, 'air', m > 0.4 ? inp.moveX / Math.max(1, m) : 0, m > 0.4 ? (Math.abs(inp.moveY) > 0.5 ? Math.sign(inp.moveY) : 0) : 0)
     return
+  }
+  // 抓取與投擲（Grab 鍵，或防禦中按普攻；可破防！）
+  if (inp.pressed.grab || (inp.held.shield && inp.pressed.attack)) {
+    const grabCenter: Vec3 = [t.x + f.facing[0] * 1.1, t.y + 0.1, 0]
+    addFx({ kind: 'ring', pos: grabCenter, color: PLAYER_COLORS[f.id], ttl: 180, radius: 0.85, plane: 'vertical' })
+    const hitIds = queryBall(grabCenter, 1.05).filter((id) => id !== f.id && store().fighters[id]?.alive)
+    if (hitIds.length > 0) {
+      const tgt = store().fighters[hitIds[0]]
+      const trb = runtime.bodies[tgt.id]!
+      const throwDmg = 7
+      tgt.damage = Math.min(MAX_DAMAGE, tgt.damage + throwDmg)
+      tgt.lastHitBy = f.id
+      f.stats.damageDealt += throwDmg
+      tgt.stats.damageTaken += throwDmg
+      let tx = f.facing[0], ty = 0.5, base = 15, scaling = 14
+      if (inp.moveY > 0.5) { tx = 0; ty = 1; base = 14; scaling = 13 }
+      else if (inp.moveY < -0.5) { tx = f.facing[0] * 0.35; ty = 0.9; base = 12; scaling = 11.5 }
+      else if (inp.moveX * f.facing[0] < -0.5) { tx = -f.facing[0]; ty = 0.55; base = 16.5; scaling = 15; f.facing = [-f.facing[0] as 1 | -1, 0] }
+      const len = Math.hypot(tx, ty) || 1
+      const spd = (base + scaling * (tgt.damage / 100)) / (CHARACTERS[tgt.character]?.weightMult ?? 1)
+      if (tgt.skill) endSkill(tgt)
+      trb.setGravityScale(1, true)
+      trb.setLinvel({ x: (tx / len) * spd, y: (ty / len) * spd, z: 0 }, true)
+      tgt.hitstunMs = clamp(160 + spd * 22, 220, 1800)
+      setFsm(tgt, 'HITSTUN')
+      tgt.flashMs = 150
+      sfx('hit', spd / 35)
+      addFx({ kind: 'burst', pos: [tgt.pos[0], tgt.pos[1], 0], color: PLAYER_COLORS[f.id], ttl: 320, count: 14, speed: 6, size: 0.16 })
+      return
+    }
   }
   // 持有大招資格時，按「特招」且不推方向（Neutral B）直接開大招（同大亂鬥 Final Smash）
   const neutralDir = Math.abs(inp.moveX) < 0.35 && Math.abs(inp.moveY) < 0.35

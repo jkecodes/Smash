@@ -12,7 +12,7 @@ const at = (c: SkillContext, y: number, fwd: number): Vec3 => {
   return [c.caster.pos[0] + w[0], c.caster.pos[1] + w[1], 0]
 }
 const clampStageX = (x: number) => {
-  const hx = (STAGES[useGameStore.getState().stageId] ?? STAGES.reimu).half.x - 0.5
+  const hx = (STAGES[useGameStore.getState().stageId] ?? STAGES.reimu)!.half.x - 0.5
   return Math.max(-hx, Math.min(hx, x))
 }
 function trail(c: SkillContext, ms: number, color: string, ttl = 250) {

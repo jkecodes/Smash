@@ -1,3 +1,4 @@
+import { PARTNERS } from './partners'
 import type { CharacterDef, CharacterId } from './types'
 
 /**
@@ -699,7 +700,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   youmu: {
     id: 'youmu', name: 'YOUMU 魂魄妖夢', color: '#34d399',
-    scale: 0.96, speedMult: 1.16, damageMult: 1.04, weightMult: 0.94,
+    scale: 0.96, speedMult: 1.16, damageMult: 1.04, weightMult: 0.94, extraJumps: 2,
     trait: '⚔️ 東方妖妖夢・樓觀劍×白樓劍二刀流！超高速居合與人鬼未來永劫斬！',
     guide: {
       summary: '《東方妖妖夢》白玉樓的半人半靈庭師！擁有極快跑速與樓觀劍蓄力斬擊。',
@@ -738,7 +739,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   chuck: {
     id: 'chuck', name: 'CHUCK 飛鏢黃', color: '#facc15',
-    scale: 0.86, speedMult: 1.24, damageMult: 0.92, weightMult: 0.84,
+    scale: 0.86, speedMult: 1.24, damageMult: 0.92, weightMult: 0.84, extraJumps: 3,
     trait: '⚡ Angry Birds・全場最速三角加速鳥！點擊即達音速貫穿！',
     loadout: { attack: 'chuck.a1', ...tilts('chuck'), skill1: 'chuck.s1', 'skill1:side': 'chuck.side', 'skill1:up': 'chuck.up', 'skill1:down': 'chuck.down', skill2: 'chuck.s2', ...smashes('chuck'), ult: 'chuck.ult' },
   },
@@ -750,7 +751,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   firefly: {
     id: 'firefly', name: 'FIREFLY 流螢・薩姆', color: '#f97316',
-    scale: 1.08, speedMult: 1.04, damageMult: 1.12, weightMult: 1.08,
+    scale: 1.08, speedMult: 1.04, damageMult: 1.12, weightMult: 1.08, extraJumps: 2,
     trait: '🔥 星穹鐵道・裝甲「薩姆」焦土作戰與完全燃燒二刀流！',
     loadout: { attack: 'firefly.a1', ...tilts('firefly'), skill1: 'firefly.s1', 'skill1:side': 'firefly.side', 'skill1:up': 'firefly.up', 'skill1:down': 'firefly.down', skill2: 'firefly.s2', ...smashes('firefly'), ult: 'firefly.ult' },
   },
@@ -762,7 +763,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   jinhsi: {
     id: 'jinhsi', name: 'JINHSI 今汐', color: '#fde047',
-    scale: 0.96, speedMult: 1.04, damageMult: 1.1, weightMult: 0.96,
+    scale: 0.96, speedMult: 1.04, damageMult: 1.1, weightMult: 0.96, extraJumps: 2,
     trait: '🐉 鳴潮・今州令尹與歲主「角」共鳴！浮空龍息與韶光天降！',
     loadout: { attack: 'jinhsi.a1', ...tilts('jinhsi'), skill1: 'jinhsi.s1', 'skill1:side': 'jinhsi.side', 'skill1:up': 'jinhsi.up', 'skill1:down': 'jinhsi.down', skill2: 'jinhsi.s2', ...smashes('jinhsi'), ult: 'jinhsi.ult' },
   },
@@ -784,5 +785,11 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
     trait: '🧱 Atari Arkanoid・能量球反彈與雙管雷射！',
     loadout: { attack: 'vaus.a1', ...tilts('vaus'), skill1: 'vaus.s1', 'skill1:side': 'vaus.side', 'skill1:up': 'vaus.up', 'skill1:down': 'vaus.down', skill2: 'vaus.s2', ...smashes('vaus'), ult: 'vaus.ult' },
   },
+  ...(Object.fromEntries(PARTNERS.map((p) => [p.id, {
+    id: p.id, name: p.name, color: p.color,
+    scale: p.scale, speedMult: p.speedMult, damageMult: p.damageMult, weightMult: p.weightMult,
+    trait: p.trait,
+    loadout: { attack: `${p.id}.a1`, ...tilts(p.id), skill1: `${p.id}.s1`, 'skill1:side': `${p.id}.side`, 'skill1:up': `${p.id}.up`, 'skill1:down': `${p.id}.down`, skill2: `${p.id}.s2`, ...smashes(p.id), ult: `${p.id}.ult` },
+  }])) as unknown as Record<(typeof PARTNERS)[number]['id'], CharacterDef>),
 }
 export const CHARACTER_IDS = Object.keys(CHARACTERS) as CharacterId[]

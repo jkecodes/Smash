@@ -14,6 +14,8 @@ import { StageGimmickView } from './StageGimmicks'
 import { getMechanic } from '../game/mechanics'
 import { runtime } from '../game/runtime'
 import { stepSimulation } from '../game/sim'
+import { useProfileStore } from '../game/profile'
+import { useNetStore } from '../game/net'
 import { getActiveFighterIds, useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type FighterId } from '../game/types'
 
@@ -177,23 +179,29 @@ export function SimLoop() {
 
 const CHAR_SCALE = 1.4 // 角色視覺放大倍率（碰撞體不變）
 function makeMarkTexture(label: string, color: string) {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 128
+  const c = document.createElement('canvas'); c.width = 320; c.height = 128
   const g = c.getContext('2d')!
+  // 真正的任天堂明星大亂鬥頭上 Tag：半透明深灰圓角標籤 ＋ 下方玩家色小三角形
+  g.fillStyle = 'rgba(15, 23, 42, 0.78)'
+  g.beginPath(); g.roundRect(24, 14, 272, 66, 14); g.fill()
+  g.lineWidth = 3; g.strokeStyle = 'rgba(255, 255, 255, 0.25)'; g.stroke()
+  g.fillStyle = '#ffffff'; g.font = 'bold 34px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'
+  g.fillText(label.slice(0, 12), 160, 48)
+  // 下方玩家代表色倒三角形
   g.fillStyle = color
-  g.beginPath(); g.moveTo(128, 124); g.lineTo(100, 96); g.lineTo(156, 96); g.closePath(); g.fill() // 向下小箭頭
-  g.beginPath(); g.roundRect(28, 8, 200, 86, 22); g.fill()
-  g.lineWidth = 6; g.strokeStyle = '#ffffff'; g.stroke()
-  g.fillStyle = '#ffffff'; g.font = 'bold 46px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'
-  g.fillText(label, 128, 52)
+  g.beginPath(); g.moveTo(160, 118); g.lineTo(138, 86); g.lineTo(182, 86); g.closePath(); g.fill()
+  g.lineWidth = 3; g.strokeStyle = '#000000'; g.stroke()
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace
   return t
 }
 function PlayerMarker({ id }: { id: FighterId }) {
   const cpu = useGameStore((s) => s.cpu[id])
   const charId = useGameStore((s) => s.selection[id])
+  const mySlot = useNetStore((s) => s.mySlot) ?? 'p1'
+  const nickname = useProfileStore((s) => s.nickname)
   const charScale = CHARACTERS[charId]?.scale ?? 1
   const tag = id.toUpperCase()
-  const label = cpu ? `${tag} CPU` : tag
+  const label = cpu ? `CPU` : id === mySlot ? nickname : tag
   const tex = useState(() => ({ t: null as THREE.CanvasTexture | null }))[0]
   useEffect(() => { tex.t = makeMarkTexture(label, PLAYER_COLORS[id]); setV((v) => v + 1); return () => tex.t?.dispose() }, [label, id, tex])
   const [, setV] = useState(0)
@@ -312,6 +320,8 @@ function FighterView({ id }: { id: FighterId }) {
   const shield = useRef<THREE.Group>(null)
   const aura = useRef<THREE.Mesh>(null)
   const mechAura = useRef<THREE.Group>(null)
+  const revivalPlat = useRef<THREE.Mesh>(null)
+  const freezeIce = useRef<THREE.Mesh>(null)
   const mat = useRef<THREE.MeshStandardMaterial>(null)
   const charId = useGameStore((s) => s.selection[id])
   const tint = CHARACTERS[charId].color
@@ -380,6 +390,13 @@ function FighterView({ id }: { id: FighterId }) {
       orb.current.rotation.y = performance.now() / 160
       orb.current.rotation.z = performance.now() / 220
     }
+    if (revivalPlat.current) {
+      revivalPlat.current.visible = (f.revivalMs ?? 0) > 0
+      revivalPlat.current.rotation.y = performance.now() / 500
+    }
+    if (freezeIce.current) {
+      freezeIce.current.visible = f.statusKind === 'freeze' && (f.statusMs ?? 0) > 0
+    }
   })
 
   return (
@@ -416,6 +433,14 @@ function FighterView({ id }: { id: FighterId }) {
       <mesh ref={aura} visible={false}>
         <sphereGeometry args={[0.8, 20, 20]} />
         <meshBasicMaterial color="#ffd24d" transparent opacity={0.35} blending={THREE.AdditiveBlending} depthWrite={false} />
+      </mesh>
+      <mesh ref={revivalPlat} position={[0, -0.58, 0]} visible={false}>
+        <cylinderGeometry args={[1.15, 0.85, 0.16, 8]} />
+        <meshBasicMaterial color={PLAYER_COLORS[id]} transparent opacity={0.75} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh ref={freezeIce} position={[0, 0.05, 0]} visible={false}>
+        <boxGeometry args={[1.25, 1.35, 1.25]} />
+        <meshBasicMaterial color="#7dd3fc" transparent opacity={0.52} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
       <group ref={mechAura} visible={false}>
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.35, 0]}>
