@@ -10,6 +10,7 @@ import { useGameStore } from '../game/store'
 import { ALL_FIGHTER_IDS, PLAYER_COLORS, type Btn, type CharacterId, type FighterId, type UiFighter } from '../game/types'
 import { sfx, useAudioStore } from '../game/audio'
 import { CharacterPortrait, SHORT_NAMES } from './CharacterPortrait'
+import { StagePreview } from './StagePreview'
 
 const damageColor = (d: number) => {
   const t = Math.min(1, d / 200)
@@ -325,17 +326,17 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
                 sfx('ui')
               }}
               onDoubleClick={() => onNext?.()}
-              className={`flex flex-col items-start rounded-xl px-3 py-2.5 transition-all text-left border ${active
+              className={`flex flex-col items-start rounded-xl p-2 transition-all text-left border ${active
                 ? 'border-yellow-300 bg-white/20 shadow-lg shadow-yellow-500/20 scale-[1.03] ring-2 ring-yellow-300'
                 : 'border-white/15 bg-black/45 hover:bg-white/15 hover:border-white/35 opacity-85 hover:opacity-100'
               }`}
             >
+              <StagePreview id={id} className="mb-1.5 h-16 sm:h-20 w-full rounded-lg border border-white/15 bg-black/50" />
               <div className="flex w-full items-center justify-between gap-1.5">
                 <span className="text-xs sm:text-sm font-black text-white truncate">{st.theme.name}</span>
                 <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: CHARACTERS[id].color }} />
               </div>
-              <div className="mt-0.5 text-[10px] text-white/55 truncate w-full">{st.theme.subtitle}</div>
-              <div className="mt-1 text-[10px] font-bold truncate w-full" style={{ color: st.theme.accentColor }}>
+              <div className="text-[10px] font-bold truncate w-full" style={{ color: st.theme.accentColor }}>
                 {st.theme.tag}
               </div>
             </button>
