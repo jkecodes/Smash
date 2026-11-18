@@ -70,10 +70,17 @@ export function VictoryPodium3D({ id, charId, color, stageColors }: { id: Fighte
   )
 }
 
+const ARMLESS_CHARS = new Set<CharacterId>([
+  'tetro', 'pacman', 'invader', 'snake', 'frogger', 'pong', 'omnom', 'crossy', 'red',
+  'mino', 'ufo', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'chuck',
+  'creeper', 'blinky', 'vaus',
+])
+
 function ClappingActor({ id, charId }: { id: FighterId; charId: CharacterId }) {
   const rig = useRef<THREE.Group>(null)
   const leftHand = useRef<THREE.Mesh>(null)
   const rightHand = useRef<THREE.Mesh>(null)
+  const hasHands = !ARMLESS_CHARS.has(charId)
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
     const clap = Math.abs(Math.sin(t * 7.5))
@@ -97,9 +104,13 @@ function ClappingActor({ id, charId }: { id: FighterId; charId: CharacterId }) {
           <mesh position={[0, 0.42, 0]}><boxGeometry args={[0.28, 0.28, 0.32]} /><meshStandardMaterial color="#22d3ee" emissive="#0891b2" emissiveIntensity={0.5} /></mesh>
         </group>
       )}
-      {/* 3D 拍手動畫雙手 */}
-      <mesh ref={leftHand} position={[-0.14, 0.04, 0.34]}><sphereGeometry args={[0.075, 8, 8]} /><meshStandardMaterial color="#fde8d7" /></mesh>
-      <mesh ref={rightHand} position={[0.14, 0.04, 0.34]}><sphereGeometry args={[0.075, 8, 8]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+      {/* 僅對有手的腳色顯示 3D 拍手動畫雙手 */}
+      {hasHands && (
+        <>
+          <mesh ref={leftHand} position={[-0.14, 0.04, 0.34]}><sphereGeometry args={[0.075, 8, 8]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+          <mesh ref={rightHand} position={[0.14, 0.04, 0.34]}><sphereGeometry args={[0.075, 8, 8]} /><meshStandardMaterial color="#fde8d7" /></mesh>
+        </>
+      )}
     </group>
   )
 }
