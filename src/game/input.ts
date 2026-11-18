@@ -101,14 +101,41 @@ export function connectedPadCount(): number {
   if (typeof navigator === 'undefined' || !navigator.getGamepads) return 0
   return [...navigator.getGamepads()].filter((p) => p && p.connected).length
 }
-/** 手把震動（受擊回饋） */
+const rumbleTimers: Record<string, ReturnType<typeof setTimeout>> = {}
+let rumbleActive = false
+/** 強制停止所有手把震動（對戰結束／暫停／保險定時停止） */
+export function stopAllRumble() {
+  if (!rumbleActive) return
+  rumbleActive = false
+  if (typeof navigator === 'undefined' || !navigator.getGamepads) return
+  for (const id of Object.keys(rumbleTimers)) {
+    clearTimeout(rumbleTimers[id])
+    delete rumbleTimers[id]
+  }
+  for (const pad of navigator.getGamepads()) {
+    const act = (pad as any)?.vibrationActuator
+    if (!act) continue
+    act.reset?.().catch?.(() => {})
+    act.playEffect?.('dual-rumble', { duration: 1, strongMagnitude: 0, weakMagnitude: 0 }).catch?.(() => {})
+  }
+}
+/** 手把震動（受擊回饋，附帶保險停止計時器避免部分手把驅動持續震動） */
 export function rumble(id: FighterId, strength: number, ms = 120) {
-  if (useGameStore.getState().cpu[id] > 0) return
+  const gs = useGameStore.getState()
+  if (gs.phase !== 'playing' || gs.paused || gs.cpu[id] > 0) return
   const pad: any = padFor(id)
   const act = pad?.vibrationActuator
   if (!act?.playEffect) return
-  const m = Math.min(1, strength)
-  act.playEffect('dual-rumble', { duration: ms, strongMagnitude: m, weakMagnitude: m * 0.7 }).catch?.(() => {})
+  const m = Math.min(1, Math.max(0, Number.isFinite(strength) ? strength : 0))
+  const dur = Math.min(400, Math.max(30, Math.round(Number.isFinite(ms) ? ms : 120)))
+  if (rumbleTimers[id]) clearTimeout(rumbleTimers[id])
+  rumbleActive = true
+  act.playEffect('dual-rumble', { duration: dur, strongMagnitude: m, weakMagnitude: m * 0.7 }).catch?.(() => {})
+  rumbleTimers[id] = setTimeout(() => {
+    delete rumbleTimers[id]
+    act.reset?.().catch?.(() => {})
+    act.playEffect?.('dual-rumble', { duration: 1, strongMagnitude: 0, weakMagnitude: 0 }).catch?.(() => {})
+  }, dur + 20)
 }
 /** 選單用：回傳該玩家手把的「邊緣觸發」操作（左右 dx、上下 dy：上為 -1） */
 const menuPrev = Object.fromEntries(ALL_FIGHTER_IDS.map((id) => [id, { dx: 0, dy: 0, ok: false }])) as Record<FighterId, { dx: number; dy: number; ok: boolean }>

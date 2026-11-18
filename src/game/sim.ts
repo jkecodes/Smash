@@ -9,7 +9,7 @@ import { resetGimmicks, stepGimmicks } from './gimmicks'
 import { broadcastNetEvent, broadcastStateIfHost, netRuntime, sendGuestInput, useNetStore } from './net'
 import { cpuInput, resetCpu } from './ai'
 import { sfx } from './audio'
-import { debugKeys, readInput, rumble, type InputFrame } from './input'
+import { debugKeys, readInput, rumble, stopAllRumble, type InputFrame } from './input'
 import { addFx, addProjectile, addZone, removeFx, removeProjectile, removeZone, runtime } from './runtime'
 import { getSkill } from './skills'
 import { resetTetroBoards } from './skills/tetroSkills'
@@ -1262,6 +1262,7 @@ function publishUi(dt: number, force = false) {
 
 export function stepSimulation(rawDt: number) {
   const s = store()
+  if (s.paused || s.phase !== 'playing') stopAllRumble()
   if (s.paused) return // 暫停：整個模擬凍結
   if (s.ultCutin && performance.now() < s.ultCutin.until) return // 大招特寫動畫期間凍結全場動作
   let dt = Math.min(rawDt, 1 / 30)
