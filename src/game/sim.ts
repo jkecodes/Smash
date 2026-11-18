@@ -14,7 +14,7 @@ import { addFx, addProjectile, addSummon, addZone, removeFx, removeProjectile, r
 import { getSkill } from './skills'
 import { resetTetroBoards } from './skills/tetroSkills'
 import { getSteveBlocks, resetSteveBlocks, stepSteveBlocks } from './skills/steveBlocks'
-import { consumeSkillMechanic, onMechanicHit, resetMechanics, stepMechanics } from './mechanics'
+import { consumeSkillMechanic, getMechanic, onMechanicHit, resetMechanics, stepMechanics } from './mechanics'
 import { CHAR_ELEMENT, ELEMENT_INFO, STATUS_COLOR, elementChance, statusDuration } from './elements'
 import { getActiveFighterIds, useGameStore } from './store'
 import type {
@@ -460,6 +460,35 @@ function startSkill(f: FighterState, def: SkillDef, slot: SkillSlot, inp: InputF
           },
         },
       }
+    }
+  }
+  const mechState = getMechanic(f.id)
+  if (mechState?.kind === 'awaken' && mechState.activeMs > 0) {
+    const baseHooks = activeDef.hooks
+    const auraColor = mechState.color
+    const isSamura = f.character === 'samura'
+    activeDef = {
+      ...activeDef,
+      name: `${isSamura ? '【雀・覺醒】' : '【覺醒】'}${activeDef.name}`,
+      hitbox: activeDef.hitbox ? { ...activeDef.hitbox, radius: activeDef.hitbox.radius * 1.35 } : activeDef.hitbox,
+      hooks: {
+        ...baseHooks,
+        onActive(c) {
+          baseHooks?.onActive?.(c)
+          c.fx({ kind: 'ring', pos: [...c.caster.pos], color: auraColor, ttl: 260, radius: 1.9, plane: 'vertical' })
+          c.fx({ kind: 'burst', pos: [...c.caster.pos], color: isSamura ? '#ef4444' : auraColor, ttl: 240, count: 10, speed: 5.5, size: 0.14 })
+          if (slot === 'skill1' || slot === 'skill2') {
+            if (isSamura) {
+              c.caster.damage = Math.max(0, c.caster.damage - 3)
+              c.fx({ kind: 'ring', pos: [...c.caster.pos], color: '#fbbf24', ttl: 320, radius: 2.3, plane: 'horizontal' })
+              c.spawnProjectile({ pos: [c.caster.pos[0] + c.forward[0] * 0.8, c.caster.pos[1] + 0.25, 0], vel: [c.forward[0] * 24, 1.5, 0], radius: 0.52, ttlMs: 900, pierce: true, color: '#f59e0b' })
+              c.spawnProjectile({ pos: [c.caster.pos[0] + c.forward[0] * 0.8, c.caster.pos[1] - 0.15, 0], vel: [c.forward[0] * 24, -1.5, 0], radius: 0.52, ttlMs: 900, pierce: true, color: '#ef4444' })
+            } else {
+              c.spawnProjectile({ pos: [c.caster.pos[0] + c.forward[0] * 0.8, c.caster.pos[1] + 0.1, 0], vel: [c.forward[0] * 22, 0, 0], radius: 0.46, ttlMs: 850, pierce: true, color: auraColor })
+            }
+          }
+        },
+      },
     }
   }
   const mech = consumeSkillMechanic(f, slot)
