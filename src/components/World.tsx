@@ -5,122 +5,17 @@ import { ModelAvatar, ModelBoundary, useModelUrl } from './ModelAvatar'
 import * as THREE from 'three'
 import { CHARACTERS } from '../game/characters'
 import { PLATFORM_THICKNESS } from '../game/constants'
-import { STAGES, getPlatformPos, type PlatformDef, type StageDef, type StageTheme } from '../game/stages'
+import { STAGES, getPlatformPos, type PlatformDef, type StageTheme } from '../game/stages'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
+import { StageDecor, StageParticles, useStageSurfaceTexture } from './StageArt'
 import { runtime } from '../game/runtime'
 import { stepSimulation } from '../game/sim'
 import { useGameStore } from '../game/store'
 import { FIGHTER_IDS, type FighterId } from '../game/types'
 
-/** 各場地獨特風格與裝飾結構 */
-function StageDecor({ stage }: { stage: StageDef }) {
-  const { theme, half: h } = stage
-  switch (stage.id) {
-    case 'battlefield':
-      return (
-        <>
-          <mesh position={[0, -3.2, 0]}>
-            <coneGeometry args={[4, 5, 6]} />
-            <meshStandardMaterial color="#1c2238" roughness={0.6} />
-          </mesh>
-          <mesh position={[0, -2.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[3.2, 0.08, 16, 32]} />
-            <meshBasicMaterial color={theme.accentColor} />
-          </mesh>
-          <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
-        </>
-      )
-    case 'destination':
-      return (
-        <>
-          <mesh position={[0, -4.5, 0]} rotation={[0, Math.PI / 4, 0]}>
-            <octahedronGeometry args={[3.6, 0]} />
-            <meshStandardMaterial color="#2b143d" roughness={0.3} metalness={0.7} />
-          </mesh>
-          {[-1, 1].map((s) => (
-            <group key={s} position={[s * 8, -5.5, -1]}>
-              <mesh rotation={[0.4, s * 0.5, 0.2]}>
-                <octahedronGeometry args={[1.5, 0]} />
-                <meshStandardMaterial color="#421a60" roughness={0.2} metalness={0.8} />
-              </mesh>
-              <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                <torusGeometry args={[1.8, 0.04, 12, 24]} />
-                <meshBasicMaterial color="#e066ff" transparent opacity={0.6} />
-              </mesh>
-            </group>
-          ))}
-          <mesh position={[0, -3.6, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[8.5, 0.1, 16, 48]} />
-            <meshBasicMaterial color="#ff2a85" />
-          </mesh>
-          <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
-        </>
-      )
-    case 'cyberpunk':
-      return (
-        <>
-          <mesh position={[0, -8.5, 0]}>
-            <boxGeometry args={[h.x * 1.8, 16, h.z * 1.8]} />
-            <meshStandardMaterial color="#0c171e" roughness={0.8} />
-          </mesh>
-          {[-1, 1].map((s) => (
-            <group key={s} position={[s * (h.x - 0.8), -0.2, -1.8]}>
-              <mesh position={[0, 1.2, 0]}>
-                <cylinderGeometry args={[0.1, 0.1, 2.4, 8]} />
-                <meshStandardMaterial color="#1a2e38" />
-              </mesh>
-              <mesh position={[0, 2.4, 0]}>
-                <sphereGeometry args={[0.18, 8, 8]} />
-                <meshBasicMaterial color={s === -1 ? '#00ffee' : '#ff00aa'} />
-              </mesh>
-            </group>
-          ))}
-          <mesh position={[0, -0.6, h.z + 0.02]}>
-            <boxGeometry args={[h.x * 1.9, 0.08, 0.05]} />
-            <meshBasicMaterial color="#00ffee" />
-          </mesh>
-          <mesh position={[0, -0.9, h.z + 0.02]}>
-            <boxGeometry args={[h.x * 1.7, 0.06, 0.05]} />
-            <meshBasicMaterial color="#ff00aa" />
-          </mesh>
-          <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
-        </>
-      )
-    case 'skyruins':
-      return (
-        <>
-          <mesh position={[0, -1.8, 0]}>
-            <boxGeometry args={[h.x * 1.6, 2.4, h.z * 1.5]} />
-            <meshStandardMaterial color="#2a251e" roughness={0.9} />
-          </mesh>
-          <mesh position={[0, -3.8, 0]}>
-            <boxGeometry args={[h.x * 1.1, 2.2, h.z * 1.2]} />
-            <meshStandardMaterial color="#221e18" roughness={0.95} />
-          </mesh>
-          {[-9.5, 9.5].map((px, i) => (
-            <group key={i} position={[px, 1.5, -4]}>
-              <mesh>
-                <cylinderGeometry args={[0.7, 0.8, 6.5, 12]} />
-                <meshStandardMaterial color="#3d372e" roughness={0.9} />
-              </mesh>
-              <mesh position={[0, 3.4, 0]}>
-                <boxGeometry args={[1.8, 0.5, 1.8]} />
-                <meshStandardMaterial color="#4a4237" roughness={0.8} />
-              </mesh>
-            </group>
-          ))}
-          <mesh position={[0, -4.8, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[5.5, 0.08, 12, 32]} />
-            <meshBasicMaterial color="#ffd76a" />
-          </mesh>
-          <gridHelper args={[80, 40, theme.gridColor1, theme.gridColor2]} position={[0, -14, 0]} />
-        </>
-      )
-  }
-}
-
 function PlatformView({ p, i, h, theme }: { p: PlatformDef; i: number; h: { x: number; y: number; z: number }; theme: StageTheme }) {
   const visRef = useRef<THREE.Group>(null)
+  const edgeCol = p.edgeColor ?? theme.platEdgeColor
   useFrame(() => {
     if (!p.move || !visRef.current) return
     const pos = getPlatformPos(p, runtime.stageTime)
@@ -141,12 +36,30 @@ function PlatformView({ p, i, h, theme }: { p: PlatformDef; i: number; h: { x: n
       <group ref={visRef} position={[p.x, p.y, 0]}>
         <mesh position={[0, -PLATFORM_THICKNESS / 2, 0]} castShadow receiveShadow>
           <boxGeometry args={[p.w, PLATFORM_THICKNESS, h.z * 2]} />
-          <meshStandardMaterial color={p.color ?? theme.platColor} />
+          <meshStandardMaterial color={p.color ?? theme.platColor} roughness={0.5} metalness={0.25} />
         </mesh>
         <mesh position={[0, 0.01, h.z]}>
           <boxGeometry args={[p.w, 0.04, 0.06]} />
-          <meshBasicMaterial color={p.edgeColor ?? theme.platEdgeColor} />
+          <meshBasicMaterial color={edgeCol} />
         </mesh>
+        {/* 下方斜角支撐框與兩側發光端帽 */}
+        <mesh position={[0, -PLATFORM_THICKNESS - 0.06, 0]}>
+          <boxGeometry args={[p.w * 0.82, 0.14, h.z * 1.6]} />
+          <meshStandardMaterial color={theme.mainColor} roughness={0.6} metalness={0.3} />
+        </mesh>
+        {[-1, 1].map((s) => (
+          <mesh key={s} position={[s * (p.w / 2), -PLATFORM_THICKNESS / 2, 0]}>
+            <boxGeometry args={[0.1, PLATFORM_THICKNESS + 0.05, h.z * 2 + 0.04]} />
+            <meshBasicMaterial color={edgeCol} />
+          </mesh>
+        ))}
+        {/* 動態移動浮板底部懸浮推進核心 */}
+        {p.move && (
+          <mesh position={[0, -PLATFORM_THICKNESS - 0.16, 0]}>
+            <boxGeometry args={[p.w * 0.35, 0.08, h.z * 0.8]} />
+            <meshBasicMaterial color={edgeCol} transparent opacity={0.85} />
+          </mesh>
+        )}
       </group>
     </group>
   )
@@ -158,6 +71,7 @@ export function Arena() {
   const stage = STAGES[stageId] ?? STAGES.battlefield
   const h = stage.half
   const theme = stage.theme
+  const surfaceTex = useStageSurfaceTexture(stage.id)
 
   useEffect(() => {
     return () => { runtime.platformBodies = [] }
@@ -170,11 +84,22 @@ export function Arena() {
       </RigidBody>
       <mesh position={[0, -h.y, 0]} receiveShadow castShadow>
         <boxGeometry args={[h.x * 2, h.y * 2, h.z * 2]} />
-        <meshStandardMaterial color={theme.mainColor} />
+        <meshStandardMaterial color={theme.mainColor} roughness={0.6} metalness={0.25} />
       </mesh>
-      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[h.x * 2, h.z * 2]} />
-        <meshStandardMaterial color={theme.surfaceColor} />
+        <meshStandardMaterial map={surfaceTex} roughness={0.6} metalness={0.2} />
+      </mesh>
+      {/* 主舞台前後金屬斜角飾條 */}
+      {[-1, 1].map((s) => (
+        <mesh key={`trim-${s}`} position={[0, -h.y, s * (h.z + 0.03)]}>
+          <boxGeometry args={[h.x * 2, 0.16, 0.06]} />
+          <meshBasicMaterial color={theme.accentColor} />
+        </mesh>
+      ))}
+      <mesh position={[0, -0.05, h.z + 0.03]}>
+        <boxGeometry args={[h.x * 2, 0.07, 0.06]} />
+        <meshBasicMaterial color={theme.platEdgeColor} />
       </mesh>
       {stage.platforms.map((p, i) => (
         <PlatformView key={`plat-${stage.id}-${i}`} p={p} i={i} h={h} theme={theme} />
@@ -186,6 +111,7 @@ export function Arena() {
         </mesh>
       ))}
       <StageDecor stage={stage} />
+      <StageParticles stage={stage} />
     </group>
   )
 }

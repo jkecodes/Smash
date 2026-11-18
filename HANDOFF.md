@@ -26,6 +26,7 @@
 | `src/game/stages.ts` | 4 個對戰場地定義（尺寸、爆區、層板佈局、視覺主題配色、環境光與霧氣） |
 | `src/game/skills/` | `registry.ts`、`baseSkills.ts`、`novaSkills.ts`、`kenneySkills.ts`、`directionalSkills.ts`、`tetroSkills.ts`（俄羅斯方塊矩陣與消行技能） |
 | `src/components/World.tsx` | 場景、平台、SimLoop、FighterView（方塊後備＋GLB、護盾、光環、頭上標記）、CameraRig |
+| `src/components/StageArt.tsx` | 場地程序化表面紋理（`CanvasTexture`）、動態環境粒子、4 場地立體底座與遠景建築／星雲／浮島裝飾 |
 | `src/components/ModelAvatar.tsx` | GLB 載入、自動縮放、動畫 clip 對應、程序化姿勢後備 |
 | `src/components/Effects.tsx` | 斬擊、環、爆發、光束、投射物、力場、大招球、判定框除錯 |
 | `src/components/HUD.tsx` | 傷害％、殘機、能量、護盾、選單、CPU 選擇、手把設定、暫停、結算 |
@@ -59,11 +60,11 @@
 - 技能冷卻減半（`COOLDOWN_SCALE`）。
 - 手把支援：A(下)=特招、B(右)=普攻、X/Y 跳、右搖桿=技能2、RT/R3 大招、LB/RB/LT 防禦、Start 暫停。
 - 玩家頭上標記（P1 紅／P2 藍，CPU 會加註 "CPU"）。
-- 4 個獨特對戰場地（選單即時預覽切換，無倒數計時限制）：
-  - **浮空戰場（Battlefield）**：經典左右對稱 3 層板對稱競技場。
-  - **終點星雲（Final Destination）**：零層板純平面死鬥場，純立回走位，深紫星雲黑曜石主題。
-  - **賽博天台（Cyber Rooftop）**：中央高台水平巡弋＋兩側浮板垂直升降，站在動態層板上角色會同步跟隨位移。
-  - **天空聖域（Floating Shrine）**：非對稱雙階梯神殿，古代浮石、大理石與暖陽主題。
+- 4 個獨特對戰場地（選單即時預覽切換，無倒數計時限制；含 `StageArt.tsx` 程序化地表紋理、立體底座與遠景、漂浮環境粒子）：
+  - **浮空戰場（Battlefield）**：經典左右對稱 3 層板，含反應爐要塞底座、晶石浮島與軌道行星遠景。
+  - **終點星雲（Final Destination）**：零層板純平面死鬥場，含黑曜石星核尖塔、三重旋轉宇宙陀螺環與星雲蟲洞傳送門。
+  - **賽博天台（Cyber Rooftop）**：動態巡弋＋升降浮板，含霓虹摩天大樓天際線、全息廣告看板與探照燈光束。
+  - **天空聖域（Floating Shrine）**：非對稱雙階梯神殿，含古希臘石柱火盆、發光瀑布浮島與金陽神殿光環。
 - 物理與 AI 自動適應各場地：層板穿透碰撞組動態裝卸、場地邊緣抓邊（Ledge Grab）座標自適應、大招球巡弋邊界自適應、AI 回場邊界自適應。
 - **戰鬥打擊感與特效強化**：
   - 重擊命中頓幀震顫（Hitstop Jitter）與高擊退震波環。
