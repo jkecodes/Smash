@@ -494,14 +494,15 @@ function resolveHits() {
 let ballTimer = 4
 function hitBallIfOverlap(att: FighterState, src: HitSource, center: Vec3, r: number): boolean {
   const b = runtime.ball
-  if (!b || src.hitSet.has('ball') || b.flashMs > 0) return false
+  if (!b || src.hitSet.has('ball')) return false
   if (Math.hypot(center[0] - b.pos[0], center[1] - b.pos[1]) > r + b.radius) return false
   src.hitSet.add('ball')
-  b.hp -= 1
-  b.flashMs = 450 // 被打中後短暫無法再被打
+  const dmg = Math.max(2, src.def.damage * src.dmgMult * (CHARACTERS[att.character]?.damageMult ?? 1))
+  b.hp -= dmg
+  b.flashMs = 150
   sfx('ballHit')
   const dx = Math.sign(b.pos[0] - center[0]) || att.facing[0]
-  b.vel = [dx * 5, 2.5, 0]
+  b.vel = [dx * 5.5, 2.5, 0]
   addFx({ kind: 'burst', pos: [...b.pos], color: '#ffe066', ttl: 400, count: 16, speed: 6, size: 0.2 })
   rumble(att.id, 0.4, 90)
   if (b.hp <= 0) {
@@ -524,7 +525,7 @@ function updateBall(dt: number) {
     if (ballTimer <= 0) {
       addFx({ kind: 'ring', pos: [0, 7, 0], color: '#ffe066', ttl: 700, radius: 3 })
       sfx('ballSpawn')
-      runtime.ball = { pos: [(Math.random() - 0.5) * (stage.half.x * 1.3), 7, 0], vel: [0, 0, 0], hp: 5, maxHp: 5, radius: 0.6, ttlMs: 20000, turnMs: 0, flashMs: 0 }
+      runtime.ball = { pos: [(Math.random() - 0.5) * (stage.half.x * 1.3), 7, 0], vel: [0, 0, 0], hp: 40, maxHp: 40, radius: 0.6, ttlMs: 20000, turnMs: 0, flashMs: 0 }
     }
     return
   }
