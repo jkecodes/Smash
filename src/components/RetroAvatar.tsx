@@ -48,7 +48,6 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   blinky: { body: '#ef4444', hair: '#dc2626', accent: '#38bdf8', prop: 'orb', style: 'mage', shortHair: true },
   diddy: { body: '#dc2626', hair: '#78350f', accent: '#facc15', prop: 'rifle', style: 'martial', shortHair: true },
   creeper: { body: '#22c55e', hair: '#15803d', accent: '#4ade80', prop: 'orb', style: 'martial', shortHair: true },
-  chuck: { body: '#facc15', hair: '#eab308', accent: '#f97316', prop: 'orb', style: 'martial', shortHair: true },
   suzuka: { body: '#22c55e', hair: '#f97316', accent: '#ffffff', prop: 'ears', style: 'martial' },
   firefly: { body: '#0f766e', hair: '#cbd5e1', accent: '#f97316', prop: 'katana', style: 'sword' },
   ellen: { body: '#0f172a', hair: '#18181b', accent: '#ef4444', prop: 'spear', style: 'spear' },
@@ -988,6 +987,23 @@ export function RetroAvatar({ id, charId }: { id: FighterId; charId: CharacterId
             <mesh rotation={[0, 0, 0]}><torusGeometry args={[0.28, 0.03, 8, 16, Math.PI]} /><meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.8} /></mesh>
           </group>
           <group ref={animB} position={[-0.24, 0.08, 0]}><mesh position={[0, -0.12, 0]}><boxGeometry args={[0.1, 0.26, 0.1]} /><meshStandardMaterial color="#fde8d7" /></mesh></group>
+        </group>
+      )}
+
+      {charId === 'chuck' && (
+        <group>
+          {/* Angry Birds Chuck 飛鏢黃：三角形黃色鳥身＋白肚＋黑冠毛＋濃眉橘尖喙 */}
+          <mesh position={[0, 0.08, 0]} castShadow><coneGeometry args={[0.42, 0.86, 4]} /><meshStandardMaterial color="#facc15" /></mesh>
+          <mesh position={[0, -0.14, 0.16]}><boxGeometry args={[0.38, 0.24, 0.2]} /><meshStandardMaterial color="#fef9c3" /></mesh>
+          <mesh position={[0, 0.56, -0.02]} rotation={[-0.25, 0, 0]}><coneGeometry args={[0.09, 0.24, 4]} /><meshStandardMaterial color="#18181b" /></mesh>
+          <mesh position={[0, -0.1, -0.34]} rotation={[-0.9, 0, 0]}><boxGeometry args={[0.12, 0.08, 0.24]} /><meshStandardMaterial color="#18181b" /></mesh>
+          <mesh position={[-0.12, 0.14, 0.24]}><sphereGeometry args={[0.075, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[0.12, 0.14, 0.24]}><sphereGeometry args={[0.075, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <mesh position={[-0.11, 0.14, 0.31]}><sphereGeometry args={[0.035, 8, 8]} /><meshStandardMaterial color="#111827" /></mesh>
+          <mesh position={[0.11, 0.14, 0.31]}><sphereGeometry args={[0.035, 8, 8]} /><meshStandardMaterial color="#111827" /></mesh>
+          <mesh position={[-0.12, 0.22, 0.27]} rotation={[0, 0, -0.32]}><boxGeometry args={[0.16, 0.05, 0.05]} /><meshStandardMaterial color="#451a03" /></mesh>
+          <mesh position={[0.12, 0.22, 0.27]} rotation={[0, 0, 0.32]}><boxGeometry args={[0.16, 0.05, 0.05]} /><meshStandardMaterial color="#451a03" /></mesh>
+          <mesh position={[0, 0.02, 0.36]} rotation={[Math.PI / 2, 0, 0]}><coneGeometry args={[0.11, 0.26, 4]} /><meshStandardMaterial color="#f97316" /></mesh>
         </group>
       )}
 

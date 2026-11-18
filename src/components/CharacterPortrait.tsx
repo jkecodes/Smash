@@ -85,7 +85,6 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   blinky: { bg: '#450a0a', hair: '#ef4444', outfit: '#dc2626', accent: '#ffffff', eye: '#38bdf8', shortHair: true },
   diddy: { bg: '#451a03', hair: '#78350f', outfit: '#dc2626', accent: '#facc15', eye: '#111827', ears: true, shortHair: true },
   creeper: { bg: '#064e3b', hair: '#22c55e', outfit: '#16a34a', accent: '#111827', eye: '#111827', shortHair: true },
-  chuck: { bg: '#713f12', hair: '#facc15', outfit: '#eab308', accent: '#f97316', eye: '#111827', shortHair: true },
   suzuka: { bg: '#052e16', hair: '#f97316', outfit: '#22c55e', accent: '#ffffff', eye: '#10b981', ears: true },
   firefly: { bg: '#0f172a', hair: '#cbd5e1', outfit: '#0f766e', accent: '#f97316', eye: '#38bdf8', bobHair: true },
   ellen: { bg: '#082f49', hair: '#18181b', outfit: '#0f172a', accent: '#ef4444', eye: '#ef4444', bobHair: true },
@@ -570,6 +569,21 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
         </>
       )}
 
+      {id === 'chuck' && (
+        <>
+          <rect width="120" height="120" fill="#422006" />
+          <polygon points="56,22 64,10 68,24" fill="#18181b" />
+          <polygon points="60,18 18,98 102,98" fill="#facc15" stroke="#ca8a04" strokeWidth="2.5" strokeLinejoin="round" />
+          <ellipse cx="60" cy="88" rx="26" ry="10" fill="#fef9c3" />
+          <circle cx="48" cy="60" r="8" fill="#ffffff" />
+          <circle cx="72" cy="60" r="8" fill="#ffffff" />
+          <circle cx="49" cy="60" r="3.5" fill="#111827" />
+          <circle cx="71" cy="60" r="3.5" fill="#111827" />
+          <path d="M36,48 L56,55 M84,48 L64,55" stroke="#451a03" strokeWidth="5" strokeLinecap="round" />
+          <polygon points="60,62 48,74 72,74" fill="#f97316" />
+          <polygon points="51,74 69,74 60,82" fill="#ea580c" />
+        </>
+      )}
       {id === 'mino' && (
         <>
           <rect width="120" height="120" fill="#1e1b4b" />
