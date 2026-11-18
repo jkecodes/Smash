@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { InputFrame } from './input'
-import { runtime } from './runtime'
+import { clearEntities, runtime } from './runtime'
+import { resetMechanics } from './mechanics'
 import { useGameStore } from './store'
 import type { StageForm, StageId } from './stages'
 import { ALL_FIGHTER_IDS, type CharacterId, type FighterId } from './types'
@@ -143,7 +144,9 @@ function connectWs(onOpen: () => void) {
           if (msg.cpu[id] !== undefined) gs.setCpu(id, msg.cpu[id])
         }
       }
+      clearEntities()
       gs.startMatch()
+      resetMechanics()
       return
     }
     if (msg.type === 'input' && ns.role === 'host') {
@@ -189,7 +192,9 @@ function applySnapshot(msg: any) {
         if (msg.selection[id]) gs.select(id, msg.selection[id], false)
       }
     }
+    clearEntities()
     gs.startMatch()
+    resetMechanics()
   } else if (msg.phase === 'menu' && gs.phase !== 'menu') {
     gs.toMenu()
     return
