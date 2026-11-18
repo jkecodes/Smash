@@ -83,7 +83,7 @@ interface KitSpec {
 
 const KIT_SUMMONS: Record<string, import('../types').SummonModel> = {
   chihiro: 'goldfish',
-  ichi: 'iceShark',
+  ichi: 'baku',
   nona: 'needle',
   gojo: 'hollow',
   stelle: 'train',
@@ -112,6 +112,9 @@ function registerKit(k: KitSpec) {
     damage: 9.5, knockback: { dir: [0, 0.45, 1], base: 11, scaling: 11.5 },
     hooks: {
       onActive(c) {
+        if (p === 'ichi') {
+          c.fx({ kind: 'summon', model: 'thunderFox', pos: at(c, 0.3, 0.9), color: '#facc15', ttl: 850, size: 0.95, dir: c.forward[0] })
+        }
         c.spawnProjectile({
           pos: at(c, 0.15, 0.9),
           vel: [c.forward[0] * (k.s1.speed ?? 19), k.s1.explode ? 3 : 0, 0],
@@ -192,8 +195,14 @@ function registerKit(k: KitSpec) {
         }
       },
       onActive(c) {
-        const model = KIT_SUMMONS[p]
-        if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.8, 1.4), color: k.ult.color, ttl: 1200, size: 1.45, dir: c.forward[0] })
+        if (p === 'ichi') {
+          c.fx({ kind: 'summon', model: 'thunderFox', pos: at(c, 0.8, 1.2), color: '#facc15', ttl: 1200, size: 1.25, dir: c.forward[0] })
+          c.fx({ kind: 'summon', model: 'iceShark', pos: at(c, -0.4, 2.2), color: '#38bdf8', ttl: 1200, size: 1.25, dir: c.forward[0] })
+          c.fx({ kind: 'summon', model: 'baku', pos: at(c, 0.2, 0.6), color: '#a855f7', ttl: 1200, size: 1.25, dir: -c.forward[0] })
+        } else {
+          const model = KIT_SUMMONS[p]
+          if (model) c.fx({ kind: 'summon', model, pos: at(c, 0.8, 1.4), color: k.ult.color, ttl: 1200, size: 1.45, dir: c.forward[0] })
+        }
         if (k.ult.kind === 'beam') {
           c.fx({ kind: 'beam', pos: at(c, 0.2, 0.8), yaw: yawOf(c), length: 27, radius: 2.2, color: k.ult.color, ttl: 550 })
         } else {
@@ -223,9 +232,9 @@ const KITS: KitSpec[] = [
     tilts: ['獵刀橫揮', '雷狐電弧挑擊', '冰晶下掃'],
     s1: { name: '雷狐之魔法「電光雷鳴」', projColor: '#facc15', pierce: true, speed: 23 },
     side: '冰鯊之魔法「冰牙突襲」', up: '蛛絲之魔法「獵場飛躍」', down: '菌菇之魔法「巨菇壓頂」',
-    s2: { name: '反世界魔法「ウロロ」召喚陣', kind: 'zone', color: '#38bdf8' },
+    s2: { name: '夢貘之魔法「夢境吞噬領域」', kind: 'zone', color: '#a855f7' },
     smashes: ['魔男真紅斬', '凍結鯊牙衝', '大狩獵震地'],
-    ult: { name: '全收服魔法解放「雷狐×冰鯊×ウロロ」！', kind: 'burst', color: '#60a5fa' },
+    ult: { name: '全收服魔法「雷狐×冰鯊×夢貘×ウロロ」！', kind: 'burst', color: '#60a5fa' },
   },
   {
     p: 'ruri', color: '#34d399', a1: '龍角衝撞', a2: '小龍炎爪擊',

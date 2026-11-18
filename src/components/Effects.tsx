@@ -372,6 +372,32 @@ function SummonFx({ it }: { it: FxItem }) {
           <mesh position={[-1.0, 0.15, 0]} rotation={[0, 0, 0.45]}><boxGeometry args={[0.65, 0.55, 0.1]} /><meshBasicMaterial color="#facc15" /></mesh>
         </group>
       )}
+      {it.model === 'thunderFox' && (
+        <group ref={sub}>
+          {/* 雷狐身軀與頭部 */}
+          <mesh scale={[1.3, 0.85, 0.85]}><sphereGeometry args={[0.65, 12, 12]} /><meshStandardMaterial color="#facc15" emissive="#eab308" emissiveIntensity={0.65} /></mesh>
+          <mesh position={[0.65, 0.3, 0]}><sphereGeometry args={[0.42, 12, 12]} /><meshStandardMaterial color="#fef08a" emissive="#facc15" emissiveIntensity={0.5} /></mesh>
+          {/* 尖銳狐耳 */}
+          <mesh position={[0.55, 0.82, 0.22]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.14, 0.45, 5]} /><meshStandardMaterial color="#facc15" /></mesh>
+          <mesh position={[0.55, 0.82, -0.22]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.14, 0.45, 5]} /><meshStandardMaterial color="#facc15" /></mesh>
+          {/* 閃電蓬鬆狐尾 */}
+          <mesh position={[-0.85, 0.35, 0]} rotation={[0, 0, 0.65]}><coneGeometry args={[0.32, 1.1, 6]} /><meshStandardMaterial color="#38bdf8" emissive="#facc15" emissiveIntensity={0.7} /></mesh>
+          <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.05, 0.06, 8, 20]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+        </group>
+      )}
+      {it.model === 'baku' && (
+        <group ref={sub}>
+          {/* 夢貘圓潤身軀＋紫色夢境鞍紋 */}
+          <mesh scale={[1.35, 1.0, 0.95]}><sphereGeometry args={[0.72, 14, 14]} /><meshStandardMaterial color="#3b0764" emissive="#7e22ce" emissiveIntensity={0.5} /></mesh>
+          <mesh position={[-0.1, 0.15, 0]} scale={[0.9, 0.92, 1.02]}><sphereGeometry args={[0.65, 12, 12]} /><meshStandardMaterial color="#e9d5ff" /></mesh>
+          {/* 夢貘長鼻與圓耳 */}
+          <mesh position={[0.95, 0.02, 0]} rotation={[0, 0, -1.25]}><cylinderGeometry args={[0.14, 0.22, 0.65, 10]} /><meshStandardMaterial color="#581c87" /></mesh>
+          <mesh position={[0.45, 0.68, 0.35]}><sphereGeometry args={[0.18, 10, 10]} /><meshStandardMaterial color="#c084fc" /></mesh>
+          <mesh position={[0.45, 0.68, -0.35]}><sphereGeometry args={[0.18, 10, 10]} /><meshStandardMaterial color="#c084fc" /></mesh>
+          {/* 夢境睡眠光環 */}
+          <mesh position={[0, 0.95, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.85, 0.07, 8, 22]} /><meshBasicMaterial color="#e879f9" /></mesh>
+        </group>
+      )}
     </group>
   )
 }
@@ -555,7 +581,12 @@ function ProjectileView({ p }: { p: Projectile }) {
             <mesh><boxGeometry args={[r * 2.5, r * 0.38, r * 0.38]} /><meshBasicMaterial color="#ffffff" /></mesh>
             <mesh><sphereGeometry args={[r * 0.95, 12, 12]} /><meshBasicMaterial color={p.color} transparent opacity={0.5} blending={ADD} depthWrite={false} /></mesh>
           </>
-        ) : charId === 'gojo' || charId === 'ichi' || charId === 'ruri' || charId === 'stelle' || charId === 'lumine' || charId === 'saki' ? (
+        ) : charId === 'ichi' ? (
+          <>
+            <mesh><octahedronGeometry args={[r * 0.9, 0]} /><meshStandardMaterial color="#facc15" emissive="#fde047" emissiveIntensity={0.85} /></mesh>
+            <mesh position={[-r * 0.85, 0, 0]} rotation={[0, 0, 0.4]}><coneGeometry args={[r * 0.35, r * 1.1, 5]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+          </>
+        ) : charId === 'gojo' || charId === 'ruri' || charId === 'stelle' || charId === 'lumine' || charId === 'saki' ? (
           <>
             <mesh><octahedronGeometry args={[r * 0.95, 0]} /><meshBasicMaterial color="#ffffff" /></mesh>
             <mesh><sphereGeometry args={[r * 1.15, 14, 14]} /><meshBasicMaterial color={p.color} transparent opacity={0.55} blending={ADD} depthWrite={false} /></mesh>

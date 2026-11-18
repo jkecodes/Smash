@@ -429,15 +429,15 @@ export const CHARACTERS: Record<CharacterId, CharacterDef> = {
   },
   ichi: {
     id: 'ichi', name: 'ICHI 伊奇', color: '#38bdf8',
-    trait: '🐺 魔男伊奇・已收服魔法（雷狐・冰鯊・ウロロ）全解放！',
+    trait: '🐺 魔男伊奇・雷狐・夢貘・冰鯊・ウロロ 3D 魔法召喚！',
     guide: {
-      summary: '《魔男伊奇》首位男性魔女！自由驅使他獵捕收服的雷狐、冰鯊、蛛絲、菌菇與反世界「ウロロ」魔法。',
+      summary: '《魔男伊奇》首位男性魔女！出招會實際召喚出他收服的 3D 雷狐、夢貘、冰鯊與ウロロ魔法共同作戰！',
       steps: [
-        '中距離施放【特招 K】雷狐之魔法「電光雷鳴」高速貫穿敵人！',
-        '貼身或控場時開【技能2 L】召喚「ウロロ」與冰鯊 3D 魔法陣緩速扣血。',
-        '搭配【左右+K】冰鯊冰牙突襲與【下+K】巨菇壓頂連段收頭！',
+        '按【特招 K】召喚 3D 金黃「雷狐」衝鋒並射出高速閃電！',
+        '按【技能2 L】召喚 3D 紫色「夢貘」展開夢境吞噬緩速領域。',
+        '大招同時召喚「雷狐＋冰鯊＋夢貘」三隻收服魔法齊聚爆發！',
       ],
-      combo: 'L (召喚ウロロ領域) → K (雷狐電光) → 左右+K (冰鯊冰牙突襲)',
+      combo: 'L (召喚夢貘領域) → K (召喚雷狐電光) → 左右+K (冰鯊冰牙突襲)',
     },
     loadout: { attack: 'ichi.a1', ...tilts('ichi'), skill1: 'ichi.s1', 'skill1:side': 'ichi.side', 'skill1:up': 'ichi.up', 'skill1:down': 'ichi.down', skill2: 'ichi.s2', ...smashes('ichi'), ult: 'ichi.ult' },
   },
