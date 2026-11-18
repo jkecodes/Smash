@@ -97,14 +97,13 @@ function Card({ id, u, compact = false }: { id: FighterId; u: UiFighter; compact
             {id.toUpperCase()} · {id === (useNetStore.getState().mySlot ?? 'p1') ? useProfileStore.getState().nickname : u.name}
           </span>
         </div>
-        {!compact && <span className="font-mono text-[10px] text-white/60 shrink-0">{u.fsm}</span>}
       </div>
       <div className="mt-1 flex items-end justify-between gap-2">
         <div className="flex items-end gap-2">
           <div className={`${compact ? 'h-9 w-9' : 'h-12 w-12'} shrink-0 overflow-hidden rounded-lg border border-white/25 bg-black/50 shadow-inner`}>
             <CharacterPortrait id={charId} className="h-full w-full" />
           </div>
-          <span className={`${compact ? 'text-3xl' : 'text-5xl'} font-black leading-none tabular-nums`} style={{ color: damageColor(u.damage), textShadow: '0 2px 0 #000' }}>
+          <span className={`${compact ? 'text-3xl' : 'text-5xl'} font-black italic tracking-tight leading-none tabular-nums`} style={{ color: damageColor(u.damage), textShadow: '0 2px 0 #000' }}>
             {u.damage}<span className={compact ? 'text-lg' : 'text-2xl'}>%</span>
           </span>
         </div>
