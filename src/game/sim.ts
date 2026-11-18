@@ -1120,14 +1120,16 @@ function updateFighter(f: FighterState, dt: number) {
   updatePlatformCollision(f, rb, dt)
   const wasGrounded = f.grounded
   f.grounded = checkGround(f)
-  const maxJumps = MAX_JUMPS + (CHARACTERS[f.character]?.extraJumps ?? 0)
+  const samuraFlight = f.character === 'samura' && (getMechanic(f.id)?.activeMs ?? 0) > 0
+  const extraJumps = (CHARACTERS[f.character]?.extraJumps ?? 0) + (samuraFlight ? 5 : 0)
+  const maxJumps = MAX_JUMPS + extraJumps
   if (f.grounded) {
     if (!wasGrounded && f.vel[1] < -1.5) sfx('land', Math.min(1, Math.abs(f.vel[1]) / 20))
     f.jumpsLeft = maxJumps; f.airDodgeUsed = false; f.upSpecialUsed = false
     f.coyoteMs = 110 // 土狼時間：剛離開平台邊緣的一瞬間仍視為接地起跳
   } else {
     f.coyoteMs = Math.max(0, (f.coyoteMs ?? 0) - dtMs)
-    const maxAir = 1 + (CHARACTERS[f.character]?.extraJumps ?? 0)
+    const maxAir = 1 + extraJumps
     if (f.coyoteMs <= 0 && f.jumpsLeft > maxAir) f.jumpsLeft = maxAir
   }
 
@@ -1148,6 +1150,18 @@ function updateFighter(f: FighterState, dt: number) {
   }
   latestInputs[f.id] = inp
   if (store().phase !== 'playing') return
+
+  // 座村清市・飛宗「雀/鴉」覺醒飛行：長出烏鴉翅膀可在空中自由振翅飛翔與滑翔
+  if (samuraFlight && !f.grounded && f.fsm !== 'HITSTUN' && !f.skill) {
+    if (inp.held.jump || inp.moveY > 0.55) {
+      rb.setLinvel({ x: clamp(lv.x + inp.moveX * 22 * dt, -11.5, 11.5), y: Math.max(lv.y, 6.8), z: 0 }, true)
+      if (Math.random() < 0.25) {
+        addFx({ kind: 'burst', pos: [t.x, t.y + 0.1, 0], color: '#1e293b', ttl: 260, count: 3, speed: 3.5, size: 0.14 })
+      }
+    } else if (lv.y < -4.2 && inp.moveY > -0.5) {
+      rb.setLinvel({ x: lv.x, y: -4.2, z: 0 }, true)
+    }
+  }
 
   // 復活暫時懸浮小平台：開始移動／跳躍／出招就立刻消失，否則最多停留 3 秒
   if ((f.revivalMs ?? 0) > 0) {

@@ -320,6 +320,9 @@ function FighterView({ id }: { id: FighterId }) {
   const shield = useRef<THREE.Group>(null)
   const aura = useRef<THREE.Mesh>(null)
   const mechAura = useRef<THREE.Group>(null)
+  const samuraWings = useRef<THREE.Group>(null)
+  const wingL = useRef<THREE.Group>(null)
+  const wingR = useRef<THREE.Group>(null)
   const revivalPlat = useRef<THREE.Mesh>(null)
   const freezeIce = useRef<THREE.Mesh>(null)
   const mat = useRef<THREE.MeshStandardMaterial>(null)
@@ -360,8 +363,9 @@ function FighterView({ id }: { id: FighterId }) {
     }
     if (mechAura.current) {
       const m = getMechanic(id)
+      const awakened = !!m && m.kind === 'awaken' && m.activeMs > 0
       const ready = !!m && (
-        (m.kind === 'awaken' && m.activeMs > 0) ||
+        awakened ||
         (m.kind === 'mana' && m.gauge >= 75) ||
         ((m.kind === 'limit' || m.kind === 'ko' || m.kind === 'aura') && m.gauge >= 100)
       )
@@ -376,6 +380,16 @@ function FighterView({ id }: { id: FighterId }) {
           const mat = (ch as THREE.Mesh).material as THREE.MeshBasicMaterial | undefined
           if (mat?.color) mat.color.set(m.color)
         })
+      }
+    }
+    if (samuraWings.current) {
+      const m = getMechanic(id)
+      const showWings = f.character === 'samura' && m?.kind === 'awaken' && m.activeMs > 0
+      samuraWings.current.visible = showWings
+      if (showWings) {
+        const flap = Math.sin(performance.now() / (f.grounded ? 260 : 95)) * (f.grounded ? 0.18 : 0.48)
+        if (wingL.current) wingL.current.rotation.set(0.15, -0.32 - flap * 0.35, 0.25 + flap)
+        if (wingR.current) wingR.current.rotation.set(0.15, 0.32 + flap * 0.35, -0.25 - flap)
       }
     }
     if (shield.current) {
@@ -442,6 +456,18 @@ function FighterView({ id }: { id: FighterId }) {
         <boxGeometry args={[1.25, 1.35, 1.25]} />
         <meshBasicMaterial color="#7dd3fc" transparent opacity={0.52} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
+      <group ref={samuraWings} position={[0, 0.28, -0.26]} visible={false}>
+        <group ref={wingL} position={[-0.18, 0, 0]}>
+          <mesh position={[-0.75, 0.22, -0.1]} rotation={[0, 0, 0.28]}><boxGeometry args={[1.35, 0.22, 0.08]} /><meshStandardMaterial color="#09090b" emissive="#1e293b" emissiveIntensity={0.4} /></mesh>
+          <mesh position={[-1.05, 0.02, -0.14]} rotation={[0, 0, 0.1]}><boxGeometry args={[1.25, 0.16, 0.07]} /><meshStandardMaterial color="#18181b" emissive="#f59e0b" emissiveIntensity={0.35} /></mesh>
+          <mesh position={[-0.75, -0.18, -0.12]} rotation={[0, 0, -0.12]}><boxGeometry args={[0.95, 0.14, 0.06]} /><meshStandardMaterial color="#09090b" /></mesh>
+        </group>
+        <group ref={wingR} position={[0.18, 0, 0]}>
+          <mesh position={[0.75, 0.22, -0.1]} rotation={[0, 0, -0.28]}><boxGeometry args={[1.35, 0.22, 0.08]} /><meshStandardMaterial color="#09090b" emissive="#1e293b" emissiveIntensity={0.4} /></mesh>
+          <mesh position={[1.05, 0.02, -0.14]} rotation={[0, 0, -0.1]}><boxGeometry args={[1.25, 0.16, 0.07]} /><meshStandardMaterial color="#18181b" emissive="#f59e0b" emissiveIntensity={0.35} /></mesh>
+          <mesh position={[0.75, -0.18, -0.12]} rotation={[0, 0, 0.12]}><boxGeometry args={[0.95, 0.14, 0.06]} /><meshStandardMaterial color="#09090b" /></mesh>
+        </group>
+      </group>
       <group ref={mechAura} visible={false}>
         <mesh position={[0, 0.35, 0]}>
           <cylinderGeometry args={[0.92, 0.65, 2.2, 16, 1, true]} />
