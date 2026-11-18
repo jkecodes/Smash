@@ -9,6 +9,7 @@ import { PLATFORM_THICKNESS } from '../game/constants'
 import { getPlatformPos, resolveStage, type PlatformDef, type StageTheme } from '../game/stages'
 import { TETROMINOES, getReadyLines, getTetroBoard } from '../game/skills/tetroSkills'
 import { StageDecor, StageParticles, useStageSurfaceTexture } from './StageArt'
+import { StageGimmickView } from './StageGimmicks'
 import { runtime } from '../game/runtime'
 import { stepSimulation } from '../game/sim'
 import { getActiveFighterIds, useGameStore } from '../game/store'
@@ -113,6 +114,7 @@ export function Arena() {
         </mesh>
       ))}
       <StageDecor stage={stage} />
+      <StageGimmickView stage={stage} />
       <StageParticles stage={stage} />
     </group>
   )

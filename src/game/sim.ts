@@ -5,6 +5,7 @@ import {
   MAX_DAMAGE, MAX_JUMPS, DROP_THROUGH_MS, PLATFORMS, PLATFORM_THICKNESS, RUN_SPEED, SHIELD_MAX, SPAWN_X, STAGE_HALF,
 } from './constants'
 import { getPlatformPos, resolveStage } from './stages'
+import { resetGimmicks, stepGimmicks } from './gimmicks'
 import { cpuInput, resetCpu } from './ai'
 import { sfx } from './audio'
 import { debugKeys, readInput, rumble, type InputFrame } from './input'
@@ -139,6 +140,7 @@ export function resetSimStage() {
   ledgeOwner['-1'] = null
   ledgeOwner['1'] = null
   resetTetroBoards()
+  resetGimmicks()
 }
 
 function tryGrabLedge(f: FighterState, inp: InputFrame): boolean {
@@ -936,6 +938,7 @@ export function stepSimulation(rawDt: number) {
   separateFighters(dt)
   updateBall(dt)
   updateZones(dt)
+  stepGimmicks(dt)
   publishUi(dt)
 }
 

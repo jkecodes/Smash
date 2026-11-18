@@ -49,6 +49,20 @@ export interface StageTheme {
   accentColor: string
 }
 
+export type StageGimmickKind = 'bumper' | 'wind' | 'hazard' | 'portal' | 'pickup'
+
+export interface StageGimmickDef {
+  kind: StageGimmickKind
+  name: string
+  color: string
+  pos: [number, number]
+  pos2?: [number, number]
+  radius: number
+  power: number
+  interval?: number
+  mode?: 'up' | 'radial' | 'patrol' | 'bomb' | 'pull' | 'heal' | 'energy'
+}
+
 export interface StageDef {
   id: StageId
   half: { x: number; y: number; z: number }
@@ -57,6 +71,7 @@ export interface StageDef {
   spawnX: { p1: number; p2: number }
   platforms: PlatformDef[]
   theme: StageTheme
+  gimmick?: StageGimmickDef
 }
 
 export const STAGES: Record<StageId, StageDef> = {
@@ -870,6 +885,47 @@ export const STAGES: Record<StageId, StageDef> = {
   },
 }
 
+export const STAGE_GIMMICKS: Record<StageId, StageGimmickDef> = {
+  reimu: { kind: 'pickup', name: '賽錢箱祈願（回血）', color: '#fde047', pos: [0, 5.2], radius: 0.9, power: 10, interval: 10, mode: 'heal' },
+  marisa: { kind: 'wind', name: '魔法森林上升氣流', color: '#facc15', pos: [0, 0.5], radius: 4.5, power: 14, mode: 'up' },
+  tetro: { kind: 'portal', name: '方塊邊界傳送門', color: '#22d3ee', pos: [-8.2, 1.4], pos2: [8.2, 1.4], radius: 0.9, power: 0 },
+  pacman: { kind: 'hazard', name: '巡邏紅幽靈 Blinky', color: '#ef4444', pos: [0, 1.0], pos2: [7.5, 0], radius: 0.85, power: 8, interval: 6.5, mode: 'patrol' },
+  mario: { kind: 'bumper', name: '問號彈簧方塊', color: '#facc15', pos: [0, 0.45], radius: 0.95, power: 15.5, mode: 'up' },
+  invader: { kind: 'hazard', name: 'UFO 空襲雷射', color: '#4ade80', pos: [0, 0.9], radius: 1.6, power: 9, interval: 4.5, mode: 'bomb' },
+  bomber: { kind: 'hazard', name: '定時連鎖炸彈', color: '#fb923c', pos: [0, 0.8], radius: 2.0, power: 11, interval: 3.8, mode: 'bomb' },
+  snake: { kind: 'portal', name: '貪食蛇穿牆傳送', color: '#4ade80', pos: [-8.5, 1.3], pos2: [8.5, 1.3], radius: 0.9, power: 0 },
+  frogger: { kind: 'wind', name: '河道順流推力', color: '#38bdf8', pos: [0, 0.5], radius: 8.5, power: 10, interval: 6 },
+  kong: { kind: 'hazard', name: '滾動木桶巡邏', color: '#d97706', pos: [0, 0.9], pos2: [8.0, 0], radius: 0.85, power: 8, interval: 5.5, mode: 'patrol' },
+  pong: { kind: 'bumper', name: '中央彈力球墊', color: '#ffffff', pos: [0, 0.45], radius: 0.95, power: 16, mode: 'radial' },
+  ryu: { kind: 'pickup', name: '波動氣功補氣點', color: '#fb923c', pos: [0, 5.1], radius: 0.9, power: 40, interval: 9, mode: 'energy' },
+  chunli: { kind: 'pickup', name: '氣功百裂充能珠', color: '#38bdf8', pos: [0, 5.1], radius: 0.9, power: 40, interval: 9, mode: 'energy' },
+  yugi: { kind: 'hazard', name: '闇影陷阱發動', color: '#c084fc', pos: [0, 0.9], radius: 1.8, power: 10, interval: 4.8, mode: 'bomb' },
+  kaiba: { kind: 'portal', name: '海馬科技傳送陣', color: '#38bdf8', pos: [-8.0, 1.4], pos2: [8.0, 1.4], radius: 0.95, power: 0 },
+  omnom: { kind: 'bumper', name: '彈力糖果墊', color: '#f43f5e', pos: [0, 0.4], radius: 0.95, power: 15, mode: 'up' },
+  tom: { kind: 'bumper', name: '沙發彈簧墊', color: '#fbbf24', pos: [-5.8, 2.15], radius: 0.9, power: 14.5, mode: 'up' },
+  ben: { kind: 'pickup', name: '綠色化學藥水（回血）', color: '#4ade80', pos: [0, 3.0], radius: 0.85, power: 12, interval: 10, mode: 'heal' },
+  crossy: { kind: 'wind', name: '飛車氣浪橫風', color: '#facc15', pos: [0, 0.5], radius: 9.0, power: 13, interval: 4.5 },
+  red: { kind: 'bumper', name: '怒鳥彈弓彈射墊', color: '#ef4444', pos: [0, 0.45], radius: 1.0, power: 16.5, mode: 'up' },
+  steve: { kind: 'bumper', name: '史萊姆彈跳方塊', color: '#4ade80', pos: [0, 0.45], radius: 0.95, power: 15.5, mode: 'up' },
+  arisa: { kind: 'wind', name: '精靈森林上升微風', color: '#34d399', pos: [0, 0.5], radius: 5.5, power: 13, mode: 'up' },
+  chihiro: { kind: 'hazard', name: '淵天金魚斬擊波', color: '#ef4444', pos: [0, 1.2], pos2: [6.8, 0], radius: 0.9, power: 9, interval: 5.2, mode: 'patrol' },
+  ichi: { kind: 'hazard', name: '反世界冰晶爆破', color: '#38bdf8', pos: [0, 1.0], radius: 1.7, power: 9, interval: 4.6, mode: 'bomb' },
+  ruri: { kind: 'pickup', name: '龍角雷電充能球', color: '#34d399', pos: [4.5, 4.3], radius: 0.85, power: 40, interval: 9, mode: 'energy' },
+  nona: { kind: 'portal', name: '銀白魔絲傳送門', color: '#e879f9', pos: [-7.2, 1.4], pos2: [7.2, 1.4], radius: 0.95, power: 0 },
+  gojo: { kind: 'hazard', name: '無量空處「蒼」引力', color: '#818cf8', pos: [0, 3.2], radius: 6.5, power: 15, interval: 5.5, mode: 'pull' },
+  deku: { kind: 'pickup', name: 'Plus Ultra 應援核', color: '#22c55e', pos: [3.8, 5.5], radius: 0.9, power: 45, interval: 9, mode: 'energy' },
+  yodaka: { kind: 'portal', name: '忍法瞬身卷軸陣', color: '#38bdf8', pos: [-7.5, 1.4], pos2: [7.5, 1.4], radius: 0.9, power: 0 },
+  saki: { kind: 'bumper', name: '偶像舞台彈跳氣柱', color: '#fb7185', pos: [0, 0.45], radius: 1.0, power: 16, mode: 'up' },
+  spe: { kind: 'bumper', name: '終點衝刺跳欄墊', color: '#c084fc', pos: [0, 0.45], radius: 1.0, power: 15, mode: 'radial' },
+  kaoruko: { kind: 'pickup', name: '草莓蛋糕（回血）', color: '#f9a8d4', pos: [3.4, 3.3], radius: 0.9, power: 12, interval: 10, mode: 'heal' },
+  stelle: { kind: 'wind', name: '星海列車高速側風', color: '#facc15', pos: [0, 0.5], radius: 9.5, power: 14, interval: 5 },
+  lumine: { kind: 'wind', name: '風起地七天上升風場', color: '#5eead4', pos: [0, 0.5], radius: 5.5, power: 15, mode: 'up' },
+  miyabi: { kind: 'hazard', name: '空洞以太裂隙脈衝', color: '#22d3ee', pos: [0, 2.8], radius: 5.8, power: 14, interval: 5.0, mode: 'pull' },
+  rover: { kind: 'pickup', name: '聲骸共鳴能量核', color: '#facc15', pos: [0, 1.2], radius: 0.95, power: 45, interval: 9, mode: 'energy' },
+  rapi: { kind: 'hazard', name: '地面奪回戰壕空襲', color: '#ef4444', pos: [0, 0.8], radius: 1.9, power: 11, interval: 4.0, mode: 'bomb' },
+  akira: { kind: 'pickup', name: '初戀櫻花護符（回血）', color: '#f472b6', pos: [0, 5.5], radius: 0.9, power: 11, interval: 10, mode: 'heal' },
+}
+
 export const STAGE_IDS = Object.keys(STAGES) as StageId[]
 
 export type StageForm = 'normal' | 'battlefield' | 'omega'
@@ -877,10 +933,11 @@ export type StageForm = 'normal' | 'battlefield' | 'omega'
 /** 依場地型態（一般 / 戰場化 / 終點化）解析實際層板配置，保留原有美術主題與背景 */
 export function resolveStage(id: StageId, form: StageForm = 'normal'): StageDef {
   const base = STAGES[id] ?? STAGES.reimu
-  if (form === 'normal') return base
-  if (form === 'omega') return { ...base, platforms: [] }
+  if (form === 'normal') return { ...base, gimmick: base.gimmick ?? STAGE_GIMMICKS[id] }
+  if (form === 'omega') return { ...base, platforms: [], gimmick: undefined }
   return {
     ...base,
+    gimmick: undefined,
     platforms: [
       { x: -4.8, y: 2.3, w: 3.6, color: base.theme.platColor, edgeColor: base.theme.platEdgeColor },
       { x: 4.8, y: 2.3, w: 3.6, color: base.theme.platColor, edgeColor: base.theme.platEdgeColor },

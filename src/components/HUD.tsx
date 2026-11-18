@@ -342,6 +342,17 @@ function StagePicker({ onNext }: { onNext?: () => void }) {
             </span>
           </div>
           <p className="text-xs text-white/75 leading-relaxed">{activeStage.theme.desc}</p>
+          {activeStage.gimmick ? (
+            <div className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-[11px] font-bold text-white/90">
+              <span>⚡</span>
+              <span className="text-white/60">專屬機關：</span>
+              <span style={{ color: activeStage.gimmick.color }}>{activeStage.gimmick.name}</span>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/45">
+              ⚡ 戰場化／終點化已關閉場地機關
+            </div>
+          )}
         </div>
 
         {/* 場地型態切換：一般 / 戰場化 / 終點化 Ω */}
