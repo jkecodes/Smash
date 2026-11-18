@@ -187,7 +187,7 @@ const SUMMON_DOWN_CONFIG: Record<string, {
   youmu: { kind: 'spirit', behavior: 'orbit', durationMs: 8000, fireIntervalMs: 650, damage: 5.5, kbBase: 7, kbScaling: 8, radius: 0.52, color: '#34d399', explodeOnHit: false },
   firefly: { kind: 'drone', behavior: 'shoot', durationMs: 8000, fireIntervalMs: 850, damage: 5, kbBase: 6, kbScaling: 7, radius: 0.52, color: '#f97316', explodeOnHit: false },
   nona: { kind: 'puppet', behavior: 'chase', durationMs: 7500, fireIntervalMs: 700, damage: 9, kbBase: 9.5, kbScaling: 11, speed: 8.8, radius: 0.54, color: '#e879f9', explodeOnHit: true },
-  jinhsi: { kind: 'loong', behavior: 'shoot', durationMs: 8500, fireIntervalMs: 900, damage: 5.5, kbBase: 6.5, kbScaling: 7.5, radius: 0.55, color: '#fde047', explodeOnHit: false },
+  jinhsi: { kind: 'loong', behavior: 'chase', durationMs: 9000, fireIntervalMs: 750, damage: 7.5, kbBase: 8.5, kbScaling: 9.5, speed: 9.8, radius: 0.9, color: '#fde047', explodeOnHit: false },
   omnom: { kind: 'puppet', behavior: 'chase', durationMs: 7500, fireIntervalMs: 650, damage: 8.5, kbBase: 9, kbScaling: 10, speed: 9.2, radius: 0.52, color: '#84cc16', explodeOnHit: true },
   blinky: { kind: 'spirit', behavior: 'chase', durationMs: 8000, fireIntervalMs: 700, damage: 5.5, kbBase: 7, kbScaling: 8, speed: 8.2, radius: 0.52, color: '#ef4444', explodeOnHit: false },
   angelo: { kind: 'spirit', behavior: 'chase', durationMs: 8500, fireIntervalMs: 700, damage: 6, kbBase: 7.5, kbScaling: 8.5, speed: 8.8, radius: 0.54, color: '#06b6d4', explodeOnHit: false },

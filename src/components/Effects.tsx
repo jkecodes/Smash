@@ -989,6 +989,27 @@ export function Zones() {
   return <>{runtime.zones.map((z) => <ZoneView key={z.id} z={z} />)}</>
 }
 
+function LoongDragonMesh({ scale = 1 }: { scale?: number }) {
+  return (
+    <group scale={scale}>
+      {/* 鳴潮 今汐・歲主「角」3D 白金神龍：龍首＋雙角＋金鬚＋蜿蜒龍身＋龍珠 */}
+      <mesh position={[1.15, 0.35, 0]}><boxGeometry args={[0.95, 0.55, 0.6]} /><meshStandardMaterial color="#f8fafc" emissive="#fde047" emissiveIntensity={0.45} /></mesh>
+      <mesh position={[1.7, 0.3, 0]}><boxGeometry args={[0.45, 0.32, 0.44]} /><meshStandardMaterial color="#fef08a" emissive="#eab308" emissiveIntensity={0.5} /></mesh>
+      <mesh position={[1.35, 0.48, 0.32]}><sphereGeometry args={[0.09, 8, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+      <mesh position={[1.35, 0.48, -0.32]}><sphereGeometry args={[0.09, 8, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+      <mesh position={[0.95, 0.92, 0.22]} rotation={[0, 0, 0.35]}><coneGeometry args={[0.1, 0.75, 5]} /><meshStandardMaterial color="#fde047" emissive="#eab308" emissiveIntensity={0.6} /></mesh>
+      <mesh position={[0.95, 0.92, -0.22]} rotation={[0, 0, 0.35]}><coneGeometry args={[0.1, 0.75, 5]} /><meshStandardMaterial color="#fde047" emissive="#eab308" emissiveIntensity={0.6} /></mesh>
+      {[0.4, -0.25, -0.9, -1.55, -2.15].map((sx, idx) => (
+        <mesh key={idx} position={[sx, Math.sin(idx * 1.1) * 0.32, 0]}>
+          <sphereGeometry args={[0.42 - idx * 0.05, 10, 10]} />
+          <meshStandardMaterial color={idx % 2 === 0 ? '#f8fafc' : '#fef08a'} emissive="#eab308" emissiveIntensity={0.35} />
+        </mesh>
+      ))}
+      <mesh position={[2.25, 0.45, 0]}><sphereGeometry args={[0.24, 12, 12]} /><meshBasicMaterial color="#fde047" /></mesh>
+    </group>
+  )
+}
+
 function SummonView({ s }: { s: Summon }) {
   const g = useRef<THREE.Group>(null)
   const spin = useRef<THREE.Group>(null)
@@ -1000,8 +1021,13 @@ function SummonView({ s }: { s: Summon }) {
       g.current.scale.setScalar(fade * pulse)
     }
     if (spin.current) {
-      spin.current.rotation.y += dt * 3.8
-      spin.current.rotation.z += dt * 2.1
+      if (s.kind === 'loong') {
+        const dirX = Math.abs(s.vel[0]) > 0.2 ? Math.sign(s.vel[0]) : 1
+        spin.current.rotation.set(0, dirX < 0 ? Math.PI : 0, Math.sin(performance.now() / 180) * 0.14)
+      } else {
+        spin.current.rotation.y += dt * 3.8
+        spin.current.rotation.z += dt * 2.1
+      }
     }
   })
   return (
@@ -1020,11 +1046,7 @@ function SummonView({ s }: { s: Summon }) {
             <mesh position={[0.14, 0.12, s.radius * 0.58]}><sphereGeometry args={[0.07, 8, 8]} /><meshBasicMaterial color="#ffffff" /></mesh>
           </>
         ) : s.kind === 'loong' ? (
-          <>
-            <mesh><sphereGeometry args={[s.radius * 0.6, 16, 12]} /><meshStandardMaterial color="#fef08a" emissive={s.color} emissiveIntensity={1.6} /></mesh>
-            <mesh rotation={[Math.PI / 3, 0, 0]}><torusGeometry args={[s.radius * 1.05, 0.055, 8, 28]} /><meshBasicMaterial color={s.color} blending={ADD} transparent opacity={0.9} /></mesh>
-            <mesh rotation={[-Math.PI / 3, Math.PI / 4, 0]}><torusGeometry args={[s.radius * 0.9, 0.045, 8, 24]} /><meshBasicMaterial color="#ffffff" blending={ADD} transparent opacity={0.75} /></mesh>
-          </>
+          <LoongDragonMesh scale={0.72} />
         ) : (
           <>
             <mesh><sphereGeometry args={[s.radius * 0.62, 16, 12]} /><meshStandardMaterial color="#ffffff" emissive={s.color} emissiveIntensity={1.5} /></mesh>
@@ -1032,7 +1054,9 @@ function SummonView({ s }: { s: Summon }) {
           </>
         )}
       </group>
-      <mesh><sphereGeometry args={[s.radius * 1.25, 12, 10]} /><meshBasicMaterial color={s.color} transparent opacity={0.18} blending={ADD} depthWrite={false} /></mesh>
+      {s.kind !== 'loong' && (
+        <mesh><sphereGeometry args={[s.radius * 1.25, 12, 10]} /><meshBasicMaterial color={s.color} transparent opacity={0.18} blending={ADD} depthWrite={false} /></mesh>
+      )}
     </group>
   )
 }
