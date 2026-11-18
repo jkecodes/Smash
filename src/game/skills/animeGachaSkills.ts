@@ -1,5 +1,6 @@
 import { registerSkill } from './registry'
 import { registerSmashes, registerTilts } from './directionalSkills'
+import { CHAR_PROFILES, applyJabTraitFx } from './charSkillProfiles'
 import { PARTNERS, partnerHas } from '../partners'
 import { resolveStage } from '../stages'
 import { useGameStore } from '../store'
@@ -190,6 +191,9 @@ const AIM_DASH_CHARS = new Set(['chuck', 'bakugo', 'firefly', 'deku', 'suzuka', 
 
 function registerKit(k: KitSpec) {
   const { p, color } = k
+  const prof = CHAR_PROFILES[p] ?? {}
+  const spd = prof.speed ?? 1
+  const reach = prof.reach ?? 1
   const canCharge = CHARGE_ATTACK_CHARS.has(p)
   const isHeavy = HEAVY_CHARS.has(p)
   const isFast = FAST_SWORD_CHARS.has(p)
@@ -200,31 +204,35 @@ function registerKit(k: KitSpec) {
   const tiltStyle = isGun ? 'gun' : isHeavy ? 'heavy' : isCaster ? 'caster' : isMartial ? 'martial' : 'sword'
   reg({
     id: `${p}.a1`, name: canCharge ? `${k.a1}（可蓄力）` : k.a1, energyCost: 0, chain: `${p}.a2`,
-    startupMs: isFast || isMartial ? 45 : isHeavy ? 65 : 55, activeMs: 85, recoveryMs: isFast || isMartial ? 120 : 135,
+    startupMs: Math.round((isFast || isMartial ? 45 : isHeavy ? 65 : 55) * spd), activeMs: 85, recoveryMs: Math.round((isFast || isMartial ? 120 : 135) * spd),
     ...(canCharge ? { charge: { maxMs: 650, damageMult: [1, 2.3] as [number, number], knockbackMult: [1, 1.95] as [number, number] } } : {}),
-    hitbox: { offset: [0, 0.12, isTongue ? 1.35 : isFast ? 1.05 : 0.95], radius: isTongue ? 1.05 : isFast ? 1.02 : 0.9 },
+    hitbox: { offset: [0, 0.12, (isTongue ? 1.35 : isFast ? 1.05 : 0.95) * reach], radius: (isTongue ? 1.05 : isFast ? 1.02 : 0.9) * reach },
     damage: isHeavy ? 4.6 : 3.5,
     knockback: { dir: [0, 0.22, 1], base: isHeavy ? 6.5 : 5.5, scaling: isHeavy ? 6.5 : 5.5 },
     hooks: {
       onActive(c) {
-        if (isMartial || isFast) c.setLocalVelocity(0, null, 2.4)
+        if (prof.lunge) c.setLocalVelocity(0, null, prof.lunge)
+        else if (isMartial || isFast) c.setLocalVelocity(0, null, 2.4)
         if (isGun) c.spawnProjectile({ pos: at(c, 0.15, 0.85), vel: [c.forward[0] * 22, 0, 0], radius: 0.25, ttlMs: 320, color })
         else if (isCaster && !canCharge) c.spawnProjectile({ pos: at(c, 0.15, 0.85), vel: [c.forward[0] * 14, 0, 0], radius: 0.3, ttlMs: 360, color })
-        hitVfx(c, c.chargeRatio > 0.35 ? color : '#ffffff', p, 1.3 + c.chargeRatio * 0.5)
+        hitVfx(c, c.chargeRatio > 0.35 ? color : '#ffffff', p, (1.3 + c.chargeRatio * 0.5) * reach)
         if (c.chargeRatio > 0.35) {
           c.fx({ kind: 'ring', pos: at(c, 0.12, 0.9), color, ttl: 260, radius: 1.6, plane: 'vertical' })
           c.shake(0.24)
         }
+      },
+      onHit(c) {
+        if (prof.jabTrait) applyJabTraitFx(c, prof.jabTrait, at(c, 0.15, 0.9), color)
       },
     },
   })
   const hasJab3 = CHARGE_ATTACK_CHARS.has(p) || p === 'spe' || p === 'saki' || p === 'kotone' || p === 'yodaka' || EXPLODE_CHARS.has(p)
   reg({
     id: `${p}.a2`, name: k.a2, energyCost: 0, ...(hasJab3 ? { chain: `${p}.a3` } : {}),
-    startupMs: isFast || isMartial ? 55 : 65, activeMs: 90, recoveryMs: isFast ? 155 : 175,
-    hitbox: { offset: [0, 0.12, isTongue ? 1.45 : isFast ? 1.15 : 1.05], radius: isFast || isTongue ? 1.1 : 1.0 },
+    startupMs: Math.round((isFast || isMartial ? 55 : 65) * spd), activeMs: 90, recoveryMs: Math.round((isFast ? 155 : 175) * spd),
+    hitbox: { offset: [0, 0.12, (isTongue ? 1.45 : isFast ? 1.15 : 1.05) * reach], radius: (isFast || isTongue ? 1.1 : 1.0) * reach },
     damage: isHeavy ? 5.6 : 4.5,
-    knockback: { dir: [0, isCaster ? 0.58 : 0.35, isCaster ? 0.75 : 1], base: hasJab3 ? 6.5 : 10, scaling: hasJab3 ? 6 : 10.5 },
+    knockback: { dir: [0, prof.upPop ?? (isCaster ? 0.58 : 0.35), isCaster ? 0.75 : 1], base: hasJab3 ? 6.5 : 10, scaling: hasJab3 ? 6 : 10.5 },
     hooks: {
       onActive(c) {
         if (isGun) {
@@ -366,9 +374,9 @@ function registerKit(k: KitSpec) {
       },
     })
   } else if (AIM_DASH_CHARS.has(p)) {
-    reg(aimDashMove(`${p}.side`, k.side, color, { speed: 24, dmg: 9.5, base: 12, scaling: 13 }))
+    reg(aimDashMove(`${p}.side`, k.side, prof.sideColor ?? color, { speed: prof.sideSpeed ?? 24, dmg: 9.5, base: 12, scaling: 13 }))
   } else {
-    reg(dashMove(`${p}.side`, k.side, color, { speed: 24, dmg: 9.5, base: 12, scaling: 13 }))
+    reg(dashMove(`${p}.side`, k.side, prof.sideColor ?? color, { speed: prof.sideSpeed ?? 24, dmg: 9.5, base: 12, scaling: 13 }))
   }
 
   if (TELEPORT_UP_CHARS.has(p)) {
@@ -399,7 +407,7 @@ function registerKit(k: KitSpec) {
       },
     })
   } else {
-    const customRise = p === 'ladyfrog' ? 21.5 : p === 'bakugo' ? 21 : p === 'firefly' ? 20.5 : p === 'ufo' ? 19.5 : 18.5
+    const customRise = prof.upRise ?? 18.5
     reg(upRise(`${p}.up`, k.up, color, { dmg: isHeavy ? 10 : 8.5, base: 11.5, scaling: 13, rise: customRise }))
   }
 
