@@ -296,6 +296,17 @@ function SummonFx({ it }: { it: FxItem }) {
       g.current.position.x = it.pos[0] + dir * (t - 0.5) * 4
     } else if (it.model === 'needle') {
       g.current.position.y = it.pos[1] + Math.max(0, 1 - t * 3.5) * 7
+    } else if (it.model === 'thunderFox') {
+      g.current.position.x = it.pos[0] + dir * t * 8.5
+      g.current.position.y = it.pos[1] + Math.abs(Math.sin(t * Math.PI * 4)) * 0.45
+    } else if (it.model === 'baku') {
+      g.current.position.x = it.pos[0] + dir * t * 2.2
+      g.current.position.y = it.pos[1] + Math.sin(t * Math.PI * 3) * 0.3
+      if (sub.current) sub.current.rotation.z = Math.sin(t * Math.PI * 4) * 0.08
+    } else if (it.model === 'iceShark') {
+      g.current.position.x = it.pos[0] + dir * t * 7.2
+      g.current.position.y = it.pos[1] + Math.sin(t * Math.PI * 3) * 0.35
+      if (sub.current) sub.current.rotation.y = Math.sin(t * 16) * 0.2
     } else {
       g.current.position.x = it.pos[0] + dir * t * 3.5
       if (sub.current) sub.current.rotation.z += dt * 3
@@ -377,6 +388,13 @@ function SummonFx({ it }: { it: FxItem }) {
           {/* 雷狐身軀與頭部 */}
           <mesh scale={[1.3, 0.85, 0.85]}><sphereGeometry args={[0.65, 12, 12]} /><meshStandardMaterial color="#facc15" emissive="#eab308" emissiveIntensity={0.65} /></mesh>
           <mesh position={[0.65, 0.3, 0]}><sphereGeometry args={[0.42, 12, 12]} /><meshStandardMaterial color="#fef08a" emissive="#facc15" emissiveIntensity={0.5} /></mesh>
+          {/* 狐狸眼睛與尖鼻 */}
+          <mesh position={[0.92, 0.36, 0.2]}><sphereGeometry args={[0.07, 8, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+          <mesh position={[0.92, 0.36, -0.2]}><sphereGeometry args={[0.07, 8, 8]} /><meshBasicMaterial color="#38bdf8" /></mesh>
+          {/* 四肢 */}
+          {[[0.35, -0.55, 0.25], [0.35, -0.55, -0.25], [-0.4, -0.55, 0.25], [-0.4, -0.55, -0.25]].map(([lx, ly, lz], i) => (
+            <mesh key={i} position={[lx, ly, lz]}><cylinderGeometry args={[0.1, 0.08, 0.5, 6]} /><meshStandardMaterial color="#eab308" /></mesh>
+          ))}
           {/* 尖銳狐耳 */}
           <mesh position={[0.55, 0.82, 0.22]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.14, 0.45, 5]} /><meshStandardMaterial color="#facc15" /></mesh>
           <mesh position={[0.55, 0.82, -0.22]} rotation={[0, 0, -0.25]}><coneGeometry args={[0.14, 0.45, 5]} /><meshStandardMaterial color="#facc15" /></mesh>
@@ -390,6 +408,12 @@ function SummonFx({ it }: { it: FxItem }) {
           {/* 夢貘圓潤身軀＋紫色夢境鞍紋 */}
           <mesh scale={[1.35, 1.0, 0.95]}><sphereGeometry args={[0.72, 14, 14]} /><meshStandardMaterial color="#3b0764" emissive="#7e22ce" emissiveIntensity={0.5} /></mesh>
           <mesh position={[-0.1, 0.15, 0]} scale={[0.9, 0.92, 1.02]}><sphereGeometry args={[0.65, 12, 12]} /><meshStandardMaterial color="#e9d5ff" /></mesh>
+          {/* 眼睛與四肢 */}
+          <mesh position={[0.72, 0.28, 0.28]}><sphereGeometry args={[0.08, 8, 8]} /><meshBasicMaterial color="#f0abfc" /></mesh>
+          <mesh position={[0.72, 0.28, -0.28]}><sphereGeometry args={[0.08, 8, 8]} /><meshBasicMaterial color="#f0abfc" /></mesh>
+          {[[0.4, -0.65, 0.28], [0.4, -0.65, -0.28], [-0.45, -0.65, 0.28], [-0.45, -0.65, -0.28]].map(([lx, ly, lz], i) => (
+            <mesh key={i} position={[lx, ly, lz]}><cylinderGeometry args={[0.13, 0.11, 0.45, 6]} /><meshStandardMaterial color="#3b0764" /></mesh>
+          ))}
           {/* 夢貘長鼻與圓耳 */}
           <mesh position={[0.95, 0.02, 0]} rotation={[0, 0, -1.25]}><cylinderGeometry args={[0.14, 0.22, 0.65, 10]} /><meshStandardMaterial color="#581c87" /></mesh>
           <mesh position={[0.45, 0.68, 0.35]}><sphereGeometry args={[0.18, 10, 10]} /><meshStandardMaterial color="#c084fc" /></mesh>
