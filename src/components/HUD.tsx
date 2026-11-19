@@ -780,6 +780,87 @@ const MOVE_SECTIONS: { title: string; badge: string; color: string; items: MoveE
   },
 ]
 
+function MoveDiagram({ kind, color, accent = '#38bdf8' }: { kind: string; color: string; accent?: string }) {
+  return (
+    <svg viewBox="0 0 76 48" className="h-12 w-[76px] shrink-0 rounded-md border border-white/15 bg-[#090d16]">
+      {/* 地板基準線 */}
+      <line x1="6" y1="40" x2="70" y2="40" stroke="#334155" strokeWidth="2" strokeLinecap="round" />
+      {kind === 'nair' ? (
+        <>
+          <circle cx="38" cy="22" r="5" fill={color} />
+          <circle cx="38" cy="22" r="14" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeDasharray="6 3" />
+          <path d="M50,15 L55,22 L48,25" fill="none" stroke="#fde047" strokeWidth="1.8" />
+        </>
+      ) : kind === 'dair' ? (
+        <>
+          <circle cx="38" cy="14" r="5" fill={color} />
+          <path d="M38,20 L38,37 M32,31 L38,38 L44,31" fill="none" stroke="#f97316" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          <ellipse cx="38" cy="36" rx="12" ry="3.5" fill="none" stroke="#fbbf24" strokeWidth="1.6" />
+        </>
+      ) : kind === 'grab' ? (
+        <>
+          <circle cx="24" cy="32" r="5" fill={color} />
+          <circle cx="44" cy="32" r="4.5" fill="#94a3b8" />
+          <line x1="29" y1="32" x2="39" y2="32" stroke="#fde047" strokeWidth="2.5" />
+          <path d="M44,24 L44,12 M52,32 L64,26" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" />
+        </>
+      ) : kind === 'shield' ? (
+        <>
+          <circle cx="38" cy="32" r="5" fill={color} />
+          <circle cx="38" cy="30" r="13" fill="#38bdf833" stroke="#38bdf8" strokeWidth="2" />
+          <path d="M16,24 L24,28" stroke="#f87171" strokeWidth="2" strokeLinecap="round" />
+          <path d="M24,28 L18,16" stroke="#fde047" strokeWidth="1.8" strokeDasharray="2 2" />
+        </>
+      ) : kind === 'ult' ? (
+        <>
+          <circle cx="18" cy="32" r="5" fill={color} />
+          <polygon points="24,22 72,10 72,38 24,34" fill={color} opacity="0.35" />
+          <line x1="23" y1="28" x2="70" y2="24" stroke="#fde047" strokeWidth="3.5" strokeLinecap="round" />
+          <circle cx="60" cy="24" r="7" fill="none" stroke="#ffffff" strokeWidth="1.8" />
+        </>
+      ) : kind === 'up' ? (
+        <>
+          <circle cx="30" cy="34" r="4" fill={color} opacity="0.4" />
+          <path d="M30,34 Q36,20 44,10" fill="none" stroke={accent} strokeWidth="2.5" strokeDasharray="4 2" />
+          <circle cx="44" cy="12" r="5" fill={color} />
+          <path d="M38,14 L44,8 L50,14" fill="none" stroke="#fde047" strokeWidth="2" strokeLinecap="round" />
+        </>
+      ) : kind === 'down' ? (
+        <>
+          <circle cx="38" cy="32" r="5" fill={color} />
+          <circle cx="38" cy="30" r="14" fill="none" stroke={accent} strokeWidth="2.2" />
+          <ellipse cx="38" cy="38" rx="22" ry="4" fill="none" stroke={color} strokeWidth="1.8" opacity="0.85" />
+        </>
+      ) : kind === 'proj' ? (
+        <>
+          <circle cx="18" cy="32" r="5" fill={color} />
+          <line x1="25" y1="30" x2="54" y2="30" stroke={accent} strokeWidth="2.4" strokeDasharray="5 2" />
+          <circle cx="60" cy="30" r="5.5" fill={accent} />
+          <circle cx="60" cy="30" r="9" fill="none" stroke="#fde047" strokeWidth="1.4" opacity="0.7" />
+        </>
+      ) : kind === 'beam' ? (
+        <>
+          <circle cx="16" cy="32" r="5" fill={color} />
+          <rect x="22" y="25" width="48" height="10" rx="5" fill={accent} opacity="0.4" />
+          <line x1="23" y1="30" x2="68" y2="30" stroke="#ffffff" strokeWidth="2.6" strokeLinecap="round" />
+        </>
+      ) : kind === 'smash' ? (
+        <>
+          <circle cx="24" cy="32" r="5" fill={color} />
+          <path d="M32,14 Q52,24 38,38" fill="none" stroke="#f97316" strokeWidth="4" strokeLinecap="round" />
+          <path d="M46,28 L66,18 M60,17 L67,18 L63,24" fill="none" stroke="#fde047" strokeWidth="2" strokeLinecap="round" />
+        </>
+      ) : (
+        <>
+          <circle cx="24" cy="32" r="5" fill={color} />
+          <path d="M32,18 Q48,26 36,38" fill="none" stroke={color} strokeWidth="3.2" strokeLinecap="round" />
+          <path d="M44,28 L58,24" fill="none" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
+        </>
+      )}
+    </svg>
+  )
+}
+
 function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; onClose: () => void }) {
   const [cid, setCid] = useState<CharacterId>(initialChar)
   usePadMenu(true, onClose, (_id, dx, dy) => {
@@ -911,52 +992,72 @@ function CharGuideModal({ initialChar, onClose }: { initialChar: CharacterId; on
             {MOVE_SECTIONS.map((sec) => {
               const rendered = sec.items.map((item, idx) => {
                 if (item.kind === 'static') {
+                  const dKind = item.code === 'N-Air' ? 'nair' : item.code === 'D-Air' ? 'dair' : item.code === 'GRAB' ? 'grab' : 'shield'
                   return (
-                    <div key={`${sec.badge}-${idx}`} className="rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-[11px]">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="rounded px-1.5 py-0.5 text-[9px] font-black shrink-0" style={{ backgroundColor: `${sec.color}25`, color: sec.color }}>{item.code}</span>
-                          <span className="font-black text-white truncate">{item.name}</span>
+                    <div key={`${sec.badge}-${idx}`} className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-[11px]">
+                      <MoveDiagram kind={dKind} color={c.color} accent={sec.color} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="rounded px-1.5 py-0.5 text-[9px] font-black shrink-0" style={{ backgroundColor: `${sec.color}25`, color: sec.color }}>{item.code}</span>
+                            <span className="font-black text-white truncate">{item.name}</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-cyan-300 shrink-0">{item.input}</span>
                         </div>
-                        <span className="text-[10px] font-mono text-cyan-300 shrink-0">{item.input}</span>
+                        <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px] text-white/60">
+                          <span>傷害 {item.damage}</span>
+                          <span>· 擊飛 {item.kb}</span>
+                        </div>
+                        <div className="mt-0.5 text-[10px] text-white/55">{item.note}</div>
                       </div>
-                      <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px] text-white/60">
-                        <span>傷害 {item.damage}</span>
-                        <span>· 擊飛 {item.kb}</span>
-                      </div>
-                      <div className="mt-0.5 text-[10px] text-white/55">{item.note}</div>
                     </div>
                   )
                 }
                 const sk = getSkill(c.loadout[item.key])
                 if (!sk) return null
+                const dKind = item.key === 'ult'
+                  ? 'ult'
+                  : item.key.endsWith(':up')
+                    ? 'up'
+                    : item.key.endsWith(':down')
+                      ? 'down'
+                      : item.key.startsWith('smash')
+                        ? 'smash'
+                        : sk.projectile?.pierce
+                          ? 'beam'
+                          : sk.projectile || item.key === 'skill1' || item.key === 'skill2'
+                            ? 'proj'
+                            : 'melee'
                 return (
-                  <div key={item.key} className="rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-[11px]">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="rounded px-1.5 py-0.5 text-[9px] font-black shrink-0" style={{ backgroundColor: `${sec.color}25`, color: sec.color }}>{item.code}</span>
-                        <span className="font-black text-white truncate">{sk.name}</span>
+                  <div key={item.key} className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-black/35 px-2.5 py-1.5 text-[11px]">
+                    <MoveDiagram kind={dKind} color={c.color} accent={sec.color} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="rounded px-1.5 py-0.5 text-[9px] font-black shrink-0" style={{ backgroundColor: `${sec.color}25`, color: sec.color }}>{item.code}</span>
+                          <span className="font-black text-white truncate">{sk.name}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-cyan-300 shrink-0">{item.input}</span>
                       </div>
-                      <span className="text-[10px] font-mono text-cyan-300 shrink-0">{item.input}</span>
-                    </div>
-                    <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px] text-white/60">
-                      <span>傷害 {Math.round(sk.damage * 10) / 10}%</span>
-                      <span>· 擊飛 {sk.knockback.base}+{sk.knockback.scaling}×</span>
-                      {sk.cooldownMs ? <span>· CD {(sk.cooldownMs * 0.5 / 1000).toFixed(1)}s</span> : null}
-                      {sk.charge && <span className="text-yellow-300">· 按住蓄力</span>}
-                      {sk.requiresUlt && <span className="text-amber-300">· 需大招球(5下)</span>}
-                    </div>
-                    <div className="mt-0.5 text-[10px] text-white/50">
-                      {sk.projectile
-                        ? sk.projectile.explodeRadius
-                          ? '💥 爆裂彈道'
-                          : sk.projectile.pierce
-                            ? '⚡ 貫穿光束'
-                            : '🎯 遠程彈幕'
-                        : sk.hitbox
-                          ? '⚔️ 近身打擊'
-                          : '✨ 特殊技 / 位移'}
-                      {sk.chain ? ' · 連按可續接連段' : ''}
+                      <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px] text-white/60">
+                        <span>傷害 {Math.round(sk.damage * 10) / 10}%</span>
+                        <span>· 擊飛 {sk.knockback.base}+{sk.knockback.scaling}×</span>
+                        {sk.cooldownMs ? <span>· CD {(sk.cooldownMs * 0.38 / 1000).toFixed(1)}s</span> : null}
+                        {sk.charge && <span className="text-yellow-300">· 按住蓄力</span>}
+                        {sk.requiresUlt && <span className="text-amber-300">· 需大招球(5下)</span>}
+                      </div>
+                      <div className="mt-0.5 text-[10px] text-white/50">
+                        {sk.projectile
+                          ? sk.projectile.explodeRadius
+                            ? '💥 爆裂彈道'
+                            : sk.projectile.pierce
+                              ? '⚡ 貫穿光束'
+                              : '🎯 遠程彈幕'
+                          : sk.hitbox
+                            ? '⚔️ 近身打擊'
+                            : '✨ 特殊技 / 位移'}
+                        {sk.chain ? ' · 連按可續接連段' : ''}
+                      </div>
                     </div>
                   </div>
                 )
