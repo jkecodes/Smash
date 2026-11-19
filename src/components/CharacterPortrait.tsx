@@ -1,4 +1,4 @@
-﻿import { useId } from 'react'
+import { useId } from 'react'
 import { PARTNERS } from '../game/partners'
 import type { CharacterId } from '../game/types'
 
@@ -87,7 +87,7 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   anis: { bg: '#422006', hair: '#facc15', outfit: '#27272a', accent: '#fb923c', eye: '#f59e0b', bobHair: true },
   erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'miramira', 'bakugo', 'sukuna', 'duo'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'miramira', 'bakugo', 'sukuna', 'duo', 'samura', 'sojo'].includes(p.id))
       .map((p) => [p.id, p.portrait]),
   ) as Partial<Record<CharacterId, any>>),
 }
@@ -720,6 +720,53 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M40,80 L80,80 L86,120 L34,120 Z" fill="#1e3a4c" />
           {/* 紅色彎鉤魔杖 */}
           <path d="M24,116 L36,74 Q42,60 52,68" fill="none" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" />
+        </>
+      )}
+      {id === 'samura' && (
+        <>
+          <rect width="120" height="120" fill="#1c1917" />
+          <circle cx="60" cy="60" r="52" fill="#f59e0b" opacity="0.14" />
+          {/* 黑色西裝＋敞開白襯衫領口 */}
+          <path d="M18,120 L28,84 L92,84 L102,120 Z" fill="#18181b" />
+          <polygon points="44,84 60,114 76,84" fill="#f8fafc" />
+          <path d="M44,84 L54,96 L60,112 L66,96 L76,84" fill="none" stroke="#cbd5e1" strokeWidth="2" />
+          {/* 臉部＋捲曲黑髮 */}
+          <ellipse cx="60" cy="56" rx="26" ry="30" fill="#f5d5be" />
+          <path d="M28,54 Q26,20 60,16 Q94,20 92,54 Q88,36 74,34 Q68,46 60,36 Q50,48 42,36 Q32,42 28,54 Z" fill="#09090b" />
+          {/* 雙眼縱向白色刀疤 */}
+          <path d="M44,36 L42,74" stroke="#ffffff" strokeWidth="2.4" opacity="0.85" strokeLinecap="round" />
+          <path d="M76,36 L78,74" stroke="#ffffff" strokeWidth="2.4" opacity="0.85" strokeLinecap="round" />
+          {/* 經典窄版黑色小墨鏡 */}
+          <rect x="33" y="51" width="22" height="10" rx="4" fill="#09090b" stroke="#52525b" strokeWidth="1.4" />
+          <rect x="65" y="51" width="22" height="10" rx="4" fill="#09090b" stroke="#52525b" strokeWidth="1.4" />
+          <line x1="55" y1="55" x2="65" y2="55" stroke="#52525b" strokeWidth="2" />
+          {/* 下巴鬍渣與嚴肅神情 */}
+          <path d="M51,73 L69,73" stroke="#7c4a32" strokeWidth="2" strokeLinecap="round" />
+          <path d="M53,82 L53,85 M57,83 L57,86 M61,83 L61,86 M65,83 L65,86 M68,82 L68,85" stroke="#27272a" strokeWidth="1.6" strokeLinecap="round" />
+        </>
+      )}
+      {id === 'sojo' && (
+        <>
+          <rect width="120" height="120" fill="#082f49" />
+          {/* 白色閃電背景 */}
+          <path d="M16,18 L34,48 L22,52 L42,88" fill="none" stroke="#e0f2fe" strokeWidth="2.5" opacity="0.7" />
+          <path d="M104,20 L86,50 L98,56 L78,90" fill="none" stroke="#38bdf8" strokeWidth="2.5" opacity="0.7" />
+          {/* 黑大衣＋白毛領 */}
+          <path d="M16,120 L26,84 L94,84 L104,120 Z" fill="#09090b" />
+          <path d="M24,86 Q40,76 60,88 Q80,76 96,86 Q88,100 60,98 Q32,100 24,86 Z" fill="#f8fafc" />
+          {/* 凌亂狂野中長黑髮 */}
+          <path d="M22,74 Q16,24 60,14 Q104,24 98,74 L86,58 L82,34 L68,46 L60,26 L48,44 L36,34 L32,58 Z" fill="#09090b" />
+          <ellipse cx="60" cy="56" rx="24" ry="26" fill="#f3d8c7" />
+          <path d="M32,44 L44,28 L52,44 L62,26 L72,44 L84,30 L88,46" fill="#09090b" />
+          {/* 重黑眼圈＋瘋狂瞪大雙眼 */}
+          <ellipse cx="47" cy="54" rx="8.5" ry="7.5" fill="#ffffff" stroke="#18181b" strokeWidth="2.4" />
+          <ellipse cx="73" cy="54" rx="8.5" ry="7.5" fill="#ffffff" stroke="#18181b" strokeWidth="2.4" />
+          <circle cx="47" cy="54" r="2.6" fill="#09090b" />
+          <circle cx="73" cy="54" r="2.6" fill="#09090b" />
+          <path d="M39,62 Q47,65 55,61 M65,61 Q73,65 81,62" fill="none" stroke="#52525b" strokeWidth="1.5" />
+          {/* 狂笑露齒大嘴 */}
+          <path d="M44,68 Q60,82 76,68 Z" fill="#ffffff" stroke="#18181b" strokeWidth="2" />
+          <line x1="48" y1="72" x2="72" y2="72" stroke="#18181b" strokeWidth="1.2" />
         </>
       )}
       {id === 'duo' && (

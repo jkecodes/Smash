@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { runtime } from '../game/runtime'
@@ -49,7 +49,7 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   anis: { body: '#18181b', hair: '#eab308', accent: '#f97316', prop: 'rifle', style: 'gun' },
   erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'bakugo', 'sukuna', 'duo'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'bakugo', 'sukuna', 'duo', 'samura', 'sojo'].includes(p.id))
       .map((p) => [p.id, p.preset]),
   ) as Record<string, AnimePreset>),
 }
@@ -1153,6 +1153,75 @@ export function RetroAvatar({ id, charId, hideProps = false }: { id: FighterId; 
           <group ref={animB} position={[-0.3, 0.02, 0.1]}>
             <mesh><cylinderGeometry args={[0.15, 0.13, 0.32, 10]} /><meshStandardMaterial color="#14532d" /></mesh>
             <mesh position={[0, 0.04, 0]}><torusGeometry args={[0.15, 0.028, 6, 12]} /><meshStandardMaterial color="#cbd5e1" /></mesh>
+          </group>
+        </group>
+      )}
+
+      {charId === 'samura' && (
+        <group>
+          {/* 座村清市：黑西裝＋敞開白襯衫＋捲黑髮＋雙眼刀疤＋窄版黑墨鏡＋下巴鬍渣＋黑刀飛宗 */}
+          <mesh position={[0, -0.16, 0]} castShadow><cylinderGeometry args={[0.2, 0.3, 0.56, 12]} /><meshStandardMaterial color="#18181b" /></mesh>
+          <mesh position={[0, -0.02, 0.16]}><boxGeometry args={[0.18, 0.34, 0.08]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+          <mesh position={[0, 0.34, 0.02]} castShadow><sphereGeometry args={[0.21, 14, 14]} /><meshStandardMaterial color="#f5d5be" /></mesh>
+          {/* 捲曲黑髮 */}
+          <mesh position={[0, 0.4, -0.04]}><sphereGeometry args={[0.23, 14, 12]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[-0.14, 0.46, 0.1]}><sphereGeometry args={[0.09, 8, 8]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[0.14, 0.46, 0.1]}><sphereGeometry args={[0.09, 8, 8]} /><meshStandardMaterial color="#09090b" /></mesh>
+          {/* 縱向白色雙眼刀疤 */}
+          <mesh position={[-0.08, 0.33, 0.215]}><boxGeometry args={[0.022, 0.2, 0.015]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          <mesh position={[0.08, 0.33, 0.215]}><boxGeometry args={[0.022, 0.2, 0.015]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          {/* 窄版黑色小墨鏡 */}
+          <mesh position={[-0.08, 0.35, 0.23]}><boxGeometry args={[0.11, 0.055, 0.03]} /><meshStandardMaterial color="#09090b" metalness={0.8} roughness={0.15} /></mesh>
+          <mesh position={[0.08, 0.35, 0.23]}><boxGeometry args={[0.11, 0.055, 0.03]} /><meshStandardMaterial color="#09090b" metalness={0.8} roughness={0.15} /></mesh>
+          <mesh position={[0, 0.355, 0.23]}><boxGeometry args={[0.06, 0.018, 0.02]} /><meshStandardMaterial color="#52525b" /></mesh>
+          {/* 下巴鬍渣 */}
+          <mesh position={[0, 0.18, 0.18]}><boxGeometry args={[0.1, 0.03, 0.04]} /><meshStandardMaterial color="#27272a" /></mesh>
+          {/* 右手持黑刃飛宗 */}
+          <group ref={animA} position={[0.25, 0.06, 0]}>
+            <mesh position={[0, -0.12, 0.06]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color="#18181b" /></mesh>
+            {!hideProps && (
+              <group position={[0, -0.04, 0.36]} rotation={[0.95, 0, 0]}>
+                <mesh position={[0, 0.28, 0]}><boxGeometry args={[0.042, 0.72, 0.075]} /><meshStandardMaterial color="#09090b" metalness={0.9} roughness={0.15} /></mesh>
+                <mesh position={[0, -0.08, 0]}><boxGeometry args={[0.14, 0.04, 0.14]} /><meshStandardMaterial color="#52525b" /></mesh>
+              </group>
+            )}
+          </group>
+          <group ref={animB} position={[-0.25, 0.06, 0]}>
+            <mesh position={[0, -0.12, 0.04]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color="#18181b" /></mesh>
+          </group>
+        </group>
+      )}
+
+      {charId === 'sojo' && (
+        <group>
+          {/* 雙城嚴一：黑大衣＋蓬鬆白毛領＋狂野凌亂黑髮＋重黑眼圈瘋狂大眼＋狂笑＋刳雲（金鍔銀刃） */}
+          <mesh position={[0, -0.16, 0]} castShadow><cylinderGeometry args={[0.2, 0.32, 0.56, 12]} /><meshStandardMaterial color="#09090b" /></mesh>
+          {/* 白毛大衣領 */}
+          <mesh position={[0, 0.12, 0]}><torusGeometry args={[0.24, 0.095, 8, 16]} /><meshStandardMaterial color="#f8fafc" roughness={0.85} /></mesh>
+          <mesh position={[0, 0.35, 0.02]} castShadow><sphereGeometry args={[0.2, 14, 14]} /><meshStandardMaterial color="#f3d8c7" /></mesh>
+          {/* 凌亂狂野中長黑髮 */}
+          <mesh position={[0, 0.4, -0.05]}><sphereGeometry args={[0.23, 14, 12]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[-0.2, 0.32, -0.02]} rotation={[0, 0, 0.35]}><coneGeometry args={[0.09, 0.34, 6]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[0.2, 0.32, -0.02]} rotation={[0, 0, -0.35]}><coneGeometry args={[0.09, 0.34, 6]} /><meshStandardMaterial color="#09090b" /></mesh>
+          <mesh position={[0, 0.52, 0.02]} rotation={[0.3, 0, 0]}><coneGeometry args={[0.12, 0.24, 6]} /><meshStandardMaterial color="#09090b" /></mesh>
+          {/* 瞪大白眼＋極細瞳孔＋露齒狂笑 */}
+          <mesh position={[-0.075, 0.36, 0.195]}><sphereGeometry args={[0.052, 10, 10]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          <mesh position={[0.075, 0.36, 0.195]}><sphereGeometry args={[0.052, 10, 10]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          <mesh position={[-0.075, 0.36, 0.24]}><sphereGeometry args={[0.02, 8, 8]} /><meshBasicMaterial color="#09090b" /></mesh>
+          <mesh position={[0.075, 0.36, 0.24]}><sphereGeometry args={[0.02, 8, 8]} /><meshBasicMaterial color="#09090b" /></mesh>
+          <mesh position={[0, 0.25, 0.195]}><boxGeometry args={[0.13, 0.045, 0.03]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          {/* 右手持妖刀刳雲（銀白電光刃＋金鍔） */}
+          <group ref={animA} position={[0.25, 0.06, 0]}>
+            <mesh position={[0, -0.12, 0.06]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color="#09090b" /></mesh>
+            {!hideProps && (
+              <group position={[0, -0.04, 0.36]} rotation={[0.95, 0, 0]}>
+                <mesh position={[0, 0.28, 0]}><boxGeometry args={[0.04, 0.72, 0.072]} /><meshStandardMaterial color="#e0f2fe" emissive="#38bdf8" emissiveIntensity={0.65} metalness={0.85} roughness={0.15} /></mesh>
+                <mesh position={[0, -0.08, 0]}><cylinderGeometry args={[0.085, 0.085, 0.035, 12]} /><meshStandardMaterial color="#eab308" metalness={0.8} roughness={0.2} /></mesh>
+              </group>
+            )}
+          </group>
+          <group ref={animB} position={[-0.25, 0.06, 0]}>
+            <mesh position={[0, -0.12, 0.04]}><boxGeometry args={[0.11, 0.28, 0.12]} /><meshStandardMaterial color="#09090b" /></mesh>
           </group>
         </group>
       )}
