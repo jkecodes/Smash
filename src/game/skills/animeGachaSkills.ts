@@ -1,4 +1,4 @@
-﻿import { registerSkill } from './registry'
+import { registerSkill } from './registry'
 import { registerSmashes, registerTilts } from './directionalSkills'
 import { CHAR_PROFILES, applyJabTraitFx } from './charSkillProfiles'
 import { PARTNERS, partnerHas } from '../partners'
@@ -192,6 +192,7 @@ const SUMMON_DOWN_CONFIG: Record<string, {
   omnom: { kind: 'puppet', behavior: 'chase', durationMs: 7500, fireIntervalMs: 650, damage: 8.5, kbBase: 9, kbScaling: 10, speed: 9.2, radius: 0.52, color: '#84cc16', explodeOnHit: true },
   blinky: { kind: 'spirit', behavior: 'chase', durationMs: 8000, fireIntervalMs: 700, damage: 5.5, kbBase: 7, kbScaling: 8, speed: 8.2, radius: 0.52, color: '#ef4444', explodeOnHit: false },
   angelo: { kind: 'spirit', behavior: 'chase', durationMs: 8500, fireIntervalMs: 700, damage: 6, kbBase: 7.5, kbScaling: 8.5, speed: 8.8, radius: 0.54, color: '#06b6d4', explodeOnHit: false },
+  duo: { kind: 'spirit', behavior: 'chase', durationMs: 8000, fireIntervalMs: 650, damage: 7.5, kbBase: 8.5, kbScaling: 9.5, speed: 9.5, radius: 0.55, color: '#f97316', explodeOnHit: true },
 }
 
 function hitVfx(c: any, color: string, p: string, r: number, flip = false) {

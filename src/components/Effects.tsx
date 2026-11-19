@@ -11,7 +11,7 @@ const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
 
 type FxStyle = 'pixel' | 'katana' | 'magic' | 'martial' | 'cute'
 const PIXEL_CHARS = new Set<CharacterId>(['tetro', 'pong', 'invader', 'snake', 'crossy', 'steve', 'frogger', 'pacman'])
-const KATANA_CHARS = new Set<CharacterId>(['chihiro', 'miyabi', 'yodaka', 'rover', 'samura', 'youmu', 'erika', 'hibari', 'lumine'])
+const KATANA_CHARS = new Set<CharacterId>(['chihiro', 'miyabi', 'yodaka', 'rover', 'samura', 'sojo', 'youmu', 'erika', 'hibari', 'lumine'])
 const MAGIC_CHARS = new Set<CharacterId>(['reimu', 'marisa', 'nona', 'ichi', 'arisa', 'yugi', 'kaiba', 'angelo', 'desscaras', 'jinhsi'])
 const MARTIAL_CHARS = new Set<CharacterId>(['ryu', 'chunli', 'deku', 'gojo', 'kong', 'red', 'josuke', 'sukuna', 'bakugo', 'hakuri'])
 
@@ -949,6 +949,18 @@ function ProjectileView({ p }: { p: Projectile }) {
             {/* 座村清市：飛宗黑金鴉羽斬波 */}
             <mesh rotation={[0, 0, Math.PI / 4]}><boxGeometry args={[r * 2.1, r * 0.42, r * 0.16]} /><meshStandardMaterial color="#0f172a" emissive="#f59e0b" emissiveIntensity={1.1} /></mesh>
             <mesh><torusGeometry args={[r * 1.05, 0.08, 8, 20]} /><meshBasicMaterial color="#fbbf24" transparent opacity={0.85} blending={ADD} depthWrite={false} /></mesh>
+          </>
+        ) : charId === 'sojo' ? (
+          <>
+            {/* 雙城嚴一：刳雲「鳴」雷電斬波 */}
+            <mesh rotation={[0, 0, Math.PI / 6]}><boxGeometry args={[r * 2.2, r * 0.36, r * 0.2]} /><meshStandardMaterial color="#e0f2fe" emissive="#38bdf8" emissiveIntensity={1.4} /></mesh>
+            <mesh><torusGeometry args={[r * 1.1, 0.09, 8, 18]} /><meshBasicMaterial color="#38bdf8" transparent opacity={0.9} blending={ADD} depthWrite={false} /></mesh>
+          </>
+        ) : charId === 'duo' ? (
+          <>
+            {/* Duolingo 貓頭鷹：綠色通知炸彈 */}
+            <mesh><sphereGeometry args={[r * 0.95, 14, 12]} /><meshStandardMaterial color="#58cc02" emissive="#89e219" emissiveIntensity={0.8} /></mesh>
+            <mesh position={[0, r * 0.5, r * 0.45]}><sphereGeometry args={[r * 0.36, 10, 10]} /><meshBasicMaterial color="#ef4444" /></mesh>
           </>
         ) : (
           <>

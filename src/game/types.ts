@@ -27,7 +27,7 @@ export type CharacterId =
   | 'firefly' | 'ellen' | 'jinhsi' | 'anis' | 'erika' | 'vaus'
   | 'mino' | 'ufo' | 'blackbomber' | 'viper' | 'ladyfrog' | 'paddle' | 'omnelle' | 'ducky'
   | 'hakuri' | 'desscaras' | 'umi' | 'miramira' | 'sukuna' | 'bakugo' | 'hibari' | 'rintaro' | 'hajime' | 'doh'
-  | 'josuke' | 'angelo' | 'samura'
+  | 'josuke' | 'angelo' | 'samura' | 'sojo' | 'duo'
 export type FsmState =
   | 'IDLE' | 'RUN' | 'JUMP'
   | 'ATTACK_STARTUP' | 'ATTACK_ACTIVE' | 'ATTACK_RECOVERY'

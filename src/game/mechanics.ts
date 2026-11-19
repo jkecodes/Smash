@@ -40,6 +40,8 @@ const CHAR_MECHANIC: Partial<Record<CharacterId, { kind: MechanicKind; label: st
   sukuna: { kind: 'awaken', label: '👹 伏魔御廚子覺醒', color: '#ef4444' },
   bakugo: { kind: 'ko', label: '💥 爆破汗液臨界', color: '#fb923c' },
   desscaras: { kind: 'mana', label: '🪶 深淵魔女魔力', color: '#a855f7' },
+  sojo: { kind: 'limit', label: '⚡ 刳雲「鳴」過載', color: '#38bdf8' },
+  duo: { kind: 'ko', label: '🔥 連勝中斷狂怒', color: '#58cc02' },
 }
 
 export function getMechanicDef(charId: CharacterId) {

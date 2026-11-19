@@ -49,7 +49,7 @@ const ANIME_PRESETS: Partial<Record<CharacterId, AnimePreset>> = {
   anis: { body: '#18181b', hair: '#eab308', accent: '#f97316', prop: 'rifle', style: 'gun' },
   erika: { body: '#312e81', hair: '#1e293b', accent: '#facc15', prop: 'katana', style: 'sword' },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'bakugo', 'sukuna'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'bakugo', 'sukuna', 'duo'].includes(p.id))
       .map((p) => [p.id, p.preset]),
   ) as Record<string, AnimePreset>),
 }
@@ -1154,6 +1154,32 @@ export function RetroAvatar({ id, charId, hideProps = false }: { id: FighterId; 
             <mesh><cylinderGeometry args={[0.15, 0.13, 0.32, 10]} /><meshStandardMaterial color="#14532d" /></mesh>
             <mesh position={[0, 0.04, 0]}><torusGeometry args={[0.15, 0.028, 6, 12]} /><meshStandardMaterial color="#cbd5e1" /></mesh>
           </group>
+        </group>
+      )}
+
+      {charId === 'duo' && (
+        <group>
+          {/* Duolingo 綠色貓頭鷹 Duo：圓潤綠羽身體＋淺綠肚羽＋雙耳羽＋超大凝視白眼＋橘黃鳥喙＋雙翼 */}
+          <mesh position={[0, 0.04, 0]} castShadow><sphereGeometry args={[0.42, 16, 14]} /><meshStandardMaterial color="#58cc02" roughness={0.45} /></mesh>
+          <mesh position={[0, -0.05, 0.24]}><sphereGeometry args={[0.28, 12, 12]} /><meshStandardMaterial color="#89e219" roughness={0.5} /></mesh>
+          {/* 貓頭鷹頭頂羽角 */}
+          <mesh position={[-0.24, 0.42, 0.02]} rotation={[0, 0, 0.35]}><coneGeometry args={[0.12, 0.24, 8]} /><meshStandardMaterial color="#58cc02" /></mesh>
+          <mesh position={[0.24, 0.42, 0.02]} rotation={[0, 0, -0.35]}><coneGeometry args={[0.12, 0.24, 8]} /><meshStandardMaterial color="#58cc02" /></mesh>
+          {/* 淺綠眼眶＋巨大白眼＋黑瞳孔 */}
+          <mesh position={[-0.15, 0.16, 0.34]}><sphereGeometry args={[0.15, 12, 12]} /><meshStandardMaterial color="#89e219" /></mesh>
+          <mesh position={[0.15, 0.16, 0.34]}><sphereGeometry args={[0.15, 12, 12]} /><meshStandardMaterial color="#89e219" /></mesh>
+          <mesh position={[-0.15, 0.16, 0.4]}><sphereGeometry args={[0.115, 12, 12]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          <mesh position={[0.15, 0.16, 0.4]}><sphereGeometry args={[0.115, 12, 12]} /><meshBasicMaterial color="#ffffff" /></mesh>
+          <mesh position={[-0.14, 0.16, 0.49]}><sphereGeometry args={[0.055, 8, 8]} /><meshBasicMaterial color="#09090b" /></mesh>
+          <mesh position={[0.14, 0.16, 0.49]}><sphereGeometry args={[0.055, 8, 8]} /><meshBasicMaterial color="#09090b" /></mesh>
+          {/* 亮黃橘鳥喙 */}
+          <mesh position={[0, 0.04, 0.44]} rotation={[Math.PI / 2, 0, 0]}><coneGeometry args={[0.1, 0.18, 6]} /><meshStandardMaterial color="#f59e0b" /></mesh>
+          {/* 左右翅膀 */}
+          <group ref={animA} position={[0.38, 0.02, 0]}><mesh rotation={[0, 0, -0.3]}><boxGeometry args={[0.24, 0.34, 0.1]} /><meshStandardMaterial color="#58cc02" /></mesh></group>
+          <group ref={animB} position={[-0.38, 0.02, 0]}><mesh rotation={[0, 0, 0.3]}><boxGeometry args={[0.24, 0.34, 0.1]} /><meshStandardMaterial color="#58cc02" /></mesh></group>
+          {/* 橘色小腳 */}
+          <mesh position={[-0.14, -0.4, 0.06]}><boxGeometry args={[0.14, 0.08, 0.2]} /><meshStandardMaterial color="#f97316" /></mesh>
+          <mesh position={[0.14, -0.4, 0.06]}><boxGeometry args={[0.14, 0.08, 0.2]} /><meshStandardMaterial color="#f97316" /></mesh>
         </group>
       )}
 

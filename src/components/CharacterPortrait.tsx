@@ -87,7 +87,7 @@ const ANIME_PORTRAITS: Partial<Record<CharacterId, { bg: string; hair: string; o
   anis: { bg: '#422006', hair: '#facc15', outfit: '#27272a', accent: '#fb923c', eye: '#f59e0b', bobHair: true },
   erika: { bg: '#1e1b4b', hair: '#1e293b', outfit: '#312e81', accent: '#facc15', eye: '#818cf8' },
   ...(Object.fromEntries(
-    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'miramira', 'bakugo', 'sukuna'].includes(p.id))
+    PARTNERS.filter((p) => !['mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky', 'doh', 'desscaras', 'miramira', 'bakugo', 'sukuna', 'duo'].includes(p.id))
       .map((p) => [p.id, p.portrait]),
   ) as Partial<Record<CharacterId, any>>),
 }
@@ -720,6 +720,28 @@ export function CharacterPortrait({ id, className = '' }: { id: CharacterId | 'r
           <path d="M40,80 L80,80 L86,120 L34,120 Z" fill="#1e3a4c" />
           {/* 紅色彎鉤魔杖 */}
           <path d="M24,116 L36,74 Q42,60 52,68" fill="none" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" />
+        </>
+      )}
+      {id === 'duo' && (
+        <>
+          <rect width="120" height="120" fill="#14532d" />
+          <circle cx="60" cy="60" r="52" fill="#58cc02" opacity="0.25" />
+          {/* 貓頭鷹羽角＋圓臉 */}
+          <polygon points="22,42 36,16 50,36" fill="#58cc02" />
+          <polygon points="98,42 84,16 70,36" fill="#58cc02" />
+          <ellipse cx="60" cy="68" rx="40" ry="38" fill="#58cc02" />
+          {/* 淺綠眼周 */}
+          <circle cx="43" cy="58" r="18" fill="#89e219" />
+          <circle cx="77" cy="58" r="18" fill="#89e219" />
+          {/* 巨大白眼＋黑瞳 */}
+          <circle cx="43" cy="58" r="13" fill="#ffffff" />
+          <circle cx="77" cy="58" r="13" fill="#ffffff" />
+          <circle cx="45" cy="58" r="6.5" fill="#09090b" />
+          <circle cx="75" cy="58" r="6.5" fill="#09090b" />
+          <circle cx="47" cy="55" r="2.2" fill="#ffffff" />
+          <circle cx="77" cy="55" r="2.2" fill="#ffffff" />
+          {/* 橘黃鳥喙 */}
+          <polygon points="52,70 68,70 60,84" fill="#f59e0b" />
         </>
       )}
       {id === 'desscaras' && (

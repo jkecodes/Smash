@@ -30,10 +30,10 @@ const getStage = () => resolveStage(store().stageId, store().stageForm)
 
 export const GROUP_FIGHTER_IDS = new Set([
   'bomber', 'blackbomber', 'reimu', 'marisa', 'nona', 'jinhsi', 'angelo',
-  'bakugo', 'sukuna', 'ruri', 'anis', 'vaus', 'doh', 'firefly', 'omnom', 'creeper', 'desscaras', 'gojo',
+  'bakugo', 'sukuna', 'ruri', 'anis', 'vaus', 'doh', 'firefly', 'omnom', 'creeper', 'desscaras', 'gojo', 'duo',
 ])
 export const DUEL_FIGHTER_IDS = new Set([
-  'chihiro', 'samura', 'miyabi', 'youmu', 'yodaka', 'hibari', 'erika',
+  'chihiro', 'samura', 'sojo', 'miyabi', 'youmu', 'yodaka', 'hibari', 'erika',
   'ryu', 'chunli', 'ellen', 'josuke', 'hakuri', 'deku', 'spe', 'suzuka', 'seija', 'rover',
 ])
 

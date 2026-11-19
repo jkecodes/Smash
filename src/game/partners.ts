@@ -5,7 +5,7 @@
 export const PARTNER_IDS = [
   'mino', 'ufo', 'blackbomber', 'viper', 'ladyfrog', 'paddle', 'omnelle', 'ducky',
   'hakuri', 'desscaras', 'umi', 'miramira', 'sukuna', 'bakugo', 'hibari', 'rintaro', 'hajime', 'doh',
-  'josuke', 'angelo', 'samura',
+  'josuke', 'angelo', 'samura', 'sojo', 'duo',
 ] as const
 export type PartnerId = typeof PARTNER_IDS[number]
 
@@ -393,6 +393,38 @@ export const PARTNERS: PartnerSpec[] = [
       ult: { name: '飛宗・極「梟・鴉・雀」萬羽絕斬！', kind: 'omnislash', color: '#f59e0b' },
     },
     flags: ['charge', 'tpSide', 'tpUp'],
+  },
+  {
+    id: 'sojo', name: 'SOJO 雙城嚴一', short: 'SOJO', color: '#38bdf8', partnerOf: 'chihiro',
+    scale: 1.0, speedMult: 1.12, damageMult: 1.14, weightMult: 0.98,
+    trait: '⚡ 神樂缽・妖刀「刳雲」狂熱劍客！雷電「鳴」瞬閃、冰結「結」反擊與雷暴領域。',
+    portrait: { bg: '#082f49', hair: '#09090b', outfit: '#18181b', accent: '#38bdf8', eye: '#38bdf8', shortHair: true },
+    preset: { body: '#18181b', hair: '#09090b', accent: '#38bdf8', bladeColor: '#bae6fd', prop: 'katana', style: 'sword', shortHair: true },
+    kit: {
+      a1: '刳雲・雷光斬', a2: '雙城狂連斬', tilts: ['雷刃橫劈', '冰錐上挑', '水壓下斬'],
+      s1: { name: '刳雲「鳴」雷電貫穿', projColor: '#38bdf8', pierce: true, speed: 25 },
+      side: '「鳴」雷電纏身瞬閃', up: '「降」雷雲昇空', down: '「結」冰結反擊',
+      s2: { name: '「降×結」冰雷暴領域', kind: 'zone', color: '#0ea5e9' },
+      smashes: ['刳雲・落雷重斬', '鳴・天雷昇龍', '結・冰柱碎地'],
+      ult: { name: '妖刀「刳雲」鳴・結・降 真領域爆發！', kind: 'omnislash', color: '#38bdf8' },
+    },
+    flags: ['charge', 'tpSide', 'tpUp', 'counter'],
+  },
+  {
+    id: 'duo', name: 'DUO 多鄰國貓頭鷹', short: 'DUO', color: '#58cc02', partnerOf: 'red',
+    scale: 0.96, speedMult: 1.1, damageMult: 1.1, weightMult: 0.94, extraJumps: 4,
+    trait: '🦉 Duolingo・綠色貓頭鷹催課狂魔！提醒炸彈、連勝凍結結界與連勝火焰召喚！',
+    portrait: { bg: '#14532d', hair: '#58cc02', outfit: '#58cc02', accent: '#facc15', eye: '#ffffff', shortHair: true },
+    preset: { body: '#58cc02', hair: '#58cc02', accent: '#facc15', prop: 'orb', style: 'martial', shortHair: true },
+    kit: {
+      a1: '羽翼巴掌', a2: '連勝猛啄', tilts: ['語法重擊', '單字上挑', '催課下壓'],
+      s1: { name: '「每日提醒」通知炸彈', projColor: '#58cc02', explode: 2.3, speed: 17 },
+      side: '「該上課了！」音速追殺', up: '貓頭鷹滑翔升空', down: '召喚「連勝火焰」',
+      s2: { name: '連勝凍結（Streak Freeze）', kind: 'zone', color: '#38bdf8' },
+      smashes: ['綠色貓頭鷹鐵頭功', '連勝突破沖天', '終極催課重壓'],
+      ult: { name: 'Spanish or Vanish！全場提醒轟炸！', kind: 'rain', color: '#58cc02' },
+    },
+    flags: ['martial', 'windUp', 'trap'],
   },
 ]
 
